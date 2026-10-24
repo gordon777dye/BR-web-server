@@ -57,6 +57,9 @@
 !/web_server_unattended.zip
 !/www/
 
+# BR's headless log (LOGGING in context\dev\tools\brconfig.ai_*), rewritten on every AI run.
+/context/app/startlog.txt
+
 # Runtime contents of the session and spool folders; only the folders themselves are kept.
 /sessions/*
 !/sessions/.gitkeep

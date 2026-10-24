@@ -1,0 +1,65 @@
+# Whitelist: ignore everything at the top level, then re-include what belongs in the repo.
+# Not included: .svn/, .claude-primary/, logs, http_client/, tmp/, older 4.32/2.04 files,
+# generated web_server*.tmp* procs, and the other vendor binaries.
+#
+# context/ has its own .gitignore (the kit's). It was added with "git add -f" to include
+# all of it; files added to context/ later need "git add -f" too.
+/*
+!/.gitignore
+
+!/03 BR WEB SERVER.doc
+!/05 DATA STORE LIBRARY.doc
+!/07 RE-LOGIN.pptx
+!/allow.brs
+!/brclientdll500-x64-Release-gui.dll
+!/brconfig.svc
+!/brconfig.sys
+!/brserver-x64-Release.exe
+!/br_redirect.html
+!/BR_service.txt
+!/challenge.bootstrap.html
+!/challenge.html
+!/challenge.relogin.html
+!/CLAUDE.md
+!/context/
+!/cust_inq.br
+!/cust_inq.br.brs
+!/data/
+!/dim.proc
+!/fileio.br
+!/fileio.br.brs
+!/filelay/
+!/filetypes.txt
+!/HTTPS Certificate Creation and Use.txt
+!/json_analyze.br
+!/json_analyze.br.brs
+!/login.br
+!/login.brs
+!/nssm.exe
+!/relogin.html
+!/sample.br
+!/sample.brs
+!/self.crt
+!/self.key
+!/self.phrase
+!/sessions/
+!/spool/
+!/unauthorized.html
+!/wbcmd.wbh
+!/wbcmd2.wbh
+!/wbcmd3.wbh
+!/webform.br
+!/webform.br.brs
+!/webout.htm
+!/web_server.br
+!/web_server.br.brs
+!/web_server.ini
+!/web_server_unattended.zip
+!/www/
+
+# Runtime contents of the session and spool folders; only the folders themselves are kept.
+/sessions/*
+!/sessions/.gitkeep
+/spool/*
+!/spool/.gitkeep
+!/.gitattributes

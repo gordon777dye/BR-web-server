@@ -1,0 +1,2 @@
+# Store every file byte-for-byte: BR sources are CRLF/CP437 and .br objects are binary.
+* -text

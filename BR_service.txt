@@ -1,0 +1,36 @@
+
+Files needed:
+nssm.exe
+brconfig.svc
+
+Start a CMD shell as Administrator
+
+Issue the Command:
+nssm install brWebServer
+
+Application tab:
+select the br executable
+specify parameter -brconfig.svc
+
+Logon tab:
+Check [x] Allow service to interact with desktop
+(just in case something goes wrong)
+
+Click Install Service
+
+Then issue the Command:
+nssm start brWebServer
+
+======================
+
+This will start a web server running in the background with no taskbar evidence. You will be able to see it in Task Manager and you will be able to watch the log files progress. Additionally the informtion that normally goes to the console will be in a display file named unattended.txt. 
+
+If something happens in either the web server or the a library routine that it calls, which causes the program to wait on the keyboard for any reason, BR will abort and the web server will be restarted. If a hard error makes it restart rapidly, Windows 8 will pause the service. 
+
+======================
+
+To Remove-
+
+Issue the Commands:
+nssm stop brWebServer
+nssm remove brWebServer

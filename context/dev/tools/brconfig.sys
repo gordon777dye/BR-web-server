@@ -1,0 +1,28 @@
+LOGGING 9, brlog.txt
+drive c:,C:\ADS_test\gabriel,\,\brweb ! This drive statement works from any directory
+drive k:,c:\ads_test,x,\test
+wbserver c:
+workstack 500000
+flowstack 1250
+printscreen newpage
+rpnstack 10000
+keyboard 03,01
+style i 3, l mixed, c mixed, k lower
+option 6
+option 8
+option 14
+option 26
+option 43
+option 60
+option 84
+rem option 66 passphrase
+style indent 3 comments mixed
+Baseyear 1950
+wsid=unique
+application_name SageAX Conference Demonstration
+date never
+gui off
+substitute prn:/10 preview:/default
+printer type NWP select preview:
+printer NWP INIT "\E&l0O\E(s2b4102t17H\E&l66p7.6C"  ! portrait compressed ###########
+execute "run web_server"

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Maintain Comments</title>
+  <!-- ***** MAIN INDEX ***** -->
+  <!-- <link rel="stylesheet" href="style-original.css" /> -->
+  <!-- <link rel="shortcut icon" href="/favicon.ico"> -->
+  <!-- <script  type="text/javascript" src="../../common/js/jq-png-min.js"> js-code </script> -->
+</head>
+
+<body>
+
+<h1>BR Web Server</h1>
+
+<p>Welcome to the BR Web Server demo program. You can use this program to record
+comments, which will be displayed when the appropriate button is pressed.</p>
+
+<p>But first you have to login.</p>
+<p><button onclick="login()" autofocus>Login</button></p>
+<script>
+function login()
+{
+   document.location="?BR_FUNC=fnLogin"
+}
+</script>
+</br>
+</br>
+</br>
+<p>However, we can skip logging in and go directly to the home page <a href="/home.html">here</a>.</p>
+
+<!-- -->
+<br><br><br>
+<p id="demo">Click the button to display the date and time as a string, formatted as a JSON date.</p>
+
+<button onclick="myFunction()">Try it</button>
+
+<script>
+function myFunction()
+{
+var d = new Date();
+var x = document.getElementById("demo");
+x.innerHTML=d.toJSON();
+}
+</script>
+<!-- -->
+</body>
+</html>
+

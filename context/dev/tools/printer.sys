@@ -1,0 +1,386 @@
+rem	*****  Establish Linkage
+rem	*****  Apply the NWP substitutions to any printer opened WIN: or PREVIEW:
+rem     *****  Last Revised 07/19/2012
+
+rem Notes-
+rem PRINTER NWP [E], clear		removes entry from the table
+
+rem The following PRINTER statement escapes are supported in PRINTER 
+rem  statement quoted result strings.
+
+rem  \e   \E	0x1B escape
+rem  \n	  newline
+rem  \r	  carriage return
+rem  \t	  tab
+rem  \\	  \
+rem  \f	  0x0C form feed
+rem  \octal number
+
+rem   e.g.  PRINTER WIN: [formfeed],"\f"
+rem         PRINTER WIN: [arg1], "\Exxx\n"
+
+rem Apply the PCL substitutions to any printer opened PRN:
+rem PRINTER TYPE PCL select PRN:
+rem PRINTER TYPE PCL select DIRECT:
+rem PRINTER TYPE NWP select WIN:
+rem PRINTER TYPE NWP select PREVIEW:
+rem PRINTER TYPE NWP select PDF:
+
+rem	*****  Printer Init and Reset for PCL only
+PRINTER PCL INIT HP
+rem PRINTER PCL RESET "\EE"
+PRINTER NWP [CHECKPRINTER], "This is NWP"
+PRINTER PCL [CHECKPRINTER], "This is PCL"
+
+rem	*****  Page Control (These must be done first)
+rem	*****  Portrait, Landscape
+PRINTER NWP [PORTRAIT], "\E&l0O"
+PRINTER NWP [LANDSCAPE], "\E&l1O"
+PRINTER PCL [PORTRAIT], "\E&l0O"
+PRINTER PCL [LANDSCAPE], "\E&l1O"
+	
+rem	*****  Paper Sizes
+PRINTER NWP [EXECUTIVE], "\E&l1A" ! 7.25 x 10.5
+PRINTER NWP [LETTER], "\E&l2A" ! 8.5 x 11
+PRINTER NWP [LEGAL], "\E&l3A" ! 8.5 x 14
+PRINTER NWP [LEDGER], "\E&l6A" ! 11 x 17
+PRINTER NWP [A4PAPER], "\E&l26A" ! 210mm x 297mm
+PRINTER NWP [A7PAPER], "\E&l27A" ! 297mm x 420mm
+PRINTER PCL [EXECUTIVE], "\E&l1A" ! 7.25 x 10.5
+PRINTER PCL [LETTER], "\E&l2A" ! 8.5 x 11
+PRINTER PCL [LEGAL], "\E&l3A" ! 8.5 x 14
+PRINTER PCL [LEDGER], "\E&l6A" ! 11 x 17
+PRINTER PCL [A4PAPER], "\E&l26A" ! 210mm x 297mm
+PRINTER PCL [A7PAPER], "\E&l27A" ! 297mm x 420mm
+
+rem	*****  Envelopes
+PRINTER NWP [MONARCH], "\E&l80A" ! 3 7/8 x 7.5
+PRINTER NWP [COM-10], "\E&l81A" ! 4 1/8 x 9.5
+PRINTER NWP [INTERNATIONAL DL], "\E&l90A" ! 110mm x 220mm
+PRINTER NWP [INTERNATIONAL C5], "\E&l91A" ! 162mm x 229mm
+PRINTER NWP [INTERNATIONAL B5], "\E&l100A" ! 176mm x 250mm
+PRINTER PCL [MONARCH], "\E&l80A" ! 3 7/8 x 7.5
+PRINTER PCL [COM-10], "\E&l81A" ! 4 1/8 x 9.5
+PRINTER PCL [INTERNATIONAL DL], "\E&l90A" ! 110mm x 220mm
+PRINTER PCL [INTERNATIONAL C5], "\E&l91A" ! 162mm x 229mm
+PRINTER PCL [INTERNATIONAL B5], "\E&l100A" ! 176mm x 250mm
+
+
+rem	*****  Paper Source - These are printer specific, so check with your printer
+rem To identify the parameter value use XXX$=ENV$("LAST_TRAY_SELECTED") or XXX$=ENV$("LAST_MEDIA_SELECTED")
+PRINTER NWP [PAPERSOURCE TRAY(XXX)], "\Etray='XXX'"
+PRINTER NWP [PAPERSOURCE MEDIA(XXX)], "\Emedia='XXX'"
+
+PRINTER PCL [PAPERSOURCE AUTO], "\E&l1H" ! Feed from Printer Default
+PRINTER PCL [PAPERSOURCE MANUAL], "\E&l2H" ! Feed from manual feeder
+PRINTER PCL [PAPERSOURCE MANUALENVELOPE], "\E&l3H" ! Feed Envelope from manual feeder
+PRINTER PCL [PAPERSOURCE TRAY2], "\E&l4H" ! Feed from Lower Tray
+PRINTER PCL [PAPERSOURCE OPTIONAL], "\E&l5H" ! Feed from Optional Input
+rem Feed from Optional Envelope Feeder (Must set to Envelope size first)
+PRINTER PCL [PAPERSOURCE OPTIONALENVELOPE], "\E&l6H" 
+PRINTER PCL [PAPERSOURCE(source)], "\E&lsourceH"
+
+rem	*****  Multiple Copies PCL only
+PRINTER PCL [COPIES(xxx)], "\E&lxxxX"
+
+rem	*****  Duplex Mode PCL only
+PRINTER PCL [SIMPLEX], "\E&l0S"
+PRINTER PCL [DUPLEX], "\E&l1S"
+PRINTER PCL [DUPLEX SHORTEDGE], "\E&l2S"
+PRINTER NWP [SIMPLEX], "\E&l0S"
+PRINTER NWP [DUPLEX], "\E&l1S"
+PRINTER NWP [DUPLEX SHORTEDGE], "\E&l2S"
+
+rem	*****  Left Margin in Character Positions
+PRINTER PCL [LEFTMARGIN(XXX)], "\E&aXXXL"
+PRINTER NWP [LEFTMARGIN(XXX)], "\E&aXXXL"
+
+rem	*****  Top Margin in Lines
+PRINTER PCL [TOP0], "\E&l0E"
+PRINTER PCL [TOP1], "\E&l1E"
+PRINTER PCL [TOP2], "\E&l2E"
+PRINTER PCL [TOP3], "\E&l3E"
+PRINTER PCL [TOP4], "\E&l4E"
+PRINTER PCL [TOP5], "\E&l5E"
+PRINTER PCL [TOP(xx)], "\E&lxxE"
+PRINTER NWP [TOP0], "\E&l0E"
+PRINTER NWP [TOP1], "\E&l1E"
+PRINTER NWP [TOP2], "\E&l2E"
+PRINTER NWP [TOP3], "\E&l3E"
+PRINTER NWP [TOP4], "\E&l4E"
+PRINTER NWP [TOP5], "\E&l5E"
+PRINTER NWP [TOP(XX)], "\E&lXXE"
+
+rem	*****  NWP only Quality Options
+PRINTER NWP [LETTER QUALITY], "\Ex1"
+PRINTER NWP [LQ], "\Ex1"
+PRINTER NWP [DRAFT], "\Ex0"
+PRINTER NWP [EMPHASIZED], "\EE"
+PRINTER NWP [/EMPHASIZED], "\EF"
+PRINTER NWP [EMPH], "\EE"
+PRINTER NWP [/EMPH], "\EF"
+PRINTER NWP [ENHANCED], "\EG"
+PRINTER NWP [/ENHANCED], "\EH"
+
+
+rem	*****  NWP Only Fonts (This syntax only works for NWP)
+PRINTER NWP [FONT MICR], "\Efont='MICR'"
+PRINTER NWP [FONT TIMES], "\Efont='Times New Roman'"
+PRINTER NWP [FONT ARIAL], "\Efont='Arial'"
+PRINTER NWP [FONT LINEPRINTER], "\Efont='Line Printer'"
+PRINTER NWP [FONT LETTER GOTHIC], "\Efont='Letter Gothic'"
+PRINTER NWP [FONT COURIER NEW], "\Efont='Courier New'"
+PRINTER NWP [FONT], "\Efont=" ! Specify any font such as [FONT]'WingDings'
+PRINTER NWP [SETFONT(FontName)], "\Efont='FontName'" ! This is not enabled yet, but will be very soon
+
+rem	*****  NWP and PCL Fonts (This syntax works for both NWP and PCL)
+rem PRINTER PCL [FONT TIMES], "\E(s16901T"
+rem PRINTER PCL [FONT ARIAL], "\E(s16602T"
+PRINTER PCL [FONT TIMES], "\E(s1p16901T"
+PRINTER PCL [FONT ARIAL], "\E(s1p16602T"
+PRINTER PCL [FONT UNIVERS], "\E(s1p4148T"
+rem -1p- above signifies proportional spacing
+PRINTER PCL [FONT LINEPRINTER], "\E(s0T"
+PRINTER PCL [FONT LETTER GOTHIC], "\E(s4102T"
+rem COURIER NEW is the deault HP font - same as LINEPRINTER
+PRINTER PCL [FONT COURIER NEW], "\E(s4099T"
+PRINTER PCL [SETFONT(FontNumber)], "\E(sFontNumberT" ! This is not enabled yet, but will be very soon
+
+
+rem	*****  Font Sizes
+PRINTER NWP [TINY], "\E(s6V"
+PRINTER NWP [SMALL], "\E(s8V"
+PRINTER NWP [LITTLE], "\E(s10V"
+PRINTER NWP [MEDIUM], "\E(s12V"
+PRINTER NWP [ESSAY], "\E(s14V"
+PRINTER NWP [LARGE], "\E(s18V"
+PRINTER NWP [JUMBO], "\E(s36V"
+PRINTER NWP [GARGANTUAN], "\E(s96V"
+PRINTER NWP [155POINT], "\E(s15.5V"
+
+rem These size specs are ignored by HP for fixed width fonts
+PRINTER PCL [TINY], "\E(s6V"
+PRINTER PCL [SMALL], "\E(s8V"
+PRINTER PCL [LITTLE], "\E(s10V"
+PRINTER PCL [MEDIUM], "\E(s12V"
+PRINTER PCL [ESSAY], "\E(s14V"
+PRINTER PCL [LARGE], "\E(s18V"
+PRINTER PCL [JUMBO], "\E(s36V"
+PRINTER PCL [GARGANTUAN], "\E(s96V"
+PRINTER PCL [155POINT], "\E(s15.5V"
+PRINTER NWP [SETSIZE(PointSize)], "\E(sPointSizeV" ! This is not enabled yet, but will be very soon
+PRINTER PCL [SETSIZE(PointSize)], "\E(sPointSizeV" ! This is not enabled yet, but will be very soon
+
+rem	*****  Lines Per Inch
+PRINTER NWP [4LPI], "\E&l4D"
+PRINTER NWP [6LPI], "\E&l6D"
+PRINTER NWP [8LPI], "\E&l8D"
+PRINTER NWP [10LPI], "\E&l10D"
+PRINTER PCL [4LPI], "\E&l4D"
+PRINTER PCL [6LPI], "\E&l6D"
+PRINTER PCL [8LPI], "\E&l8D"
+PRINTER PCL [10LPI], "\E&l10D"
+
+PRINTER NWP [LPI(xxx)], "\E&lxxxD"
+PRINTER PCL [LPI(xxx)], "\E&lxxxD"
+
+rem	*****  Characters Per Inch
+PRINTER NWP [4CPI], "\E(s4H"
+PRINTER NWP [6CPI], "\E(s6H"
+PRINTER NWP [8CPI], "\E(s8H"
+PRINTER NWP [10CPI], "\E(s10H"
+PRINTER NWP [12CPI], "\E(s12H"
+PRINTER NWP [14CPI], "\E(s14H"
+PRINTER NWP [17CPI], "\E(s16.7H"
+PRINTER NWP [20CPI], "\E(s20H"
+PRINTER PCL [4CPI], "\E(s4H"
+PRINTER PCL [6CPI], "\E(s6H"
+PRINTER PCL [8CPI], "\E(s8H"
+PRINTER PCL [10CPI], "\E(s10H"
+PRINTER PCL [12CPI], "\E(s12H"
+PRINTER PCL [14CPI], "\E(s14H"
+PRINTER PCL [16CPI], "\E(s16H"
+PRINTER PCL [20CPI], "\E(s20H"
+
+PRINTER NWP [CPI(NNN)], "\E(sNNNH"
+PRINTER PCL [CPI(NNN)], "\E(sNNNH"
+
+
+rem	*****  NWP only Colors
+PRINTER NWP [RED], "\Ecolor='#FF0000'"
+PRINTER NWP [GREEN], "\Ecolor='#00FF00'"
+PRINTER NWP [BLUE], "\Ecolor='#0000FF'"
+PRINTER NWP [MAGENTA], "\Ecolor='#FF00FF'"
+PRINTER NWP [CYAN], "\Ecolor='#00FFFF'"
+PRINTER NWP [YELLOW], "\Ecolor='#FFFF00'"
+PRINTER NWP [ORANGE], "\Ecolor='#FF7700'"
+PRINTER NWP [PURPLE], "\Ecolor='#AA00AA'"
+PRINTER NWP [BLACK], "\Ecolor='#000000'"
+PRINTER NWP [WHITE], "\Ecolor='#FFFFFF'"
+PRINTER NWP [COLOR:], "\Ecolor=#" ! Specify any html color such as [COLOR:]'0000FF'
+PRINTER NWP [COLOR(RRGGBB)], "\Ecolor='#RRGGBB'"
+
+
+rem	*****  NWP Only Underline and Overline
+PRINTER NWP [UNDERLINE], "\E-1"
+PRINTER NWP [/UNDERLINE], "\E-0"
+PRINTER NWP [UL], "\E-1"
+PRINTER NWP [/UL], "\E-0"
+PRINTER NWP [OVERLINE], "\E_1"
+PRINTER NWP [/OVERLINE], "\E_0"
+
+rem	*****  Standard PCL Underline
+PRINTER PCL [UNDERLINE], "\E&d0D"
+PRINTER PCL [/UNDERLINE], "\E&d@"
+PRINTER PCL [UL], "\E&d0D"
+PRINTER PCL [/UL], "\E&d@"
+
+
+rem	*****  Bold and Italics
+PRINTER NWP [ITALICS], "\E(s1S"
+PRINTER NWP [/ITALICS], "\E(s0S"
+PRINTER NWP [BOLD], "\E(s1B"
+PRINTER NWP [/BOLD], "\E(s0B"
+PRINTER PCL [ITALICS], "\E(s1S"
+PRINTER PCL [/ITALICS], "\E(s0S"
+PRINTER PCL [BOLD], "\E(s1B"
+PRINTER PCL [/BOLD], "\E(s0B"
+
+
+rem	*****  Stroke Weight (Bold/Line Thickness)
+PRINTER NWP [LIGHTEST], "\E(s-7B"
+PRINTER NWP [LIGHTER], "\E(s-4B"
+PRINTER NWP [LIGHT], "\E(s-1B"
+PRINTER NWP [STROKE NORMAL], "\E(s0B"
+PRINTER NWP [DARK], "\E(s1B"
+PRINTER NWP [DARKER], "\E(s4B"
+PRINTER NWP [DARKEST], "\E(s7B"
+PRINTER PCL [LIGHTEST], "\E(s-7B"
+PRINTER PCL [LIGHTER], "\E(s-4B"
+PRINTER PCL [LIGHT], "\E(s-1B"
+PRINTER PCL [STROKE NORMAL], "\E(s0B"
+PRINTER PCL [DARK], "\E(s1B"
+PRINTER PCL [DARKER], "\E(s4B"
+PRINTER PCL [DARKEST], "\E(s7B"
+
+rem	*****  Style
+PRINTER NWP [STYLE NORMAL], "\E(s0S"
+PRINTER NWP [CONDENSED], "\E(s4S"
+PRINTER NWP [ITALICS CONDENSED], "\E(s5S"
+PRINTER NWP [EXTRA CONDENSED], "\E(s8S"
+PRINTER NWP [ITALICS EXTRA CONDENSED], "\E(s9S"
+PRINTER NWP [EXPANDED], "\E(s24S"
+PRINTER NWP [ITALICS EXPANDED], "\E(s25S"
+PRINTER NWP [OUTLINE], "\E(s32S"
+PRINTER NWP [ITALICS OUTLINE], "\E(s33S"
+PRINTER NWP [INLINE], "\E(s64S"
+PRINTER NWP [ITALICS INLINE], "\E(s65S"
+PRINTER NWP [SHADOWED], "\E(s128S"
+PRINTER NWP [ITALICS SHADOWED], "\E(s129S"
+PRINTER NWP [OUTLINE SHADOWED], "\E(s160S"
+PRINTER NWP [ITALICS OUTLINE SHADOWED], "\E(s161S"
+PRINTER PCL [STYLE NORMAL], "\E(s0S"
+PRINTER PCL [CONDENSED], "\E(s4S"
+PRINTER PCL [ITALICS CONDENSED], "\E(s5S"
+PRINTER PCL [EXTRA CONDENSED], "\E(s8S"
+PRINTER PCL [ITALICS EXTRA CONDENSED], "\E(s9S"
+PRINTER PCL [EXPANDED], "\E(s24S"
+PRINTER PCL [ITALICS EXPANDED], "\E(s25S"
+PRINTER PCL [OUTLINE], "\E(s32S"
+PRINTER PCL [ITALICS OUTLINE], "\E(s33S"
+PRINTER PCL [INLINE], "\E(s64S"
+PRINTER PCL [ITALICS INLINE], "\E(s65S"
+PRINTER PCL [SHADOWED], "\E(s128S"
+PRINTER PCL [ITALICS SHADOWED], "\E(s129S"
+PRINTER PCL [OUTLINE SHADOWED], "\E(s160S"
+PRINTER PCL [ITALICS OUTLINE SHADOWED], "\E(s161S"
+
+PRINTER NWP [SETSTYLE(StyleCode)], "\E(sStyleCodeS"
+PRINTER PCL [SETSTYLE(StyleCode)], "\E(sStyleCodeS"
+
+
+rem	*****  Print Direction (PCL Only)
+PRINTER PCL [ROTATE0], "\E&a0P"
+PRINTER PCL [ROTATE90], "\E&a90P"
+PRINTER PCL [ROTATE180], "\E&a180P"
+PRINTER PCL [ROTATE270], "\E&a270P"
+
+
+rem	*****  NWP Only Boxes and Shading
+PRINTER NWP [BOX], "\Ebegin_box"
+PRINTER NWP [/BOX], "\Eend_box"
+
+PRINTER NWP [BOXTOP], "\Ebegin_boxtop"
+PRINTER NWP [BOXOVER], "\Ebegin_boxtop"
+
+PRINTER NWP [BOXVERTICALS], "\Ebegin_verticals"
+PRINTER NWP [BOXSIDES], "\Ebegin_verticals"
+
+PRINTER NWP [BOXBOTTOM], "\Ebegin_boxbottom"
+PRINTER NWP [BOXUNDER], "\Ebegin_boxbottom"
+
+PRINTER NWP [SHADE], "\Ebegin_shade"
+PRINTER NWP [/SHADE], "\Eend_shade"
+
+PRINTER NWP [SHADE0], "\E*c0G"
+PRINTER NWP [SHADE20], "\E*c20G"
+PRINTER NWP [SHADE40], "\E*c40G"
+PRINTER NWP [SHADE60], "\E*c60G"
+PRINTER NWP [SHADE80], "\E*c80G"
+PRINTER NWP [SHADE100], "\E*c100G"
+PRINTER NWP [SHADE(Percent)], "\E*cPercentG"
+
+PRINTER NWP [SEPARATOR], 05
+PRINTER NWP [|], 05
+
+rem	*****  NWP only Positioning In Inches e.g [POSITION](2.34,4.25)
+rem     *****  -parameters indicate horizontal and then vertical positions-
+PRINTER NWP [POSITION], "\Eposition="
+PRINTER NWP [POSITION(hhh,vvv)], "\Eposition='hhh,vvv'"
+rem hhh denotes horizontal and vvv denotes vertical
+
+rem	*****  Positioning (Both NWP and PCL)
+rem     *****  -parameters indicate vertical and then horizontal positions-
+PRINTER PCL [TOPLEFT], "\E&a0v0H" ! Set curser to top left
+PRINTER NWP [TOPLEFT], "\E&a0v0H" ! Set curser to top left
+PRINTER NWP [DECIPOS(VVV,hhh)], "\E&aVVVvhhhH" ! Set Position in Decipoints, Vertical, Horizontal. Use +- for Relative
+PRINTER PCL [DECIPOS(VVV,hhh)], "\E&aVVVvhhhH" ! Set Position in Decipoints, Vertical, Horizontal. Use +- for Relative
+PRINTER NWP [ROWCOL(ROW,COL)], "\E&aROWrCOLC" ! Set Position in Rows and Columns, Vertical, Horizontal. Use +- for Relative
+PRINTER PCL [ROWCOL(ROW,COL)], "\E&aROWrCOLC" ! Set Position in Rows and Columns, Vertical, Horizontal. Use +- for Relative
+PRINTER NWP [POS(ROW,COL)], "\E&aROWrCOLC" ! Set Position in Rows and Columns, Vertical, Horizontal. Use +- for Relative
+PRINTER PCL [POS(ROW,COL)], "\E&aROWrCOLC" ! Set Position in Rows and Columns, Vertical, Horizontal. Use +- for Relative
+PRINTER NWP [PCLPOS(VVV,HHH)], "\E*pVVVyHHHX" ! Set Position in PCL units, Vertical, Horizontal. Use +- for Relative
+PRINTER PCL [PCLPOS(VVV,HHH)], "\E*pVVVyHHHX" ! Set Position in PCL units, Vertical, Horizontal. Use +- for Relative
+
+
+rem	*****  NWP Only Justification
+PRINTER NWP [LEFT], "\Eleft_justify"  ! left justify thefollowing data
+PRINTER NWP [RIGHT], "\Eright_justify"
+PRINTER NWP [CENTER], "\Ecenter"
+
+PRINTER NWP [PAGE], "\Epage_number" ! print the page number here
+
+
+rem	*****  NWP only Pictures
+PRINTER NWP [PICTURE], "\Epicture=" ! Use like [PICTURE]'2,2,logo.jpg'
+PRINTER NWP [PIC(XX,YY,IMGNAME)], "\Epicture='XX,YY,IMGNAME'"
+PRINTER NWP [ISO PIC(XX,YY,IMGNAME)], "\Epicture='XX,YY,IMGNAME: ISOTROPIC'"
+PRINTER NWP [TILE PIC(XX,YY,IMGNAME)], "\Epicture='XX,YY,IMGNAME: TILE'"
+
+
+rem	*****  Push and Pop
+PRINTER NWP [PUSH], "\E&f0S"
+PRINTER NWP [POP], "\E&f1S"
+PRINTER PCL [PUSH], "\E&f0S"
+PRINTER PCL [POP], "\E&f1S"
+
+rem	*****  NWP only Table Alignment
+PRINTER NWP [SET_BOUNDARY], "\Estop_cursor" ! Set the cursor boundary
+PRINTER NWP [BOUNDARY_OFF], "\Emove_cursor" ! Clear the cursor boundary
+
+rem	*****  Other
+PRINTER NWP [E], "\E" ! Basic Escape Sequence for anything you need (easier then chr$(27))
+PRINTER PCL [E], "\E"
+
+Printer PCL [PS], "\E(s1P" ! Set Proportional Spacing
+Printer PCL [/PS], "\E(s0P" ! Cancel Proportional Spacing

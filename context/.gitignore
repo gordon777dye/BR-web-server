@@ -1,0 +1,73 @@
+# .gitignore — br-ai-context-kit (skeleton)
+#
+# The entries below are the per-app / internal files removed from the skeleton. Onboarding regenerates
+# them into this tree, so keep them ignored — nothing here should ever reach the public repo.
+
+# --- internal planning (not part of the published kit) ---
+/DEV_PLAN.md
+.claude*
+
+# --- LSP internal build artifacts (whole folder excluded) ---
+/lsp/
+/scratch/*
+
+# --- per-app onboarding output: generated & confidential, never commit ---
+/app/*
+!/app/ONBOARDING.md
+!/app/onboarding/
+# only the kit's templates; STEP 1's config backups here are app-private.
+# A new template needs its own line or it is silently ignored.
+/app/onboarding/*
+!/app/onboarding/context-kit-always-load.md
+!/app/onboarding/copilot-instructions.md
+
+# Already tracked null version - no need to keep updating it
+/ERRORS.md/
+
+# --- forward-looking hygiene for clones that onboard/compile a real app ---
+# (not part of the diff; safe to trim. compiled BR objects + node deps)
+*.br
+*.brs
+*.bro
+*.wb
+*.wbo
+node_modules/
+
+# --- BR ports of the Python generators: kit-testing instruments, never published ---
+# The .brs ports themselves are covered by *.brs above. These are what a test RUN drops
+# into the tree: a sandbox index (never the canonical brtree-index.json) and DIR scratch.
+
+/dev/*
+!/dev/*.md
+!/dev/*.json
+# --- the harness kit: the docs, the standard procedures and the driver ---
+# /dev/* above ignores the whole FOLDER, so each of these needs its own
+# line or it is silently left out of the published kit - which is what
+# happened: nothing under dev/ai_access/ was tracked at all.
+# THE BR BINARIES ARE DELIBERATELY STILL IGNORED.  BR is the product, it is
+# versioned per site, and a debug build is 46 MB; BR_harness.md tells a
+# reader to point $BR44_EXE at their own BR 4.4 instead.
+!/dev/ai_access/
+/dev/ai_access/*
+!/dev/ai_access/*.md
+!/dev/ai_access/br_mcp_driver.exe
+!/dev/ai_access/brls.exe
+!/dev/ai_access/brserver.exe
+!/dev/ai_access/brclientdll444-x64-Debug-gui.dll
+!/dev/ai_access/prc/
+!/dev/ai_access/prc/*.prc
+# allow access to the folder
+!/dev/tools/
+# but block unspecified content
+/dev/tools/*
+!/dev/tools/br*
+/dev/tools/brconfig*
+/dev/tools/*.go
+!/dev/tools/*.gif
+!/dev/tools/*.bmp
+!/dev/tools/*.exe
+!/dev/tools/*.dll
+!/dev/tools/printer.sys
+!/dev/tools/*.md
+!/dev/tools/*.json
+!/dev/tools/*.ps1

@@ -1,0 +1,9 @@
+version= 2  rln= 280  lrec= 121
+old conv rec  1  err  726
+new rec  1  unused=[     ] trans=[000000] ppd=[C] class= 1  invdate= 37286  balance= 697904.49
+old conv rec  2  err  726
+new rec  2  unused=[     ] trans=[000000] ppd=[C] class= 1  invdate= 0  balance= 0
+old conv rec  3  err  726
+new rec  3  unused=[     ] trans=[000000] ppd=[C] class= 1  invdate= 37185  balance= 0
+OLD layout: read ok  0  conv errors  120  plausible dates  0  of  0
+NEW layout: read ok  120  conv errors  0  plausible dates  480  of  480

@@ -1,0 +1,43 @@
+data\ocustomer, oRCU_, 0
+data\ocustomer.key,CUSTOMER/RCD_TYPE/DESTINATION
+recl=280
+======================================================================
+CUSTOMER$,              Customer Number,                        C 8,        1 -    8
+RCD_TYPE$,              Record Type (BT or ST),                 C 2,        9 -   10
+DESTINATION$,           Destination Code,                       C 9,       11 -   19
+CUST_NAME$,             Customer Name,                          C 30,      20 -   49
+CUST_ADDRESS_1$,        Customer Address 1,                     C 30,      50 -   79
+CUST_ADDRESS_2$,        Customer Address 2,                     C 30,      80 -  109
+CUST_CITY$,             Customer City,                          C 18,     110 -  127
+CUST_STATE$,            Customer State,                         C 3,      128 -  130
+CUST_ZIP$,              Customer Postal Code,                   C 9,      131 -  139
+CUST_PHONE$,            Customer Phone,                         C 10,     140 -  149
+COMMUN$,                Communication Code,                     C 4,      150 -  153
+TERR$,                  Territory,                              C 3,      154 -  156
+CONTACT$,               Contact,                                C 20,     157 -  176
+TERMS$,                 Terms,                                  C 2,      177 -  178
+TAX_STATUS$,            Tax Status,                             C 1,      179 -  179
+SEND$,                  Send Statement,                         C 1,      180 -  180
+LATE_CHARGE$,           Late Charge,                            C 1,      181 -  181
+CARRIER$,               Carrier,                                C 4,      182 -  185
+TRANS_TIME$,            Transportation Time,                    C 6,      186 -  191
+PPD/COL$,               Prepaid/Collect,                        C 1,      192 -  192
+CLASS_CODE,             Class Code,                             BH 1,     193 -  193
+PRICE_CODE,             Price Code,                             BH 1,     194 -  194
+SALESMAN,               Salesman Number,                        BH 2,     195 -  196
+COMPANY,                Company Number,                         BH 1,     197 -  197
+TAX_JURIS,              Tax Jurisdiction,                       BH 2,     198 -  199
+CURRENCY,               Currency Number,                        BH 1,     200 -  200
+CREDIT_LIMIT,           Credit Limit,                           BH 4,     201 -  204
+DISCOUNT,               Trade Discount,                         BH 2.2,   205 -  206
+INVOICE_DATE,           Date of Last Invoice,                   BH 3,     207 -  209
+ORDER_DATE,             Date of Last Order,                     BH 3,     210 -  212
+PAYMENT_DATE,           Date of Last Payment,                   BH 3,     213 -  215
+LAST_TRANSMIT,          Date of Last Transmission,              BH 3,     216 -  218
+BALANCE,                Current A/R Balance,                    PD 6.2,   219 -  224
+OPEN_ORDERS,            Current Open Orders,                    PD 6.2,   225 -  230
+SALES_MTD,              Sales Dollars MTD,                      PD 6.2,   231 -  236
+SALES_YTD,              Sales Dollars YTD,                      PD 6.2,   237 -  242
+PROFIT_YTD,             Profit Ytd,                             PD 6.2,   243 -  248
+ORD_MTD,                Number of Shipments MTD,                BH 3,     249 -  251
+ORD_YTD,                Number of Shipments YTD,                BH 3,     252 -  254

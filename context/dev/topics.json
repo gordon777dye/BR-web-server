@@ -1,0 +1,1402 @@
+{
+  "$comment": "Topic index + lexicon over statement-semantics.md and tools/lexicon.json. Router for the interpret/code bundles (see APP-DEV-GUIDE.md). 'lines' are 1-based inclusive ranges for cheap section loading; regenerate with tools/gen_topics.exe.",
+  "generated": "2026-10-14",
+  "source": "statement-semantics.md",
+  "source_sha256": "539cf9572b3045817df70388102a4bcffaceeb97d51da9ef08f1e3adb50a0a6a",
+  "count": 49,
+  "lexicon": {
+    "note": "BR's lexicon is positional. Only system-function names (table6k u table7k) are reserved against variable names, and a variable never starts 'FN'. Statement, clause, and command keywords are keywords only by position: a variable or label may reuse their spelling. Resolve keyword-vs-variable-vs-label by position + arity, not by the lexeme and not by a symbol table: BR checks whether the mandatory operands the name requires are present — present means it IS that keyword/function, absent means it falls through to a variable. So declaring a name never shadows an intrinsic (DIM ABS is legal and PRINT ABS(3) still calls ABS), and X(3) vs SIN(3) turns on what the name requires, not on whether it was DIM'd. Full rule: br_tree/10-language/syntax/spec.md#name-resolution.",
+    "reserved_against_variables": {
+      "note": "The only spellings a variable cannot take. Matched in full (never abbreviated).",
+      "count": 127,
+      "names": [
+        "ATN",
+        "BELL",
+        "BRERR$",
+        "BR_DATE$",
+        "BR_FILENAME$",
+        "CALL",
+        "CEIL",
+        "CFORM$",
+        "CHR$",
+        "CMDKEY",
+        "CNT",
+        "CNVRT$",
+        "CODE",
+        "COS",
+        "CURCOL",
+        "CURFLD",
+        "CURPOS",
+        "CURROW",
+        "CURTAB",
+        "CURWINDOW",
+        "DATE",
+        "DATE$",
+        "DAYS",
+        "DEBUG_STR",
+        "DECRYPT$",
+        "DEG",
+        "DLL",
+        "ENCRYPT$",
+        "ENV$",
+        "ERR",
+        "EXISTS",
+        "EXP",
+        "FILE",
+        "FILE$",
+        "FILENUM",
+        "FKEY",
+        "FP",
+        "FREESP",
+        "GET$",
+        "HELP$",
+        "HEX$",
+        "INF",
+        "INVOKE$",
+        "IP",
+        "KLN",
+        "KPS",
+        "KREC",
+        "KSTAT$",
+        "LEN",
+        "LINE",
+        "LINES",
+        "LINESPP",
+        "LINESTATUS$",
+        "LOG",
+        "LOGIN_NAME$",
+        "LPAD$",
+        "LREC",
+        "LTRM$",
+        "LWRC$",
+        "MAT2STR",
+        "MAX",
+        "MAX$",
+        "MENU",
+        "MENU$",
+        "MIN",
+        "MIN$",
+        "MOD",
+        "MSG",
+        "MSG$",
+        "MSGBOX",
+        "NEWPAGE",
+        "NXTCOL",
+        "NXTFLD",
+        "NXTROW",
+        "ORD",
+        "OS_FILENAME$",
+        "PI",
+        "PIC$",
+        "POS",
+        "PRINTER_LIST",
+        "PROCIN",
+        "PROCLVL",
+        "PROGRAM$",
+        "RAD",
+        "REC",
+        "REM",
+        "RLN",
+        "RND",
+        "ROUND",
+        "RPAD$",
+        "RPT$",
+        "RTRM$",
+        "SCR_FREEZE",
+        "SCR_THAW",
+        "SERIAL",
+        "SESSION$",
+        "SET$",
+        "SETENV",
+        "SHIFT",
+        "SIN",
+        "SLEEP",
+        "SPAWN_RESTRICTED",
+        "SQL_DATE$",
+        "SQR",
+        "SRCH",
+        "SREP$",
+        "STR$",
+        "STR2MAT",
+        "SUM",
+        "SYSERR",
+        "SYSERR$",
+        "TAN",
+        "TIME$",
+        "TIMER",
+        "TRIM$",
+        "TRUNC",
+        "UDIM",
+        "UNHEX$",
+        "UPRC$",
+        "USERID$",
+        "VAL",
+        "VARIABLE$",
+        "VERSION",
+        "WBPLATFORM$",
+        "WBVERSION$",
+        "WSID$",
+        "XLATE$"
+      ],
+      "intrinsics_outside_tables": [
+        "ABS",
+        "AIDX",
+        "DIDX",
+        "INT",
+        "SGN"
+      ]
+    },
+    "positional": {
+      "note": "Keywords only by position; a variable or label may reuse these spellings.",
+      "statement": [
+        "CASE",
+        "CHAIN",
+        "CLOSE",
+        "CONTINUE",
+        "DATA",
+        "DEF",
+        "DELETE",
+        "DIM",
+        "DISPLAY",
+        "DO",
+        "END",
+        "EXECUTE",
+        "EXIT",
+        "FNEND",
+        "FOR",
+        "FORM",
+        "GOSUB",
+        "GOTO",
+        "IF",
+        "IGNORE",
+        "INPUT",
+        "LET",
+        "LIBRARY",
+        "LINPUT",
+        "LOOP",
+        "MAT",
+        "NEXT",
+        "ON",
+        "OPEN",
+        "OPTION",
+        "PAUSE",
+        "PRINT",
+        "RANDOMIZE",
+        "READ",
+        "RELEASE",
+        "REM",
+        "REREAD",
+        "RESERVE",
+        "RESTORE",
+        "RETRY",
+        "RETURN",
+        "REWRITE",
+        "RINPUT",
+        "SELECT",
+        "STOP",
+        "SYSTEM",
+        "TRACE",
+        "USE",
+        "WRITE"
+      ],
+      "clause": [
+        "ALTERNATE",
+        "ATTN",
+        "ATTR",
+        "BASE",
+        "BORDER",
+        "BUTTONS",
+        "COLLATE",
+        "CONV",
+        "DATA",
+        "DISPLAY",
+        "DO",
+        "DROP",
+        "DUPREC",
+        "EBCIDIC",
+        "ELSE",
+        "END",
+        "EOF",
+        "ERROR",
+        "EVENT",
+        "EXIT",
+        "EXTERNAL",
+        "FIELDS",
+        "FILES",
+        "FIRST",
+        "FKEY",
+        "FNKEY",
+        "FOR",
+        "FREE",
+        "HELP",
+        "INPUT",
+        "INTERNAL",
+        "INVP",
+        "IOERR",
+        "KEY=",
+        "KEY>=",
+        "KEYED",
+        "LAST",
+        "LIBRARY",
+        "LINK=",
+        "LOCKED",
+        "MENU",
+        "NATIVE",
+        "NEXT",
+        "NOFILES",
+        "NOKEY",
+        "NONE",
+        "NOREC",
+        "OFF",
+        "OFLOW",
+        "ON",
+        "OUTIN",
+        "OUTPUT",
+        "PAGEOFLOW",
+        "POS=",
+        "PRINT",
+        "PRIOR",
+        "PRTZO",
+        "RD",
+        "REC=",
+        "RELATIVE",
+        "RELEASE",
+        "RESERVE",
+        "RETAIN",
+        "SAME",
+        "SEARCH=",
+        "SEARCH>=",
+        "SELECT",
+        "SEQUENTIAL",
+        "SOFLOW",
+        "SQL",
+        "STATUS",
+        "STEP",
+        "TEXT",
+        "THEN",
+        "TIMEOUT",
+        "TO",
+        "UNTIL",
+        "USING",
+        "WAIT=",
+        "WHILE",
+        "ZDIV"
+      ],
+      "command": [
+        "ALERT",
+        "AUTO",
+        "BREAK",
+        "CHDIR",
+        "CLEAR",
+        "CONFIG",
+        "COPY",
+        "DATE",
+        "DEBUG",
+        "DEL",
+        "DIR",
+        "DISPLAY",
+        "DROP",
+        "EDIT",
+        "FRE",
+        "FREE",
+        "GO",
+        "HELP",
+        "INDEX",
+        "LINK",
+        "LIST",
+        "LOAD",
+        "MERGE",
+        "MKDIR",
+        "PROC",
+        "PROCERR",
+        "PROTECT",
+        "RENAME",
+        "RENUM",
+        "REPLACE",
+        "RMDIR",
+        "RUN",
+        "SAVE",
+        "SKIP",
+        "SORT",
+        "STATUS",
+        "SUBPROC",
+        "SYSTEM",
+        "TIME",
+        "TYPE",
+        "VERIFY"
+      ]
+    }
+  },
+  "keyword_index": {
+    ":=": [
+      "forced-assignment"
+    ],
+    "BAUD": [
+      "open-serial"
+    ],
+    "CHAIN": [
+      "stop-end-pause-chain"
+    ],
+    "CHECK": [
+      "screen-controls"
+    ],
+    "CLOSE": [
+      "close"
+    ],
+    "COMBO": [
+      "screen-controls"
+    ],
+    "CONFIG DATABASE": [
+      "database"
+    ],
+    "CONTINUE": [
+      "retry-continue"
+    ],
+    "DATA": [
+      "data-read-restore"
+    ],
+    "DATABASE": [
+      "database"
+    ],
+    "DEF": [
+      "def-fn"
+    ],
+    "DEF LIBRARY": [
+      "library-functions"
+    ],
+    "DELETE": [
+      "delete"
+    ],
+    "DIM": [
+      "dim"
+    ],
+    "DISPLAY MENU": [
+      "display-menu"
+    ],
+    "DO": [
+      "do-loop"
+    ],
+    "ELSE": [
+      "if-then-else"
+    ],
+    "END": [
+      "stop-end-pause-chain"
+    ],
+    "END IF": [
+      "if-then-else"
+    ],
+    "EXECUTE": [
+      "execute"
+    ],
+    "EXIT": [
+      "exit"
+    ],
+    "EXIT DO": [
+      "do-loop"
+    ],
+    "FNEND": [
+      "def-fn"
+    ],
+    "FOR": [
+      "for-next"
+    ],
+    "FORM": [
+      "form"
+    ],
+    "GOSUB": [
+      "gosub-return"
+    ],
+    "GOTO": [
+      "goto"
+    ],
+    "GRID": [
+      "grid-list-text"
+    ],
+    "IF": [
+      "if-then-else"
+    ],
+    "INDEX": [
+      "index"
+    ],
+    "INPUT": [
+      "input"
+    ],
+    "INPUT FIELDS": [
+      "input-fields"
+    ],
+    "INPUT MENU": [
+      "display-menu"
+    ],
+    "INPUT SELECT": [
+      "input-select"
+    ],
+    "LET": [
+      "let"
+    ],
+    "LIBRARY": [
+      "library-functions"
+    ],
+    "LINPUT": [
+      "input"
+    ],
+    "LIST": [
+      "grid-list-text"
+    ],
+    "LOOP": [
+      "do-loop"
+    ],
+    "MAT": [
+      "mat"
+    ],
+    "NEXT": [
+      "for-next"
+    ],
+    "ON": [
+      "trace",
+      "on-condition"
+    ],
+    "ON ERROR": [
+      "on-error"
+    ],
+    "ON GOSUB": [
+      "on-goto-gosub"
+    ],
+    "ON GOTO": [
+      "on-goto-gosub"
+    ],
+    "OPEN": [
+      "open-file",
+      "open-serial",
+      "open-window"
+    ],
+    "OPEN SQL": [
+      "database"
+    ],
+    "OPTION": [
+      "option"
+    ],
+    "PAUSE": [
+      "stop-end-pause-chain"
+    ],
+    "PRINT": [
+      "print",
+      "trace"
+    ],
+    "PRINT FIELDS": [
+      "print-fields"
+    ],
+    "RADIO": [
+      "screen-controls"
+    ],
+    "RANDOMIZE": [
+      "randomize"
+    ],
+    "READ": [
+      "read",
+      "data-read-restore"
+    ],
+    "REREAD": [
+      "reread"
+    ],
+    "RESTORE": [
+      "restore",
+      "data-read-restore"
+    ],
+    "RETRY": [
+      "retry-continue"
+    ],
+    "RETURN": [
+      "gosub-return"
+    ],
+    "REWRITE": [
+      "rewrite"
+    ],
+    "RINPUT": [
+      "rinput-fields"
+    ],
+    "RINPUT FIELDS": [
+      "rinput-fields"
+    ],
+    "RINPUT SELECT": [
+      "input-select"
+    ],
+    "SORT": [
+      "sort"
+    ],
+    "STEP": [
+      "for-next"
+    ],
+    "STOP": [
+      "stop-end-pause-chain"
+    ],
+    "TEXT": [
+      "grid-list-text"
+    ],
+    "THEN": [
+      "if-then-else"
+    ],
+    "TRACE": [
+      "trace"
+    ],
+    "WRITE": [
+      "write"
+    ]
+  },
+  "topics": [
+    {
+      "id": "open-file",
+      "kind": "statement",
+      "title": "OPEN file — File opening, modes, attributes",
+      "keywords": [
+        "OPEN"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "open-file",
+        "lines": [
+          119,
+          274
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "read",
+      "kind": "statement",
+      "title": "READ — Record input, keying, locking, position",
+      "keywords": [
+        "READ"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "read",
+        "lines": [
+          276,
+          402
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "reread",
+      "kind": "statement",
+      "title": "REREAD — Re-decode buffered current record",
+      "keywords": [
+        "REREAD"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "reread",
+        "lines": [
+          404,
+          471
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "write",
+      "kind": "statement",
+      "title": "WRITE — Record output, new record creation",
+      "keywords": [
+        "WRITE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "write",
+        "lines": [
+          473,
+          555
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "rewrite",
+      "kind": "statement",
+      "title": "REWRITE — Update existing record",
+      "keywords": [
+        "REWRITE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "rewrite",
+        "lines": [
+          557,
+          632
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "delete",
+      "kind": "statement",
+      "title": "DELETE — Remove record",
+      "keywords": [
+        "DELETE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "delete",
+        "lines": [
+          634,
+          719
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "restore",
+      "kind": "statement",
+      "title": "RESTORE — Reposition file pointer",
+      "keywords": [
+        "RESTORE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "restore",
+        "lines": [
+          721,
+          822
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "close",
+      "kind": "statement",
+      "title": "CLOSE — Finalize file",
+      "keywords": [
+        "CLOSE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "close",
+        "lines": [
+          824,
+          899
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/statements/spec.md"
+    },
+    {
+      "id": "form",
+      "kind": "statement",
+      "title": "FORM — record and print-line layout",
+      "keywords": [
+        "FORM"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "form",
+        "lines": [
+          901,
+          985
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/form-spec/spec.md"
+    },
+    {
+      "id": "sort",
+      "kind": "statement",
+      "title": "SORT — Sort an internal file via a control file",
+      "keywords": [
+        "SORT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "sort",
+        "lines": [
+          987,
+          1051
+        ]
+      },
+      "br_tree": "../br_tree/40-io-printing/sort/spec.md"
+    },
+    {
+      "id": "index",
+      "kind": "statement",
+      "title": "INDEX — Create or rebuild a key index",
+      "keywords": [
+        "INDEX"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "index",
+        "lines": [
+          1053,
+          1110
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/keys-indexes/spec.md"
+    },
+    {
+      "id": "database",
+      "kind": "statement",
+      "title": "Database Operations — SQL database access via ODBC",
+      "keywords": [
+        "OPEN SQL",
+        "CONFIG DATABASE",
+        "DATABASE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "database",
+        "lines": [
+          1112,
+          1174
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/database/spec.md"
+    },
+    {
+      "id": "print",
+      "kind": "statement",
+      "title": "PRINT — Output to screen or file (without FIELDS)",
+      "keywords": [
+        "PRINT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "print",
+        "lines": [
+          1176,
+          1306
+        ]
+      },
+      "br_tree": "../br_tree/40-io-printing/statements/spec.md"
+    },
+    {
+      "id": "input",
+      "kind": "statement",
+      "title": "INPUT — Screen input, prompt",
+      "keywords": [
+        "INPUT",
+        "LINPUT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "input",
+        "lines": [
+          1308,
+          1388
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/input-output/spec.md"
+    },
+    {
+      "id": "open-serial",
+      "kind": "statement",
+      "title": "OPEN serial — Serial communications channel",
+      "keywords": [
+        "OPEN",
+        "BAUD"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "open-serial",
+        "lines": [
+          1390,
+          1459
+        ]
+      },
+      "br_tree": "../br_tree/30-io-file/serial-comm/spec.md"
+    },
+    {
+      "id": "display-menu",
+      "kind": "statement",
+      "title": "DISPLAY MENU / INPUT MENU — native Windows menus",
+      "keywords": [
+        "DISPLAY MENU",
+        "INPUT MENU"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "display-menu",
+        "lines": [
+          1461,
+          1518
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/controls/spec.md#menus"
+    },
+    {
+      "id": "open-window",
+      "kind": "statement",
+      "title": "OPEN window — Bordered display windows",
+      "keywords": [
+        "OPEN"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "open-window",
+        "lines": [
+          1520,
+          1599
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/windows-cursor/spec.md#open-window"
+    },
+    {
+      "id": "print-fields",
+      "kind": "statement",
+      "title": "PRINT FIELDS — Formatted output with attributes",
+      "keywords": [
+        "PRINT FIELDS"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "print-fields",
+        "lines": [
+          1601,
+          1701
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/input-output/spec.md"
+    },
+    {
+      "id": "input-fields",
+      "kind": "statement",
+      "title": "INPUT FIELDS — Formatted input with field attributes",
+      "keywords": [
+        "INPUT FIELDS"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "input-fields",
+        "lines": [
+          1703,
+          1843
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/input-output/spec.md"
+    },
+    {
+      "id": "rinput-fields",
+      "kind": "statement",
+      "title": "RINPUT FIELDS — Display current values, then accept edits",
+      "keywords": [
+        "RINPUT FIELDS",
+        "RINPUT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "rinput-fields",
+        "lines": [
+          1845,
+          1926
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/input-output/spec.md"
+    },
+    {
+      "id": "input-select",
+      "kind": "statement",
+      "title": "INPUT SELECT / RINPUT SELECT — Menu selection via FIELDS",
+      "keywords": [
+        "INPUT SELECT",
+        "RINPUT SELECT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "input-select",
+        "lines": [
+          1928,
+          1992
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/input-output/spec.md#select"
+    },
+    {
+      "id": "grid-list-text",
+      "kind": "statement",
+      "title": "GRID / LIST / TEXT — 2-D and multi-line controls",
+      "keywords": [
+        "GRID",
+        "LIST",
+        "TEXT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "grid-list-text",
+        "lines": [
+          1994,
+          2052
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/controls/spec.md#grid-list"
+    },
+    {
+      "id": "screen-controls",
+      "kind": "statement",
+      "title": "Screen controls — COMBO / RADIO / CHECK / buttons",
+      "keywords": [
+        "COMBO",
+        "RADIO",
+        "CHECK"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "screen-controls",
+        "lines": [
+          2054,
+          2124
+        ]
+      },
+      "br_tree": "../br_tree/20-io-screen/controls/spec.md"
+    },
+    {
+      "id": "option",
+      "kind": "statement",
+      "title": "OPTION — program options and array base",
+      "keywords": [
+        "OPTION"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "option",
+        "lines": [
+          2126,
+          2183
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/declaration/spec.md#option"
+    },
+    {
+      "id": "dim",
+      "kind": "statement",
+      "title": "DIM — Variable and array declaration, multi-dimensionality",
+      "keywords": [
+        "DIM"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "dim",
+        "lines": [
+          2185,
+          2295
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/declaration/spec.md"
+    },
+    {
+      "id": "let",
+      "kind": "statement",
+      "title": "LET — Variable assignment, multiple and compound forms",
+      "keywords": [
+        "LET"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "let",
+        "lines": [
+          2297,
+          2360
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/assignment/spec.md#let"
+    },
+    {
+      "id": "forced-assignment",
+      "kind": "statement",
+      "title": "Forced assignment — assign inside a condition",
+      "keywords": [
+        ":="
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "forced-assignment",
+        "lines": [
+          2362,
+          2411
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/assignment/spec.md#forced-assignment"
+    },
+    {
+      "id": "mat",
+      "kind": "statement",
+      "title": "MAT — Whole-array assignment operations",
+      "keywords": [
+        "MAT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "mat",
+        "lines": [
+          2413,
+          2505
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/assignment/spec.md#mat"
+    },
+    {
+      "id": "substring-assignment",
+      "kind": "statement",
+      "title": "Substring assignment — in-place string mutation",
+      "keywords": [],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "substring-assignment",
+        "lines": [
+          2507,
+          2557
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/assignment/spec.md#substring"
+    },
+    {
+      "id": "data-read-restore",
+      "kind": "statement",
+      "title": "DATA / READ / RESTORE — Internal data table",
+      "keywords": [
+        "DATA",
+        "READ",
+        "RESTORE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "data-read-restore",
+        "lines": [
+          2559,
+          2624
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/assignment/spec.md#data-table"
+    },
+    {
+      "id": "if-then-else",
+      "kind": "statement",
+      "title": "IF / THEN / ELSE — Conditional execution",
+      "keywords": [
+        "IF",
+        "THEN",
+        "ELSE",
+        "END IF"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "if-then-else",
+        "lines": [
+          2626,
+          2708
+        ]
+      },
+      "br_tree": "../br_tree/10-language/data-manipulation/conditionals/spec.md"
+    },
+    {
+      "id": "goto",
+      "kind": "statement",
+      "title": "GOTO — Unconditional branch",
+      "keywords": [
+        "GOTO"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "goto",
+        "lines": [
+          2710,
+          2760
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "on-goto-gosub",
+      "kind": "statement",
+      "title": "ON … GOTO / GOSUB — Computed (indexed) branch",
+      "keywords": [
+        "ON GOTO",
+        "ON GOSUB"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "on-goto-gosub",
+        "lines": [
+          2762,
+          2816
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "randomize",
+      "kind": "statement",
+      "title": "RANDOMIZE — Reseed the random-number generator",
+      "keywords": [
+        "RANDOMIZE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "randomize",
+        "lines": [
+          2818,
+          2852
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "stop-end-pause-chain",
+      "kind": "statement",
+      "title": "STOP / END / PAUSE / CHAIN — Program termination and interruption",
+      "keywords": [
+        "STOP",
+        "END",
+        "PAUSE",
+        "CHAIN"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "stop-end-pause-chain",
+        "lines": [
+          2854,
+          2918
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "for-next",
+      "kind": "statement",
+      "title": "FOR / NEXT — Loop construct, nesting",
+      "keywords": [
+        "FOR",
+        "NEXT",
+        "STEP"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "for-next",
+        "lines": [
+          2920,
+          3007
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "do-loop",
+      "kind": "statement",
+      "title": "DO / LOOP — Conditional loops",
+      "keywords": [
+        "DO",
+        "LOOP",
+        "EXIT DO"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "do-loop",
+        "lines": [
+          3009,
+          3123
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "gosub-return",
+      "kind": "statement",
+      "title": "GOSUB / RETURN — Subroutine call and return",
+      "keywords": [
+        "GOSUB",
+        "RETURN"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "gosub-return",
+        "lines": [
+          3125,
+          3214
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "exit",
+      "kind": "statement",
+      "title": "EXIT — Loop or subroutine exit",
+      "keywords": [
+        "EXIT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "exit",
+        "lines": [
+          3216,
+          3284
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md"
+    },
+    {
+      "id": "execute",
+      "kind": "statement",
+      "title": "EXECUTE — Run a command string from code",
+      "keywords": [
+        "EXECUTE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "execute",
+        "lines": [
+          3286,
+          3354
+        ]
+      },
+      "br_tree": "../br_tree/70-commands/program-management/spec.md#execute"
+    },
+    {
+      "id": "trace",
+      "kind": "statement",
+      "title": "TRACE — Line-number tracing under program control",
+      "keywords": [
+        "TRACE",
+        "ON",
+        "PRINT"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "trace",
+        "lines": [
+          3356,
+          3398
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/other-flow/spec.md#trace"
+    },
+    {
+      "id": "on-condition",
+      "kind": "statement",
+      "title": "ON condition — Program-wide condition traps",
+      "keywords": [
+        "ON"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "on-condition",
+        "lines": [
+          3400,
+          3477
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/error-handling/spec.md"
+    },
+    {
+      "id": "on-error",
+      "kind": "statement",
+      "title": "ON ERROR — Catch-all error handler",
+      "keywords": [
+        "ON ERROR"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "on-error",
+        "lines": [
+          3479,
+          3553
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/error-handling/spec.md"
+    },
+    {
+      "id": "retry-continue",
+      "kind": "statement",
+      "title": "RETRY / CONTINUE — Re-execute or skip after an error",
+      "keywords": [
+        "RETRY",
+        "CONTINUE"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "retry-continue",
+        "lines": [
+          3555,
+          3665
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/error-handling/spec.md"
+    },
+    {
+      "id": "def-fn",
+      "kind": "statement",
+      "title": "DEF FN / FNEND — User-defined function declaration",
+      "keywords": [
+        "DEF",
+        "FNEND"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "def-fn",
+        "lines": [
+          3667,
+          3820
+        ]
+      },
+      "br_tree": "../br_tree/10-language/flow-control/functions-udf/spec.md"
+    },
+    {
+      "id": "library-functions",
+      "kind": "statement",
+      "title": "Library Functions — link reusable FN functions across programs",
+      "keywords": [
+        "LIBRARY",
+        "DEF LIBRARY"
+      ],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "library-functions",
+        "lines": [
+          3822,
+          3887
+        ]
+      },
+      "br_tree": "../br_tree/50-libraries/library-facility/spec.md"
+    },
+    {
+      "id": "cross-reference-map",
+      "kind": "reference",
+      "title": "Cross-Reference Map",
+      "keywords": [],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "cross-reference-map",
+        "lines": [
+          3889,
+          3941
+        ]
+      },
+      "br_tree": null
+    },
+    {
+      "id": "error-code-quick-reference",
+      "kind": "reference",
+      "title": "Error Code Quick Reference",
+      "keywords": [],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "error-code-quick-reference",
+        "lines": [
+          3943,
+          3964
+        ]
+      },
+      "br_tree": null
+    },
+    {
+      "id": "quick-start-examples",
+      "kind": "reference",
+      "title": "Practical Quick-Start Examples",
+      "keywords": [],
+      "semantics": {
+        "file": "statement-semantics.md",
+        "anchor": "quick-start-examples",
+        "lines": [
+          3966,
+          4028
+        ]
+      },
+      "br_tree": null
+    }
+  ]
+}

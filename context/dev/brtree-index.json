@@ -1,0 +1,3022 @@
+{
+  "$comment": "Concept -> spec router over br_tree/. keyword_index maps a BR keyword to the spec path(s) that document it; each spec record carries title, status, anchors, and lead summary. Regenerate with tools/gen_brtree_index.exe.",
+  "generated": "2026-10-21",
+  "source": "br_tree/",
+  "source_sha256": "6214a3c495ecad79d6d4c0b2e2fb15d73d3c239a7eaa207507e86fc0e10acb54",
+  "count": 38,
+  "keyword_index": {
+    "!:": [
+      "10-language/syntax"
+    ],
+    ":=": [
+      "10-language/data-manipulation/assignment",
+      "10-language/data-manipulation/expressions"
+    ],
+    "ABS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "AI": [
+      "70-commands/program-management"
+    ],
+    "AIDX": [
+      "10-language/data-manipulation/assignment",
+      "10-language/data-manipulation/system-functions"
+    ],
+    "ALERT": [
+      "70-commands/program-management"
+    ],
+    "ALL": [
+      "70-commands/information",
+      "70-commands/program-management"
+    ],
+    "ALTERNATE": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "AND": [
+      "10-language/data-manipulation/expressions"
+    ],
+    "ATN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "ATTN": [
+      "10-language/flow-control/error-handling"
+    ],
+    "ATTR": [
+      "20-io-screen/input-output"
+    ],
+    "ATTRIBUTE": [
+      "00-configuration/config-directives"
+    ],
+    "ATTRIBUTES": [
+      "70-commands/information"
+    ],
+    "AUTH": [
+      "00-configuration/installation-tooling"
+    ],
+    "AUTO": [
+      "70-commands/editing"
+    ],
+    "AutoIt": [
+      "00-configuration/installation-tooling"
+    ],
+    "B": [
+      "30-io-file/form-spec"
+    ],
+    "BASE": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "BAUD": [
+      "30-io-file/serial-comm"
+    ],
+    "BELL": [
+      "40-io-printing/statements"
+    ],
+    "BH": [
+      "30-io-file/form-spec"
+    ],
+    "BL": [
+      "30-io-file/form-spec"
+    ],
+    "BORDER": [
+      "20-io-screen/windows-cursor"
+    ],
+    "BREAK": [
+      "70-commands/information"
+    ],
+    "BREAKPOINTS": [
+      "70-commands/information"
+    ],
+    "BRERR$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "BRLIBS": [
+      "50-libraries/library-facility"
+    ],
+    "BRSERVER": [
+      "00-configuration/client-server"
+    ],
+    "BR_DATA": [
+      "00-configuration/environment"
+    ],
+    "BR_DATE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "BR_FILENAME$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "BR_FUNC": [
+      "60-integration/web"
+    ],
+    "BTREE_VERIFY": [
+      "30-io-file/keys-indexes"
+    ],
+    "BUTTON": [
+      "20-io-screen/controls"
+    ],
+    "BUTTONROWS": [
+      "20-io-screen/controls",
+      "20-io-screen/windows-cursor"
+    ],
+    "BUTTONS": [
+      "20-io-screen/controls"
+    ],
+    "C": [
+      "30-io-file/form-spec"
+    ],
+    "CALL": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CAPTION": [
+      "20-io-screen/windows-cursor"
+    ],
+    "CC": [
+      "30-io-file/form-spec"
+    ],
+    "CEIL": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CFORM$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CHAIN": [
+      "10-language/flow-control/other-flow",
+      "70-commands/program-management"
+    ],
+    "CHDIR": [
+      "70-commands/file-directory"
+    ],
+    "CHECK": [
+      "20-io-screen/controls"
+    ],
+    "CHR$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CL": [
+      "20-io-screen/fields-attributes"
+    ],
+    "CLAUSES": [
+      "70-commands/editing"
+    ],
+    "CLEAR": [
+      "70-commands/program-management"
+    ],
+    "CLIENT_SERVER": [
+      "00-configuration/client-server"
+    ],
+    "CLOSE": [
+      "30-io-file/statements"
+    ],
+    "CMDKEY": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/windows-cursor"
+    ],
+    "CNT": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CNVRT$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CODE": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "COLLATE": [
+      "00-configuration/config-directives",
+      "10-language/data-manipulation/declaration"
+    ],
+    "COLORS": [
+      "70-commands/information"
+    ],
+    "COM": [
+      "30-io-file/serial-comm"
+    ],
+    "COMBO": [
+      "20-io-screen/controls"
+    ],
+    "CONFIG": [
+      "00-configuration/client-server",
+      "00-configuration/config-directives"
+    ],
+    "CONFIG DATABASE": [
+      "30-io-file/database"
+    ],
+    "CONNECT": [
+      "00-configuration/installation-tooling"
+    ],
+    "CONNECTSTRING": [
+      "30-io-file/database"
+    ],
+    "CONSOLE": [
+      "00-configuration/installation-tooling"
+    ],
+    "CONTINUE": [
+      "10-language/flow-control/error-handling"
+    ],
+    "CONV": [
+      "10-language/flow-control/error-handling",
+      "10-language/flow-control/functions-udf"
+    ],
+    "COPIES": [
+      "40-io-printing/statements"
+    ],
+    "COPY": [
+      "70-commands/file-directory"
+    ],
+    "COS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CR": [
+      "30-io-file/form-spec"
+    ],
+    "CU": [
+      "20-io-screen/fields-attributes"
+    ],
+    "CURCOL": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/windows-cursor"
+    ],
+    "CURFLD": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/windows-cursor"
+    ],
+    "CURPOS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CURROW": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/windows-cursor"
+    ],
+    "CURTAB": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "CURWINDOW": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/windows-cursor"
+    ],
+    "D": [
+      "30-io-file/form-spec"
+    ],
+    "DATA": [
+      "10-language/data-manipulation/assignment"
+    ],
+    "DATABASE": [
+      "00-configuration/config-directives"
+    ],
+    "DATABITS": [
+      "30-io-file/serial-comm"
+    ],
+    "DATADIR": [
+      "00-configuration/environment"
+    ],
+    "DATE": [
+      "20-io-screen/fields-attributes",
+      "30-io-file/form-spec"
+    ],
+    "DATE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "DAYS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "DEBUG": [
+      "00-configuration/installation-tooling"
+    ],
+    "DEBUG_STR": [
+      "10-language/data-manipulation/system-functions",
+      "70-commands/information"
+    ],
+    "DECRYPT$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "DEF": [
+      "10-language/flow-control/functions-udf"
+    ],
+    "DEF LIBRARY": [
+      "50-libraries/library-facility"
+    ],
+    "DEG": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "DEL": [
+      "70-commands/editing"
+    ],
+    "DELETE": [
+      "30-io-file/statements"
+    ],
+    "DH": [
+      "30-io-file/form-spec"
+    ],
+    "DIDX": [
+      "10-language/data-manipulation/assignment",
+      "10-language/data-manipulation/system-functions"
+    ],
+    "DIM": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "DIMS": [
+      "70-commands/information"
+    ],
+    "DIR": [
+      "70-commands/file-directory"
+    ],
+    "DISPLAY": [
+      "30-io-file/file-model",
+      "70-commands/information"
+    ],
+    "DL": [
+      "30-io-file/form-spec"
+    ],
+    "DLL": [
+      "00-configuration/installation-tooling"
+    ],
+    "DO": [
+      "10-language/flow-control/other-flow"
+    ],
+    "DRIVE": [
+      "00-configuration/config-directives"
+    ],
+    "DROP": [
+      "30-io-file/statements",
+      "70-commands/file-directory"
+    ],
+    "DSN": [
+      "30-io-file/database"
+    ],
+    "DT": [
+      "30-io-file/form-spec"
+    ],
+    "DUPREC": [
+      "10-language/flow-control/error-handling"
+    ],
+    "EBCIDIC": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "ECHO": [
+      "70-commands/program-management"
+    ],
+    "EDIT": [
+      "70-commands/editing"
+    ],
+    "ELSE": [
+      "10-language/data-manipulation/conditionals"
+    ],
+    "ENCRYPT$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "ENCRYPTION": [
+      "70-commands/information"
+    ],
+    "END": [
+      "10-language/flow-control/other-flow"
+    ],
+    "ENV": [
+      "00-configuration/environment"
+    ],
+    "ENV$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "EOF": [
+      "10-language/flow-control/error-handling",
+      "30-io-file/statements"
+    ],
+    "ERR": [
+      "10-language/flow-control/error-handling"
+    ],
+    "ERROR": [
+      "10-language/flow-control/error-handling"
+    ],
+    "EVENT": [
+      "10-language/flow-control/error-handling"
+    ],
+    "EXECUTE": [
+      "70-commands/program-management"
+    ],
+    "EXISTS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "EXIT": [
+      "10-language/flow-control/error-handling",
+      "10-language/flow-control/other-flow"
+    ],
+    "EXP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "EXTERNAL": [
+      "30-io-file/file-model"
+    ],
+    "FIELDS": [
+      "20-io-screen/controls"
+    ],
+    "FILE": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "FILE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "FILENUM": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "FILES": [
+      "70-commands/program-management"
+    ],
+    "FILTER": [
+      "20-io-screen/fields-attributes"
+    ],
+    "FIRST": [
+      "30-io-file/statements"
+    ],
+    "FKEY": [
+      "10-language/data-manipulation/system-functions",
+      "10-language/flow-control/error-handling"
+    ],
+    "FMT": [
+      "20-io-screen/fields-attributes"
+    ],
+    "FN": [
+      "10-language/flow-control/functions-udf"
+    ],
+    "FNEND": [
+      "10-language/flow-control/functions-udf"
+    ],
+    "FNKEY": [
+      "10-language/flow-control/error-handling"
+    ],
+    "FONT": [
+      "00-configuration/config-directives",
+      "40-io-printing/pcl-pdf"
+    ],
+    "FONTS": [
+      "70-commands/information"
+    ],
+    "FOR": [
+      "10-language/flow-control/other-flow"
+    ],
+    "FORM": [
+      "30-io-file/form-spec"
+    ],
+    "FP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "FREE": [
+      "30-io-file/statements",
+      "70-commands/file-directory"
+    ],
+    "FREESP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "FileIO": [
+      "50-libraries/fileio"
+    ],
+    "FnSnap": [
+      "50-libraries/fnsnap"
+    ],
+    "G": [
+      "30-io-file/form-spec"
+    ],
+    "GET$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "GF": [
+      "30-io-file/form-spec"
+    ],
+    "GL": [
+      "20-io-screen/fields-attributes"
+    ],
+    "GO": [
+      "70-commands/program-management"
+    ],
+    "GOSUB": [
+      "10-language/flow-control/other-flow"
+    ],
+    "GOTO": [
+      "10-language/data-manipulation/conditionals",
+      "10-language/flow-control/other-flow"
+    ],
+    "GRID": [
+      "20-io-screen/controls"
+    ],
+    "GROW": [
+      "10-language/flow-control/error-handling"
+    ],
+    "GU": [
+      "20-io-screen/fields-attributes"
+    ],
+    "GZ": [
+      "30-io-file/form-spec"
+    ],
+    "HEADING": [
+      "40-io-printing/statements"
+    ],
+    "HELP": [
+      "10-language/flow-control/error-handling",
+      "20-io-screen/input-output",
+      "20-io-screen/windows-cursor"
+    ],
+    "HELP$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "HEX$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "HTTP": [
+      "60-integration/web"
+    ],
+    "IF": [
+      "10-language/data-manipulation/conditionals"
+    ],
+    "IGNORE": [
+      "10-language/flow-control/error-handling"
+    ],
+    "INCLUDE": [
+      "00-configuration/config-directives"
+    ],
+    "INDEX": [
+      "30-io-file/keys-indexes"
+    ],
+    "INPUT": [
+      "20-io-screen/input-output",
+      "30-io-file/file-model"
+    ],
+    "INPUT FIELDS": [
+      "20-io-screen/input-output"
+    ],
+    "INPUT SELECT": [
+      "20-io-screen/input-output"
+    ],
+    "INT": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "INTERNAL": [
+      "30-io-file/file-model"
+    ],
+    "INVOKE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "INVP": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "IOERR": [
+      "10-language/flow-control/error-handling"
+    ],
+    "IP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "JSON": [
+      "60-integration/json-datastore"
+    ],
+    "KEY": [
+      "30-io-file/keys-indexes",
+      "30-io-file/statements"
+    ],
+    "KEYBOARD": [
+      "00-configuration/config-directives"
+    ],
+    "KEYED": [
+      "30-io-file/file-model",
+      "30-io-file/keys-indexes"
+    ],
+    "KEYONLY": [
+      "30-io-file/keys-indexes",
+      "30-io-file/statements"
+    ],
+    "KLN": [
+      "10-language/data-manipulation/system-functions",
+      "30-io-file/keys-indexes"
+    ],
+    "KPS": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "KREC": [
+      "10-language/data-manipulation/system-functions",
+      "30-io-file/keys-indexes"
+    ],
+    "KSTAT$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "L": [
+      "30-io-file/form-spec"
+    ],
+    "LAST": [
+      "30-io-file/statements"
+    ],
+    "LEN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LET": [
+      "10-language/data-manipulation/assignment"
+    ],
+    "LIBRARY": [
+      "10-language/flow-control/functions-udf",
+      "50-libraries/fileio",
+      "50-libraries/fnsnap",
+      "50-libraries/library-facility",
+      "50-libraries/screenio"
+    ],
+    "LINE": [
+      "10-language/flow-control/error-handling"
+    ],
+    "LINES": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LINESPP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LINESTATUS$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LINK=": [
+      "30-io-file/statements"
+    ],
+    "LINKED": [
+      "30-io-file/file-model"
+    ],
+    "LINPUT": [
+      "20-io-screen/input-output"
+    ],
+    "LIST": [
+      "20-io-screen/controls",
+      "70-commands/editing",
+      "70-commands/information"
+    ],
+    "LISTEN": [
+      "00-configuration/installation-tooling"
+    ],
+    "LOAD": [
+      "50-libraries/library-facility",
+      "70-commands/program-management"
+    ],
+    "LOCKED": [
+      "10-language/flow-control/error-handling"
+    ],
+    "LOCKS": [
+      "70-commands/information"
+    ],
+    "LOG": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LOGGING": [
+      "00-configuration/config-directives",
+      "70-commands/information"
+    ],
+    "LOGIN_NAME": [
+      "00-configuration/environment"
+    ],
+    "LOGIN_NAME$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LOGOFF": [
+      "70-commands/program-management"
+    ],
+    "LOOP": [
+      "10-language/flow-control/other-flow"
+    ],
+    "LPAD$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LREC": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LTRM$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "LWRC$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "Lexi": [
+      "00-configuration/installation-tooling"
+    ],
+    "MAT": [
+      "10-language/data-manipulation/assignment",
+      "10-language/data-manipulation/declaration"
+    ],
+    "MAT2STR": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MAX": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MAX$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MEMORY": [
+      "70-commands/information"
+    ],
+    "MENU": [
+      "20-io-screen/controls"
+    ],
+    "MENU$": [
+      "10-language/data-manipulation/system-functions",
+      "20-io-screen/controls"
+    ],
+    "MERGE": [
+      "70-commands/program-management"
+    ],
+    "MIN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MIN$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MKDIR": [
+      "70-commands/file-directory"
+    ],
+    "MOD": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MOVE": [
+      "70-commands/file-directory"
+    ],
+    "MSG": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MSG$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "MSGBOX": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "N": [
+      "30-io-file/form-spec"
+    ],
+    "NATIVE": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "NEWPAGE": [
+      "20-io-screen/windows-cursor",
+      "40-io-printing/statements"
+    ],
+    "NEXT": [
+      "10-language/flow-control/other-flow",
+      "30-io-file/statements"
+    ],
+    "NOECHO": [
+      "70-commands/program-management"
+    ],
+    "NOEJECT": [
+      "70-commands/editing"
+    ],
+    "NOFILES": [
+      "50-libraries/library-facility"
+    ],
+    "NOKEY": [
+      "10-language/flow-control/error-handling",
+      "30-io-file/statements"
+    ],
+    "NONE": [
+      "10-language/flow-control/error-handling"
+    ],
+    "NOREC": [
+      "10-language/flow-control/error-handling",
+      "30-io-file/statements"
+    ],
+    "NORESTORE": [
+      "70-commands/information"
+    ],
+    "NOSTEP": [
+      "70-commands/program-management"
+    ],
+    "NOT": [
+      "10-language/data-manipulation/expressions"
+    ],
+    "NOTRACE": [
+      "70-commands/program-management"
+    ],
+    "NWP": [
+      "40-io-printing/pcl-pdf"
+    ],
+    "NXTCOL": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "NXTFLD": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "NXTROW": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "NZ": [
+      "30-io-file/form-spec"
+    ],
+    "OBJECT": [
+      "70-commands/program-management"
+    ],
+    "OBSERVE": [
+      "00-configuration/installation-tooling"
+    ],
+    "ODBC": [
+      "00-configuration/installation-tooling",
+      "30-io-file/database"
+    ],
+    "ODBC-MANAGER": [
+      "30-io-file/database"
+    ],
+    "OFF": [
+      "10-language/flow-control/other-flow"
+    ],
+    "OFLOW": [
+      "10-language/flow-control/error-handling"
+    ],
+    "ON": [
+      "10-language/flow-control/other-flow"
+    ],
+    "ON ERROR": [
+      "10-language/flow-control/error-handling"
+    ],
+    "ON GOSUB": [
+      "10-language/flow-control/other-flow"
+    ],
+    "ON GOTO": [
+      "10-language/flow-control/other-flow"
+    ],
+    "ONLY": [
+      "70-commands/program-management"
+    ],
+    "OPEN": [
+      "30-io-file/database",
+      "30-io-file/file-model",
+      "30-io-file/serial-comm",
+      "30-io-file/statements",
+      "40-io-printing/statements"
+    ],
+    "OPEN WINDOW": [
+      "20-io-screen/windows-cursor"
+    ],
+    "OPTION": [
+      "00-configuration/config-directives",
+      "10-language/data-manipulation/declaration"
+    ],
+    "OR": [
+      "10-language/data-manipulation/expressions"
+    ],
+    "ORD": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "OS_FILENAME$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "OUTIN": [
+      "30-io-file/statements"
+    ],
+    "OUTPUT": [
+      "30-io-file/statements"
+    ],
+    "PAGEOFLOW": [
+      "10-language/flow-control/error-handling",
+      "40-io-printing/statements"
+    ],
+    "PARENT": [
+      "20-io-screen/windows-cursor"
+    ],
+    "PASSWORDD": [
+      "30-io-file/database"
+    ],
+    "PAUSE": [
+      "10-language/flow-control/other-flow"
+    ],
+    "PCL": [
+      "40-io-printing/pcl-pdf"
+    ],
+    "PD": [
+      "30-io-file/form-spec"
+    ],
+    "PDF": [
+      "00-configuration/installation-tooling",
+      "40-io-printing/pcl-pdf"
+    ],
+    "PEM": [
+      "00-configuration/installation-tooling"
+    ],
+    "PI": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "PIC": [
+      "20-io-screen/fields-attributes",
+      "30-io-file/form-spec",
+      "40-io-printing/statements"
+    ],
+    "PIC$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "POS": [
+      "10-language/data-manipulation/system-functions",
+      "30-io-file/form-spec"
+    ],
+    "PRINT": [
+      "10-language/flow-control/other-flow",
+      "40-io-printing/statements"
+    ],
+    "PRINT FIELDS": [
+      "20-io-screen/input-output"
+    ],
+    "PRINTDIR": [
+      "00-configuration/config-directives"
+    ],
+    "PRINTER": [
+      "00-configuration/config-directives"
+    ],
+    "PRINTER_LIST": [
+      "10-language/data-manipulation/system-functions",
+      "40-io-printing/statements"
+    ],
+    "PRIOR": [
+      "30-io-file/statements"
+    ],
+    "PROC": [
+      "70-commands/program-management"
+    ],
+    "PROCERR": [
+      "70-commands/program-management"
+    ],
+    "PROCIN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "PROCLVL": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "PROFILE": [
+      "00-configuration/installation-tooling"
+    ],
+    "PROGRAM$": [
+      "10-language/data-manipulation/system-functions",
+      "70-commands/information"
+    ],
+    "PROTECT": [
+      "70-commands/file-directory"
+    ],
+    "PRTZO": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "RAD": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RADIO": [
+      "20-io-screen/controls"
+    ],
+    "RANDOMIZE": [
+      "10-language/flow-control/other-flow"
+    ],
+    "RD": [
+      "00-configuration/config-directives"
+    ],
+    "READ": [
+      "10-language/data-manipulation/assignment",
+      "30-io-file/statements"
+    ],
+    "REC": [
+      "30-io-file/statements"
+    ],
+    "RELATIVE": [
+      "30-io-file/file-model"
+    ],
+    "RELEASE": [
+      "30-io-file/file-model",
+      "50-libraries/library-facility"
+    ],
+    "REM": [
+      "10-language/syntax"
+    ],
+    "RENAME": [
+      "70-commands/file-directory"
+    ],
+    "RENUM": [
+      "70-commands/editing"
+    ],
+    "REORG": [
+      "30-io-file/keys-indexes"
+    ],
+    "REPLACE": [
+      "70-commands/program-management"
+    ],
+    "REREAD": [
+      "30-io-file/statements"
+    ],
+    "RESERVE": [
+      "30-io-file/file-model"
+    ],
+    "RESIDENT": [
+      "50-libraries/library-facility"
+    ],
+    "RESTORE": [
+      "10-language/data-manipulation/assignment",
+      "30-io-file/statements"
+    ],
+    "RETAIN": [
+      "10-language/data-manipulation/declaration"
+    ],
+    "RETRY": [
+      "10-language/flow-control/error-handling"
+    ],
+    "RETURN": [
+      "10-language/flow-control/other-flow"
+    ],
+    "REWRITE": [
+      "30-io-file/statements"
+    ],
+    "RINPUT": [
+      "20-io-screen/input-output"
+    ],
+    "RINPUT FIELDS": [
+      "20-io-screen/input-output"
+    ],
+    "RINPUT SELECT": [
+      "20-io-screen/input-output"
+    ],
+    "RLN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RMDIR": [
+      "70-commands/file-directory"
+    ],
+    "RND": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "ROUND": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RPAD$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RPT$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RTRM$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "RUN": [
+      "70-commands/program-management"
+    ],
+    "S": [
+      "30-io-file/form-spec"
+    ],
+    "SAME": [
+      "30-io-file/statements"
+    ],
+    "SAVE": [
+      "70-commands/program-management"
+    ],
+    "SCREEN": [
+      "00-configuration/config-directives"
+    ],
+    "SCREENLOG": [
+      "00-configuration/installation-tooling"
+    ],
+    "SCR_FREEZE": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SCR_THAW": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SEARCH": [
+      "30-io-file/keys-indexes"
+    ],
+    "SELECT": [
+      "20-io-screen/input-output"
+    ],
+    "SEQUENTIAL": [
+      "30-io-file/statements"
+    ],
+    "SERVER": [
+      "00-configuration/client-server"
+    ],
+    "SESSION$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SET$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SETENV": [
+      "00-configuration/config-directives",
+      "00-configuration/environment"
+    ],
+    "SETFONT": [
+      "40-io-printing/pcl-pdf"
+    ],
+    "SGN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SHIFT": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SHR": [
+      "30-io-file/file-model"
+    ],
+    "SIN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SKIP": [
+      "30-io-file/form-spec"
+    ],
+    "SLEEP": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SOFLOW": [
+      "10-language/flow-control/error-handling"
+    ],
+    "SORT": [
+      "40-io-printing/sort"
+    ],
+    "SOURCE": [
+      "70-commands/editing",
+      "70-commands/program-management"
+    ],
+    "SPAWN_RESTRICTED": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SPOOLCMD": [
+      "00-configuration/config-directives"
+    ],
+    "SQL": [
+      "30-io-file/database"
+    ],
+    "SQL_DATE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SQR": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SRCH": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SREP$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "STACKS": [
+      "00-configuration/config-directives"
+    ],
+    "STATUS": [
+      "70-commands/information"
+    ],
+    "STATUS.DATABASE": [
+      "30-io-file/database"
+    ],
+    "STEP": [
+      "10-language/flow-control/other-flow",
+      "70-commands/information"
+    ],
+    "STOP": [
+      "10-language/flow-control/other-flow"
+    ],
+    "STOPBITS": [
+      "30-io-file/serial-comm"
+    ],
+    "STR$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "STR2MAT": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "STYLE": [
+      "00-configuration/config-directives"
+    ],
+    "SUBPROC": [
+      "70-commands/program-management"
+    ],
+    "SUBSTITUTE": [
+      "00-configuration/config-directives"
+    ],
+    "SUM": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SYSERR": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SYSERR$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "SYSTEM": [
+      "70-commands/program-management"
+    ],
+    "ScreenIO": [
+      "50-libraries/screenio"
+    ],
+    "TAB": [
+      "40-io-printing/statements"
+    ],
+    "TAN": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "TEXT": [
+      "20-io-screen/controls"
+    ],
+    "THEN": [
+      "10-language/data-manipulation/conditionals"
+    ],
+    "TIME": [
+      "70-commands/information"
+    ],
+    "TIME$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "TIMEOUT": [
+      "10-language/flow-control/error-handling"
+    ],
+    "TIMER": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "TO": [
+      "10-language/flow-control/other-flow"
+    ],
+    "TRACE": [
+      "10-language/flow-control/other-flow",
+      "70-commands/information"
+    ],
+    "TRIM$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "TRUNC": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "TYPE": [
+      "70-commands/file-directory"
+    ],
+    "UDIM": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "UNHEX$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "UNTIL": [
+      "10-language/flow-control/other-flow"
+    ],
+    "UPRC$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "USERID$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "USERS": [
+      "70-commands/information"
+    ],
+    "USING": [
+      "30-io-file/form-spec",
+      "40-io-printing/statements"
+    ],
+    "V": [
+      "30-io-file/form-spec"
+    ],
+    "VAL": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "VARIABLE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "VERIFY": [
+      "30-io-file/keys-indexes"
+    ],
+    "VERSION": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "VL": [
+      "20-io-screen/fields-attributes"
+    ],
+    "VU": [
+      "20-io-screen/fields-attributes"
+    ],
+    "WAIT": [
+      "30-io-file/statements"
+    ],
+    "WBPLATFORM$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "WBVERSION$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "WEB_SERVER12": [
+      "60-integration/web"
+    ],
+    "WHILE": [
+      "10-language/flow-control/other-flow"
+    ],
+    "WINDOW": [
+      "20-io-screen/windows-cursor"
+    ],
+    "WORKPATH": [
+      "00-configuration/config-directives",
+      "00-configuration/environment"
+    ],
+    "WRITE": [
+      "30-io-file/statements"
+    ],
+    "WSID": [
+      "00-configuration/platform",
+      "30-io-file/file-model"
+    ],
+    "WSID$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "WebForm": [
+      "60-integration/web"
+    ],
+    "X": [
+      "30-io-file/form-spec"
+    ],
+    "XLATE$": [
+      "10-language/data-manipulation/system-functions"
+    ],
+    "ZD": [
+      "30-io-file/form-spec"
+    ],
+    "ZDIV": [
+      "10-language/flow-control/error-handling"
+    ],
+    "abbreviation": [
+      "10-language/syntax"
+    ],
+    "attribute": [
+      "20-io-screen/fields-attributes"
+    ],
+    "barcode": [
+      "40-io-printing/pcl-pdf"
+    ],
+    "brnative": [
+      "00-configuration/platform"
+    ],
+    "color": [
+      "20-io-screen/fields-attributes"
+    ],
+    "comment": [
+      "10-language/syntax"
+    ],
+    "continuation": [
+      "10-language/syntax"
+    ],
+    "cursor": [
+      "20-io-screen/windows-cursor"
+    ],
+    "datastore": [
+      "60-integration/json-datastore"
+    ],
+    "executable": [
+      "00-configuration/platform"
+    ],
+    "fnOpen": [
+      "50-libraries/fileio"
+    ],
+    "fnRead": [
+      "50-libraries/fileio"
+    ],
+    "fnfm": [
+      "50-libraries/screenio"
+    ],
+    "fnfm$": [
+      "50-libraries/screenio"
+    ],
+    "hexadecimal": [
+      "10-language/data-manipulation/data-types"
+    ],
+    "identifier": [
+      "10-language/syntax"
+    ],
+    "inf": [
+      "10-language/data-manipulation/data-types"
+    ],
+    "label": [
+      "10-language/syntax"
+    ],
+    "line-number": [
+      "10-language/syntax"
+    ],
+    "locking": [
+      "30-io-file/file-model"
+    ],
+    "name-resolution": [
+      "10-language/syntax"
+    ],
+    "null": [
+      "10-language/data-manipulation/data-types"
+    ],
+    "numeric": [
+      "10-language/data-manipulation/data-types"
+    ],
+    "object-store": [
+      "60-integration/json-datastore"
+    ],
+    "operators": [
+      "10-language/data-manipulation/expressions"
+    ],
+    "platform": [
+      "00-configuration/platform"
+    ],
+    "precedence": [
+      "10-language/data-manipulation/expressions"
+    ],
+    "serial": [
+      "30-io-file/serial-comm"
+    ],
+    "startup": [
+      "00-configuration/platform"
+    ],
+    "string": [
+      "10-language/data-manipulation/data-types"
+    ],
+    "web-server": [
+      "60-integration/web"
+    ]
+  },
+  "specs": [
+    {
+      "path": "00-configuration/client-server",
+      "name": "client-server",
+      "file": "br_tree/00-configuration/client-server/spec.md",
+      "title": "Client-server",
+      "category": "00-configuration",
+      "status": "2b",
+      "keywords": [
+        "CLIENT_SERVER",
+        "BRSERVER",
+        "SERVER",
+        "CONFIG"
+      ],
+      "related": [
+        "config-directives",
+        "platform",
+        "environment"
+      ],
+      "anchors": [
+        "architecture",
+        "config",
+        "reconnect",
+        "cs-operations",
+        "examples",
+        "service-install",
+        "security",
+        "see-also"
+      ],
+      "summary": "Deploying BR with a separated UI (client) and business logic/data (server) over TCP/IP. Configuration/deployment, not coding. OS-specific server setup is in platform; start-up directives in config-directives."
+    },
+    {
+      "path": "00-configuration/config-directives",
+      "name": "config-directives",
+      "file": "br_tree/00-configuration/config-directives/spec.md",
+      "title": "BRConfig.sys directives",
+      "category": "00-configuration",
+      "status": "2b",
+      "keywords": [
+        "CONFIG",
+        "DRIVE",
+        "OPTION",
+        "DATABASE",
+        "SUBSTITUTE",
+        "STYLE",
+        "PRINTER",
+        "FONT",
+        "COLLATE",
+        "LOGGING",
+        "WORKPATH",
+        "PRINTDIR",
+        "SPOOLCMD",
+        "INCLUDE",
+        "SETENV",
+        "ATTRIBUTE",
+        "KEYBOARD",
+        "SCREEN",
+        "RD",
+        "STACKS"
+      ],
+      "related": [
+        "environment",
+        "client-server",
+        "platform",
+        "installation-tooling"
+      ],
+      "anchors": [
+        "semantics",
+        "paths",
+        "printdir",
+        "substitute",
+        "substitute-matching",
+        "spool-work",
+        "appearance",
+        "behavior",
+        "printer",
+        "config",
+        "examples",
+        "see-also"
+      ],
+      "summary": "The start-up configuration file (BRConfig.sys) — holds environmental settings read by BR at launch (800 chars/line). Configuration, not coding. BR loads it at start-up, falling back to the legacyWBConfig.sys if BRConfig.sys is absent. Lines containing errors are listed on screen at start-up and then ignored (their defaults apply) so a bad directive never halts start-up. Environment-variable handling is in environment; client-server settings in client-server. Almost every directive can also be applied at runtime via the CONFIG command (and conditioned per-user with a leading @\"login\"). A REM line (or ! after a space) is a comment."
+    },
+    {
+      "path": "00-configuration/environment",
+      "name": "environment",
+      "file": "br_tree/00-configuration/environment/spec.md",
+      "title": "Environment variables & paths",
+      "category": "00-configuration",
+      "status": "2b",
+      "keywords": [
+        "ENV",
+        "SETENV",
+        "DATADIR",
+        "BR_DATA",
+        "LOGIN_NAME",
+        "WORKPATH"
+      ],
+      "related": [
+        "config-directives",
+        "client-server"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "env-substitution",
+        "path-resolution",
+        "setenv",
+        "env-read",
+        "client-current-dir",
+        "tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "How OS/session environment values feed BR and how filenames resolve to OS paths. The configuration directives that consume these are in config-directives; reading them at runtime is via ENV$."
+    },
+    {
+      "path": "00-configuration/installation-tooling",
+      "name": "installation-tooling",
+      "file": "br_tree/00-configuration/installation-tooling/spec.md",
+      "title": "Installation & tooling",
+      "category": "00-configuration",
+      "status": "2b",
+      "keywords": [
+        "ODBC",
+        "PDF",
+        "Lexi",
+        "DLL",
+        "PEM",
+        "AutoIt",
+        "DEBUG",
+        "PROFILE",
+        "CONNECT",
+        "CONSOLE",
+        "AUTH",
+        "LISTEN",
+        "OBSERVE",
+        "SCREENLOG"
+      ],
+      "related": [
+        "config-directives",
+        "platform"
+      ],
+      "anchors": [
+        "editors",
+        "lexi",
+        "catalog",
+        "odbc",
+        "pdf",
+        "dotnet",
+        "diagnostics",
+        "automation",
+        "see-also"
+      ],
+      "summary": "External tools around BR: source editors, the Lexi preprocessor, installers, runtimes, DLLs and diagnostic utilities used to deploy and support it. Setup, not coding. Most pieces ship from ftp.brulescorp.com (/Dll_Distr/…)."
+    },
+    {
+      "path": "00-configuration/platform",
+      "name": "platform",
+      "file": "br_tree/00-configuration/platform/spec.md",
+      "title": "Platforms & executables",
+      "category": "00-configuration",
+      "status": "2b",
+      "keywords": [
+        "platform",
+        "executable",
+        "WSID",
+        "startup",
+        "brnative"
+      ],
+      "related": [
+        "config-directives",
+        "client-server",
+        "installation-tooling"
+      ],
+      "anchors": [
+        "executables",
+        "startup",
+        "cross-platform",
+        "wbserver-exit",
+        "security",
+        "compat",
+        "version",
+        "see-also"
+      ],
+      "summary": "The operating systems and executables BR runs on, how a session is launched, and the portability story. BR's promise is that the same program runs identically across platforms — platform differences live here in configuration, not in code."
+    },
+    {
+      "path": "10-language/data-manipulation/assignment",
+      "name": "assignment",
+      "file": "br_tree/10-language/data-manipulation/assignment/spec.md",
+      "title": "Assignment & data movement",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "LET",
+        "MAT",
+        "DATA",
+        "READ",
+        "RESTORE",
+        ":=",
+        "AIDX",
+        "DIDX"
+      ],
+      "related": [
+        "expressions",
+        "declaration",
+        "data-types",
+        "system-functions",
+        "error-handling"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "let",
+        "forced-assignment",
+        "mat",
+        "mat-sub-array",
+        "substring",
+        "data-table",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Putting values into variables and arrays and changing them in place: LET, the forced-assignment operator :=, MAT array operations, substring mutation, and the internal data table (DATA/READ/RESTORE). Operators that form the right-hand-side values are in expressions; declaring/sizing storage is in declaration."
+    },
+    {
+      "path": "10-language/data-manipulation/conditionals",
+      "name": "conditionals",
+      "file": "br_tree/10-language/data-manipulation/conditionals/spec.md",
+      "title": "Conditionals (IF)",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "IF",
+        "THEN",
+        "ELSE",
+        "GOTO"
+      ],
+      "related": [
+        "expressions",
+        "other-flow"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "examples",
+        "see-also"
+      ],
+      "summary": "IF / THEN / ELSE / END IF branching. The conditions themselves — relational and logical operators, and the two meanings of = — are defined in expressions."
+    },
+    {
+      "path": "10-language/data-manipulation/data-types",
+      "name": "data-types",
+      "file": "br_tree/10-language/data-manipulation/data-types/spec.md",
+      "title": "Data types",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "numeric",
+        "string",
+        "hexadecimal",
+        "null",
+        "inf"
+      ],
+      "related": [
+        "declaration",
+        "assignment",
+        "expressions"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "numeric",
+        "inf",
+        "hex",
+        "null",
+        "string",
+        "tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "The literals and value kinds BR works with: numeric (integer / fixed-point / scientific) and string. Declaring a variable's storage (string max length, arrays) lives in declaration; the operators that combine these values live in expressions."
+    },
+    {
+      "path": "10-language/data-manipulation/declaration",
+      "name": "declaration",
+      "file": "br_tree/10-language/data-manipulation/declaration/spec.md",
+      "title": "Declaration (variables & arrays)",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "DIM",
+        "MAT",
+        "OPTION",
+        "BASE",
+        "PRTZO",
+        "INVP",
+        "COLLATE",
+        "RETAIN",
+        "NATIVE",
+        "ALTERNATE",
+        "EBCIDIC"
+      ],
+      "related": [
+        "data-types",
+        "assignment",
+        "expressions"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "dim",
+        "arrays",
+        "option",
+        "redimensioning",
+        "tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Declaring storage: variable kinds and naming, DIM for string length and arrays, and runtime redimensioning with MAT. Putting values into variables/arrays (LET, MAT copy/arithmetic, READ/DATA) lives in assignment; the value kinds themselves are in data-types."
+    },
+    {
+      "path": "10-language/data-manipulation/expressions",
+      "name": "expressions",
+      "file": "br_tree/10-language/data-manipulation/expressions/spec.md",
+      "title": "Expressions",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "AND",
+        "OR",
+        "NOT",
+        "precedence",
+        ":=",
+        "operators"
+      ],
+      "related": [
+        "assignment",
+        "conditionals",
+        "data-types",
+        "declaration"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "forced-assignment",
+        "relational-operators",
+        "logical-operators",
+        "concatenation",
+        "tables",
+        "precedence",
+        "associativity",
+        "not-vs-tilde",
+        "short-circuit",
+        "non-operators",
+        "truth-tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Operators, precedence, and the numeric / string / relational / logical expressions that BR evaluates. Substring mutation and the LET form of assignment live in assignment; the IF / WHILE / UNTIL constructs that consume relational expressions live in conditionals."
+    },
+    {
+      "path": "10-language/data-manipulation/system-functions",
+      "name": "system-functions",
+      "file": "br_tree/10-language/data-manipulation/system-functions/spec.md",
+      "title": "System (built-in) functions",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "CNVRT$",
+        "POS",
+        "LEN",
+        "TRIM$",
+        "UPRC$",
+        "LWRC$",
+        "STR$",
+        "VAL",
+        "DATE$",
+        "TIME$",
+        "RND",
+        "MAX",
+        "MIN",
+        "SUM",
+        "MSGBOX",
+        "KSTAT$",
+        "AIDX",
+        "DIDX",
+        "UDIM",
+        "SRCH",
+        "STR2MAT",
+        "MAT2STR",
+        "CHR$",
+        "ORD",
+        "LTRM$",
+        "RTRM$",
+        "LPAD$",
+        "RPAD$",
+        "RPT$",
+        "SREP$",
+        "XLATE$",
+        "LOGIN_NAME$",
+        "CFORM$",
+        "HEX$",
+        "UNHEX$",
+        "PIC$",
+        "INT",
+        "IP",
+        "FP",
+        "CEIL",
+        "ROUND",
+        "TRUNC",
+        "ABS",
+        "SGN",
+        "SQR",
+        "MOD",
+        "MAX$",
+        "MIN$",
+        "SIN",
+        "COS",
+        "TAN",
+        "ATN",
+        "DEG",
+        "RAD",
+        "LOG",
+        "EXP",
+        "PI",
+        "DAYS",
+        "SQL_DATE$",
+        "BR_DATE$",
+        "FILE",
+        "FILE$",
+        "FILENUM",
+        "FREESP",
+        "EXISTS",
+        "BR_FILENAME$",
+        "OS_FILENAME$",
+        "KPS",
+        "LREC",
+        "RLN",
+        "VERSION",
+        "LINESTATUS$",
+        "LINES",
+        "LINESPP",
+        "NXTFLD",
+        "NXTROW",
+        "NXTCOL",
+        "CURPOS",
+        "CURTAB",
+        "SCR_FREEZE",
+        "SCR_THAW",
+        "CNT",
+        "BRERR$",
+        "ENV$",
+        "CODE",
+        "PROCIN",
+        "WSID$",
+        "USERID$",
+        "SESSION$",
+        "PROCLVL",
+        "TIMER",
+        "VARIABLE$",
+        "WBVERSION$",
+        "WBPLATFORM$",
+        "SYSERR",
+        "SYSERR$",
+        "SHIFT",
+        "MSG$",
+        "MSG",
+        "SLEEP",
+        "SPAWN_RESTRICTED",
+        "HELP$",
+        "GET$",
+        "SET$",
+        "INVOKE$",
+        "CALL",
+        "ENCRYPT$",
+        "DECRYPT$",
+        "CMDKEY",
+        "FKEY",
+        "CURROW",
+        "CURCOL",
+        "CURFLD",
+        "CURWINDOW",
+        "MENU$",
+        "KLN",
+        "KREC",
+        "PROGRAM$",
+        "DEBUG_STR",
+        "PRINTER_LIST"
+      ],
+      "related": [
+        "expressions",
+        "assignment",
+        "declaration",
+        "data-types"
+      ],
+      "anchors": [
+        "syntax",
+        "signature-notation",
+        "semantics",
+        "mat-qualifier",
+        "tables",
+        "string-functions",
+        "conversion-functions",
+        "numeric-functions",
+        "accepted-and-ignored",
+        "date-functions",
+        "array-functions",
+        "str2mat-delimiter",
+        "file-query",
+        "screen-query",
+        "system-info",
+        "integration-functions",
+        "msgbox",
+        "encryption",
+        "examples",
+        "see-also"
+      ],
+      "summary": "BR's intrinsic functions — they return a value and are used inside expressions. Grouped below by purpose. User-defined functions (DEF/FN) are a separate topic in flow-control/functions-udf."
+    },
+    {
+      "path": "10-language/flow-control/error-handling",
+      "name": "error-handling",
+      "file": "br_tree/10-language/flow-control/error-handling/spec.md",
+      "title": "Error handling",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "GROW",
+        "ON ERROR",
+        "ERROR",
+        "IOERR",
+        "RETRY",
+        "CONTINUE",
+        "EXIT",
+        "ERR",
+        "LINE",
+        "SOFLOW",
+        "ZDIV",
+        "ATTN",
+        "CONV",
+        "DUPREC",
+        "EOF",
+        "EVENT",
+        "FKEY",
+        "FNKEY",
+        "HELP",
+        "LOCKED",
+        "NOKEY",
+        "NONE",
+        "NOREC",
+        "OFLOW",
+        "PAGEOFLOW",
+        "TIMEOUT",
+        "IGNORE"
+      ],
+      "related": [
+        "other-flow",
+        "conditionals"
+      ],
+      "anchors": [
+        "system-variables",
+        "levels",
+        "conditions",
+        "soflow-grow",
+        "recovery",
+        "modes",
+        "os-errors",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Trapping and recovering from runtime errors without halting. The numeric error codes themselves are the lookup table in 90-reference/error-codes; this spec is the mechanism."
+    },
+    {
+      "path": "10-language/flow-control/functions-udf",
+      "name": "functions-udf",
+      "file": "br_tree/10-language/flow-control/functions-udf/spec.md",
+      "title": "User-defined functions (DEF / FN)",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "DEF",
+        "FNEND",
+        "FN",
+        "LIBRARY",
+        "CONV"
+      ],
+      "related": [
+        "other-flow",
+        "syntax",
+        "system-functions",
+        "error-handling"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "def",
+        "parameters",
+        "local-variables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Defining your own FN… functions with DEF … FNEND, their parameters (by value vs. by reference), local scope, and return value. The library facility that loads and links functions across programs (LIBRARY statement, loading strategies, search order) is in 50-libraries/library-facility. Built-in intrinsic functions are in system-functions."
+    },
+    {
+      "path": "10-language/flow-control/other-flow",
+      "name": "other-flow",
+      "file": "br_tree/10-language/flow-control/other-flow/spec.md",
+      "title": "Loops & branching",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "FOR",
+        "NEXT",
+        "DO",
+        "LOOP",
+        "WHILE",
+        "UNTIL",
+        "GOTO",
+        "GOSUB",
+        "RETURN",
+        "ON GOTO",
+        "ON GOSUB",
+        "EXIT",
+        "RANDOMIZE",
+        "STOP",
+        "END",
+        "PAUSE",
+        "CHAIN",
+        "TRACE",
+        "STEP",
+        "TO",
+        "ON",
+        "OFF",
+        "PRINT"
+      ],
+      "related": [
+        "conditionals",
+        "syntax",
+        "functions-udf"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "for-next",
+        "do-loop",
+        "goto",
+        "gosub",
+        "on-goto",
+        "exit",
+        "randomize",
+        "termination",
+        "trace",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Iteration and control transfer: FOR/NEXT, DO/LOOP, GOTO, GOSUB/RETURN, ON … GOTO/GOSUB, and EXIT. The IF decision itself is in conditionals; the conditions are in expressions. Targets are <line-ref>s (line number or label) — see syntax."
+    },
+    {
+      "path": "10-language/syntax",
+      "name": "syntax",
+      "file": "br_tree/10-language/syntax/spec.md",
+      "title": "Lexical structure & program syntax",
+      "category": "10-language",
+      "status": "2b",
+      "keywords": [
+        "REM",
+        "comment",
+        "line-number",
+        "label",
+        "continuation",
+        "!:",
+        "abbreviation",
+        "identifier",
+        "name-resolution"
+      ],
+      "related": [
+        "conditionals",
+        "other-flow",
+        "functions-udf",
+        "system-functions",
+        "expressions"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "line-numbers",
+        "comments",
+        "identifiers",
+        "name-resolution",
+        "line-labels",
+        "multiple-statements",
+        "line-continuation",
+        "abbreviations",
+        "diagram-conventions",
+        "program-structure",
+        "examples",
+        "see-also"
+      ],
+      "summary": "How BR source is written: line numbers, comments, identifiers, line labels, and multiple statements per line — and how BR decides what a bare token is, which is by arity rather than by symbol table and catches most newcomers out. The control statements that use line refs are in other-flow and conditionals."
+    },
+    {
+      "path": "20-io-screen/controls",
+      "name": "controls",
+      "file": "br_tree/20-io-screen/controls/spec.md",
+      "title": "GUI controls",
+      "category": "20-io-screen",
+      "status": "2b",
+      "keywords": [
+        "GRID",
+        "LIST",
+        "TEXT",
+        "COMBO",
+        "RADIO",
+        "CHECK",
+        "MENU",
+        "FIELDS",
+        "BUTTON",
+        "BUTTONS",
+        "BUTTONROWS",
+        "MENU$"
+      ],
+      "related": [
+        "input-output",
+        "fields-attributes",
+        "windows-cursor"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "combo",
+        "radio",
+        "check",
+        "buttons",
+        "text",
+        "date-picker",
+        "grid-list",
+        "menus",
+        "picture",
+        "help",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Graphical controls built on FIELDS: combo boxes, radio buttons, check boxes, buttons, text boxes, date pickers, grids/lists, native menus, plus field help. They share the FIELDS statement and attribute machinery in input-output and fields-attributes; selection/clicks return values via the FKEY system variable."
+    },
+    {
+      "path": "20-io-screen/fields-attributes",
+      "name": "fields-attributes",
+      "file": "br_tree/20-io-screen/fields-attributes/spec.md",
+      "title": "Field formats & attributes",
+      "category": "20-io-screen",
+      "status": "2b",
+      "keywords": [
+        "FMT",
+        "PIC",
+        "attribute",
+        "FILTER",
+        "color",
+        "DATE",
+        "CU",
+        "CL",
+        "GU",
+        "GL",
+        "VL",
+        "VU"
+      ],
+      "related": [
+        "input-output",
+        "controls",
+        "windows-cursor"
+      ],
+      "anchors": [
+        "format-codes",
+        "fmt",
+        "attributes",
+        "display-attributes",
+        "color-attributes",
+        "control-attributes",
+        "date-fields",
+        "filter-fields",
+        "subattributes",
+        "examples",
+        "see-also"
+      ],
+      "summary": "The format and attributes parts of a FIELDS definition — what a field looks like and how it behaves. The statements that use them are in input-output. Reusable attribute/font names defined in BRConfig.sys live under 00-configuration/config-directives."
+    },
+    {
+      "path": "20-io-screen/input-output",
+      "name": "input-output",
+      "file": "br_tree/20-io-screen/input-output/spec.md",
+      "title": "Screen input/output (FIELDS)",
+      "category": "20-io-screen",
+      "status": "2b",
+      "keywords": [
+        "PRINT FIELDS",
+        "INPUT FIELDS",
+        "RINPUT FIELDS",
+        "INPUT SELECT",
+        "RINPUT SELECT",
+        "INPUT",
+        "LINPUT",
+        "RINPUT",
+        "SELECT",
+        "ATTR",
+        "HELP"
+      ],
+      "related": [
+        "fields-attributes",
+        "controls",
+        "windows-cursor"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "multiple-fields",
+        "select",
+        "field-help",
+        "plain-input",
+        "navigation",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Full-screen data entry: positioning text and input at any row/column with PRINT FIELDS, INPUT FIELDS, and RINPUT FIELDS. Field formats and attributes are in fields-attributes; GUI controls (buttons, grids, …) in controls; windows in windows-cursor."
+    },
+    {
+      "path": "20-io-screen/windows-cursor",
+      "name": "windows-cursor",
+      "file": "br_tree/20-io-screen/windows-cursor/spec.md",
+      "title": "Windows & cursor",
+      "category": "20-io-screen",
+      "status": "2b",
+      "keywords": [
+        "OPEN WINDOW",
+        "WINDOW",
+        "BORDER",
+        "BUTTONROWS",
+        "NEWPAGE",
+        "CAPTION",
+        "cursor",
+        "PARENT",
+        "HELP",
+        "CMDKEY",
+        "CURFLD",
+        "CURROW",
+        "CURCOL",
+        "CURWINDOW"
+      ],
+      "related": [
+        "input-output",
+        "fields-attributes",
+        "controls"
+      ],
+      "anchors": [
+        "open-window",
+        "semantics",
+        "keyboard-results",
+        "borders",
+        "gui-console",
+        "parent-none",
+        "help-facility",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Opening bordered windows (mini-screens) as DISPLAY channels, drawing borders, and locating the cursor. FIELDS I/O inside a window uses PRINT #w, FIELDS … — see input-output. This is the canonical home for the window OPEN spec; the printing guide links here rather than redefining it."
+    },
+    {
+      "path": "30-io-file/database",
+      "name": "database",
+      "file": "br_tree/30-io-file/database/spec.md",
+      "title": "Database operations (SQL / ODBC)",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "CONFIG DATABASE",
+        "OPEN",
+        "SQL",
+        "DSN",
+        "ODBC",
+        "CONNECTSTRING",
+        "ODBC-MANAGER",
+        "PASSWORDD",
+        "STATUS.DATABASE"
+      ],
+      "related": [
+        "config-directives",
+        "statements",
+        "form-spec",
+        "json-datastore"
+      ],
+      "anchors": [
+        "architecture",
+        "connect",
+        "discover-connstring",
+        "open",
+        "open-sql-file",
+        "execute",
+        "parameters",
+        "fetch",
+        "close",
+        "clear-connections",
+        "examples",
+        "ex-sqlite-read",
+        "ex-sqlite-write",
+        "ex-mysql",
+        "ex-sqlserver-winauth-error",
+        "errors",
+        "status-database",
+        "security",
+        "troubleshooting",
+        "see-also"
+      ],
+      "summary": "This explains how a Business Rules! program can act as a SQL client — connecting to an external relational database (SQLite, MySQL, SQL Server, MS Access, …) through ODBC, submitting SQL statements, and reading result rows. BR treats a live SQL statement as an ordinary I/O channel: you OPEN it, WRITE to submit/execute, READ to fetch rows, and CLOSE when done."
+    },
+    {
+      "path": "30-io-file/file-model",
+      "name": "file-model",
+      "file": "br_tree/30-io-file/file-model/spec.md",
+      "title": "File model (types, access, sharing)",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "OPEN",
+        "INTERNAL",
+        "EXTERNAL",
+        "KEYED",
+        "RELATIVE",
+        "DISPLAY",
+        "SHR",
+        "RESERVE",
+        "RELEASE",
+        "LINKED",
+        "WSID",
+        "locking",
+        "INPUT"
+      ],
+      "related": [
+        "statements",
+        "keys-indexes",
+        "form-spec"
+      ],
+      "anchors": [
+        "semantics",
+        "file-types",
+        "usage-modes",
+        "access-methods",
+        "records-fields",
+        "file-numbers",
+        "file-ref",
+        "sharing",
+        "locking",
+        "linked",
+        "wsid",
+        "slash",
+        "tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "The concepts behind BR file I/O: file types, usage modes, access methods, file numbers, and multi-user sharing/locking. The statements that act on files are in statements; record layout is form-spec; keyed access is keys-indexes."
+    },
+    {
+      "path": "30-io-file/form-spec",
+      "name": "form-spec",
+      "file": "br_tree/30-io-file/form-spec/spec.md",
+      "title": "FORM specifications",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "FORM",
+        "USING",
+        "POS",
+        "SKIP",
+        "PIC",
+        "DATE",
+        "C",
+        "CC",
+        "CR",
+        "V",
+        "G",
+        "N",
+        "NZ",
+        "GZ",
+        "GF",
+        "X",
+        "B",
+        "BL",
+        "BH",
+        "PD",
+        "ZD",
+        "DT",
+        "DH",
+        "DL",
+        "D",
+        "S",
+        "L"
+      ],
+      "related": [
+        "statements",
+        "file-model",
+        "keys-indexes"
+      ],
+      "anchors": [
+        "syntax",
+        "repetition",
+        "format-codes",
+        "semantics",
+        "when-a-form-is-compiled",
+        "examples",
+        "see-also"
+      ],
+      "summary": "FORM describes the byte-level layout of a record (or a print line) — the field type codes that READ/WRITE/REWRITE and PRINT … USING decode/encode against. This is the canonical FORM reference; the file-I/O statements (statements) and the printing guide link here rather than redefining it."
+    },
+    {
+      "path": "30-io-file/keys-indexes",
+      "name": "keys-indexes",
+      "file": "br_tree/30-io-file/keys-indexes/spec.md",
+      "title": "Keyed access & the index facility",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "INDEX",
+        "KEY",
+        "SEARCH",
+        "KEYED",
+        "KEYONLY",
+        "REORG",
+        "VERIFY",
+        "BTREE_VERIFY",
+        "KLN",
+        "KREC"
+      ],
+      "related": [
+        "statements",
+        "file-model",
+        "form-spec"
+      ],
+      "anchors": [
+        "semantics",
+        "index",
+        "open-keyed",
+        "key-clause",
+        "keyed-io",
+        "keyonly",
+        "duplicates",
+        "tables",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Building and using index (key) files for fast record access by key value. The OPEN/READ/REWRITE statements are in statements; access-method concepts in file-model; record layout in form-spec."
+    },
+    {
+      "path": "30-io-file/serial-comm",
+      "name": "serial-comm",
+      "file": "br_tree/30-io-file/serial-comm/spec.md",
+      "title": "Serial communications channels",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "BAUD",
+        "DATABITS",
+        "STOPBITS",
+        "COM",
+        "OPEN",
+        "serial"
+      ],
+      "related": [
+        "statements",
+        "file-model"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "com-config",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Opening an RS-232 / serial port as a DISPLAY channel and reading/writing it with the ordinary file statements. The general OPEN/PRINT/LINPUT mechanics are in statements."
+    },
+    {
+      "path": "30-io-file/statements",
+      "name": "statements",
+      "file": "br_tree/30-io-file/statements/spec.md",
+      "title": "File I/O statements",
+      "category": "30-io-file",
+      "status": "2b",
+      "keywords": [
+        "OPEN",
+        "CLOSE",
+        "READ",
+        "WRITE",
+        "REWRITE",
+        "DELETE",
+        "RESTORE",
+        "REREAD",
+        "REC",
+        "KEY",
+        "LINK=",
+        "KEYONLY",
+        "FIRST",
+        "LAST",
+        "PRIOR",
+        "NEXT",
+        "SAME",
+        "EOF",
+        "NOKEY",
+        "NOREC",
+        "OUTIN",
+        "SEQUENTIAL",
+        "OUTPUT",
+        "WAIT",
+        "DROP",
+        "FREE"
+      ],
+      "related": [
+        "file-model",
+        "form-spec",
+        "keys-indexes",
+        "serial-comm"
+      ],
+      "anchors": [
+        "syntax",
+        "open",
+        "io",
+        "positioning-per-statement",
+        "semantics",
+        "external",
+        "display",
+        "read",
+        "rewrite",
+        "linput",
+        "write",
+        "delete",
+        "restore",
+        "link",
+        "keyonly",
+        "no-abbreviation",
+        "close",
+        "rec",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Opening internal files and reading/writing/updating records. Concepts (types, modes, access, locking) are in file-model; record layout in form-spec; keyed access (KEY=/SEARCH=) in keys-indexes. Display-file PRINT/INPUT/LINPUT and printer/serial opens are cross-referenced below."
+    },
+    {
+      "path": "40-io-printing/pcl-pdf",
+      "name": "pcl-pdf",
+      "file": "br_tree/40-io-printing/pcl-pdf/spec.md",
+      "title": "PCL / Native Windows Printing escape codes",
+      "category": "40-io-printing",
+      "status": "2b",
+      "keywords": [
+        "PCL",
+        "PDF",
+        "NWP",
+        "barcode",
+        "FONT",
+        "SETFONT"
+      ],
+      "related": [
+        "statements"
+      ],
+      "anchors": [
+        "semantics",
+        "fonts",
+        "color",
+        "positioning",
+        "pictures",
+        "boxes",
+        "pcl",
+        "pdf",
+        "barcodes",
+        "more-nwp",
+        "pjl",
+        "see-also"
+      ],
+      "summary": "Rich printer formatting beyond plain PRINT USING: fonts, color, positioning, images, and boxes/shading — emitted as escape sequences (\\E…) or PRINTER.SYS substitution tags ([NAME]) inside PRINT #255: output. The plain print statements are in statements; the tag definitions live in PRINTER.SYS under 00-configuration."
+    },
+    {
+      "path": "40-io-printing/sort",
+      "name": "sort",
+      "file": "br_tree/40-io-printing/sort/spec.md",
+      "title": "SORT facility",
+      "category": "40-io-printing",
+      "status": "2b",
+      "keywords": [
+        "SORT"
+      ],
+      "related": [
+        "statements",
+        "keys-indexes"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "file",
+        "alts",
+        "record",
+        "mask",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Produces sorted output from an internal file via a sort control file of specifications. For ordered access without a separate sort, an index (30-io-file/keys-indexes) reads records in key order."
+    },
+    {
+      "path": "40-io-printing/statements",
+      "name": "statements",
+      "file": "br_tree/40-io-printing/statements/spec.md",
+      "title": "Printing statements",
+      "category": "40-io-printing",
+      "status": "2b",
+      "keywords": [
+        "PRINT",
+        "OPEN",
+        "PAGEOFLOW",
+        "NEWPAGE",
+        "BELL",
+        "TAB",
+        "HEADING",
+        "USING",
+        "PIC",
+        "COPIES",
+        "PRINTER_LIST"
+      ],
+      "related": [
+        "pcl-pdf",
+        "sort"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "destinations",
+        "options",
+        "separators",
+        "using",
+        "pic",
+        "positioning",
+        "pageoflow",
+        "print-files",
+        "examples",
+        "see-also"
+      ],
+      "summary": "PRINT (and PRINT USING) for screen/printer/display output, formatting with FORM/PIC, cursor positioning, page control, and opening printer files. On-screen PRINT FIELDS is in 20-io-screen/input-output; the record-layout FORM codes are canonically in 30-io-file/form-spec; printer configuration (spooling, PRINTER.SYS) is in 00-configuration."
+    },
+    {
+      "path": "50-libraries/fileio",
+      "name": "fileio",
+      "file": "br_tree/50-libraries/fileio/spec.md",
+      "title": "FileIO library",
+      "category": "50-libraries",
+      "status": "2b",
+      "keywords": [
+        "FileIO",
+        "fnOpen",
+        "fnRead",
+        "LIBRARY"
+      ],
+      "related": [
+        "library-facility",
+        "screenio"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "disk-date-formats",
+        "see-also"
+      ],
+      "summary": "FileIO is the standard file-access abstraction in this codebase: you describe each data file once in an ASCII layout file, and FileIO OPENs it, builds the FORM, sizes your record arrays, and defines FILE_FIELD subscript constants — so programs reference fields by name and never hard-code positions. Change a layout and FileIO migrates the data file on the fly; no program needs editing. ScreenIO builds on it."
+    },
+    {
+      "path": "50-libraries/fnsnap",
+      "name": "fnsnap",
+      "file": "br_tree/50-libraries/fnsnap/spec.md",
+      "title": "FnSnap function packs",
+      "category": "50-libraries",
+      "status": "2b",
+      "keywords": [
+        "FnSnap",
+        "LIBRARY"
+      ],
+      "related": [
+        "library-facility",
+        "screenio"
+      ],
+      "anchors": [
+        "semantics",
+        "screen",
+        "printing",
+        "file",
+        "datetime",
+        "array",
+        "window",
+        "misc",
+        "obsolete",
+        "examples",
+        "see-also"
+      ],
+      "summary": "FnSnap is a shipped collection of ready-made FN… library functions (dialogs, screen helpers, printing/PCL, bar codes, dates, files, arrays, window maintenance). Link them with the library facility like any library function and call FNINIT once at program start. This page is a navigational index; each function's full signature, parameters and notes live in the per-area FnSnap__ pages linked below."
+    },
+    {
+      "path": "50-libraries/library-facility",
+      "name": "library-facility",
+      "file": "br_tree/50-libraries/library-facility/spec.md",
+      "title": "Library facility",
+      "category": "50-libraries",
+      "status": "2b",
+      "keywords": [
+        "LIBRARY",
+        "DEF LIBRARY",
+        "LOAD",
+        "RELEASE",
+        "RESIDENT",
+        "BRLIBS",
+        "NOFILES"
+      ],
+      "related": [
+        "fnsnap",
+        "screenio",
+        "fileio"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "clearing",
+        "linkage-loopback",
+        "fileio",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Linking and loading reusable FN… functions across programs. Defining the functions (DEF/DEF LIBRARY, parameters, scope) is in 10-language/flow-control/functions-udf; shipped function packs are in fnsnap."
+    },
+    {
+      "path": "50-libraries/screenio",
+      "name": "screenio",
+      "file": "br_tree/50-libraries/screenio/spec.md",
+      "title": "ScreenIO library",
+      "category": "50-libraries",
+      "status": "2b",
+      "keywords": [
+        "ScreenIO",
+        "LIBRARY",
+        "fnfm",
+        "fnfm$"
+      ],
+      "related": [
+        "library-facility",
+        "fnsnap"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "how-it-works",
+        "examples",
+        "see-also"
+      ],
+      "summary": "A Rapid-Application-Development library (a Sage AX tool) for building event-driven, screen-based applications; it builds on the FileIO library for data access. A Screen Function (built in the ScreenIO designer) is called like any library function; ScreenIO drives the underlying screen FIELDS and file I/O for you."
+    },
+    {
+      "path": "60-integration/json-datastore",
+      "name": "json-datastore",
+      "file": "br_tree/60-integration/json-datastore/spec.md",
+      "title": "JSON & data store",
+      "category": "60-integration",
+      "status": "2b",
+      "keywords": [
+        "JSON",
+        "datastore",
+        "object-store"
+      ],
+      "related": [
+        "web",
+        "system-functions"
+      ],
+      "anchors": [
+        "semantics",
+        "object-store",
+        "json-functions",
+        "html",
+        "return-codes",
+        "examples",
+        "see-also"
+      ],
+      "summary": "In-memory storage of named objects (JSON or other strings) plus functions to build, parse, and serve JSON — the data layer behind BR web services. Sending content to the browser is in web; the HTTP client OPEN is in 30-io-file/statements."
+    },
+    {
+      "path": "60-integration/web",
+      "name": "web",
+      "file": "br_tree/60-integration/web/spec.md",
+      "title": "Web integration (BR as web server)",
+      "category": "60-integration",
+      "status": "2b",
+      "keywords": [
+        "WEB_SERVER12",
+        "WebForm",
+        "HTTP",
+        "web-server",
+        "BR_FUNC"
+      ],
+      "related": [
+        "json-datastore",
+        "screenio"
+      ],
+      "anchors": [
+        "webserver",
+        "br-func",
+        "webform-program",
+        "security",
+        "http-client",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Running BR programs as the backend of a website: BR's own WEB_SERVER12.BR serves the pages, a page names a BR function via a ?BR_FUNC=… URL, and the WebForm library builds the HTML. A BR program can also reach out to web pages/services as an HTTP client — see Outbound."
+    },
+    {
+      "path": "70-commands/editing",
+      "name": "editing",
+      "file": "br_tree/70-commands/editing/spec.md",
+      "title": "Program editing commands",
+      "category": "70-commands",
+      "status": "2b",
+      "keywords": [
+        "EDIT",
+        "LIST",
+        "AUTO",
+        "RENUM",
+        "DEL",
+        "SOURCE",
+        "CLAUSES",
+        "NOEJECT"
+      ],
+      "related": [
+        "program-management",
+        "information"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "auto",
+        "renum",
+        "del",
+        "list",
+        "list-options",
+        "list-input",
+        "edit",
+        "builtin-keys",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Entering and editing program source in memory: auto line numbering, renumbering, deleting and listing lines. Loading/saving the program is in program-management. Each command has a short abbreviation (shown below)."
+    },
+    {
+      "path": "70-commands/file-directory",
+      "name": "file-directory",
+      "file": "br_tree/70-commands/file-directory/spec.md",
+      "title": "File & directory commands",
+      "category": "70-commands",
+      "status": "2b",
+      "keywords": [
+        "DIR",
+        "COPY",
+        "MOVE",
+        "RENAME",
+        "MKDIR",
+        "RMDIR",
+        "CHDIR",
+        "FREE",
+        "PROTECT",
+        "DROP",
+        "TYPE"
+      ],
+      "related": [
+        "program-management",
+        "information"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "chdir",
+        "dir",
+        "dir-glob",
+        "copy",
+        "copy-recursive",
+        "move",
+        "rename",
+        "rename-folder",
+        "rename-filesystem",
+        "overwrite",
+        "drop-free",
+        "protect",
+        "examples",
+        "see-also"
+      ],
+      "summary": "OS-level file and directory operations, runnable interactively or from a procedure / EXECUTE. For opening files inside a program see 30-io-file/statements. Each command has a short abbreviation (in parentheses below). Options follow a leading dash and may be combined (-AW); a -<n> record length, when combined into one word, must come last in it (-D124, not -124D) — as a word of its own it may stand anywhere (-124 -D). In BR 5.0 each command lists its own options when given -? alone (COPY -?)."
+    },
+    {
+      "path": "70-commands/information",
+      "name": "information",
+      "file": "br_tree/70-commands/information/spec.md",
+      "title": "Information & debugging commands",
+      "category": "70-commands",
+      "status": "2b",
+      "keywords": [
+        "STATUS",
+        "LIST",
+        "TRACE",
+        "DISPLAY",
+        "LOGGING",
+        "STEP",
+        "BREAK",
+        "TIME",
+        "ALL",
+        "FONTS",
+        "NORESTORE",
+        "DEBUG_STR",
+        "PROGRAM$",
+        "ATTRIBUTES",
+        "BREAKPOINTS",
+        "COLORS",
+        "DIMS",
+        "ENCRYPTION",
+        "LOCKS",
+        "MEMORY",
+        "USERS"
+      ],
+      "related": [
+        "program-management",
+        "editing"
+      ],
+      "anchors": [
+        "syntax",
+        "semantics",
+        "date-time",
+        "break",
+        "display",
+        "list-search",
+        "debug-str",
+        "status-verify",
+        "console",
+        "msg",
+        "printer-list",
+        "procin-program",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Inspecting state and debugging a running program: date/time, the command console, single-stepping, breakpoints, variable display, and logging."
+    },
+    {
+      "path": "70-commands/program-management",
+      "name": "program-management",
+      "file": "br_tree/70-commands/program-management/spec.md",
+      "title": "Program management & procedures",
+      "category": "70-commands",
+      "status": "2b",
+      "keywords": [
+        "AI",
+        "RUN",
+        "LOAD",
+        "SAVE",
+        "REPLACE",
+        "MERGE",
+        "CLEAR",
+        "GO",
+        "EXECUTE",
+        "CHAIN",
+        "PROC",
+        "SYSTEM",
+        "LOGOFF",
+        "ALL",
+        "SUBPROC",
+        "PROCERR",
+        "ALERT",
+        "FILES",
+        "ECHO",
+        "NOECHO",
+        "SOURCE",
+        "OBJECT",
+        "ONLY",
+        "NOSTEP",
+        "NOTRACE"
+      ],
+      "related": [
+        "file-directory",
+        "information",
+        "editing"
+      ],
+      "anchors": [
+        "command-vs-statement",
+        "command-help",
+        "entry-exit",
+        "system",
+        "system-logoff",
+        "program-commands",
+        "loading",
+        "merge",
+        "replace",
+        "clear",
+        "go",
+        "ai",
+        "execute",
+        "chain",
+        "procedures",
+        "proc",
+        "run-proc",
+        "look-ahead",
+        "express",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Loading, saving, running, and chaining programs, plus procedure files (command scripts). Commands run immediately (no line number) and — crucially — from program code via EXECUTE. Line-editing commands are in editing; file/dir commands in file-directory."
+    }
+  ]
+}

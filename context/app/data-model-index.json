@@ -1,0 +1,42 @@
+{
+  "$comment": "Per-file section index over data-model.md. 'lines' are 1-based inclusive ranges for cheap per-file loading; regenerate with tools/gen_datamodel_index.exe.",
+  "generated": "2026-10-23",
+  "source": "data-model.md",
+  "source_sha256": "6289f182bf026e99a8fbd36b87c08b9dde11c2159821d331e96e36c335d8cb4d",
+  "count": 3,
+  "files": [
+    {
+      "name": "comments",
+      "anchor": "comments",
+      "lines": [
+        23,
+        33
+      ],
+      "recl": null,
+      "fields": 4,
+      "keys": 0
+    },
+    {
+      "name": "customer",
+      "anchor": "customer",
+      "lines": [
+        35,
+        83
+      ],
+      "recl": 280,
+      "fields": 40,
+      "keys": 1
+    },
+    {
+      "name": "logfile",
+      "anchor": "logfile",
+      "lines": [
+        85,
+        99
+      ],
+      "recl": null,
+      "fields": 6,
+      "keys": 1
+    }
+  ]
+}

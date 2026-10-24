@@ -124,3 +124,41 @@ Command entered list <http_client\get_site2.br >context\scratch\decompile\http_c
 Command entered list <tmp\web_server.br >context\scratch\decompile\tmp\web_server.br.brs
 (8) 10/23/2026 13:59:47.826     Gordon Wsid: 021                  Line: 
 Command entered system
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 000                  Line: 
+Setting logging to log file context\app\startlog.txt log level 10.
+(8) 10/23/2026 21:05:38.367     Gordon Wsid: 000                  Line: 
+Encountered CONFIG LOGGING UNATTENDED:  Entering unattended mode.
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 001                  Line: 
+The BRConfig.sys file is C:\ADS_test\gabriel\brweb\context\dev\tools\brconfig.ai_util
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 001                  Line: 
+Config file has been processed.
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 001                  Line: 
+Assigning WSID.
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: -11                  Line: 
+The server file is C:\ADS_test\gabriel\wbserver.dat
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 021                  Line: 
+WSID 2 session 1 successfully assigned to Gordon.
+(6) 10/23/2026 21:05:38.367     Gordon Wsid: 021                  Line: 
+WSID has been assigned.
+(8) 10/23/2026 21:05:38.376     Gordon Wsid: 021                  Line: 
+GETFIELDSCONFIG_RET: received BRClient PID 14532 (was 0)
+(6) 10/23/2026 21:05:38.376     Gordon Wsid: 021                  Line: 
+Splash info set.
+(8) 10/23/2026 21:05:38.376     Gordon Wsid: 021                  Line: 
+processStartupFinish: successfully updated login name 'Gordon' and PID 14532 in WBSERVER.DAT for WSID 2
+(6) 10/23/2026 21:05:38.550     Gordon Wsid: 021                  Line: 
+Startup processing has finished.
+(8) 10/23/2026 21:05:38.550     Gordon Wsid: 021                  Line: 
+Command entered PROC context\scratch\ws206\compile.prc
+(8) 10/23/2026 21:05:38.557     Gordon Wsid: 021                  Line: 
+Command entered load web_server.br.brs,source
+(10)10/23/2026 21:05:38.557     Gordon Wsid: 021                  Line: 
+LOAD succeeded - C:\brweb\web_server.br.brs
+(8) 10/23/2026 21:05:39.712     Gordon Wsid: 021                  Line: 
+source load: 1285 statements, 2361 physical lines, last source line 2361, precompiler adjustment +0
+(8) 10/23/2026 21:05:39.713     Gordon Wsid: 021                  Line: 
+Command entered replace web_server.br
+(10)10/23/2026 21:05:39.733     Gordon Wsid: 021                  Line: 
+REPLACE succeeded - C:\brweb\web_server.br
+(8) 10/23/2026 21:05:39.734     Gordon Wsid: 021                  Line: 
+Command entered system

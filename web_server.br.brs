@@ -1,6 +1,6 @@
 01000 ! Execute "con opt 60 off" !:
          ! Rep Web_Server
-01020    let VERSION$ = "2.05"
+01020    let VERSION$ = "2.06"
 01040 ! Br Standard Web Server
 01060 ! Control File Is: Web_Server.Ini
 01080 ! Url_Base = Full Br Path To Directory Being Served
@@ -13,7 +13,10 @@
 01210 ! Session_Digits = Low-Order Session Digits That Name Its Work File In !:
          ! .    Sessions\ (0-3, default 1).  No session is kept in memory between !:
          ! .    requests, so any number of engines can serve the same site.
-01220 ! 
+01215 ! Proxy = Optional: the reverse proxy's address(es) - BR then serves plain !:
+         ! .    HTTP on Bind (default 127.0.0.1), Port may be a range such as !:
+         ! .    8081-8084, and Cert is not needed: the proxy serves HTTPS and files.
+01220 !
 01240    if WBVERSION$ < "4.32g" then !:
             print "BR Version must be 4.32g or greater." !:
             print BELL; !:
@@ -35,6 +38,7 @@
 01480    dim TEMP1$,TEMP2$*4096,URL_REDIRECT$*4096 ! Use To Redirect
 01490    dim SESS_BLOB$*110000,SESS_CHUNK$*4078,SESS_FREE$(0)*10,SWEEP_GROUP$*3
 01495    dim WS_TMP$*40,WS_TMP2$*40
+01497    dim PROXY$*300,BIND$*60,PORT_FIRST$*20
 01500 ! 
 01520    let TRUE = 1 : let FALSE = 0 !:
          let CRLF$ = HEX$("0D0A") !:
@@ -92,7 +96,15 @@
                let WORK$ = TRIM$(CONTROL$(DUMMY+1:2000))
 01912          let SESSION_DIGITS = VAL(WORK$) conv Session_Digits_Error
 01914          goto Ini_Loop
-01916       end if 
+01916       end if
+01917       if POS(UPRC$(CONTROL$),"PROXY=") then !:
+               let DUMMY = POS(CONTROL$,"=") !:
+               let PROXY$ = TRIM$(CONTROL$(DUMMY+1:2000)) !:
+               goto Ini_Loop
+01918       if POS(UPRC$(CONTROL$),"BIND=") then !:
+               let DUMMY = POS(CONTROL$,"=") !:
+               let BIND$ = TRIM$(CONTROL$(DUMMY+1:2000)) !:
+               goto Ini_Loop
 01920       if POS(UPRC$(CONTROL$),"CERT=") then !:
                let DUMMY = POS(CONTROL$,"=") !:
                let CERT_BASE$ = TRIM$(CONTROL$(DUMMY+1:2000)) !:
@@ -157,16 +169,25 @@
          else print "URL_BASE= Not Specified" !:
             print BELL; !:
             stop 
-02580    if CERT_BASE$ > NULL$ then !:
-            print "HTTPS CERT= ";CERT_BASE$ !:
-         else print "CERT= Not Specified" !:
-            print BELL; !:
-            stop 
+02580    if CERT_BASE$ > NULL$ then
+02582       print "HTTPS CERT= ";CERT_BASE$
+02584    else if PROXY$ > NULL$ then
+02586       print "PROXY= ";PROXY$;" - the proxy serves HTTPS, no CERT= needed"
+02588    else
+02590       print "CERT= Not Specified"
+02592       print BELL;
+02594       stop
+02596    end if
 02600    if PORT$ = NULL$ AND ENV$("PORT") > NULL$ then !:
             let PORT$ = ENV$("PORT")
-02620    if PORT$ = NULL$ then !:
+02620    if PORT$ = NULL$ AND PROXY$ > NULL$ then !:
+            let PORT$ = "8081-8084"
+02630    if PORT$ = NULL$ then !:
             let PORT$ = "443"
-02640    let PORT = VAL(PORT$) !:
+02635    let PORT_FIRST$ = PORT$ !:
+         if POS(PORT$,"-") then !:
+            let PORT_FIRST$ = PORT$(1:POS(PORT$,"-")-1)
+02640    let PORT = VAL(PORT_FIRST$) !:
          if PORT then !:
             print "PORT= ";PORT$ !:
             print "Note- BR must be restarted to effect port or https changes." !:
@@ -247,7 +268,8 @@
             gosub Sess_Setup
 03400    if LOGFILE$ > NULL$ then !:
             let LOGFILE$(1:0) = " LOG= " !:
-            ! 
+            !
+03410    if PROXY$ > NULL$ then goto Config_Proxy
 03420    open #(SSL_PHRASE_FILE:=106): "Name= " & CERT_BASE$ & ".phrase", internal, input ioerr 3460
 03440    read #SSL_PHRASE_FILE: WORK$ !:
          let SSL_KEY_PHRASE$ = DECRYPT$(WORK$, "keY_phrase_key") !:
@@ -263,7 +285,12 @@
 03520    let SSL_KEY_PHRASE$ = '"' & SSL_KEY_PHRASE$ & '"' !:
          ! 
 03540    execute "config HTTPS " & PORT$ & LOGFILE$ & " URL_BASE=" & URL_BASE$ & " CERT=" & CERT_BASE$ & " PHRASE=" & SSL_KEY_PHRASE$
-03560 ! 
+03550    goto 3580
+03555 Config_Proxy: ! ***** Behind A Reverse Proxy: Plain Http, Loopback Only, No Files
+03557    if BIND$ = NULL$ then !:
+            let BIND$ = "127.0.0.1"
+03559    execute "config HTTP " & PORT$ & LOGFILE$ & " BIND=" & BIND$ & " PROXY=" & PROXY$ & " URL_BASE=NONE"
+03560 !
 03580    let WORK$ = NULL$ !:
          if AUTH_REQUIRED then !:
             let WORK$ = ",auth"
@@ -552,7 +579,9 @@
          print "  CERT= cert-file-base-name" !:
          print "Optional Statements (each on a separate line):" !:
          print "  NOLOGIN" !:
-         print "  PORT= https-port  |  PORT= http-port HTTP" !:
+         print "  PORT= https-port  |  PORT= http-port HTTP  (either may be a range: first-last)" !:
+         print "  PROXY= proxy-address, ...  (behind a reverse proxy: plain HTTP, no CERT=)" !:
+         print "  BIND= listen-address  (with PROXY=, default 127.0.0.1)" !:
          print "  LOGFILE= relative-pathname  |  DEBUGFILE= ...  [, COOKIES]" !:
          print "  LIBRARY= full-BR-pathname [RETAIN], FUNCTIONS= function1, fn2, ... [,AUTH]" !:
          print "       [,RUN_DIR= full-BR-path]" !:

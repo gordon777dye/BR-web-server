@@ -4,19 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A web server written in **Business Rules! (BR)**, a BASIC-dialect language. `brserver-x64-Release.exe` (BR 5.00) interprets the programs. There is no npm/make/test tooling; everything runs inside the BR interpreter. Full product docs are in the Word files `03 BR WEB SERVER.doc` and `05 DATA STORE LIBRARY.doc`. The tree is an SVN working copy (`.svn/`), not git.
+A web server written in **Business Rules! (BR)**, a BASIC-dialect language. `brserver-500-x64-Release-2026-10-24.exe` (BR 5.00) interprets the programs. There is no npm/make/test tooling; everything runs inside the BR interpreter. Full product docs are in the Word files `03 BR WEB SERVER.doc` and `05 DATA STORE LIBRARY.doc`. The tree is an SVN working copy (`.svn/`) and also a git repo (private, github.com/gordon777dye/brweb). Git's `.gitignore` lists the files to include, so a new top-level file needs a `!/<name>` line, and a new file under `context/` needs `git add -f`.
 
 ## Source vs. compiled files
 
 - `*.brs` files are BR **source**: plain text with mandatory line numbers (`01000`, `01020`, …). `!:` continues a statement onto the next physical line, and `!` starts a comment.
 - `*.br` files are the **compiled** programs that BR actually runs. Editing a `.brs` file has no effect until it is recompiled inside BR, for example `load web_server.br.brs,source` followed by `replace web_server.br`.
-- The main program is `web_server.br`, built from `web_server.br.brs` (VERSION$ "2.05"). The `*.2_04` and `web_server.bak` files are the previous 2.04 release, kept for reference.
+- The main program is `web_server.br`, built from `web_server.br.brs` (VERSION$ "2.06"). The `*.2_05` files are the previous 2.05 release, and the `*.2_04` and `web_server.bak` files are 2.04. They are kept for reference.
 - The program masters are the **source** files, and decompiling is not allowed. Every `.br` has current source as of 2026-10-23: `login.brs`, `sample.brs` and `filelay\template\basic.brs` keep their old names, and the rest are `<prog>.br.brs`.
 - When you add lines, keep line numbers ascending and use numbers that fall in the gaps. Some code jumps to literal line numbers (`goto 3520`, `ioerr 3380`, `conv 2420`), so do not renumber.
 
 ## Running
 
-- Start BR from this directory: `brserver-x64-Release.exe`. It reads `brconfig.sys`, and that file ends with `execute "run web_server"`.
+- Start BR from this directory: `brserver-500-x64-Release-2026-10-24.exe`. It reads `brconfig.sys`, and that file ends with `execute "run web_server"`.
 - **Drive mapping:** `brconfig.sys` maps BR drive `c:` to `C:\ADS_test\gabriel`. So the BR path `C:\brweb\...` (used in the logs and in `web_server.tmp`) is really `C:\ADS_test\gabriel\brweb`. Drive `k:` maps to `c:\ads_test`.
 - To run it as a Windows service, use `nssm.exe` with `brconfig.svc` (unattended logging). See `BR_service.txt`.
 - The program requires BR 4.32g or later and a workstack of at least 500000. It stops at startup if either check fails.
@@ -36,7 +36,9 @@ A web server written in **Business Rules! (BR)**, a BASIC-dialect language. `brs
 |---|---|
 | `url_base` | Directory being served (here `www`) |
 | `cert=` | Base name for `<name>.crt/.key/.phrase` |
-| `port` | Port to serve (default 443) |
+| `port` | Port to serve (default 443). It can be a range such as `8081-8084`, and each engine takes the first free port in it. |
+| `proxy=` | Address(es) of a reverse proxy, such as NGINX. Turns on proxy mode: plain HTTP with `URL_BASE=NONE`, no `cert=` needed, and `port` defaults to `8081-8084`. It needs a BR build with `PROXY=`/`BIND=` support, which `brserver-500-x64-Release-2026-10-24.exe` has. Proxy-mode tests are in `context/scratch/ws206/ws206test.py`. |
+| `bind=` | Address to listen on in proxy mode (default `127.0.0.1`) |
 | `nologin` | Turns off authentication |
 | `allow=` | URL prefixes that need no auth. `index` and `login` are always added. |
 | `relogin_minutes` | Grace window after a session expires |

@@ -22,7 +22,7 @@ third-party FileIO library and template are excluded. Each rule names an exempla
   `style indent 3 comments mixed`. Keywords are lower case, variable and function names upper case,
   labels mixed case (`Readloop:`), and bodies indented 3. `LIST` and `REPLACE` reapply this, so
   don't fight it.
-- Production runs BR 5.00 (`brserver-x64-Release.exe`), and `brconfig.sys` has `option 60` on.
+- Production runs BR 5.00 (`brserver-500-x64-Release-2026-10-24.exe`), and `brconfig.sys` has `option 60` on.
 
 ## Program shape
 

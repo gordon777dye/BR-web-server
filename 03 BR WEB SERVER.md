@@ -1,8 +1,8 @@
 # BR WEB_SERVER
 
-This document describes **web_server 2.06** running on the BR 5.00 build supplied with it
-(`brserver-500-x64-Release-2026-10-24.exe`). Some details, especially certificate handling and
-the reverse-proxy settings, depend on that build's HTTP engine.
+This document describes **web_server 2.11** running on the BR build supplied with it
+(`brserver-x64-Debug.exe`, BR 5.01). Some details, especially certificate handling and the
+reverse-proxy settings, depend on that build's HTTP engine.
 
 The Web Server program acts as a complete web server. No other program is required to serve web
 pages, run your BR functions, and handle HTTPS and user logins. For higher volumes, several copies
@@ -47,7 +47,7 @@ static files and shares the BR requests among the BR sessions.
 | BR processes | one | one or more, all started from the same folder and `Web_Server.INI` |
 | Ports BR listens on | 443 (HTTPS) and 80 (HTTP), on all addresses | a range such as 8081-8084, plain HTTP, on 127.0.0.1 only |
 | Static files | served by BR | served by NGINX (`NOLOGIN` sites) or by BR (login sites) |
-| Needs | BR 4.32g or later | web_server 2.06 and a BR build with `PROXY=`/`BIND=` support, such as `brserver-500-x64-Release-2026-10-24.exe` |
+| Needs | BR 4.32g or later | web_server 2.06 or later and a BR build with `PROXY=`/`BIND=` support, such as the supplied `brserver-x64-Debug.exe` |
 
 Start with configuration 1. A BR process answers one BR request at a time, so move to
 configuration 2 when one process can no longer keep up. The sections below give the setup for
@@ -60,7 +60,9 @@ each.
   keys provided they are subscripted (e.g. `object-name[3]`). This allows larger objects to be
   split into segments under the same key.
 - The maximum URL length, including parameters, is 4096.
-- The maximum POST data passed to your function is 100,000 bytes.
+- The maximum POST data is 4 MB. Each form value passed to your function holds up to 30,000
+  characters. A JSON request body of any size up to 4 MB is passed as the data store object
+  `POST_BODY` (see JSON request bodies in section 7).
 - The maximum keyword length is 100 bytes.
 - The maximum value referenced by a keyword is 30,000 bytes.
 - The maximum request size, uploaded files included, is 64 MB. Larger requests are refused by BR's
@@ -105,7 +107,7 @@ is ignored.
 | `RELOGIN_MINUTES=` | How long after a session times out the user may log in again and continue where they left off. A typical setting is 60. See section 9. |
 | `SESSION_DIGITS=` | How many low-order digits of the session number name its session file in `sessions\`: 0 to 3, default 1. More digits spread busy sites over more files. |
 | `LOGFILE=` | BR's HTTP engine log: start-up, certificate details and errors. With several BR processes, give each its own log with `[WSID]`, e.g. `logfile= httpserver[WSID].log`. |
-| `DEBUGFILE=` | The Web Server's own detailed log, replaced at each start. Add `, COOKIES` to log each request's cookies, and `, PRINT_ALL` to log whole pages rather than their first 300 characters. Use `[WSID]` with several processes. |
+| `DEBUGFILE=` | The Web Server's own detailed log, replaced at each start. Add `, COOKIES` to log each request's cookies, and `, PRINT_ALL` to log whole pages and POST data rather than their first 300 characters. Use `[WSID]` with several processes. Logging slows every request, so leave it off in production. |
 | `LIBRARY=` | A BR library whose functions web pages may call, followed by `FUNCTIONS=` and the function names. `RETAIN` keeps the library's variables between calls. `RUN_DIR=`, which must come last, is the folder made current while its functions run. A trailing `,AUTH` is accepted, but access is controlled by `NOLOGIN` and `ALLOW=`, not by `,AUTH`. |
 | `HTTP_VERSION=` | `0` or `1`: whether HTTP 1.0 or 1.1 is given in the headers web_server.br writes. Rarely needed. The default is 1 (HTTP 1.1). |
 
@@ -227,8 +229,8 @@ folder and INI; each takes the next free port of the range.
 
 ### 5.1 What it needs
 
-- web_server 2.06 or later, and a BR build with `PROXY=`/`BIND=` support. The
-  `brserver-500-x64-Release-2026-10-24.exe` supplied has it, and an older build fails at the start.
+- web_server 2.06 or later, and a BR build with `PROXY=`/`BIND=` support. The supplied
+  `brserver-x64-Debug.exe` has it. With an older build, the Web Server fails at start-up.
 - NGINX, from nginx.org/en/download.html. Check its `.asc` signature against the keys at
   nginx.org/en/pgp_keys.html. There is nothing to install: unzip it, put the configuration in
   `conf\nginx.conf`, and run `nginx.exe`. NGINX's own documentation calls its Windows build beta
@@ -466,7 +468,41 @@ elements are the calling parameters.
 This format of a URL followed by parameters works the same for GET and POST. POST can also send a
 data package. If it contains an equal sign, it is taken to be one or more keyword=value pairs,
 which the Web Server adds to the KEYS$ and VALUES$ arrays. *You can see what is passed by the
-browser in the Web Server's DEBUGFILE.*
+browser in the Web Server's DEBUGFILE.* Form data is decoded before it is split into pairs,
+so a form value cannot contain `&`: the part after it is taken as another parameter. Send such
+data as a JSON body instead.
+
+**JSON request bodies.** A POST whose `Content-Type` is `application/json` (for example from
+JavaScript's `fetch` with `body: JSON.stringify(obj)`) is not treated as form data. Its body is not
+URL-decoded and not split, so `+`, `%`, `=` and `&` arrive intact. It is converted to the store's
+form (see below) and reaches your function in two ways:
+
+- as one more parameter named **`JSON`**, when it is no longer than 30,000 characters (the size of
+  a VALUES$ element). For a longer body the `JSON` element is present but empty.
+- always, at any size up to 4 MB, as the data store object **`POST_BODY`**. Read it with
+  `FNGet_Object("POST_BODY", X$)`, work with it using the JSON functions, or send it back with
+  `FNSend_Object("POST_BODY")`.
+
+Parameters in the URL's query string still arrive as usual alongside it. A 200,000-character body
+full of escapes was received, converted and stored in about 2 seconds (measured 2026-10-24 on the
+supplied Debug build of BR, transfer included). A body with no backslashes is not converted at all. If a login has expired
+and the request is replayed after a relogin, the body is replayed too, up to 100,000 characters.
+
+**JSON is converted at the boundary.** The data store writes a double quote inside a JSON string
+as `""` and treats a backslash as ordinary data, while browsers and other clients use JSON's
+backslash escapes (`\"`, `\\`, `\n`). The Web Server converts between the two, so your BR code
+only ever sees the store's form:
+
+- **Coming in:** a parameter value that is a valid standard JSON object, array or string, and
+  contains a backslash escape, is converted before your function sees it. `\"` becomes `""`,
+  `\\` becomes `\`, `\/` becomes `/`, and `\b` `\f` `\n` `\r` `\t` become the characters they
+  stand for. `\uXXXX` is kept as written. A value that is not valid JSON, such as free text,
+  arrives exactly as sent.
+- **Going out:** a response built with FNSend_String or FNSend_Object that is JSON (it begins with
+  `{`, `[` or `"`) is converted as it is sent. Inside strings, `""` becomes `\"`, a backslash
+  becomes `\\`, and control characters become `\n`, `\r`, `\t` and the like. A `\uXXXX` passes
+  through unchanged. The response is sent as `application/json`. HTML, and any response that
+  includes a page file sent with FNSend_Page, is sent exactly as it is.
 
 ## 8. FORM/POST Example
 
@@ -848,8 +884,9 @@ comments, which will be displayed when the appropriate button is pressed.</p>
 This time the user selects View Comments. There is no View Comments page. Instead, FNVIEWCOMMENTS
 creates the page on the fly. This is not the recommended way to display variable-length data. The
 recommended way is to send a header page, followed by repeated calls to FNSend_String, and ending
-with another FNSend_Page call to send the page footer. All send operations except the first should
-suppress HTTP headers. See `05 DATA STORE LIBRARY` for details on suppressing HTTP headers.
+with another FNSend_Page call to send the page footer. (This version needed every send except the
+first to suppress HTTP headers. Since 1.89, everything sent during one request goes out as one
+response with one header, so nothing needs suppressing.)
 
 FNVIEWCOMMENTS is called:
 

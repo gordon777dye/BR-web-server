@@ -23,11 +23,11 @@
 
 The WEB_SERVER program includes a data repository, called a data store. This enables your application to save data for processing on subsequent calls. Also, when you send information back to the web client, typically either JSON or HTML, you can place it into a named object and then FNSend_Object( object-name ).
 
-**Data is received** from web clients in name-value pairs.  This is passed to your program as two arrays, MAT KEYS$ and MAT VALUES$. (Since BR matches parameters positionally, you can call them whatever you choose to. ) The data in MAT VALUES$ is a string that is either the value assigned to a URL parameter or the content of an HTML FORM field (POST data parameter value).  A value can be a complete JSON object. The maximum *key* length is 100. The maximum *value* length is 32000.
+**Data is received** from web clients in name-value pairs.  This is passed to your program as two arrays, MAT KEYS$ and MAT VALUES$. (Since BR matches parameters positionally, you can call them whatever you choose to. ) The data in MAT VALUES$ is a string that is either the value assigned to a URL parameter or the content of an HTML FORM field (POST data parameter value).  A value can be a complete JSON object. The maximum *key* length is 100. The maximum *value* length is 30,000. Values that came in the URL arrive in upper case, because BR's HTTP engine upper-cases the URL; POST data keeps its case. A POST with `Content-Type: application/json` arrives whole, as the parameter `JSON` (when it is no longer than 30,000 characters) and always as the data store object `POST_BODY` (up to 4 MB); see "JSON request bodies" in `03 BR WEB SERVER`.
 
 ### Data Store
 
-String objects of any type, JSON or otherwise, may be stored in the data store, which is retained only in server memory. Use the object functions to work with non-JSON data or entire JSON objects, and the JSON functions when manipulating JSON data. Objects are referenced by their name. An object name may be up to 200 characters long, however a fully qualified JSON name (see JSON support below) may be up to 2000 characters long.
+String objects of any type, JSON or otherwise, may be stored in the data store, which is retained only in server memory: the memory of the one BR process that stored it. When several BR processes serve a site behind a reverse proxy (see `03 BR WEB SERVER`), an object stored by one process is not seen by the others, and it is lost when that process restarts. Use the object functions to work with non-JSON data or entire JSON objects, and the JSON functions when manipulating JSON data. Objects are referenced by their name. An object name may be up to 200 characters long, however a fully qualified JSON name (see JSON support below) may be up to 2000 characters long.
 
 Object names are provided by you and do not need to describe object content. Object names are not case sensitive, but member names are. More than one object with the same name can be stored and subsequently referenced with *bracketed subscripts*.  Object names subscripted with brackets denote which instance within an *ordered list of that object* is being referenced. Note that this is different from subscripting member names. In this case the subscript refers to a list of entire objects. In JSON qualified names *member name subscripts* refer to values in lists associated with the member names.
 
@@ -77,7 +77,7 @@ The Data Store Function Library supports HTML processing with the following func
 
 #### `FNSend_string( string-variable$ )`
 
-The content of string-variable (max 50,000 bytes) is sent to the client.  FNSend_String is not content sensitive, so this is one way to send any HTML string to the client browser. If the client is a phone application it may be requesting data (typically JSON). In this case your program may need to send a block of data instead of HTML.
+The content of string-variable (max 30,000 bytes) is sent to the client. Everything sent during one request, by FNSend_String, FNSend_Page and FNSend_Object, goes to the client as one response with one set of HTTP headers, so a page can be sent in pieces: a header page, then several strings, then a footer page.  FNSend_String is not content sensitive, so this is one way to send any HTML string to the client browser. If the client is a phone application it may be requesting data (typically JSON). In this case your program may need to send a block of data instead of HTML.
 
 #### `FNSend_Page( web-page-file-reference; mat args$, mat repl$ )`
 
@@ -102,7 +102,7 @@ JSON stands for JavaScript Object Notation.  A JSON object consists of a structu
 - Each pair consists of a "name" followed by a colon and a value such as:
 - "name": value
 - A value can be a "string", number, {JSON object}, [array of values], true, false, or null.
-- The double quotes enclosing strings are a required part of JSON syntax.
+- The double quotes enclosing strings are a required part of JSON syntax. A double quote inside a string value is written as two double quotes, as in a BR string literal: `"say ""hi"""`. You can also give the text itself: `FNPut_Json("T.a.v", 'say "hi"')` stores `"say ""hi"""`, doubling the quotes as it adds the enclosing ones. A value that *begins* with a double quote is taken as a JSON string already written this way, and is stored as given. FNGet_Json returns a string as its text: without the enclosing quotes, and with `""` turned back into `"` (`say "hi"`). With the as-is-flag it returns the value exactly as stored (`"say ""hi"""`). Inside the data store, JSON's backslash escape (`\"`) is not used, and a backslash is ordinary data. At the web boundary the Web Server converts for you: standard JSON arriving in a request (`\"`, `\\`, `\n`) reaches your program in this form, and JSON you send with FNSend_String or FNSend_Object leaves in standard form. See "JSON is converted at the boundary" in `03 BR WEB SERVER`.
 - An array is a comma separated list of values enclosed in brackets.
 - Apostrophes are regarded as data. The only punctuation that is recognized is { } [ ] , " :
 
@@ -186,7 +186,7 @@ JSON for this scenario could be:
     "city":"Pittsburg",...}}
 ```
 
-If a JSON-value is not quoted, BR tests it for a valid numeric content by using VAL(). If VAL() produces a conversion error, the value will automatically be enclosed in double quotes when it is stored. This feature can be suppressed with the as-is-flag. Note that single quotes (apostrophes) have no special significance and are regarded as normal data. Objects are not quoted when stored. Only values and field names are quoted.
+If a JSON-value does not begin with a double quote, a brace or a bracket, it is stored as a number only if it is written the way JSON writes numbers (RFC 8259): an optional minus sign, then `0` or a digit 1-9 followed by more digits, then an optional fraction (`.` and digits) and an optional exponent (`e` or `E`, an optional sign, and digits). Any other value is enclosed in double quotes when it is stored. So `5`, `-5`, `0.5`, `12.50` and `1e3` are stored as numbers, while `01234` (a leading zero, as in a zip code), `1,000`, `+5`, `.5`, `5.`, `true` and an empty value are stored as strings. A value longer than 100 characters is always quoted. The same rule applies to FNPut_Json, FNInsert_Json, FNAppend_Json and FNCompile_Json. Quoting can be suppressed with the as-is-flag, and FNCompile_Json's quote_numeric_values quotes numbers too. Note that single quotes (apostrophes) have no special significance and are regarded as normal data. Objects are not quoted when stored. Only values and field names are quoted.
 
 #### `FNInsert_Json( fully-qualified-name, JSON-value-var$ )`
 
@@ -358,7 +358,7 @@ This works like FNCompile_Json except instead of producing a string, it stores t
 
 String-expression is parsed into the remaining parameters. String can be either a member a value set. A value set can be a member with one or more named pairs, or a bracket enclosed list of values. Mat keys$ and mat values$ are redimensioned as needed. If a string overflow occurs, the subscript of the erroneous element is returned as a negative value.
 
-Unlike FNCompile_Json, *value-type$ and member-name$ must be variables*.  String-expression may be any string expression no longer than 50,000 bytes.
+Unlike FNCompile_Json, *value-type$ and member-name$ must be variables*.  String-expression may be any string expression no longer than 30,000 bytes.
 
 #### `FNParse_Object( object-name, value-type, member-name, mat keys$, mat values$)`
 
@@ -366,9 +366,9 @@ This works like FNParse_Json except instead of parsing a string, it parses the s
 
 ## Capacities
 
-Combining many large rows into a giant JSON object is poor design and results in slower processing than using chunks (objects) less than 50,000 bytes long.  Therefore, for performance reasons, the maximum size JSON object, referenced in the compile and parse functions, has been set to 50,000 bytes. Also FNSend_String is limitied to 50,000 bytes.
+Combining many large rows into a giant JSON object is poor design and results in slower processing than using chunks (objects) less than 30,000 bytes long.  Therefore, for performance reasons, the maximum size JSON object, referenced in the compile and parse functions, has been set to 30,000 bytes. Also FNSend_String is limited to 30,000 bytes. (The limit was 50,000 in releases 1.89 and 1.90, and was lowered to work around a BR problem.)
 
-Data moved to and from the Data Store is not size restricted by the program.  Such data is passed by reference. So if you need to send a string in excess of 50000 bytes, store it and then send the stored object.
+Data moved to and from the Data Store is not size restricted by the program.  Such data is passed by reference. So if you need to send a string in excess of 30,000 bytes, store it and then send the stored object.
 
 The Web Server output buffer capacity is 4 megabytes (4194304 bytes).
 
@@ -399,3 +399,13 @@ The Web Server output buffer capacity is 4 megabytes (4194304 bytes).
 If a string overflow occurs during compiling, parsing or retrieving, the return code will be the negative number of the name segment that was being processed when the error occurred.
 
 e.g.  FNGET_JSON( “Invoice 1067.addr1.street”, STREET$ ) returns -3 if the value for street exceeds the dimensioned length of STREET$.
+
+## Fixes in Recent Releases
+
+If your programs run on an older web_server, these differences matter:
+
+- **2.11: quotes in text values, and what FNGet_Json returns.** Before 2.11, text containing a double quote, given without enclosing quotes (`'He said "hi"'`), was stored with its quotes as they were, which corrupted the object. FNGet_Json returned inner quotes still doubled (`say ""hi""`). It also stripped *every* quote at either end, so the string `"""hi"""` came back as `hi` instead of `"hi"`. Programs that undoubled the quotes themselves after FNGet_Json should stop doing so.
+- **2.10: JSON request bodies.** Before 2.10, every POST body was treated as form data: URL-decoded (so `+` became a space and `%xx` was decoded) and split on `&` and `=`. A JSON body without `=` never reached the program, and the server wrote "Parameter missing '=' char" into the response. POST data was limited to 100,000 characters.
+- **2.09: standard JSON at the web boundary.** Before 2.09, JSON was sent to clients in the store's form, with `""` inside strings, raw backslashes and raw line breaks. Standard JSON parsers such as a browser's `JSON.parse` reject that. JSON responses were also sent with no `Content-Type` header, because the test that should have marked them `application/json` never matched. Standard JSON arriving in a request reached your program unconverted. A program that built standard JSON by hand, with `\"`, now has its backslashes escaped on the way out; it should write `""` instead.
+- **2.08: member lookup past string values containing `,` `}` or `]`.** Before 2.08, when a member followed another member whose quoted value contained one of those characters, the JSON functions could not find it. With `{"a":{"p":"1,000","q":"x"}}`, `FNPut_Json("W.a.q", Y$)` added a second `"q"` instead of replacing the first. With `"p":"a}b"`, it wrote into the middle of that string and corrupted the object. FNGet_Json and FNDelete_Json returned "member not found" (-22). A value with doubled quotes followed by a comma, such as `"say ""hi"", ok"`, was also misread: FNGet_Json returned it cut short, and FNDelete_Json corrupted the object.
+- **2.07: JSON value quoting.** Before 2.07, negative numbers, `0` and decimals such as `0.5` were stored as strings, and `5.` was stored unquoted. FNCompile_Json lists could produce invalid JSON such as `{"zip":01234}`. FNInsert_Json of a whole object at a subscript that does not exist stopped BR with error 0122 instead of returning -80.

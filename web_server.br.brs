@@ -1,6 +1,6 @@
 01000 ! Execute "con opt 60 off" !:
          ! Rep Web_Server
-01020    let VERSION$ = "2.06"
+01020    let VERSION$ = "2.11"
 01040 ! Br Standard Web Server
 01060 ! Control File Is: Web_Server.Ini
 01080 ! Url_Base = Full Br Path To Directory Being Served
@@ -28,7 +28,7 @@
 01280    on fkey 93 goto Exit_Br
 01300 ! 
 01320    dim URL$*4096,URL_BASE$*1000,EXT$*500,FULL_URL$*5500,PAGE$*32000
-01340    dim POST$*100000, CONTROL$*2000, LIBRARY$(0)*2000, FUNCT$(0)*500
+01340    dim POST$*4194304, CONTROL$*2000, LIBRARY$(0)*2000, FUNCT$(0)*500
 01360    dim COOKIE$*5000,URL_BASE_SAVE$*1000,EXT_SAVE$*500
 01380    dim RUN_DIR$(0)*200,PWD$*200,LIBRARY$*2000
 01400    dim LOGFILE$*300,DEBUGFILE$*300,URLCODES$(227)*3,CHARS$(227)*1
@@ -305,6 +305,8 @@
             let FLUSH = TRUE ! Set To Flush Buffer !:
             if MIME_TYPE$ = NULL$ then !:
                gosub Calc_Mime_Type
+03705       if MIME_TYPE$ = "application/json" AND NOT PAGE_IN_BUF then !:
+               let FNJSON_TO_STANDARD(PAGEBUF$) ! The Store Writes An Embedded Quote As "" - Clients Need \"
 03710       if SUPPRESS_HEADER AND SET_COOKIE$ > NULL$ then !:
                gosub Cookie_Into_Pagebuf
 03720       if NOT SUPPRESS_HEADER then !:
@@ -327,7 +329,8 @@
                print #DEBUG: "Mime Type= ";MIME_TYPE$
 03795       end if  ! End If Flush
 03800       let PAGEBUF$ = MIME_TYPE$ = NULL$ !:
-            let SUPPRESS_HEADER = 0
+            let SUPPRESS_HEADER = 0 !:
+            let PAGE_IN_BUF = FALSE
 03810       if FLUSH then !:
                let FLUSH = FALSE !:
                goto 3720
@@ -338,15 +341,16 @@
 03850    let SET_COOKIE$ = NULL$ !:
          if AUTH_REQUIRED AND FNNOW >= NEXT_SWEEP then !:
             gosub Sweep_Sessions
-03860    let POST_RECEIVED = FALSE !:
+03860    let POST_RECEIVED = JSON_BODY = FALSE !:
          let URL$ = POST$ = NULL$ !:
          linput #HTTP_FILE,wait=60: POST$ error Printdebug !:
-         let FNURLDECODE(POST$,1)
+         let JSON_BODY = (POS(LWRC$(FILE$(HTTP_FILE,"CONTENT-TYPE")),"application/json") > 0) !:
+         if NOT JSON_BODY then let FNURLDECODE(POST$,1) ! A Json Body Is Not Url-Encoded
 03880    let POST_RECEIVED = TRUE !:
          if DEBUG then !:
             print #DEBUG: !:
-            print #DEBUG: "POST Received: ";POST$ !:
-            print "POST Received: ";POST$
+            print #DEBUG: "POST Received (";STR$(LEN(POST$));" bytes): ";POST$(1:MAX(300,LEN(POST$)*SGN(DBG_PRINT_ALL))) !:
+            print "POST Received (";STR$(LEN(POST$));" bytes): ";POST$(1:300) ! All Of It Only With Print_all
 03900    goto Processurl
 03920 ! 
 03940 Printdebug: ! !:
@@ -508,11 +512,12 @@
                            print "Expired #####: ";DATE$(S_EXPIRATION,"ccyy/mm/dd hh:mm:ss")
 05480 ! .            Auth Expired - Process Relogin (The User Name Stays In The Session)
 05500                   if CURRENT_TIME < (S_EXPIRATION + RELOGIN_MINUTES * .00069445) then ! Relogin Window Open - First Compile Checkpoint
-05520                      let S_RELOGIN_POST = POST_RECEIVED !:
+05520                      let S_RELOGIN_POST = POST_RECEIVED + JSON_BODY ! 2 = A Json Body !:
                            let S_RELOGIN_EXPIRE = CURRENT_TIME + ONE_HOUR !:
                            let S_IGNORE_EXPIRE = 0 !:
                            let SESS_BLOB$ = LPAD$(STR$(LEN(URL$)),4,"0") & URL$
-05540                      if POST_RECEIVED then !:
+05530                      if LEN(POST$) > 100000 then let S_RELOGIN_POST = 0 ! Too Big To Keep: Resume Without It
+05540                      if S_RELOGIN_POST then !:
                               let SESS_BLOB$(INF:0) = POST$
 05560                      let FNSESS_PUT_BLOB(SESSION_$) ! Url And Post, For The Resume
 05820                      if DEBUG then !:
@@ -644,6 +649,7 @@
          if S_RELOGIN_POST then !:
             let POST$ = SESS_BLOB$(5+POS2:INF) !:
             let POST_RECEIVED = TRUE !:
+            let JSON_BODY = (S_RELOGIN_POST = 2) !:
          else !:
             let POST$ = "" !:
             let POST_RECEIVED = FALSE
@@ -660,7 +666,7 @@
 06930 Relogin_Bad_Blob: let SESS_BLOB$ = "0001/" !:
          goto 6760 ! Saved Url Unreadable: Resume At The Top
 06940 ! 
-06960    dim PARM$*5050, VALUES$(0)*30000, KEYS$(0)*100
+06960    dim PARM$*5050, VALUES$(0)*30000, KEYS$(0)*100, JSON_WORK$*30000
 06980 ! 
 07000 ! ######################################################
 07020 Process_Parms: ! ***** Process Url Parameters *********
@@ -721,6 +727,7 @@
 07520       loop 
 07540    end if 
 07560 ! ***** Process Post$
+07570    if JSON_BODY then goto Json_Body_Parm
 07580    let POS1 = 1 !:
          do WHILE POST$(POS1:POS1) > NULL$
 07600       let POS2 = POS(POST$,"&",POS1) !:
@@ -734,10 +741,24 @@
                let KEYS$(SUB1 +=1) = PARM$(1:POS3-1) !:
                let VALUES$(SUB1) = PARM$(POS3+1:99999) soflow Ignore
 07640       let POS1 = POS2+1
-07660    loop 
-07680 ! ***** Process Arrays
+07660    loop
+07662    goto Process_Arrays
+07664 Json_Body_Parm: ! ***** A Json Body (Content-Type: Application/json) Is One Parameter, !:
+      ! Json, Not Name=Value Pairs.  Converted Once To The Store's Form; Its Value !:
+      ! Is Empty When Longer Than A Values$ Element, But It Is Always In The Data !:
+      ! Store As Object Post_body.
+07666    let FNJSON_FROM_STANDARD(POST$)
+07668    let KEYS$(SUB1+=1) = "JSON" !:
+         let JSON_BODY_SUB = SUB1 !:
+         if LEN(POST$) <= 30000 then let VALUES$(SUB1) = POST$
+07680 Process_Arrays: ! ***** Process Arrays
 07700    mat VALUES$(SUB1) !:
          mat KEYS$(SUB1)
+07701    if JSON_BODY then let FNPUT_OBJECT("POST_BODY",POST$)
+07702    for JSON_SUB = 2 to UDIM(VALUES$) ! Standard Json From The Client -> The Store's Form
+07704       let JSON_WORK$ = VALUES$(JSON_SUB)
+07706       if (NOT JSON_BODY OR JSON_SUB <> JSON_BODY_SUB) AND FNJSON_FROM_STANDARD(JSON_WORK$) then let VALUES$(JSON_SUB) = JSON_WORK$ ! A Json Body Is Already Converted
+07708    next JSON_SUB
 07720    if DEBUG then !:
             print #DEBUG: "========================" !:
             print #DEBUG: MAT KEYS$ !:
@@ -906,7 +927,7 @@
                let FNINSERT_JSON = SUCCESS !:
                goto End_Insert_Json
 09380    end if 
-09400    if UDIM(NAMES$) == 1 then let SUCESS = FNINS_OBJECT !:
+09400    if UDIM(NAMES$) == 1 then let SUCCESS = FNINS_OBJECT !:
          else let SUCCESS = FNINSERT_MEMBER
 09420    let FNINSERT_JSON = SUCCESS !:
          if SUCCESS >= 0 AND CHANGED AND NOT DONT_SAVE_WORK then !:
@@ -1070,14 +1091,11 @@
                      let FIRST_ELEMENT = TRUE
 10780             let WORK4$ = VALUE$(1:1) !:
                   let ADD_QUOTES = FALSE !:
-                  if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted !:
-                     let ADD_QUOTES = ( ( (WORK4$ == NULL$) OR POS(VALUE$,",")) ) !:
-                     let DUMMY = VAL(VALUE$) conv Add_Quotes !:
-                     let DUMMY = ((WORK4$ == "0" AND VALUE$(2:2) <> ".") OR (NOT POS("123456789",WORK4$))) !:
-                     let ADD_QUOTES = MAX(ADD_QUOTES, QUOTE_NUMERICS,DUMMY)
+                  if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted - Quote All But Json Numbers !:
+                     let ADD_QUOTES = MAX(1 - FNJSON_NUMBER(VALUE$(1:101)), QUOTE_NUMERICS)
 10800             if ADD_QUOTES then !:
                      let WORK$(POS1:0) = '"'
-10820             let WORK$(POS1:0) = VALUE$ !:
+10820             let WORK$(POS1:0) = SREP$(VALUE$,'"','""'(1:1+ADD_QUOTES)) !:
                   if ADD_QUOTES then !:
                      let WORK$(POS1:0) = '"'
 10840             if NOT FIRST_ELEMENT then !:
@@ -1093,14 +1111,11 @@
 10940             if LOW_LEVEL then 
 10960                let WORK4$ = VALUE$(1:1) !:
                      let ADD_QUOTES = FALSE !:
-                     if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted !:
-                        let ADD_QUOTES = ( ( (WORK4$ == NULL$) OR POS(VALUE$,",")) ) !:
-                        let DUMMY = VAL(VALUE$) conv Add_Quotes !:
-                        let DUMMY = ((WORK4$ == "0" AND VALUE$(2:2) <> ".") OR (NOT POS("123456789",WORK4$))) !:
-                        let ADD_QUOTES = MAX(ADD_QUOTES, QUOTE_NUMERICS,DUMMY)
+                     if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted - Quote All But Json Numbers !:
+                        let ADD_QUOTES = MAX(1 - FNJSON_NUMBER(VALUE$(1:101)), QUOTE_NUMERICS)
 10980                if ADD_QUOTES then !:
                         let WORK$(POS1:0) = '"'
-11000                let WORK$(POS1:0) = VALUE$ !:
+11000                let WORK$(POS1:0) = SREP$(VALUE$,'"','""'(1:1+ADD_QUOTES)) !:
                      if ADD_QUOTES then !:
                         let WORK$(POS1:0) = '"'
 11020             else ! Insert Middle Level Member!:
@@ -1120,10 +1135,7 @@
 11220 ! 
 11240 Quote: ! ***** Enclose String In Quotes
 11260 def FNQUOTE$*10000(&STRING$) = '"'&STRING$&'"'
-11280 Add_Quotes: if NOT AS_IS_FLAG then !:
-         let ADD_QUOTES = TRUE
-11300 continue 
-11320 ! 
+11320 !
 11340 Init: ! ***** Initialization
 11360 def FNINIT(NAME$*2000,MAT NAMES$)
 11380    if WBVERSION$ < "4.3" then !:
@@ -1204,10 +1216,10 @@
          if SUCCESS == 0 OR LAST_COLON == PUNCT then !:
             let FNGET_MEMBER = -(20+NAME_SUB-1) ! Member Not Found !:
             goto End_Get_Member
-12080    if AS_IS_FLAG then ! Trim Spaces Only!:
-            let CONTAINER$ = TRIM$(WORK$(LAST_COLON+1:PUNCT-1)) !:
-         else ! Also Trim Quotes !:
-            let CONTAINER$ = TRIM$(TRIM$(WORK$(LAST_COLON+1:PUNCT-1)),'"')
+12080    let CONTAINER$ = TRIM$(WORK$(LAST_COLON+1:PUNCT-1)) ! As Stored, Spaces Trimmed
+12084    let GET_LEN = LEN(CONTAINER$) ! Unless As-Is, A String Comes Back As Its Text: !:
+         ! Without The Enclosing Quotes, And With "" As "
+12086    if NOT AS_IS_FLAG AND GET_LEN > 1 AND CONTAINER$(1:1) = '"' AND CONTAINER$(GET_LEN:GET_LEN) = '"' then let CONTAINER$ = SREP$(CONTAINER$(2:GET_LEN-1),'""','"')
 12100    let FNGET_MEMBER = TRUE
 12120 End_Get_Member: fnend 
 12140 ! 
@@ -1333,16 +1345,13 @@
 13460    if REPLACE_FLAG then ! ####### Insert Value #######
 13480       let WORK4$ = VALUE$(1:1) !:
             let ADD_QUOTES = FALSE !:
-            if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted !:
-               let ADD_QUOTES = ( ( (WORK4$ == NULL$) OR POS(VALUE$,",")) ) !:
-               let DUMMY = VAL(VALUE$) conv Add_Quotes !:
-               let DUMMY = ((WORK4$ == "0" AND VALUE$(2:2) <> ".") OR (NOT POS("123456789",WORK4$))) !:
-               let ADD_QUOTES = MAX(ADD_QUOTES, QUOTE_NUMERICS,DUMMY)
+            if (NOT POS('"{[',WORK4$)) AND NOT AS_IS_FLAG then ! Value Not Quoted - Quote All But Json Numbers !:
+               let ADD_QUOTES = MAX(1 - FNJSON_NUMBER(VALUE$(1:101)), QUOTE_NUMERICS)
 13500       if ADD_QUOTES then !:
                let WORK$(PUNCT:0) = '"' !:
                let WORK$(LAST_COLON +1:0) ='"' !:
                let PUNCT += 2
-13520       let WORK$(LAST_COLON+(1+ADD_QUOTES):PUNCT-(1+ADD_QUOTES)) = VALUE$ !:
+13520       let WORK$(LAST_COLON+(1+ADD_QUOTES):PUNCT-(1+ADD_QUOTES)) = SREP$(VALUE$,'"','""'(1:1+ADD_QUOTES)) !:
             goto Check_Brackets
 13540    end if 
 13560    if NULL_VALUE_FLAG then ! ####### Insert Null Value ####### !:
@@ -1561,22 +1570,23 @@
          let POS1 = COLON+1 !:
          let FIRST_PASS = QUOTE_POS = INF
 15600 ! 
-15620 Quote_Loop: ! Loop Here After Skipping Quoted Area
-15640    if OPEN_BRACE_POS <= QUOTE_POS then !:
+15620 Quote_Loop: ! Loop Here After Skipping Quoted Area !:
+      ! A Remembered Position Before Pos1 Is Stale (Inside The Skipped String) - Look It Up Again
+15640    if FIRST_PASS OR OPEN_BRACE_POS < POS1 then !:
             let OPEN_BRACE_POS = POS(WORK$,"{",POS1)
 15660    if NOT OPEN_BRACE_POS then let OPEN_BRACE_POS = INF
-15680    if CLOSE_BRACE_POS <= QUOTE_POS then !:
+15680    if FIRST_PASS OR CLOSE_BRACE_POS < POS1 then !:
             let CLOSE_BRACE_POS = POS(WORK$,"}",POS1)
 15700    if NOT CLOSE_BRACE_POS then let CLOSE_BRACE_POS = INF
-15720    if COMMA_POS <= QUOTE_POS then !:
+15720    if FIRST_PASS OR COMMA_POS < POS1 then !:
             let COMMA_POS = POS(WORK$,",",POS1)
 15740    if NOT COMMA_POS then let COMMA_POS = INF
-15760 ! 
-15780    if NOT (FIRST_PASS AND CHAIN_BRACKETS) then 
-15800       if OPEN_BRACKET_POS <= QUOTE_POS then !:
+15760 !
+15780    if NOT (FIRST_PASS AND CHAIN_BRACKETS) then
+15800       if FIRST_PASS OR OPEN_BRACKET_POS < POS1 then !:
                let OPEN_BRACKET_POS = POS(WORK$,"[",POS1)
 15820       if NOT OPEN_BRACKET_POS then let OPEN_BRACKET_POS = INF
-15840       if CLOSE_BRACKET_POS <= QUOTE_POS then !:
+15840       if FIRST_PASS OR CLOSE_BRACKET_POS < POS1 then !:
                let CLOSE_BRACKET_POS = POS(WORK$,"]",POS1)
 15860       if NOT CLOSE_BRACKET_POS then let CLOSE_BRACKET_POS = INF
 15880    end if 
@@ -1708,12 +1718,11 @@
 17260       else ! Compile List
 17280          if KEYS$(SUB1) > NULL$ then ! Key Specified In List
 17300             let ADD_QUOTES = (VALUES$(SUB1) == NULL$) !:
-                  if NOT POS('"{[',VALUES$(SUB1)(1:1)) then ! Value Not Quoted !:
-                     let DUMMY = VAL(VALUES$(SUB1)) conv Add_Quotes !:
-                     let ADD_QUOTES = MAX(ADD_QUOTES, QUOTE_NUMERICS)
+                  if NOT POS('"{[',VALUES$(SUB1)(1:1)) then ! Value Not Quoted - Quote All But Json Numbers !:
+                     let ADD_QUOTES = MAX(1 - FNJSON_NUMBER(VALUES$(SUB1)(1:101)), QUOTE_NUMERICS)
 17320             let QUOTE$ = '"'(1:ADD_QUOTES) ! Set Quote Value !:
                   let CONTAINER$ = '{"'& KEYS$(SUB1) &'":'&QUOTE$ !:
-                  let CONTAINER$(300:0) = VALUES$(SUB1) !:
+                  let CONTAINER$(300:0) = SREP$(VALUES$(SUB1),'"','""'(1:1+ADD_QUOTES)) !:
                   let CONTAINER$(INF:0) = QUOTE$&"}"
 17340             let SUCCESS = FNINSERT_JSON("YYY",CONTAINER$,0,0,1) !:
                   if SUCCESS < 0 then !:
@@ -1976,7 +1985,8 @@
          let WORK$ = SREP$(WORK$,ARGS$(SUB1),REPL$(SUB1)) !:
       next SUB1
 19760 ! 
-19780 let PAGEBUF$(INF:0) = WORK$ ! Append To Output
+19780 let PAGEBUF$(INF:0) = WORK$ ! Append To Output !:
+      let PAGE_IN_BUF = TRUE ! A Page File Is In This Response: Its Json Is Not Converted
 19800 close #125: !:
       let FNSEND_PAGE = 1 ! Success !:
       goto End_Send_Page
@@ -2099,7 +2109,7 @@
 20960 let MIME_TYPE$ = LTRM$(PAGEBUF$(1:100))(1:4) !:
       if (MIME_TYPE$(1:1) == "<") OR UPRC$(MIME_TYPE$) == "HTTP" then !:
          let MIME_TYPE$ = "text/html" !:
-      else if POS('{["',MIME_TYPE$) then !:
+      else if POS('{["',MIME_TYPE$(1:1)) then !:
          let MIME_TYPE$ = "application/json" !:
       else let MIME_TYPE$ = NULL$
 20980 return 
@@ -2359,3 +2369,262 @@
 25960    goto End_Sesx_Store
 25980 Sesx_Store_Append: write #SESX_FILE,using Sesx_Form: SX_KEY$,LEN(PIECE$),PIECE$ ioerr End_Sesx_Store
 26000 End_Sesx_Store: fnend 
+26020 !
+26040 Json_Number: ! ***** 1 If V$ Is A Json Number: -?(0|[1-9]D*)(.D+)?([Ee][+-]?D+)? (Rfc 8259) !:
+      ! Callers Pass At Most 101 Characters, So A Longer Value Is Never A Number.
+26060 def FNJSON_NUMBER(V$*101;POSN)
+26080    if LEN(V$) > 100 then goto End_Json_Number
+26100    if V$(1:1) = "-" then let POSN = 1
+26120    if V$(POSN+1:POSN+1) = "0" then
+26140       let POSN += 1 ! A Lone Zero: No Leading Zeros
+26160    else
+26180       if FNJSON_DIGITS(V$,POSN) = 0 then goto End_Json_Number
+26200    end if
+26220    if V$(POSN+1:POSN+1) = "." then
+26240       let POSN += 1
+26260       if FNJSON_DIGITS(V$,POSN) = 0 then goto End_Json_Number
+26280    end if
+26300    if UPRC$(V$(POSN+1:POSN+1)) = "E" then
+26320       let POSN += 1
+26340       if V$(POSN+1:POSN+1) = "+" OR V$(POSN+1:POSN+1) = "-" then let POSN += 1
+26360       if FNJSON_DIGITS(V$,POSN) = 0 then goto End_Json_Number
+26380    end if
+26400    if POSN = LEN(V$) AND POSN > 0 then let FNJSON_NUMBER = 1
+26420 End_Json_Number: fnend
+26440 !
+26460 Json_Digits: ! ***** Count The Digits Following Posn, And Move Posn Past Them
+26480 def FNJSON_DIGITS(&V$,&POSN;COUNT)
+26500    do WHILE POSN < LEN(V$)
+26520       if POS("0123456789",V$(POSN+1:POSN+1)) = 0 then goto End_Json_Digits
+26540       let POSN += 1
+26560       let COUNT += 1
+26580    loop
+26600 End_Json_Digits: let FNJSON_DIGITS = COUNT
+26620 fnend
+26640 !
+26660 ! ***** Standard Json At The Http Boundary.  The Store Writes A Quote Inside !:
+      ! A String As "" And Treats \ As Data; Clients Use Json's \ Escapes. !:
+      ! Json Leaving In A Response Is Converted To The Standard Form, And A !:
+      ! Request Value That Is Standard Json Is Converted To The Store's Form.
+26680 Json_To_Standard: ! ***** Store-Form Json Text -> Standard Json, In Place
+26700 def FNJSON_TO_STANDARD(&B$;P,I,E,BS,K,C,POSN,ESC$*6,CODES$*32)
+26720    if NOT POS(B$,'"') then goto End_Json_To_Standard
+26740    for C = 0 to 31 ! The Control Characters Present Anywhere, If Any
+26760       if POS(B$,CHR$(C)) then let CODES$(INF:0) = CHR$(C)
+26780    next C
+26800    let P = 1
+26820 To_Std_Next_String: let I = POS(B$,'"',P) ! Opening Quote
+26840    if I = 0 then goto End_Json_To_Standard
+26860    let I += 1
+26880 To_Std_In_String: let E = POS(B$,'"',I) ! Next Quote Or Backslash In The String
+26900    if E = 0 then goto End_Json_To_Standard ! Unbalanced: Leave The Rest As It Is
+26920    let BS = POS(B$,"\",I)
+26940    if BS > 0 AND BS < E then let E = BS
+26960    for K = 1 to LEN(CODES$) ! Escape Control Characters Before E
+26980       let C = ORD(CODES$(K:K))
+27000       let ESC$ = FNJSON_CONTROL_ESC$(C)
+27020       let POSN = POS(B$,CHR$(C),I)
+27040       do WHILE POSN > 0 AND POSN < E
+27060          let B$(POSN:POSN) = ESC$
+27080          let E += LEN(ESC$) - 1
+27100          let POSN = POS(B$,CHR$(C),POSN + LEN(ESC$))
+27120       loop
+27140    next K
+27160    if B$(E:E) = "\" then
+27180       if B$(E+1:E+1) = "u" AND FNJSON_HEX4(B$(E+2:E+5)) then
+27200          let I = E+6 ! A \uXXXX Escape Passes Through As It Is
+27220       else
+27240          let B$(E:E) = "\\"
+27260          let I = E+2
+27280       end if
+27300       goto To_Std_In_String
+27320    end if
+27340    if B$(E+1:E+1) = '"' then ! "" Inside A String Is One Embedded Quote
+27360       let B$(E:E+1) = '\"'
+27380       let I = E+2
+27400       goto To_Std_In_String
+27420    end if
+27440    let P = E+1 ! The String Ends Here
+27460    goto To_Std_Next_String
+27480 End_Json_To_Standard: fnend
+27500 !
+27520 Json_Control_Esc: ! ***** The Json Escape For A Control Character
+27540 def FNJSON_CONTROL_ESC$*6(C)
+27560    let FNJSON_CONTROL_ESC$ = "\u00" & LWRC$(UNHEX$(CHR$(C)))
+27580    if C = 8 then let FNJSON_CONTROL_ESC$ = "\b"
+27600    if C = 9 then let FNJSON_CONTROL_ESC$ = "\t"
+27620    if C = 10 then let FNJSON_CONTROL_ESC$ = "\n"
+27640    if C = 12 then let FNJSON_CONTROL_ESC$ = "\f"
+27660    if C = 13 then let FNJSON_CONTROL_ESC$ = "\r"
+27680 fnend
+27700 !
+27720 Json_Hex4: ! ***** 1 If H$ Is Exactly Four Hex Digits
+27740 def FNJSON_HEX4(H$*4;K)
+27760    if LEN(H$) <> 4 then goto End_Json_Hex4
+27780    for K = 1 to 4
+27800       if POS("0123456789abcdefABCDEF",H$(K:K)) = 0 then goto End_Json_Hex4
+27820    next K
+27840    let FNJSON_HEX4 = 1
+27860 End_Json_Hex4: fnend
+27880 !
+27890    dim JSON_CONV$*4194304,JSON_CTRL_NEXT(32) ! Work Areas Of Fnjson_from_standard And Fnjson_valid
+27900 Json_From_Standard: ! ***** A Request Value That Is Standard Json -> The Store's Form, !:
+      ! In Place.  1 If It Was Converted.  Anything Else Is Left As It Is.
+27920 def FNJSON_FROM_STANDARD(&V$;FIRST$*1,P,I,E,BS,C$*1)
+27940    let FIRST$ = LTRM$(V$)(1:1)
+27960    if FIRST$ = "" then goto End_Json_From_Standard
+27980    if POS('{["',FIRST$) = 0 then goto End_Json_From_Standard
+28000    if POS(V$,"\") = 0 then goto End_Json_From_Standard ! No Escapes: Nothing To Convert
+28020    if NOT FNJSON_VALID(V$) then goto End_Json_From_Standard
+28040    let P = 1 !:
+         let JSON_CONV$ = ""
+28060 From_Std_Next_String: let I = POS(V$,'"',P)
+28080    if I = 0 then
+28100       let JSON_CONV$(INF:0) = V$(P:LEN(V$))
+28120       goto From_Std_Done
+28140    end if
+28160    let JSON_CONV$(INF:0) = V$(P:I) ! Up To And With The Opening Quote
+28180    let I += 1
+28200 From_Std_In_String: let E = POS(V$,'"',I)
+28220    if BS < I then let BS = POS(V$,"\",I) ! The Next Backslash, Found Again Only Once Passed
+28230    if BS = 0 then let BS = INF
+28240    if BS < E then let E = BS
+28260    let JSON_CONV$(INF:0) = V$(I:E-1)
+28280    if V$(E:E) = '"' then ! The String Ends
+28300       let JSON_CONV$(INF:0) = '"'
+28320       let P = E+1
+28340       goto From_Std_Next_String
+28360    end if
+28380    let C$ = V$(E+1:E+1) ! The Escape (Already Checked By Fnjson_Valid)
+28400    let I = E+2
+28420    if C$ = '"' then let JSON_CONV$(INF:0) = '""'
+28440    if C$ = "\" then let JSON_CONV$(INF:0) = "\"
+28460    if C$ = "/" then let JSON_CONV$(INF:0) = "/"
+28480    if C$ = "b" then let JSON_CONV$(INF:0) = CHR$(8)
+28500    if C$ = "f" then let JSON_CONV$(INF:0) = CHR$(12)
+28520    if C$ = "n" then let JSON_CONV$(INF:0) = CHR$(10)
+28540    if C$ = "r" then let JSON_CONV$(INF:0) = CHR$(13)
+28560    if C$ = "t" then let JSON_CONV$(INF:0) = CHR$(9)
+28580    if C$ = "u" then ! Kept As Written: It Leaves The Same Way
+28600       let JSON_CONV$(INF:0) = V$(E:E+5)
+28620       let I = E+6
+28640    end if
+28660    goto From_Std_In_String
+28680 From_Std_Done: let V$ = JSON_CONV$
+28700    let FNJSON_FROM_STANDARD = 1
+28720 End_Json_From_Standard: fnend
+28740 !
+28760 Json_Valid: ! ***** 1 If V$ Is One Complete Standard Json Value (Rfc 8259). !:
+      ! States: 1 Value, 2 Key Or }, 3 Colon, 4 Comma Or Close, 5 Value Or ], !:
+      ! 6 Key, 7 Done.  Stack$ Holds The Open { And [.
+28780 def FNJSON_VALID(&V$;P,L,K,STATE,STACK$*500,C$*1,TOP$*1,CTRL$*32)
+28800    let L = LEN(V$)
+28802    let JSON_NEXT_BS = 0 ! Fnjson_skip_string's Next Backslash: Not Known Yet
+28804    for K = 0 to 31 ! The Control Characters In V$, If Any (Tab, Lf And Cr Are Legal Between Values)
+28806       if POS(V$,CHR$(K)) then let CTRL$(INF:0) = CHR$(K)
+28808       let JSON_CTRL_NEXT(K+1) = 0 ! Its Next Position: Not Known Yet
+28810    next K
+28820    let STATE = 1
+28840 Valid_Next: let P += 1
+28860    if P > L then goto Valid_End
+28880    let C$ = V$(P:P)
+28900    if POS(" " & CHR$(9) & CHR$(10) & CHR$(13),C$) then goto Valid_Next
+28920    let TOP$ = STACK$(LEN(STACK$):LEN(STACK$))
+28940    if STATE = 7 then goto End_Json_Valid ! More After The Value
+28960    if STATE = 3 then
+28980       if C$ <> ":" then goto End_Json_Valid
+29000       let STATE = 1
+29020       goto Valid_Next
+29040    end if
+29060    if STATE = 4 AND C$ = "," then
+29080       let STATE = 1
+29100       if TOP$ = "{" then let STATE = 6
+29120       goto Valid_Next
+29140    end if
+29160    if (STATE = 2 OR STATE = 4) AND C$ = "}" AND TOP$ = "{" then goto Valid_Close
+29180    if (STATE = 4 OR STATE = 5) AND C$ = "]" AND TOP$ = "[" then goto Valid_Close
+29200    if STATE = 4 then goto End_Json_Valid
+29220    if STATE = 2 OR STATE = 6 then ! A Key: A String, Then A Colon
+29240       if C$ <> '"' then goto End_Json_Valid
+29260       let P = FNJSON_SKIP_STRING(V$,P,CTRL$)
+29280       if P = 0 then goto End_Json_Valid
+29300       let STATE = 3
+29320       goto Valid_Next
+29340    end if
+29360    if C$ = "{" OR C$ = "[" then ! States 1 And 5: A Value
+29380       let STACK$(INF:0) = C$
+29400       let STATE = 2
+29420       if C$ = "[" then let STATE = 5
+29440       goto Valid_Next
+29460    end if
+29480    if C$ = '"' then
+29500       let P = FNJSON_SKIP_STRING(V$,P,CTRL$)
+29520       if P = 0 then goto End_Json_Valid
+29540       goto Valid_After_Value
+29560    end if
+29580    if POS("-0123456789",C$) then
+29600       let K = P
+29620       do WHILE K < L
+29640          if POS("+-0123456789.eE",V$(K+1:K+1)) = 0 then goto Valid_Number_End
+29660          let K += 1
+29680       loop
+29700 Valid_Number_End: if NOT FNJSON_NUMBER(V$(P:K)(1:101)) then goto End_Json_Valid
+29720       let P = K
+29740       goto Valid_After_Value
+29760    end if
+29780    if V$(P:P+3) = "true" OR V$(P:P+3) = "null" then
+29800       let P += 3
+29820       goto Valid_After_Value
+29840    end if
+29860    if V$(P:P+4) = "false" then
+29880       let P += 4
+29900       goto Valid_After_Value
+29920    end if
+29940    goto End_Json_Valid ! Nothing Valid Starts Here
+29960 Valid_Close: let STACK$(LEN(STACK$):LEN(STACK$)) = ""
+29980 Valid_After_Value: let STATE = 4
+30000    if STACK$ = "" then let STATE = 7
+30020    goto Valid_Next
+30040 Valid_End: if STATE = 7 then let FNJSON_VALID = 1
+30060 End_Json_Valid: fnend
+30080 !
+30100 Json_Skip_String: ! ***** The Closing Quote Of The Standard Json String Opening At P, !:
+      ! Or 0 If It Is Not Well Formed (A Bad Escape, A Control Character, No End). !:
+      ! Jumps From Quote To Backslash With Pos; Json_next_bs Remembers The Next !:
+      ! Backslash Between Calls, So Scanning A Whole Value Stays Linear.
+30120 def FNJSON_SKIP_STRING(&V$,P,&CTRL$;K,Q,N$*1)
+30140    let K = P+1 ! Search From Here
+30160 Skip_Next: let Q = POS(V$,'"',K)
+30180    if Q = 0 then goto End_Json_Skip_String ! No End
+30200    if JSON_NEXT_BS < K then let JSON_NEXT_BS = POS(V$,"\",K)
+30210    if JSON_NEXT_BS = 0 then let JSON_NEXT_BS = INF
+30220    if JSON_NEXT_BS > Q then ! No Escape Before The Quote: The String Ends There
+30240       if FNJSON_CTRL_IN(V$,K,Q,CTRL$) then goto End_Json_Skip_String
+30260       let FNJSON_SKIP_STRING = Q
+30280       goto End_Json_Skip_String
+30300    end if
+30320    if FNJSON_CTRL_IN(V$,K,JSON_NEXT_BS,CTRL$) then goto End_Json_Skip_String
+30340    let N$ = V$(JSON_NEXT_BS+1:JSON_NEXT_BS+1)
+30360    if N$ = "u" then
+30380       if NOT FNJSON_HEX4(V$(JSON_NEXT_BS+2:JSON_NEXT_BS+5)) then goto End_Json_Skip_String
+30400       let K = JSON_NEXT_BS+6
+30420       goto Skip_Next
+30440    end if
+30460    if N$ = "" then goto End_Json_Skip_String
+30480    if POS('"\/bfnrt',N$) = 0 then goto End_Json_Skip_String
+30500    let K = JSON_NEXT_BS+2
+30520    goto Skip_Next
+30540 End_Json_Skip_String: fnend
+30560 !
+30580 Json_Ctrl_In: ! ***** 1 If A Control Character Is In V$(From:To-1).  Json_ctrl_next() Keeps !:
+      ! Where Each One Next Occurs, So Checking Every String Of A Value Stays Linear.
+30600 def FNJSON_CTRL_IN(&V$,FROM,TO,&CTRL$;K,C)
+30620    for K = 1 to LEN(CTRL$)
+30640       let C = ORD(CTRL$(K:K))
+30660       if JSON_CTRL_NEXT(C+1) < FROM then
+30680          let JSON_CTRL_NEXT(C+1) = POS(V$,CHR$(C),FROM)
+30700          if JSON_CTRL_NEXT(C+1) = 0 then let JSON_CTRL_NEXT(C+1) = INF
+30720       end if
+30740       if JSON_CTRL_NEXT(C+1) < TO then let FNJSON_CTRL_IN = 1
+30760    next K
+30780 fnend

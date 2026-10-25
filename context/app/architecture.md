@@ -1,7 +1,8 @@
 # brweb — architecture
 
-A Business Rules! **HTTPS web server** (`web_server.br`, v2.05) and the demo request handlers it
-serves. BR starts in the app root (`C:\ADS_test\gabriel\brweb`). The app's `brconfig.sys` runs
+A Business Rules! **HTTPS web server** (`web_server.br`, v2.11) and the demo request handlers it
+serves. It runs stand-alone (BR holds the certificate) or, with `proxy=` in the ini, as one or
+more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts in the app root (`C:\ADS_test\gabriel\brweb`). The app's `brconfig.sys` runs
 `web_server` at start-up, and `brconfig.svc` plus `nssm.exe` run it as a Windows service
 (`BR_service.txt`).
 
@@ -19,7 +20,7 @@ serves. BR starts in the app root (`C:\ADS_test\gabriel\brweb`). The app's `brco
 | `self.crt/.key/.phrase` | TLS certificate; `.phrase` holds the key passphrase, encrypted |
 | `sessions\` | Session store, created at run time: `sess<g>.dat`, `sesx<g>.dat` |
 | `http_client\`, `json_analyze.br` | Stand-alone utilities, not part of the server |
-| `tmp\`, `*.2_04`, `web_server.bak` | Old copies, not masters |
+| `old\`, `tmp\`, `web_server.bak` | Old copies, not masters. `old\` holds earlier releases (`web_server.br.2_04` to `.2_06`, `web_server-<n>.br` back to 1.44) and `CHANGE_LOG.md`; it is not tracked in git |
 
 ## Entry points
 

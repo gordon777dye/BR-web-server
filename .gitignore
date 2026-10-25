@@ -7,14 +7,14 @@
 /*
 !/.gitignore
 
-!/03 BR WEB SERVER.doc
-!/05 DATA STORE LIBRARY.doc
+!/03 BR WEB SERVER.md
+!/05 DATA STORE LIBRARY.md
 !/07 RE-LOGIN.pptx
 !/allow.brs
-!/brclientdll500-x64-Release-gui.dll
+!/brclient*
+!/brserver*
 !/brconfig.svc
 !/brconfig.sys
-!/brserver-500-x64-Release-2026-10-24.exe
 !/br_redirect.html
 !/BR_service.txt
 !/challenge.bootstrap.html

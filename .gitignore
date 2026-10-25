@@ -13,6 +13,8 @@
 !/allow.brs
 !/brclient*
 !/brserver*
+# Debug symbols for the BR build: large (up to ~100 MB) and not needed to run it.
+/*.pdb
 !/brconfig.svc
 !/brconfig.sys
 !/br_redirect.html

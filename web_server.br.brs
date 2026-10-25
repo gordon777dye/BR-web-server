@@ -1,6 +1,6 @@
 01000 ! Execute "con opt 60 off" !:
          ! Rep Web_Server
-01020    let VERSION$ = "2.11"
+01020    let VERSION$ = "2.12"
 01040 ! Br Standard Web Server
 01060 ! Control File Is: Web_Server.Ini
 01080 ! Url_Base = Full Br Path To Directory Being Served
@@ -11,8 +11,9 @@
 01180 ! Debugfile = Optional Br Text File For Web Server Debug Messages
 01200 ! .    This log File is replaced each run.
 01210 ! Session_Digits = Low-Order Session Digits That Name Its Work File In !:
-         ! .    Sessions\ (0-3, default 1).  No session is kept in memory between !:
-         ! .    requests, so any number of engines can serve the same site.
+         ! .    Sessions\ (0-3, default 1).  No session, and no data store, is kept !:
+         ! .    in memory between requests, so any number of engines can serve the !:
+         ! .    same site.  Sessions are kept with or without logins.
 01215 ! Proxy = Optional: the reverse proxy's address(es) - BR then serves plain !:
          ! .    HTTP on Bind (default 127.0.0.1), Port may be a range such as !:
          ! .    8081-8084, and Cert is not needed: the proxy serves HTTPS and files.
@@ -49,7 +50,7 @@
          let AUTH_REQUIRED = TRUE ! Login Required !:
          let HTTP_VERSION$ = "1" ! Http/1.1
 01530    let SESSION_DIGITS = 1 ! Session Digits Naming Its File !:
-         let SESS_FILE = 990 : let SESX_FILE = 991 !:
+         let SESS_FILE = 990 : let SESX_FILE = 991 : let SESD_FILE = 992 !:
          let ONE_MINUTE = .00069445 !:
          let FIVE_MINUTES = 5 * ONE_MINUTE !:
          let SESSION_CHARS$ = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" !:
@@ -210,8 +211,7 @@
             print "RELOGIN_MINUTES= ";RELOGIN_MINUTES
 02790    if SESSION_DIGITS < 0 OR SESSION_DIGITS > 3 OR SESSION_DIGITS <> INT(SESSION_DIGITS) then !:
             goto Session_Digits_Error
-02795    if AUTH_REQUIRED then !:
-            print "SESSION_DIGITS= ";SESSION_DIGITS
+02795    print "SESSION_DIGITS= ";SESSION_DIGITS
 02800    if NOT AUTH_REQUIRED then !:
             print "NOLOGIN"
 02820    mat ALLOW$(ALLOW_SUB) !:
@@ -264,8 +264,7 @@
 03380    open #QUERY_FILE: QUERYFILE$ & ", Replace",display,output  !:
          print #QUERY_FILE: WORK$ !:
          let QUERY_NUMBER = VAL(WORK$)
-03390    if AUTH_REQUIRED then !:
-            gosub Sess_Setup
+03390    gosub Sess_Setup ! Sessions Hold The Data Store Too, With Or Without Logins
 03400    if LOGFILE$ > NULL$ then !:
             let LOGFILE$(1:0) = " LOG= " !:
             !
@@ -300,6 +299,8 @@
             open #(DEBUG:=102): "name= " & DEBUGFILE$ & ", replace, recl=3200",display,output ioerr Open_Debug_Error
 03640 ! 
 03660 Mainloop: ! ***** Main Loop *********************
+03670    if DS_DIRTY then gosub Ds_Save ! The Request's Data Store Changes Go To Disk Before Its Answer
+03675    if DS_LOADED then let FNDS_CLEAR ! The Next Request Reads Its Own Session's Store
 03680    if PAGEBUF$ > NULL$ then 
 03700       let WORK$ = PAGEBUF$ !:
             let FLUSH = TRUE ! Set To Flush Buffer !:
@@ -339,7 +340,7 @@
 03820    end if  ! Send Pagebuf$
 03840    on fkey 93 goto Exit_Br
 03850    let SET_COOKIE$ = NULL$ !:
-         if AUTH_REQUIRED AND FNNOW >= NEXT_SWEEP then !:
+         if FNNOW >= NEXT_SWEEP then !:
             gosub Sweep_Sessions
 03860    let POST_RECEIVED = JSON_BODY = FALSE !:
          let URL$ = POST$ = NULL$ !:
@@ -377,8 +378,7 @@
 04080    let COOKIE$=FILE$(HTTP_FILE,"PAGE-COOKIE") !:
          if (DBG_COOKIES) AND LEN(COOKIE$) > 0 then !:
             print #DEBUG: "COOKIE Received: ";COOKIE$
-04090    if AUTH_REQUIRED then !:
-            gosub Establish_Session
+04090    gosub Establish_Session
 04100    let FNURLDECODE(URL$) !:
          let URL$=SREP$(URL$,"/",BACKSLASH$) !:
          if URL$(1:1) <> BACKSLASH$ AND URL$(1:1) <> "." then !:
@@ -754,7 +754,9 @@
 07680 Process_Arrays: ! ***** Process Arrays
 07700    mat VALUES$(SUB1) !:
          mat KEYS$(SUB1)
-07701    if JSON_BODY then let FNPUT_OBJECT("POST_BODY",POST$)
+07701    if JSON_BODY then !:
+            let FNPUT_OBJECT("POST_BODY",POST$) !:
+            let DS_DIRTY = FALSE ! Post_body Is For This Request Only: Not Kept On Disk
 07702    for JSON_SUB = 2 to UDIM(VALUES$) ! Standard Json From The Client -> The Store's Form
 07704       let JSON_WORK$ = VALUES$(JSON_SUB)
 07706       if (NOT JSON_BODY OR JSON_SUB <> JSON_BODY_SUB) AND FNJSON_FROM_STANDARD(JSON_WORK$) then let VALUES$(JSON_SUB) = JSON_WORK$ ! A Json Body Is Already Converted
@@ -895,6 +897,7 @@
 08820 ! . ***** ####### JSON Service Routines ########
 08840 ! 
 08860 dim STORAGE$(0)*10000, START(0),END(0),OBJECTS$(0)*200
+08870 dim DS_CHUNK$*10000,DS_NAME$*200 ! One Sesd<G>.Dat Record - See Ds_Load
 08880 dim NAMES$(0)*200
 08900 dim WORK$*4194304,PAGEBUF$*4194304
 08920 ! 
@@ -1005,6 +1008,7 @@
             pause 
 10040    let WORK_CONTENT = OBJ_SUB ! Current Work$ Object Pointer !:
          let FNINS_OBJECT = TRUE
+10050    let DS_DIRTY = TRUE ! Written To Disk At The End Of The Request
 10060 End_Ins_Object: fnend 
 10080 ! 
 10100 Insert_Member: ! ***** Insert Member
@@ -1144,6 +1148,7 @@
             stop 
 11400    let TRUE = 1 !:
          let FNINIT = TRUE
+11410    if NOT DS_LOADED then let FNDS_LOAD(REQ_SESSION$) ! A Request Reads Its Session's Store When It First Uses It
 11420    let STR2MAT(NAME$,MAT NAMES$,".","Q") ! Parse Names !:
          let NAMES$(1)=UPRC$(NAMES$(1)) ! Uppercase Object Name !:
          let OBJ_REF = 0 ! Array Ref Value !:
@@ -1191,6 +1196,7 @@
             goto End_Get_Object
 11900    if WORK_CONTENT <> OBJ_SUB then !:
             let POS1 = 1 !:
+            let WORK$ = NULL$ ! An Empty Object Has No Storage$ Elements To Copy !:
             for STOR_SUB = START(OBJ_SUB) to END(OBJ_SUB) ! Get Object ##### !:
                let WORK$(POS1:INF) = STORAGE$(STOR_SUB) !:
                let POS1 += 10000 !:
@@ -1317,6 +1323,7 @@
          mat START(UDIM(OBJECTS$)) !:
          mat END(UDIM(OBJECTS$))
 13200    let FNDEL_OBJECT = TRUE
+13210    let DS_DIRTY = TRUE ! Written To Disk At The End Of The Request
 13220 End_Del_Object: fnend 
 13240 ! 
 13260 Delete_Member: ! ***** Delete Json Member Value
@@ -1444,6 +1451,7 @@
 14320    let WORK_CONTENT = OBJ_SUB ! Current Work$ Object Pointer !:
          let FNSTORE_OBJECT = TRUE !:
          let CHANGED = FALSE
+14330    let DS_DIRTY = TRUE ! Written To Disk At The End Of The Request
 14340 End_Store_Object: fnend 
 14360 ! 
 14380 Find_Member: ! ***** Find Json Object Member
@@ -2136,11 +2144,13 @@
 21440 ! ***** Session Store - Nothing About A Session Stays In Memory Between !:
       ! Requests.  Each Session Is A Record In Sessions\Sess<G>.Dat, Keyed By !:
       ! The Full Session Number, <G> Being Its Low-Order Session_Digits Digits; !:
-      ! Its Relogin Data (Url And Post) Is In Sessions\Sesx<G>.Dat.  So Any !:
+      ! Its Relogin Data (Url And Post) Is In Sessions\Sesx<G>.Dat, And Its Data !:
+      ! Store Objects Are In Sessions\Sesd<G>.Dat (See Ds_Load).  So Any !:
       ! Engine Can Answer Any Request.  Status: N New (Not Logged In), !:
       ! A Authorized, X Authorization Ended, F A Free Record Awaiting Reuse.
 21460 Sess_Form: form C 10,C 1,V 50,8*PD 8.6,N 1
 21480 Sesx_Form: form C 13,N 4,C 4078
+21490 Sesd_Form: form C 14,V 200,N 5,C 10000
 21500 ! 
 21520 Now: ! ***** The Time As A Day Number With Its Fraction
 21540 def FNNOW = DAYS(DATE)+FP(DAYS(TIME$,"h:m:s"))
@@ -2158,12 +2168,15 @@
 21740 Establish_Session: ! ***** Every Browser Gets A Session Before It Logs In
 21760 let REQ_SESSION$ = FNCOOKIE_SESSION$
 21780 if (REQ_SESSION$ > NULL$) AND (NOT FNSESS_READ(REQ_SESSION$)) then let REQ_SESSION$ = NULL$
-21800 if REQ_SESSION$ = NULL$ then goto New_Session
+21800 if REQ_SESSION$ = NULL$ then goto No_Session
 21820 if FNNOW - S_TOUCHED > ONE_MINUTE then let FNSESS_WRITE ! Keeps It From The Sweep
-21840 return 
+21840 return
+21850 No_Session: if NOT AUTH_REQUIRED then return  ! Without Logins, A Session Starts When Its Data Store First Has Something To Keep (Ds_save)
 21860 New_Session: let REQ_SESSION$ = FNSESS_CREATE$
 21880 if REQ_SESSION$ = NULL$ then return  ! Session Store Unavailable
-21900 let SET_COOKIE$ = 'Set-Cookie: Session="' & REQ_SESSION$ & '"; Secure; HttpOnly; SameSite=strict; Max-Age=64800; Path=/'
+21890 let SECURE_ATTR$ = "Secure; " !:
+      if FILE$(HTTP_FILE,"PROTOCOL") == "http" then let SECURE_ATTR$ = NULL$ ! A Browser Sends A Secure Cookie Back Only Over Https
+21900 let SET_COOKIE$ = 'Set-Cookie: Session="' & REQ_SESSION$ & '"; ' & SECURE_ATTR$ & 'HttpOnly; SameSite=strict; Max-Age=64800; Path=/'
 21920 let COOKIE$(1:0) = 'Session="' & REQ_SESSION$ & '"; ' ! This Request Carries It Already
 21940 if DEBUG then print #DEBUG: "New session ";REQ_SESSION$
 21960 return 
@@ -2233,11 +2246,12 @@
 23240    if SESSION_DIGITS then let FNSESS_GROUP$ = SESS$(11-SESSION_DIGITS:10)
 23260 fnend 
 23280 ! 
-23300 Sess_Open: ! ***** Have The Group's Two Files Open On Sess_file And Sesx_file
+23300 Sess_Open: ! ***** Have The Group's Three Files Open On Sess_file, Sesx_file And Sesd_file
 23320 def FNSESS_OPEN(GROUP$*3;TRIES,NAME$*300)
-23340    if FILE(SESS_FILE) <> -1 AND FILE(SESX_FILE) <> -1 AND GROUP$ = SESS_GROUP_OPEN$ then goto Sess_Is_Open
-23360 Sess_Open_Try: if FILE(SESS_FILE) <> -1 then close #SESS_FILE: 
-23380    if FILE(SESX_FILE) <> -1 then close #SESX_FILE: 
+23340    if FILE(SESS_FILE) <> -1 AND FILE(SESX_FILE) <> -1 AND FILE(SESD_FILE) <> -1 AND GROUP$ = SESS_GROUP_OPEN$ then goto Sess_Is_Open
+23360 Sess_Open_Try: if FILE(SESS_FILE) <> -1 then close #SESS_FILE:
+23380    if FILE(SESX_FILE) <> -1 then close #SESX_FILE:
+23390    if FILE(SESD_FILE) <> -1 then close #SESD_FILE:
 23400    let SESS_GROUP_OPEN$ = NULL$
 23420    let TRIES += 1
 23440    if TRIES > 5 then goto End_Sess_Open
@@ -2245,6 +2259,8 @@
 23480    open #SESS_FILE: "name=" & NAME$ & ".dat,kfname=" & NAME$ & ".idx,use,recl=127,kps=1,kln=10,shr,wait=5",internal,outin,keyed ioerr Sess_Open_Retry
 23500    let NAME$ = SESS_DIR$ & "sesx" & GROUP$
 23520    open #SESX_FILE: "name=" & NAME$ & ".dat,kfname=" & NAME$ & ".idx,use,recl=4095,kps=1,kln=13,shr,wait=5",internal,outin,keyed ioerr Sess_Open_Retry
+23530    let NAME$ = SESS_DIR$ & "sesd" & GROUP$ !:
+         open #SESD_FILE: "name=" & NAME$ & ".dat,kfname=" & NAME$ & ".idx,use,recl=10219,kps=1,kln=14,shr,wait=5",internal,outin,keyed ioerr Sess_Open_Retry
 23540    let SESS_GROUP_OPEN$ = GROUP$
 23560 Sess_Is_Open: let FNSESS_OPEN = 1
 23580    goto End_Sess_Open
@@ -2321,6 +2337,7 @@
 25000    let FREE_KEY$ = "#" & LPAD$(STR$(REC(SESS_FILE)),9,"0")
 25020    rewrite #SESS_FILE,using Sess_Form,key=S_SESSION$: FREE_KEY$,"F","",0,0,0,0,0,0,0,0,0 nokey End_Sess_Free ioerr End_Sess_Free
 25040    let FNSESS_DROP_BLOB(S_SESSION$)
+25050    let FNDS_DROP(S_SESSION$,1) ! And Its Data Store
 25060 End_Sess_Free: fnend 
 25080 ! 
 25100 Sess_Put_Blob: ! ***** Keep Sess_Blob$ (Relogin Url And Post) For A Session
@@ -2628,3 +2645,119 @@
 30740       if JSON_CTRL_NEXT(C+1) < TO then let FNJSON_CTRL_IN = 1
 30760    next K
 30780 fnend
+30800 ! 
+30820 ! ######################################################
+30840 ! ***** Data Store On Disk - A Session's Objects Are In Sessions\Sesd<G>.Dat, !:
+      ! Beside Its Record In Sess<G>.Dat.  A Request Reads Its Session's Store !:
+      ! The First Time It Uses It (Fninit), And Writes It Back Before Its Answer !:
+      ! Is Sent If It Changed (Mainloop), So Any Engine Can Answer The Next !:
+      ! Request.  Key: The Session Number And A Four-Digit Sequence.  One Record !:
+      ! Per Storage$ Element; The First Of Each Object Carries Its Name, And An !:
+      ! Empty Object Is One Empty Record.  Post_body Is Never Written.
+30860 Ds_Clear: ! ***** Empty The Data Store In Memory - The Next Use Reads The Session's
+30880 def FNDS_CLEAR
+30900    mat STORAGE$(0)
+30920    mat OBJECTS$(0)
+30940    mat START(0)
+30960    mat END(0)
+30980    let WORK_CONTENT = DS_LOADED = DS_DIRTY = 0
+31000    let CHANGED = FALSE
+31020 fnend 
+31040 ! 
+31060 Ds_Load: ! ***** Read A Session's Data Store Into Memory - None Without A Session
+31080 def FNDS_LOAD(SESS$*10;SEQ,DS_COUNT,DS_OBJS,PIECE_LEN,DS_KEY$*14)
+31100    let DS_LOADED = 1
+31120    if SESS$ = NULL$ then goto End_Ds_Load ! Not Serving A Request: The Store Stays In Memory
+31140    if NOT FNSESS_OPEN(FNSESS_GROUP$(SESS$)) then goto End_Ds_Load
+31160 Ds_Load_Next: let SEQ += 1
+31180    if SEQ > 9999 then goto Ds_Load_Trim
+31200    read #SESD_FILE,using Sesd_Form,key=SESS$ & LPAD$(STR$(SEQ),4,"0"),release: DS_KEY$,DS_NAME$,PIECE_LEN,DS_CHUNK$ nokey Ds_Load_Trim ioerr Ds_Load_Trim
+31220    if DS_NAME$ > NULL$ then ! The First Record Of An Object
+31240       let DS_OBJS += 1
+31260       if DS_OBJS > UDIM(OBJECTS$) then ! Grow By Doubling, Trimmed At The End
+31280          mat OBJECTS$(DS_OBJS*2)
+31300          mat START(DS_OBJS*2)
+31320          mat END(DS_OBJS*2)
+31340       end if 
+31360       let OBJECTS$(DS_OBJS) = DS_NAME$
+31380       let START(DS_OBJS) = DS_COUNT + 1
+31400    end if 
+31420    if DS_OBJS = 0 then goto Ds_Load_Next ! A Piece With No Object Before It
+31440    if PIECE_LEN then 
+31460       let DS_COUNT += 1
+31480       if DS_COUNT > UDIM(STORAGE$) then mat STORAGE$(DS_COUNT*2)
+31500       let STORAGE$(DS_COUNT) = DS_CHUNK$(1:PIECE_LEN)
+31520    end if 
+31540    let END(DS_OBJS) = DS_COUNT
+31560    goto Ds_Load_Next
+31580 Ds_Load_Trim: mat STORAGE$(DS_COUNT)
+31600    mat OBJECTS$(DS_OBJS)
+31620    mat START(DS_OBJS)
+31640    mat END(DS_OBJS)
+31660 End_Ds_Load: fnend 
+31680 ! 
+31700 Ds_Save_All: ! ***** Write The Data Store In Memory Over A Session's Records
+31720 def FNDS_SAVE(SESS$*10;SEQ,OBJ,STOR_SUB2)
+31740    if NOT FNSESS_OPEN(FNSESS_GROUP$(SESS$)) then goto End_Ds_Save
+31760    for OBJ = 1 to UDIM(OBJECTS$)
+31780       if OBJECTS$(OBJ) = "POST_BODY" then goto Ds_Save_Next_Obj ! For One Request Only
+31800       let DS_NAME$ = OBJECTS$(OBJ)
+31820       if END(OBJ) < START(OBJ) then ! An Empty Object Is One Empty Record
+31840          let DS_CHUNK$ = NULL$
+31860          if (SEQ += 1) > 9999 then goto Ds_Save_Full
+31880          let FNDS_PUT(SESS$ & LPAD$(STR$(SEQ),4,"0"))
+31900       end if 
+31920       for STOR_SUB2 = START(OBJ) to END(OBJ)
+31940          let DS_CHUNK$ = STORAGE$(STOR_SUB2)
+31960          if (SEQ += 1) > 9999 then goto Ds_Save_Full
+31980          let FNDS_PUT(SESS$ & LPAD$(STR$(SEQ),4,"0"))
+32000          let DS_NAME$ = NULL$ ! Only The First Record Names The Object
+32020       next STOR_SUB2
+32040 Ds_Save_Next_Obj: next OBJ
+32060    let FNDS_DROP(SESS$,SEQ+1) ! Records Left From A Larger Store
+32080    let FNDS_SAVE = 1
+32100    goto End_Ds_Save
+32120 Ds_Save_Full: if DEBUG then print #DEBUG: "Data store of session ";SESS$;" is over 9999 records - the rest is not kept"
+32140 End_Ds_Save: fnend 
+32160 ! 
+32180 Ds_Put: ! ***** One Record Of Ds_name$ And Ds_chunk$ - Rewritten, Else In A Free Record, Else Added
+32200 def FNDS_PUT(DS_KEY$*14;TRIES,FREE_KEY$*14)
+32220    rewrite #SESD_FILE,using Sesd_Form,key=DS_KEY$: DS_KEY$,DS_NAME$,LEN(DS_CHUNK$),DS_CHUNK$ nokey Ds_Put_Free ioerr Ds_Put_Free
+32240    goto End_Ds_Put
+32260 Ds_Put_Free: let TRIES += 1
+32280    if TRIES > 5 then goto Ds_Put_Append
+32300    read #SESD_FILE,using Sesd_Form,search>="#",release: FREE_KEY$ eof Ds_Put_Append nokey Ds_Put_Append ioerr Ds_Put_Append
+32320    if FREE_KEY$(1:1) <> "#" then goto Ds_Put_Append
+32340    rewrite #SESD_FILE,using Sesd_Form,key=FREE_KEY$: DS_KEY$,DS_NAME$,LEN(DS_CHUNK$),DS_CHUNK$ nokey Ds_Put_Free ioerr Ds_Put_Free
+32360    goto End_Ds_Put
+32380 Ds_Put_Append: write #SESD_FILE,using Sesd_Form: DS_KEY$,DS_NAME$,LEN(DS_CHUNK$),DS_CHUNK$ ioerr End_Ds_Put
+32400 End_Ds_Put: fnend 
+32420 ! 
+32440 Ds_Drop: ! ***** Free A Session's Data Store Records, From Sequence From_seq On
+32460 def FNDS_DROP(SESS$*10,FROM_SEQ;SEQ,DS_KEY$*14,FREE_KEY$*14)
+32480    if NOT FNSESS_OPEN(FNSESS_GROUP$(SESS$)) then goto End_Ds_Drop
+32500    let SEQ = MAX(1,FROM_SEQ) - 1
+32520 Ds_Drop_Next: let SEQ += 1
+32540    if SEQ > 9999 then goto End_Ds_Drop
+32560    let DS_KEY$ = SESS$ & LPAD$(STR$(SEQ),4,"0")
+32580    read #SESD_FILE,using Sesd_Form,key=DS_KEY$,release: FREE_KEY$ nokey End_Ds_Drop ioerr End_Ds_Drop
+32600    let FREE_KEY$ = "#" & LPAD$(STR$(REC(SESD_FILE)),13,"0")
+32620    rewrite #SESD_FILE,using Sesd_Form,key=DS_KEY$: FREE_KEY$,"",0,"" nokey End_Ds_Drop ioerr End_Ds_Drop
+32640    goto Ds_Drop_Next
+32660 End_Ds_Drop: fnend 
+32680 ! 
+32700 Ds_Kept: ! ***** How Many Objects A Save Would Keep (Post_body Is Not Kept)
+32720 def FNDS_KEPT(;OBJ,COUNT)
+32740    for OBJ = 1 to UDIM(OBJECTS$)
+32760       if OBJECTS$(OBJ) <> "POST_BODY" then let COUNT += 1
+32780    next OBJ
+32800    let FNDS_KEPT = COUNT
+32820 fnend 
+32840 ! 
+32860 Ds_Save: ! ***** Keep The Request's Data Store Changes, Before Its Answer Is Sent
+32880 let DS_DIRTY = 0
+32900 if REQ_SESSION$ = NULL$ AND NOT AUTH_REQUIRED AND FNDS_KEPT > 0 then gosub New_Session ! Without Logins, The Session Starts Here
+32920 if REQ_SESSION$ = NULL$ then return  ! Session Store Unavailable: Kept For This Request Only
+32940 let FNDS_SAVE(REQ_SESSION$)
+32960 if DEBUG then print #DEBUG: "Data store of session ";REQ_SESSION$;" saved: ";FNDS_KEPT;" objects"
+32980 return 

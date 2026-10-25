@@ -1,6 +1,6 @@
 # BR WEB_SERVER
 
-This document describes **web_server 2.11** running on the BR build supplied with it
+This document describes **web_server 2.12** running on the BR build supplied with it
 (`brserver-x64-Debug.exe`, BR 5.01). Some details, especially certificate handling and the
 reverse-proxy settings, depend on that build's HTTP engine.
 
@@ -56,7 +56,8 @@ each.
 ## 2. Capacities
 
 - The maximum web page or object size that web_server.br sends (other than file downloads) is
-  4 MB. The maximum size of a data store object is also 4 MB. The Data Store supports duplicate
+  4 MB. The maximum size of a data store object is also 4 MB, and a session's whole data store
+  is limited to 9,999 records of 10,000 characters (about 99 MB). The Data Store supports duplicate
   keys provided they are subscripted (e.g. `object-name[3]`). This allows larger objects to be
   split into segments under the same key.
 - The maximum URL length, including parameters, is 4096.
@@ -102,10 +103,10 @@ is ignored.
 | `PORT=` | The HTTPS port, 443 if not given. BR also listens for plain HTTP, on port 80 unless a second line `PORT= http-port HTTP` names another. With `PROXY=`, this is a range of plain-HTTP ports, `8081-8084` if not given. |
 | `PROXY=` | Turns on configuration 2. Gives the numeric address of the reverse proxy, or several separated by commas. BR then serves plain HTTP only, serves no files of its own, and needs no certificate. |
 | `BIND=` | With `PROXY=`: the one address BR listens on. Default `127.0.0.1`, which is right when NGINX runs on the same computer. |
-| `NOLOGIN` | Turns off logins. Without it, every page and function except those matched by `ALLOW=` requires a logged-in session. |
+| `NOLOGIN` | Turns off logins. Without it, every page and function except those matched by `ALLOW=` requires a logged-in session. With it, sessions are still kept, because each session holds its own data store (section 9.1). |
 | `ALLOW=` | One or more case-insensitive URL segments (substrings) that anyone may reach without logging in. URLs containing `index` or `login` are always allowed. Example: `allow= css, png, jpg`. |
 | `RELOGIN_MINUTES=` | How long after a session times out the user may log in again and continue where they left off. A typical setting is 60. See section 9. |
-| `SESSION_DIGITS=` | How many low-order digits of the session number name its session file in `sessions\`: 0 to 3, default 1. More digits spread busy sites over more files. |
+| `SESSION_DIGITS=` | How many low-order digits of the session number name its session files in `sessions\`: 0 to 3, default 1. More digits spread busy sites over more files. |
 | `LOGFILE=` | BR's HTTP engine log: start-up, certificate details and errors. With several BR processes, give each its own log with `[WSID]`, e.g. `logfile= httpserver[WSID].log`. |
 | `DEBUGFILE=` | The Web Server's own detailed log, replaced at each start. Add `, COOKIES` to log each request's cookies, and `, PRINT_ALL` to log whole pages and POST data rather than their first 300 characters. Use `[WSID]` with several processes. Logging slows every request, so leave it off in production. |
 | `LIBRARY=` | A BR library whose functions web pages may call, followed by `FUNCTIONS=` and the function names. `RETAIN` keeps the library's variables between calls. `RUN_DIR=`, which must come last, is the folder made current while its functions run. A trailing `,AUTH` is accepted, but access is controlled by `NOLOGIN` and `ALLOW=`, not by `,AUTH`. |
@@ -406,9 +407,8 @@ The certificate belongs to NGINX. BR's `CERT=` and `.phrase` are not used.
   real client addresses, and BR's HTTP licence counts real clients.
 - **The `BR_NODE` cookie.** Every answer that came through the proxy carries a
   `BR_NODE=<port>` cookie, and the `map` above sends the browser's later requests to the same
-  process. Logins don't depend on this, since they are on disk. The **data store** does: objects
-  stored with `FNPut_Object` and the JSON functions are in one process's memory. They are lost if
-  that process restarts, and are not seen by the other processes.
+  process. Nothing depends on this: logins and, since 2.12, the **data store** are on disk, so any
+  process can answer any request (section 9.1).
 - **Seats and services.** Plan a BR licence seat for each process. Run NGINX and each BR process
   as services that restart on failure (`nssm` on Windows).
 
@@ -481,7 +481,9 @@ form (see below) and reaches your function in two ways:
   a VALUES$ element). For a longer body the `JSON` element is present but empty.
 - always, at any size up to 4 MB, as the data store object **`POST_BODY`**. Read it with
   `FNGet_Object("POST_BODY", X$)`, work with it using the JSON functions, or send it back with
-  `FNSend_Object("POST_BODY")`.
+  `FNSend_Object("POST_BODY")`. `POST_BODY` exists only while that request is handled: it is
+  never written to the session's data store on disk, so it is gone by the next request. Copy it
+  to another object to keep it.
 
 Parameters in the URL's query string still arrive as usual alongside it. A 200,000-character body
 full of escapes was received, converted and stored in about 2 seconds (measured 2026-10-24 on the
@@ -576,8 +578,11 @@ procedure*, in which the BR application asks the user for a login ID and passwor
 password, and tells the Web Server the user is authorized to continue the session; and 2) how the
 login session *keeps continuity* while it handles many interspersed requests.
 
-The session cookie is marked `Secure`, so browsers send it only over HTTPS. Logins therefore need
-HTTPS: from BR itself in configuration 1, or from NGINX in configuration 2.
+The session cookie is marked `Secure` when the session starts over HTTPS, and browsers then send
+it only over HTTPS. Logins therefore need HTTPS: from BR itself in configuration 1, or from NGINX
+in configuration 2. (With logins on, a plain-HTTP request is redirected to HTTPS first. Only with
+`NOLOGIN` can a session start over plain HTTP, and its cookie is then not marked `Secure`, since
+the browser would not send it back.)
 
 It is up to the application whether it encrypts passwords before storing them. Some
 considerations:
@@ -623,14 +628,30 @@ sample application):
 
 ### 9.1 Sessions
 
-Sessions are kept on disk, in `sessions\sess<g>.dat` beside `web_server.br`. A session's saved
-relogin URL and POST data are in `sessions\sesx<g>.dat`. `<g>` is the low-order `SESSION_DIGITS`
-digits of the session number. Nothing about a session is kept in memory between requests, so
-every BR process running the same `web_server.br` sees every session (configuration 2), and a BR
-restart does not log anyone out. Expired sessions are freed every five minutes.
+Sessions are kept on disk, in `sessions\` beside `web_server.br`, in three files per group:
 
-The **data store** is different. Objects stored with the data store functions are in the memory of
-the one BR process that stored them (see `05 DATA STORE LIBRARY`).
+| File | Holds |
+|---|---|
+| `sess<g>.dat` | The session control records: status, user, times |
+| `sesx<g>.dat` | Each session's saved relogin URL and POST data |
+| `sesd<g>.dat` | Each session's **data store**: the objects stored with the data store functions (see `05 DATA STORE LIBRARY`) |
+
+`<g>` is the low-order `SESSION_DIGITS` digits of the session number. Nothing about a session,
+its data store included, is kept in memory between requests. So every BR process running the same
+`web_server.br` sees every session and its objects (configuration 2), and a BR restart neither
+logs anyone out nor loses stored objects. Expired sessions are freed every five minutes, and
+their data store records with them.
+
+Sessions are kept whether or not logins are on. With logins, every browser gets a session the
+first time it calls. With `NOLOGIN`, a session starts only when a request first stores something
+in the data store, so clients that never store anything create no sessions. A session that has
+not logged in is freed after 30 minutes without a request, and its stored objects go with it.
+
+Each request reads its session's data store from disk the first time it uses a data store
+function. If the request changed anything, the whole store is written back before the response
+is sent, so the client's next request finds it, whichever process answers. Requests that only
+read it write nothing. If two requests of the **same** session run at the same moment in
+different processes and both change the store, the one that finishes last wins.
 
 ## 10. Debug Log of Sample Application
 

@@ -1,6 +1,6 @@
 # brweb — architecture
 
-A Business Rules! **HTTPS web server** (`web_server.br`, v2.11) and the demo request handlers it
+A Business Rules! **HTTPS web server** (`web_server.br`, v2.12) and the demo request handlers it
 serves. It runs stand-alone (BR holds the certificate) or, with `proxy=` in the ini, as one or
 more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts in the app root (`C:\ADS_test\gabriel\brweb`). The app's `brconfig.sys` runs
 `web_server` at start-up, and `brconfig.svc` plus `nssm.exe` run it as a Windows service
@@ -18,9 +18,9 @@ more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts 
 | `www\` | Static site and HTML templates with `^token` placeholders |
 | `challenge*.html`, `relogin.html`, `unauthorized.html`, `br_redirect.html` | Pages the server itself sends: login challenge, re-login, 401, 303 redirect |
 | `self.crt/.key/.phrase` | TLS certificate; `.phrase` holds the key passphrase, encrypted |
-| `sessions\` | Session store, created at run time: `sess<g>.dat`, `sesx<g>.dat` |
+| `sessions\` | Session store, created at run time: `sess<g>.dat` (sessions), `sesx<g>.dat` (relogin data), `sesd<g>.dat` (each session's data store, since 2.12) |
 | `http_client\`, `json_analyze.br` | Stand-alone utilities, not part of the server |
-| `old\`, `tmp\`, `web_server.bak` | Old copies, not masters. `old\` holds earlier releases (`web_server.br.2_04` to `.2_06`, `web_server-<n>.br` back to 1.44) and `CHANGE_LOG.md`; it is not tracked in git |
+| `old\`, `tmp\`, `web_server.bak` | Old copies, not masters. `old\` holds earlier releases (`web_server.br.2_04` to `.2_11`, `web_server-<n>.br` back to 1.44) and `CHANGE_LOG.md`; it is not tracked in git |
 
 ## Entry points
 
@@ -38,7 +38,9 @@ more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts 
    nothing stays in memory, so several engines can share a site) → auth check (`FNCK_AUTH`; URLs
    starting with an `allow=` entry, `index` or `login` skip it) → query string and POST body parsed
    into `KEYS$`/`VALUES$` (row 1 = `QueryNumber`) → handler runs → whatever it put in `PAGEBUF$`
-   is sent with one header at the top of the next loop.
+   is sent with one header at the top of the next loop. A data store function reads the session's
+   objects from `sesd<g>.dat` the first time the request uses one, and if the request changed
+   them, they are written back at the top of the loop, before that response goes out.
 2. **Login:** `index.html` → `?BR_FUNC=fnLogin` → `FNAUTHENTICATE` sends `challenge.bootstrap.html`
    → the posted user and password come back as `User_Name`/`Password` → `FNAUTHORIZE(-15 min)`
    marks the session `A` → `home.html`. When the session expires within `relogin_minutes`, the

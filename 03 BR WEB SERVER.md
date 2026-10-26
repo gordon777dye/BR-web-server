@@ -1,6 +1,6 @@
 # BR WEB_SERVER
 
-This document describes **web_server 2.12** running on the BR build supplied with it
+This document describes **web_server 2.16** running on the BR build supplied with it
 (`brserver-x64-Debug.exe`, BR 5.01). Some details, especially certificate handling and the
 reverse-proxy settings, depend on that build's HTTP engine.
 
@@ -468,9 +468,18 @@ elements are the calling parameters.
 This format of a URL followed by parameters works the same for GET and POST. POST can also send a
 data package. If it contains an equal sign, it is taken to be one or more keyword=value pairs,
 which the Web Server adds to the KEYS$ and VALUES$ arrays. *You can see what is passed by the
-browser in the Web Server's DEBUGFILE.* Form data is decoded before it is split into pairs,
-so a form value cannot contain `&`: the part after it is taken as another parameter. Send such
-data as a JSON body instead.
+browser in the Web Server's DEBUGFILE.*
+
+**Splitting and decoding.** The query string and form data are split into pairs on `&` and at
+each pair's first `=` while still encoded. Then each name and each value is URL-decoded on its
+own: `+` becomes a space and `%xx` becomes its character. So an encoded `&` (`%26`), `=` (`%3D`),
+`+` (`%2B`) or `/` (`%2F`) arrives as that character, in a value or in a name, as browsers and
+`encodeURIComponent` intend. (Before 2.13 the whole query string or POST body was decoded first,
+so `%26` split a value in two, and a `/` in a query value arrived as `\`.) A `%` that isn't
+followed by two hex digits is left as written. A form value may be up to 30,000 characters once
+decoded. A longer one arrives empty, and the other parameters still arrive. A name longer than
+100 characters is cut to 100. There is no limit on the number of parameters. Only the path part
+of the URL is decoded before the Web Server looks for a file.
 
 **JSON request bodies.** A POST whose `Content-Type` is `application/json` (for example from
 JavaScript's `fetch` with `body: JSON.stringify(obj)`) is not treated as form data. Its body is not
@@ -628,30 +637,14 @@ sample application):
 
 ### 9.1 Sessions
 
-Sessions are kept on disk, in `sessions\` beside `web_server.br`, in three files per group:
+Sessions are kept on disk, in `sessions\sess<g>.dat` beside `web_server.br`. A session's saved
+relogin URL and POST data are in `sessions\sesx<g>.dat`. `<g>` is the low-order `SESSION_DIGITS`
+digits of the session number. Nothing about a session is kept in memory between requests, so
+every BR process running the same `web_server.br` sees every session (configuration 2), and a BR
+restart does not log anyone out. Expired sessions are freed every five minutes.
 
-| File | Holds |
-|---|---|
-| `sess<g>.dat` | The session control records: status, user, times |
-| `sesx<g>.dat` | Each session's saved relogin URL and POST data |
-| `sesd<g>.dat` | Each session's **data store**: the objects stored with the data store functions (see `05 DATA STORE LIBRARY`) |
-
-`<g>` is the low-order `SESSION_DIGITS` digits of the session number. Nothing about a session,
-its data store included, is kept in memory between requests. So every BR process running the same
-`web_server.br` sees every session and its objects (configuration 2), and a BR restart neither
-logs anyone out nor loses stored objects. Expired sessions are freed every five minutes, and
-their data store records with them.
-
-Sessions are kept whether or not logins are on. With logins, every browser gets a session the
-first time it calls. With `NOLOGIN`, a session starts only when a request first stores something
-in the data store, so clients that never store anything create no sessions. A session that has
-not logged in is freed after 30 minutes without a request, and its stored objects go with it.
-
-Each request reads its session's data store from disk the first time it uses a data store
-function. If the request changed anything, the whole store is written back before the response
-is sent, so the client's next request finds it, whichever process answers. Requests that only
-read it write nothing. If two requests of the **same** session run at the same moment in
-different processes and both change the store, the one that finishes last wins.
+The **data store** is different. Objects stored with the data store functions are in the memory of
+the one BR process that stored them (see `05 DATA STORE LIBRARY`).
 
 ## 10. Debug Log of Sample Application
 

@@ -43,19 +43,24 @@ For debugging and educational  purposes, the variable names of the data store in
 
 The named object is either created or replaced with string-value.  String-variable$ is passed by reference. *There are no arbitrary restrictions on length*.
 
+If the value's first character other than a space is `{` or `[`, it is checked as JSON: its braces, brackets and quotes must pair up. If they don't, as in `{"a":1}}` or `{"a":"x}`, the object is **stored anyway** and -41 is returned, so you can tell. The same applies to FNInsert_Object, and to FNPut_Json, FNInsert_Json and FNAppend_Json given an object name. A value that starts with anything else is not checked.
+
 e.g.  FNPut_Object(“Masco-invoice-005460”, JSON-string$ )
 
-This creates an object named Masco-invoice-005460 and stores the content of JSON-string$ as its value. If an object with the same name exists, its value is replaced with JSON-string$ content.  Object-name can be any string expression. The string-variable$ is passed by reference, so only a single variable is permitted.  *The value can be any string and does not need to be JSON.*
+This creates an object named Masco-invoice-005460 and stores the content of JSON-string$ as its value. If an object with the same name exists, its value is replaced with JSON-string$ content. If the name points to a list but the subscript is omitted, it replaces the first element, which keeps its place in the list. With a subscript (`Invoice[2]`) it replaces that element, also in place.
+
+Object-name can be any string expression. The string-variable$ is passed by reference, so only a single variable is permitted.  *The value can be any string and does not need to be JSON.*
 
 #### `FNinsert_Object( object-name, string-variable$ )`
 
-The named object is inserted ahead of any other object with the same (case insensitive) name and relative position within a group of like named objects, or if one is not pre-existent the object is created.
+The named object is added to the list of objects with the same (case insensitive) name, or if none exists the object is created.
 
 e.g.  FNInsert_Object(“Masco-invoice-005460”, string$ )
 
 or    FNINSERT_OBJECT(“Invoice[4]”,string$ ) [ fourth object named “INVOICE”  ]
 
-This creates an object and stores the content of string$ as its value. If the same object name exists, this instance is inserted ahead of it.
+This creates an object and stores the content of string$ as its value. With a subscript, the new instance is inserted ahead of the one at that position (`Invoice[1]` goes first). A subscript one past the last instance adds it at the end, and a larger one returns -80.
+If the same object name exists and no subscript is given, this instance is appended after the last one.
 
 #### `FNGet_Object( object-name, string_variable$ )`
 
@@ -145,6 +150,8 @@ JSON Example:
 
 The named JSON value is either created or replaced by the value in JSON-value-var$.  Pre-existing values are replaced whether the must-exist-flag is present or absent. If the member does not exist it is inserted unless the must-exist-flag is non-zero.
 
+A value that starts with `{` or `[` and whose braces, brackets or quotes don't pair up is **stored anyway**, and the return code says so: -41 for an object name or a first-level member, -42 for a second-level member, and so on. This is true of FNInsert_Json and FNAppend_Json too. Once an object is unbalanced, later functions may not be able to find their way through it, and they then return -4n without changing anything. FNCompile_Json doesn't check the values it is given.
+
 Fully-qualified-name is the name of an object followed by a period and the name of each *nested member* being referenced, separated by periods.
 
 *Member names within the fully qualified name may also be subscripted.* When member names are followed by a bracketed number it indicates which of an ordered list of values associated with that name is being referenced. Note this subtlety because it is important.  Members are named pairs that appear in unordered lists. Zero or more values appear in ordered lists. Members are referenced by name. Values in lists are referenced by number.
@@ -193,6 +200,8 @@ If a JSON-value does not begin with a double quote, a brace or a bracket, it is 
 This is like Put  JSON except duplicates are appended instead of replacing original values. While inserting after really is appending, this action differs from FNAppend_Json in some important and subtle ways described in the FNAppend_Json section.
 
 *More than one insertion of the same member name creates an array of values for that member.* The insertion routine will insert *after any pre-existing values* for members of the same name unless a subscript is given, in which case the new value is inserted at ( ahead ) of the referenced position.
+
+*A list with only one value is written as that bare value, without brackets.* So inserting into an empty list, `{"list":[]}`, gives `{"list":"x"}`, and a second insert makes it a list again: `{"list":["x","y"]}`. FNCompile_Json writes a one-value list the same way. Reading `list[1]` works either way.
 
 FNPut_JSON and FNInsert_JSON examples:
 
@@ -249,7 +258,7 @@ Result:
 
 Append works exactly like insert with the following exceptions:
 
-- When the low order member name is subscripted, indicating where in a list an insertion is to take place, the new value is inserted *after the specified value* instead of ahead of it.
+- When the low order member name is subscripted, indicating where in a list an insertion is to take place, the new value is inserted *after the specified value* instead of ahead of it. For example, appending `Waco` at `city-st-zip[1]` to `["Austin","Dallas"]` gives `["Austin","Waco","Dallas"]`, and appending at the last value adds to the end.
 - When the second from lowest ordered member name is subscripted (e.g. city-st-zip[].member-name), indicating a new member is being added, insert will create a separate member, whereas append will simply *add a named pair to the specified member*. See the following examples.
 
 Create Member With Multiple Pairs Using Append
@@ -358,6 +367,8 @@ This works like FNCompile_Json except instead of producing a string, it stores t
 
 String-expression is parsed into the remaining parameters. String can be either a member a value set. A value set can be a member with one or more named pairs, or a bracket enclosed list of values. Mat keys$ and mat values$ are redimensioned as needed. If a string overflow occurs, the subscript of the erroneous element is returned as a negative value.
 
+A string value comes back as its text, as from FNGet_Json: without its enclosing quotes, and with `""` turned back into `"`. So parsing `{"a":"say ""hi"""}` gives the value `say "hi"`. A value that is an object or a list comes back whole, as stored.
+
 Unlike FNCompile_Json, *value-type$ and member-name$ must be variables*.  String-expression may be any string expression no longer than 30,000 bytes.
 
 #### `FNParse_Object( object-name, value-type, member-name, mat keys$, mat values$)`
@@ -384,7 +395,8 @@ The Web Server output buffer capacity is 4 megabytes (4194304 bytes).
 | ... |  |
 | -29 | Ninth level member not found |
 | -31 | First level invalid member subscript |
-| -41 | First level unbalanced quotes or braces |
+| -41 | First level unbalanced quotes or braces. Also returned, since 2.15, when an object or first-level member value that starts with `{` or `[` doesn't pair up. It is stored anyway |
+| -42 ... -49 | The same at the second to ninth level |
 | -50 | Page not found |
 | -52 | Not a file |
 | -54 | Cannot open page file |
@@ -404,6 +416,13 @@ e.g.  FNGET_JSON( “Invoice 1067.addr1.street”, STREET$ ) returns -3 if the v
 
 If your programs run on an older web_server, these differences matter:
 
+- **2.16: list order, append, and parse.**
+  - **Put with no subscript keeps the order.** FNPut_Object, or FNPut_Json given an object name, on a name with several objects used to delete the first and add the new value last. Now the new value takes the first one's place.
+  - **Append after a subscript.** `FNAppend_Json("x.list[2]", V$)` on a list of values used to insert ahead of value 2, as FNInsert_Json does. Now it goes after it.
+  - **FNParse_Json returns string values as their text.** Before, a value such as `say "hi"` came back as `say ""hi""`. Programs that undoubled the quotes themselves should stop.
+- **2.15: unbalanced JSON is reported.** Before 2.15, an object or member value starting with `{` or `[` whose braces, brackets or quotes didn't pair up (`{"a":1}}`) was stored with return code 1. It is still stored, but now with -41 (or -4n for a member at level n). A program that treats any negative code as "not stored" should check for these.
+- **2.14: new first-level members.** Before 2.14, putting or inserting a member that didn't exist yet at the first level of an existing object (`FNPut_Json("invoice.status", X$)`) returned -41 and changed nothing. Deeper levels worked. Getting or deleting a missing first-level member returned -41 instead of -21.
+- **2.13: parameters are split before they are decoded.** Before 2.13, the whole query string or form body was URL-decoded first and split after. So an encoded `&` (`%26`) in a value split it into two parameters, a `/` in a query value arrived as `\`, a form value over 5,050 characters stopped the server with error 0004, and a POST name over 100 characters or more than 199 parameters stopped it too. Now each name and value is decoded after the split (see "Splitting and decoding" in `03 BR WEB SERVER`). A program that turned `\` back into `/` in query values should stop doing so.
 - **2.12: the data store is on disk, one per session.** Before 2.12, the data store was held in the memory of each BR process. Every client of that process shared one store, an object stored by one process was not seen by the others, and everything was lost when the process restarted. Now each session has its own store, in `sessions\sesd<g>.dat`. One client's objects can't be seen by another, so a program that used the store to pass data *between* clients must keep that data in a file of its own. `POST_BODY` now lasts only for its own request. Also fixed: reading an empty object after another object had been read returned that other object's contents.
 - **2.11: quotes in text values, and what FNGet_Json returns.** Before 2.11, text containing a double quote, given without enclosing quotes (`'He said "hi"'`), was stored with its quotes as they were, which corrupted the object. FNGet_Json returned inner quotes still doubled (`say ""hi""`). It also stripped *every* quote at either end, so the string `"""hi"""` came back as `hi` instead of `"hi"`. Programs that undoubled the quotes themselves after FNGet_Json should stop doing so.
 - **2.10: JSON request bodies.** Before 2.10, every POST body was treated as form data: URL-decoded (so `+` became a space and `%xx` was decoded) and split on `&` and `=`. A JSON body without `=` never reached the program, and the server wrote "Parameter missing '=' char" into the response. POST data was limited to 100,000 characters.

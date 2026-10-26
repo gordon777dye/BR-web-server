@@ -1,6 +1,6 @@
 01000 ! Execute "con opt 60 off" !:
          ! Rep Web_Server
-01020    let VERSION$ = "2.12"
+01020    let VERSION$ = "2.16"
 01040 ! Br Standard Web Server
 01060 ! Control File Is: Web_Server.Ini
 01080 ! Url_Base = Full Br Path To Directory Being Served
@@ -345,8 +345,7 @@
 03860    let POST_RECEIVED = JSON_BODY = FALSE !:
          let URL$ = POST$ = NULL$ !:
          linput #HTTP_FILE,wait=60: POST$ error Printdebug !:
-         let JSON_BODY = (POS(LWRC$(FILE$(HTTP_FILE,"CONTENT-TYPE")),"application/json") > 0) !:
-         if NOT JSON_BODY then let FNURLDECODE(POST$,1) ! A Json Body Is Not Url-Encoded
+         let JSON_BODY = (POS(LWRC$(FILE$(HTTP_FILE,"CONTENT-TYPE")),"application/json") > 0) ! Form Data Stays Encoded Until It Is Split (Fnadd_parm), So %26 Is Data
 03880    let POST_RECEIVED = TRUE !:
          if DEBUG then !:
             print #DEBUG: !:
@@ -379,16 +378,26 @@
          if (DBG_COOKIES) AND LEN(COOKIE$) > 0 then !:
             print #DEBUG: "COOKIE Received: ";COOKIE$
 04090    gosub Establish_Session
-04100    let FNURLDECODE(URL$) !:
+04100    let URLQPOS = POS(URL$,"?") ! Only The Path Is Decoded Here.  The Query Stays !:
+         ! Encoded Until It Is Split, Then Each Name And Value Is Decoded (Fnadd_parm)
+04102    if URL_PREPARED then goto Url_Prepared ! A Relogin Resume Replays A Url Already Decoded
+04104    let QUERY$ = NULL$ !:
+         if URLQPOS then !:
+            let QUERY$ = URL$(URLQPOS:INF) !:
+            let URL$(URLQPOS:INF) = NULL$
+04106    let FNURLDECODE(URL$) !:
          let URL$=SREP$(URL$,"/",BACKSLASH$) !:
          if URL$(1:1) <> BACKSLASH$ AND URL$(1:1) <> "." then !:
             let URL$(1:0) = BACKSLASH$
+04108    let URLQPOS = (LEN(URL$)+1) * SGN(LEN(QUERY$)) ! A Decoded %3f In The Path Is Not The Query !:
+         let URL$(INF:0) = QUERY$
+04110 Url_Prepared: let URL_PREPARED = FALSE
 04120    if DEBUG then !:
             print #DEBUG: "URL= ";URL$ !:
             print URL$
 04140    if POST_RECEIVED AND POST$ == NULL$ then !:
             let POST_RECEIVED = FALSE
-04160    if ( (URLQPOS := POS(URL$,"?")) AND LEN(URL$) > URLQPOS) OR POST_RECEIVED then !:
+04160    if (URLQPOS AND LEN(URL$) > URLQPOS) OR POST_RECEIVED then !:
             goto Process_Parms
 04180 ! 
 04200 ! ***** Serve Web Page *****
@@ -439,7 +448,7 @@
             let START = 0 ! Now Do The Whole String
 04780 ! 
 04800       do WHILE (START:=POS(URL$,"%",START+1))
-04820          let URL$(START:START+2) = HEX$(URL$(START+1:START+2)) error 4840
+04820          if LEN(URL$(START+1:START+2)) = 2 AND POS("0123456789ABCDEFabcdef",URL$(START+1:START+1)) > 0 AND POS("0123456789ABCDEFabcdef",URL$(START+2:START+2)) > 0 then let URL$(START:START+2) = HEX$(URL$(START+1:START+2)) error 4840 ! A % Not Followed By Two Hex Digits Is Left As It Is
 04840       loop 
 04860    fnend 
 04880 ! 
@@ -646,6 +655,7 @@
             let SESS_BLOB$ = "0001/"
 06760    let POS2 = VAL(SESS_BLOB$(1:4)) conv Relogin_Bad_Blob !:
          let URL$ = SESS_BLOB$(5:4+POS2) !:
+         let URL_PREPARED = POS(URL$(1:1),BACKSLASH$) ! 1 If Saved After Its Path Was Decoded: Not Again !:
          if S_RELOGIN_POST then !:
             let POST$ = SESS_BLOB$(5+POS2:INF) !:
             let POST_RECEIVED = TRUE !:
@@ -666,7 +676,7 @@
 06930 Relogin_Bad_Blob: let SESS_BLOB$ = "0001/" !:
          goto 6760 ! Saved Url Unreadable: Resume At The Top
 06940 ! 
-06960    dim PARM$*5050, VALUES$(0)*30000, KEYS$(0)*100, JSON_WORK$*30000
+06960    dim PARM_WORK$*100000, QUERY$*4096, VALUES$(0)*30000, KEYS$(0)*100, JSON_WORK$*30000
 06980 ! 
 07000 ! ######################################################
 07020 Process_Parms: ! ***** Process Url Parameters *********
@@ -716,13 +726,7 @@
 07460          let POS2 = POS(URL$,"&",POS1) !:
                if POS2 < 1 then !:
                   let POS2 = LEN(URL$)+1
-07480          let PARM$ = URL$(POS1:POS2-1) !:
-               let POS3 = POS(PARM$,"=") !:
-               if NOT POS3 then !:
-                  print #HTTP_FILE: "Parameter missing '=' char ";PARM$ & CRLF$ !:
-               else !:
-                  let KEYS$(SUB1 +=1) = PARM$(1:POS3-1)(1:100) !:
-                  let VALUES$(SUB1) = PARM$(POS3+1:99999) soflow Ignore
+07480          let FNADD_PARM(URL$,POS1,POS2)
 07500          let POS1 = POS2+1
 07520       loop 
 07540    end if 
@@ -733,13 +737,7 @@
 07600       let POS2 = POS(POST$,"&",POS1) !:
             if POS2 < 1 then !:
                let POS2 = LEN(POST$)+1
-07620       let PARM$ = POST$(POS1:POS2-1) !:
-            let POS3 = POS(PARM$,"=") !:
-            if NOT POS3 then !:
-               print #HTTP_FILE: "Parameter missing '=' char ";PARM$ & CRLF$ !:
-            else !:
-               let KEYS$(SUB1 +=1) = PARM$(1:POS3-1) !:
-               let VALUES$(SUB1) = PARM$(POS3+1:99999) soflow Ignore
+07620       let FNADD_PARM(POST$,POS1,POS2)
 07640       let POS1 = POS2+1
 07660    loop
 07662    goto Process_Arrays
@@ -755,7 +753,9 @@
 07700    mat VALUES$(SUB1) !:
          mat KEYS$(SUB1)
 07701    if JSON_BODY then !:
+            let DS_NO_CHECK = TRUE ! Its Return Code Is Not Used: Skip The Balance Check !:
             let FNPUT_OBJECT("POST_BODY",POST$) !:
+            let DS_NO_CHECK = FALSE !:
             let DS_DIRTY = FALSE ! Post_body Is For This Request Only: Not Kept On Disk
 07702    for JSON_SUB = 2 to UDIM(VALUES$) ! Standard Json From The Client -> The Store's Form
 07704       let JSON_WORK$ = VALUES$(JSON_SUB)
@@ -929,12 +929,15 @@
 09360       if (SUCCESS := FNINIT(NAME$, MAT NAMES$)) < 0 then !:
                let FNINSERT_JSON = SUCCESS !:
                goto End_Insert_Json
-09380    end if 
+09380    end if
+09390    if APPEND_FLAG AND UDIM(NAMES$) > 1 then let NAMES$(UDIM(NAMES$)) = FNAPPEND_AFTER$(NAMES$(UDIM(NAMES$))) ! Append At [N] Is Insert At [N+1]
 09400    if UDIM(NAMES$) == 1 then let SUCCESS = FNINS_OBJECT !:
          else let SUCCESS = FNINSERT_MEMBER
 09420    let FNINSERT_JSON = SUCCESS !:
          if SUCCESS >= 0 AND CHANGED AND NOT DONT_SAVE_WORK then !:
             let FNSTORE_OBJECT
+09430    if SUCCESS >= 0 AND UDIM(NAMES$) > 1 AND NOT DONT_SAVE_WORK AND FNJSON_UNBALANCED(VALUE$) then !:
+            let FNINSERT_JSON = -(40+UDIM(NAMES$)-1) ! Stored, But The Value Does Not Pair Up
 09440 End_Insert_Json: fnend 
 09460 ! 
 09480 Ins_Object: ! ***** Insert Object - Find Insertion Point
@@ -1009,6 +1012,7 @@
 10040    let WORK_CONTENT = OBJ_SUB ! Current Work$ Object Pointer !:
          let FNINS_OBJECT = TRUE
 10050    let DS_DIRTY = TRUE ! Written To Disk At The End Of The Request
+10055    if NOT DS_NO_CHECK AND FNJSON_UNBALANCED(WORK$) then let FNINS_OBJECT = -41 ! Stored, But Its Braces, Brackets Or Quotes Do Not Pair Up
 10060 End_Ins_Object: fnend 
 10080 ! 
 10100 Insert_Member: ! ***** Insert Member
@@ -1111,7 +1115,7 @@
                      let FNINSERT_MEMBER = -(50+NAME_SUB-1) !:
                      ! Cannot Add Member To Value List !:
                      goto End_Insert_Member
-10920             let POS1 = (POS1+LAST_COLON-1) ! Relative To Work$
+10920             let POS1 = (POS1+MAX(LAST_COLON,1)-1) ! Relative To Work$ (A Slice From 0 Starts At 1)
 10940             if LOW_LEVEL then 
 10960                let WORK4$ = VALUE$(1:1) !:
                      let ADD_QUOTES = FALSE !:
@@ -1248,10 +1252,13 @@
 12400    if (SUCCESS := FNINIT(NAME$, MAT NAMES$)) < 0 then !:
             let FNPUT_JSON = SUCCESS !:
             goto End_Put_Json
-12420    if UDIM(NAMES$) == 1 then let FNPUT_JSON = FNSET_OBJECT !:
-         else let FNPUT_JSON = FNSET_MEMBER
+12420    if UDIM(NAMES$) == 1 then let PUT_RC = FNSET_OBJECT !:
+         else let PUT_RC = FNSET_MEMBER
 12440    if CHANGED then !:
             let FNSTORE_OBJECT
+12450    if PUT_RC >= 0 AND UDIM(NAMES$) > 1 AND FNJSON_UNBALANCED(VALUE$) then !:
+            let PUT_RC = -(40+UDIM(NAMES$)-1) ! Stored, But The Value Does Not Pair Up
+12455    let FNPUT_JSON = PUT_RC
 12460 End_Put_Json: fnend 
 12480 ! 
 12500 Set_Object: ! ***** Replace Or Store An Object
@@ -1260,8 +1267,9 @@
          if MUST_EXIST_FLAG AND (SUCCESS < 0) then !:
             let FNSET_OBJECT = SUCCESS !:
             goto End_Set_Object
+12550    if OBJ_REF == 0 then let OBJ_REF = 1 ! No Subscript: The New Value Takes The First One's Place, Keeping The Order
 12560    let FNSET_OBJECT = FNINS_OBJECT
-12580 End_Set_Object: fnend 
+12580 End_Set_Object: fnend
 12600 ! 
 12620 Set_Member: ! ***** Replace Or Store A Json Value
 12640 def FNSET_MEMBER
@@ -1537,7 +1545,10 @@
                   else if ARRAY_REF == COUNT then !:
                      let ELEMENT = POS2A ! Element Found !:
                   else let ELEMENT = POS2 ! Position At The End Of List !:
-                     if WORK$(POS2:POS2) <> "]" then pause 
+                     if WORK$(POS2:POS2) <> "]" then !:
+                        let FNFIND_MEMBER = -(40+NAME_SUB-1) !:
+                        ! Unbalanced Brackets !:
+                        goto End_Find_Member 
 15100          let PUNCT = POS3
 15120       end if  ! Bracket Found !:
          end if  ! Array_Ref
@@ -1624,6 +1635,9 @@
 16220 !   Goto Advance_Min
 16240 Advance_Min: ! Find Minimum
 16260    let POS3 = POS2 = MIN(OPEN_BRACE_POS, CLOSE_BRACE_POS, OPEN_BRACKET_POS, CLOSE_BRACKET_POS, QUOTE_POS, COMMA_POS)
+16270    if POS2 = INF AND COLON = 0 AND BRACE_DEPTH = 0 AND BRACKET_DEPTH = 0 then !:
+            let PUNCT = LEN(WORK$)+1 !:
+            goto End_Advance_To_Comma ! A First-Level Value Area Is The Whole Object: It Ends With The String
 16280    on POS('{}[]",',WORK$(POS2:POS2)) goto _Open_Brace, _Close_Brace, _Open_Bracket, _Close_Bracket, _Quote, _Comma
 16300 ! 
 16320 Unbalanced: ! !:
@@ -1871,7 +1885,8 @@
             let POS1 = LEN(VALUES$(SUB1)) !:
             if (VALUES$(SUB1)(1:1) == '"') AND (VALUES$(SUB1)(POS1:POS1) == '"') then !:
                let VALUES$(SUB1)(POS1:POS1) = NULL$ !:
-               let VALUES$(SUB1)(1:1) = NULL$
+               let VALUES$(SUB1)(1:1) = NULL$ !:
+               let VALUES$(SUB1) = SREP$(VALUES$(SUB1),'""','"') ! A String Comes Back As Its Text, As From Fnget_json
 18540    next SUB1 !:
          on soflow system 
 18560 fnend 
@@ -2761,3 +2776,86 @@
 32940 let FNDS_SAVE(REQ_SESSION$)
 32960 if DEBUG then print #DEBUG: "Data store of session ";REQ_SESSION$;" saved: ";FNDS_KEPT;" objects"
 32980 return 
+33000 ! 
+33020 Add_Parm: ! ***** Add The Name=Value Pair S$(P_from:P_to-1) To Keys$ And Values$. !:
+      ! The Name And The Value Are Each Decoded After The Split, So An Encoded & = + !:
+      ! Or / Is Data, Not A Separator.  A Value Over 30,000 Characters Arrives Empty.
+33040 def FNADD_PARM(&S$,P_FROM,P_TO;EQ)
+33060    let EQ = POS(S$,"=",P_FROM)
+33080    if EQ = 0 OR EQ >= P_TO then 
+33100       print #HTTP_FILE: "Parameter missing '=' char ";S$(P_FROM:MIN(P_TO-1,P_FROM+199)) & CRLF$
+33120       goto End_Add_Parm
+33140    end if 
+33160    let SUB1 += 1
+33180    if SUB1 > UDIM(KEYS$) then ! More Than Process_parms Prepared
+33200       mat KEYS$(SUB1+99)
+33220       mat VALUES$(SUB1+99)
+33240    end if 
+33260    let PARM_WORK$ = S$(P_FROM:MIN(EQ-1,P_FROM+299))
+33280    let FNURLDECODE(PARM_WORK$)
+33300    let KEYS$(SUB1) = PARM_WORK$(1:100)
+33320    let PARM_WORK$ = S$(EQ+1:MIN(P_TO-1,EQ+99999))
+33340    let FNURLDECODE(PARM_WORK$)
+33360    let VALUES$(SUB1) = NULL$
+33380    let VALUES$(SUB1) = PARM_WORK$ soflow End_Add_Parm ! Over 30,000: Left Empty
+33400 End_Add_Parm: fnend 
+33420 ! 
+33440 Json_Unbalanced: ! ***** 1 If V$ Begins With { Or [ And Its Braces, Brackets And Quotes !:
+      ! Do Not Pair Up.  A String Is Skipped Quote To Quote, As The Library Reads It, !:
+      ! So An Embedded "" Pairs Itself.  Other Values Are Not Checked (0).
+33450 dim UNBAL_STACK$*100000 ! Open Brackets Not Yet Closed - A Global: A Local Over 32,000 Fails When Called
+33460 def FNJSON_UNBALANCED(&V$;P,L,N,Q,C$*1,TOP$*1,NOB,NCB,NOK,NCK,NQ)
+33470    let UNBAL_STACK$ = ""
+33480    let L = LEN(V$)
+33500    let P = 1
+33520    do while P <= L AND POS(" " & CHR$(9) & CHR$(10) & CHR$(13),V$(P:P)) > 0
+33540       let P += 1
+33560    loop 
+33580    if P > L then goto End_Json_Unbalanced
+33600    if NOT POS("{[",V$(P:P)) then goto End_Json_Unbalanced
+33620 Unbal_Next: if NOB < P then let NOB = FNNEXT_AT(V$,"{",P)
+33640    if NCB < P then let NCB = FNNEXT_AT(V$,"}",P)
+33660    if NOK < P then let NOK = FNNEXT_AT(V$,"[",P)
+33680    if NCK < P then let NCK = FNNEXT_AT(V$,"]",P)
+33700    if NQ < P then let NQ = FNNEXT_AT(V$,'"',P)
+33720    let N = MIN(NOB,NCB,NOK,NCK,NQ)
+33740    if N = INF then goto Unbal_End
+33760    let C$ = V$(N:N)
+33780    let P = N + 1
+33800    if C$ = '"' then 
+33820       let Q = POS(V$,'"',P)
+33840       if Q = 0 then goto Unbal_Yes ! A String That Never Closes
+33860       let P = Q + 1
+33880    else if C$ = "{" OR C$ = "[" then 
+33900       let UNBAL_STACK$(INF:0) = C$
+33920    else
+33940       if UNBAL_STACK$ = "" then goto Unbal_Yes ! A Closer With Nothing Open
+33960       let TOP$ = UNBAL_STACK$(LEN(UNBAL_STACK$):LEN(UNBAL_STACK$))
+33980       if (C$ = "}" AND TOP$ <> "{") OR (C$ = "]" AND TOP$ <> "[") then goto Unbal_Yes
+34000       let UNBAL_STACK$(LEN(UNBAL_STACK$):LEN(UNBAL_STACK$)) = ""
+34020    end if 
+34040    goto Unbal_Next
+34060 Unbal_End: if UNBAL_STACK$ = "" then goto End_Json_Unbalanced
+34080 Unbal_Yes: let FNJSON_UNBALANCED = 1
+34100 End_Json_Unbalanced: fnend 
+34120 ! 
+34140 Next_At: ! ***** The Position Of C$ In V$ At Or After P - Inf If There Is None
+34160 def FNNEXT_AT(&V$,C$*1,P;N)
+34180    let N = POS(V$,C$,P)
+34200    if N = 0 then let N = INF
+34220    let FNNEXT_AT = N
+34240 fnend 
+34260 ! 
+34280 Append_After: ! ***** A Low-Level Name With A Subscript, [N] Raised To [N+1]: Appending !:
+      ! After Value N Is Inserting Ahead Of Value N+1.  Other Names Come Back As They Are.
+34300 def FNAPPEND_AFTER$*200(N$*200;L,R,K)
+34320    let FNAPPEND_AFTER$ = N$
+34340    let L = POS(N$,"[")
+34360    if L = 0 then goto End_Append_After
+34380    let R = POS(N$,"]",L)
+34400    if R <= L + 1 then goto End_Append_After
+34420    let K = VAL(N$(L+1:R-1)) conv End_Append_After
+34440    if K < 1 OR K <> INT(K) then goto End_Append_After
+34460    let N$(L+1:R-1) = STR$(K+1)
+34480    let FNAPPEND_AFTER$ = N$
+34500 End_Append_After: fnend 

@@ -10,7 +10,7 @@ A web server written in **Business Rules! (BR)**, a BASIC-dialect language. `brs
 
 - `*.brs` files are BR **source**: plain text with mandatory line numbers (`01000`, `01020`, …). `!:` continues a statement onto the next physical line, and `!` starts a comment.
 - `*.br` files are the **compiled** programs that BR actually runs. Editing a `.brs` file has no effect until it is recompiled inside BR, for example `load web_server.br.brs,source` followed by `replace web_server.br`.
-- The main program is `web_server.br`, built from `web_server.br.brs` (VERSION$ "2.12"). Earlier releases are kept for reference in `old\`: `web_server.br.2_11`/`.brs.2_11`, `.2_10`, `.2_09`, `.2_08`, `.2_07`, `.2_06`, `.2_05`, `.2_04`, and `web_server-<n>.br` objects back to 1.44. `web_server.bak` in the root is 2.04.
+- The main program is `web_server.br`, built from `web_server.br.brs` (VERSION$ "2.16"). Earlier releases are kept for reference in `old\`: `web_server.br.2_15`/`.brs.2_15`, `.2_14`, `.2_13`, `.2_12`, `.2_11`, `.2_10`, `.2_09`, `.2_08`, `.2_07`, `.2_06`, `.2_05`, `.2_04`, and `web_server-<n>.br` objects back to 1.44. `web_server.bak` in the root is 2.04.
 - The program masters are the **source** files, and decompiling is not allowed. Every `.br` has current source as of 2026-10-23: `login.brs`, `sample.brs` and `filelay\template\basic.brs` keep their old names, and the rest are `<prog>.br.brs`.
 - When you add lines, keep line numbers ascending and use numbers that fall in the gaps. Some code jumps to literal line numbers (`goto 3520`, `ioerr 3380`, `conv 2420`), so do not renumber.
 
@@ -37,7 +37,7 @@ A web server written in **Business Rules! (BR)**, a BASIC-dialect language. `brs
 | `url_base` | Directory being served (here `www`) |
 | `cert=` | Base name for `<name>.crt/.key/.phrase` |
 | `port` | Port to serve (default 443). It can be a range such as `8081-8084`, and each engine takes the first free port in it. |
-| `proxy=` | Address(es) of a reverse proxy, such as NGINX. Turns on proxy mode: plain HTTP with `URL_BASE=NONE`, no `cert=` needed, and `port` defaults to `8081-8084`. It needs a BR build with `PROXY=`/`BIND=` support, which `brserver-x64-Debug.exe` has. Server tests (both modes, logins across engines) are in `context/scratch/ws206/ws206test.py`; JSON tests in `context/scratch/json207/` (`jsontest*.brs` for the data store, `json209test.py` for conversion over HTTP, `json210test.py` for JSON request bodies); the data store on disk in `context/scratch/ds212/ds212test.py` (two engines, NOLOGIN, with `dslib.brs`). |
+| `proxy=` | Address(es) of a reverse proxy, such as NGINX. Turns on proxy mode: plain HTTP with `URL_BASE=NONE`, no `cert=` needed, and `port` defaults to `8081-8084`. It needs a BR build with `PROXY=`/`BIND=` support, which `brserver-x64-Debug.exe` has. Server tests (both modes, logins across engines) are in `context/scratch/ws206/ws206test.py`; JSON tests in `context/scratch/json207/` (`jsontest*.brs` for the data store, `json209test.py` for conversion over HTTP, `json210test.py` for JSON request bodies); the data store on disk in `context/scratch/ds212/ds212test.py` (two engines, NOLOGIN, with `dslib.brs`); parameter splitting and decoding in `context/scratch/url213/url213test.py` (with `urllib.brs`). |
 | `bind=` | Address to listen on in proxy mode (default `127.0.0.1`) |
 | `nologin` | Turns off authentication |
 | `allow=` | URL prefixes that need no auth. `index` and `login` are always added. |
@@ -52,7 +52,7 @@ On first startup the cert passphrase is prompted for, then stored encrypted in `
 
 1. One HTTP file, `open #100 ... http=server`, never closes. `linput` returns the POST body, and `FILE$(HTTP_FILE,"PAGE-URL"/"PAGE-COOKIE"/"page-auth")` gives the URL, cookies and auth data.
 2. A URL with no query string and no POST serves a static file from `url_base`. A directory request gets its `index.*` file.
-3. A URL with `?BR_FUNC=fnName` or a POST is parsed into parallel arrays `MAT KEYS$` / `MAT VALUES$`. The first entry is always `QueryNumber`. The server then dispatches with `execute "let fnName(mat keys$,mat values$)"`.
+3. A URL with `?BR_FUNC=fnName` or a POST is parsed into parallel arrays `MAT KEYS$` / `MAT VALUES$`. The first entry is always `QueryNumber`. Since 2.13 only the URL's path is decoded up front (line 04100). The query string and form body are split on `&` and `=` while still encoded, and `FNADD_PARM` (line 33020) decodes each name and value, so `%26` is data. A relogin replay sets `URL_PREPARED` so its saved path isn't decoded twice. The server then dispatches with `execute "let fnName(mat keys$,mat values$)"`.
 4. Output is accumulated in `PAGEBUF$` and flushed at the top of the next loop iteration, with headers built by `FNSEND_HEADER`.
 
 **Writing a library function** (examples: `sample.brs`, `login.brs`, `cust_inq.br.brs`; annotated in `context/app/exemplars/README.md`):
@@ -77,6 +77,10 @@ On first startup the cert passphrase is prompted for, then stored encrypted in `
 - The browser gets a `Session=` cookie (`Secure; HttpOnly; SameSite=strict`).
 - `Sweep_Sessions` frees expired records every five minutes.
 - Plain-HTTP requests are redirected to HTTPS whenever auth is required.
+
+## Tests
+
+`test\jsonsuite.brs` is the self-checking suite for the data store and JSON library (about 150 checks, a few seconds, no server). Run `brserver-x64-Debug.exe "PROC test\jsonsuite.prc" -context\dev\tools\brconfig.ai_util` from the app root and read `test\jsonsuite_result.txt`. The master is `test\jsonsuite.src` (no line numbers), numbered by `test\number.py`. `test\README.md` explains the PASS/FAIL/KNOWN results and lists the open findings, and the HTTP tests are listed there too. Run the suite after any change to the data store or JSON functions.
 
 ## Other directories
 

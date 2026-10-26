@@ -1,6 +1,6 @@
 01000 ! Execute "con opt 60 off" !:
          ! Rep Web_Server
-01020    let VERSION$ = "2.16"
+01020    let VERSION$ = "2.17"
 01040 ! Br Standard Web Server
 01060 ! Control File Is: Web_Server.Ini
 01080 ! Url_Base = Full Br Path To Directory Being Served
@@ -310,6 +310,7 @@
                let FNJSON_TO_STANDARD(PAGEBUF$) ! The Store Writes An Embedded Quote As "" - Clients Need \"
 03710       if SUPPRESS_HEADER AND SET_COOKIE$ > NULL$ then !:
                gosub Cookie_Into_Pagebuf
+03715       if SUPPRESS_HEADER then gosub Fix_Content_Length
 03720       if NOT SUPPRESS_HEADER then !:
                let FNSEND_HEADER(MIME_TYPE$, LEN(PAGEBUF$))
 03740       do WHILE LEN(PAGEBUF$) > 0 !:
@@ -332,9 +333,8 @@
 03800       let PAGEBUF$ = MIME_TYPE$ = NULL$ !:
             let SUPPRESS_HEADER = 0 !:
             let PAGE_IN_BUF = FALSE
-03810       if FLUSH then !:
-               let FLUSH = FALSE !:
-               goto 3720
+03810       let FLUSH = FALSE ! No Second Pass: It Sent An Empty "200 OK" Header After Each Response. !:
+            ! Br Sends The Response At The Next Linput.
 03815       if DEBUG then !:
                print #DEBUG: "================================="
 03820    end if  ! Send Pagebuf$
@@ -580,7 +580,11 @@
          ! ** If Page Doesn't exist, just notify client
 06240 ! 
 06260 Redirect_To_Https: ! ***** Redirect Client To Https At The Same Url
-06280    let FNSEND_LOCAL_PAGE(".\br_redirect.html",TEMP1$:="^new_location",TEMP2$:="https://" & FILE$(HTTP_FILE,'HOST') & SREP$(URL$,"\","/"),TRUE) !:
+06265    dim REDIRECT_HOST$*300
+06270    let REDIRECT_HOST$ = FILE$(HTTP_FILE,'HOST') ! The Host Without The Plain-Http Port It Came On !:
+         if POS(REDIRECT_HOST$,":",-1) > POS(REDIRECT_HOST$,"]") then let REDIRECT_HOST$ = REDIRECT_HOST$(1:POS(REDIRECT_HOST$,":",-1)-1)
+06275    if PROXY$ = NULL$ AND PORT <> 443 then let REDIRECT_HOST$(INF:0) = ":" & STR$(PORT) ! Br Serves Https On The First Port= (Behind A Proxy: 443)
+06280    let FNSEND_LOCAL_PAGE(".\br_redirect.html",TEMP1$:="^new_location",TEMP2$:="https://" & REDIRECT_HOST$ & SREP$(URL$,"\","/"),TRUE) !:
          goto Mainloop
 06300 ! 
 06320 Ignore: continue 
@@ -2200,7 +2204,20 @@
 22020 if (UPRC$(PAGEBUF$(1:5)) <> "HTTP/") OR (POS(PAGEBUF$(1:3000),"Set-Cookie: Session=") > 0) then return 
 22040 let POSN = POS(PAGEBUF$,CHR$(10))
 22060 if POSN then let PAGEBUF$(POSN+1:0) = SET_COOKIE$ & CRLF$
-22080 return 
+22080 return
+22082 !
+22084 Fix_Content_Length: ! ***** A Page With Its Own Headers: Its Content-Length Is Its Real Body Length, !:
+      ! Whatever The File Says (Placeholders Change It).  Without One, Br Adds It.
+22086 if UPRC$(PAGEBUF$(1:5)) <> "HTTP/" then return
+22088 let CL_END = POS(PAGEBUF$,CRLF$ & CRLF$) ! End Of The Headers
+22090 if CL_END = 0 then return
+22092 let CL_POS = POS(UPRC$(PAGEBUF$(1:CL_END)),CRLF$ & "CONTENT-LENGTH:")
+22094 if CL_POS = 0 then return
+22096 let CL_BODY = LEN(PAGEBUF$) - (CL_END+3) !:
+      let CL_VAL = CL_POS + 17 ! Just After "Content-Length:" !:
+      let CL_EOL = POS(PAGEBUF$,CRLF$,CL_VAL)
+22098 let PAGEBUF$(CL_VAL:CL_EOL-1) = " " & STR$(CL_BODY)
+22099 return
 22100 ! 
 22120 Sweep_Sessions: ! ***** Free The Sessions Past Their Purge Time - Every Five Minutes
 22140 let NEXT_SWEEP = FNNOW + FIVE_MINUTES

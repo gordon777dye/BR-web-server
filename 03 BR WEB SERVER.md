@@ -1,6 +1,6 @@
 # BR WEB_SERVER
 
-This document describes **web_server 2.16** running on the BR build supplied with it
+This document describes **web_server 2.17** running on the BR build supplied with it
 (`brserver-x64-Debug.exe`, BR 5.01). Some details, especially certificate handling and the
 reverse-proxy settings, depend on that build's HTTP engine.
 
@@ -191,7 +191,16 @@ administrator command prompt, to see which program holds it, or move BR's HTTP p
 `PORT= http-port HTTP` line.
 
 When logins are required (no `NOLOGIN`), a request over plain HTTP is redirected to the same URL
-over `https://`. With `NOLOGIN`, pages are served over both HTTP and HTTPS.
+over `https://`, on BR's HTTPS port: the first `PORT=`, written into the address unless it is 443.
+For example, with `PORT= 8443` and `PORT= 8085 HTTP`, `http://host:8085/x` goes to
+`https://host:8443/x`. (Before 2.17 the redirect kept the plain-HTTP port.) Behind a reverse proxy
+the redirect names no port, meaning the proxy's 443; the NGINX setup in section 5 redirects plain
+HTTP itself. With `NOLOGIN`, pages are served over both HTTP and HTTPS. `REDIRECT.md` explains
+the redirects in more detail, including the one sent after a POST.
+
+A page file that begins with its own headers (`HTTP/1.1 ...`, like `br_redirect.html` and the
+challenge pages) has its `Content-Length` header set to the length of its body as sent, after the
+`^placeholder` replacements. If it has no `Content-Length` header, BR adds one.
 
 ### 4.5 Renewal
 

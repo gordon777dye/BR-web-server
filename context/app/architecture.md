@@ -1,6 +1,6 @@
 # brweb — architecture
 
-A Business Rules! **HTTPS web server** (`web_server.br`, v2.16) and the demo request handlers it
+A Business Rules! **HTTPS web server** (`web_server.br`, v2.17) and the demo request handlers it
 serves. It runs stand-alone (BR holds the certificate) or, with `proxy=` in the ini, as one or
 more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts in the app root (`C:\ADS_test\gabriel\brweb`). The app's `brconfig.sys` runs
 `web_server` at start-up, and `brconfig.svc` plus `nssm.exe` run it as a Windows service
@@ -17,10 +17,10 @@ more BR processes behind NGINX; `03 BR WEB SERVER.md` describes both. BR starts 
 | `fileio.br`, `filelay\`, `data\` | FileIO library (third-party), its layouts, and the data files (`customer`, `comments.ind`) |
 | `www\` | Static site and HTML templates with `^token` placeholders |
 | `challenge*.html`, `relogin.html`, `unauthorized.html`, `br_redirect.html` | Pages the server itself sends: login challenge, re-login, 401, 303 redirect |
-| `self.crt/.key/.phrase` | TLS certificate; `.phrase` holds the key passphrase, encrypted |
+| `self.crt/.key/.phrase` | Self-signed demo certificate for `localhost`, `127.0.0.1` and `::1`, regenerated 2026-10-26, expiring 2029-01-28 (the 2015 pair is in `old\`). The key is not encrypted, so the passphrase in `.phrase` is not used, but the file must exist or the server asks for one at start-up |
 | `sessions\` | Session store, created at run time: `sess<g>.dat` (sessions), `sesx<g>.dat` (relogin data), `sesd<g>.dat` (each session's data store, since 2.12) |
 | `http_client\`, `json_analyze.br` | Stand-alone utilities, not part of the server |
-| `old\`, `tmp\`, `web_server.bak` | Old copies, not masters. `old\` holds earlier releases (`web_server.br.2_04` to `.2_15`, `web_server-<n>.br` back to 1.44) and `CHANGE_LOG.md`; it is not tracked in git |
+| `old\`, `tmp\`, `web_server.bak` | Old copies, not masters. `old\` holds earlier releases (`web_server.br.2_04` to `.2_16`, `web_server-<n>.br` back to 1.44) and `CHANGE_LOG.md`; it is not tracked in git |
 
 ## Entry points
 

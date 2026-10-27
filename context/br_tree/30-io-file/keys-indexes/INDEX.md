@@ -11,7 +11,7 @@ The **Index** `command` creates or recreates an index file. See the `Index Facil
 For a simple tutorial, see `Index_and_Sort_facilities_Tutorial|Index Tutorial`.
 
 ==Syntax==
- INDEX <data file> <`index file`> <key start position>[/...] <key length>[/...] [-<work path>] [{`DUPKEYS`|NATIVE|`REORG`|REPLACE|`LISTDUPKEYS`[>[>]<output file>]}][...] [-N] 
+ INDEX <data file> <`index file`> <key start position>[/...] <key length>[/...] [-<work path>] [{`DUPKEYS`|NATIVE|`REORG`|REPLACE|VERIFY|`LISTDUPKEYS`[>[>]<output file>]}][...] [-N] 
 
 `Image:Index.png|1000px`
 
@@ -70,6 +70,13 @@ There are three cases in which INDEX with the REORG parameter will completely bu
 # When the index file does not exist.
 # When the specified file is not an index file.
 # When any of the key starting pos or key length parameters stored in the header record are different from those specified in the INDEX REORG command.
+
+**VERIFY and REORG on a Btree2 index** (the default kind for new indexes; `OPTION 22` makes new indexes Btree). **VERIFY** checks the index while programs go on using it: key order, that no index record is reached twice, that every live master record's key is in the index, and that no update was left unfinished. Anything that looks wrong is checked again under the index's lock, so a key being changed at that moment is not reported. If nothing is wrong, VERIFY ends without an error and deletes any `.flaws` file an earlier VERIFY left. Otherwise it ends with error 9401, writes what it found to *index file*`.flaws` (for example `CUST.KEY.flaws`), one flaw per line with its kind first (`OUT_OF_RANGE`, `STALE_REF`, `SEPARATOR`, `MISSING`, `INTERRUPTED` or `STRUCTURE`), and marks the index as needing repair. Until it is repaired, the index adds records at the end of the file instead of reusing freed ones.
+
+**REORG** on a Btree2 index needs the index to itself. It repairs the index in place: it checks the parts the `.flaws` file names (or, without one, the whole index and the whole master file), puts keys back where they belong, adds the keys missing for live master records, puts every index record no longer used on the free list and shortens the file. It then clears the repair mark and deletes the `.flaws` file. An index it cannot repair in place, such as one with a `STRUCTURE` flaw, is rebuilt from the master file as REPLACE would.
+
+ 	INDEX CUSTOMER CUST.KEY 1 6 VERIFY
+ 	INDEX CUSTOMER CUST.KEY 1 6 REORG
 
 **REPLACE** specifies that the current index should replace an index of the same name if it exists on the disk. BR expects to create a new file when this parameter is not specified.
 

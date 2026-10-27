@@ -44,16 +44,13 @@ node_modules/
 # /dev/* above ignores the whole FOLDER, so each of these needs its own
 # line or it is silently left out of the published kit - which is what
 # happened: nothing under dev/ai_access/ was tracked at all.
-# THE BR BINARIES ARE DELIBERATELY STILL IGNORED.  BR is the product, it is
-# versioned per site, and a debug build is 46 MB; BR_harness.md tells a
-# reader to point $BR44_EXE at their own BR 4.4 instead.
+# BR itself is not here: it lives in dev/tools/ (see the dev/tools/ rules
+# below and BR_launch.md, "The files the harness uses").
 !/dev/ai_access/
 /dev/ai_access/*
 !/dev/ai_access/*.md
 !/dev/ai_access/br_mcp_driver.exe
 !/dev/ai_access/brls.exe
-!/dev/ai_access/brserver.exe
-!/dev/ai_access/brclientdll444-x64-Debug-gui.dll
 !/dev/ai_access/prc/
 !/dev/ai_access/prc/*.prc
 # allow access to the folder
@@ -71,3 +68,14 @@ node_modules/
 !/dev/tools/*.md
 !/dev/tools/*.json
 !/dev/tools/*.ps1
+
+# --- brweb: files this app's repo keeps although the kit skeleton ignores them ---
+# ScreenIO/FileIO reference sources the kit docs cite by line number (screenio-guide.md,
+# APP-DEV-GUIDE.md §4), and the STEP 1 environment scripts.
+!/dev/tools/screenio.br
+!/dev/tools/screenio.brs
+!/dev/tools/screenio-release-notes.txt
+!/dev/tools/fileio.brs
+!/dev/tools/fileio-release-notes.txt
+!/app/env.cmd
+!/app/onboarding/setx.cmd

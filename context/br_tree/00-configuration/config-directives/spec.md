@@ -294,7 +294,7 @@ CONFIG <keyword> <spec>                 -- as a command (CON); STATUS CONFIG lis
 EXECUTE "CONFIG <keyword> <spec>"       -- the same, from program code
 ```
 `CONFIG` overrides the BRConfig.sys value for the rest of the session (e.g.
-`CONFIG SUBSTITUTE COM1:,/dev/ttyll`, `CONFIG OPTION 14 OFF`, `CONFIG BASEYEAR 1950`). Unlike the
+`CONFIG SUBSTITUTE COM1:,/dev/ttyll`, `CONFIG OPTION 51 ON`, `CONFIG BASEYEAR 1950`). Unlike the
 file, the `CONFIG` command **accepts keyword abbreviations**; both accept `%env-var%` substitution.
 Supported keywords include `APPLICATION_NAME`, `ATTRIBUTE`, `BASEYEAR`, `BREAK`, `CHAINDFLT`,
 `COLLATE`, `COLOR`, `CONSOLE`, `CURSOR`, `DATABASE`, `DATAHILITE`, `DECIMAL`, `DIMONLY`, `DRIVE`
@@ -324,7 +324,7 @@ EDITOR "C:\Program Files\Notepad++\notepad++.exe" NOWAIT
 LOGGING 5, debug.log
 ```
 ```business-rules
-00010 EXECUTE "CONFIG OPTION 14 OFF"   ! override a BRConfig.sys OPTION at runtime
+00010 EXECUTE "CONFIG OPTION 51 ON"    ! override a BRConfig.sys OPTION at runtime
 ```
 
 <a id="see-also"></a>

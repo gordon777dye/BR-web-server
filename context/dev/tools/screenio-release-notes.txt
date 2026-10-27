@@ -1,0 +1,77 @@
+Version 2.95 -- fnCompileScreen now takes an optional WaitForComplete parameter (fnCompileScreen(ScreenCode$,1)), passed through to Fncompilehelperlibrary, so a caller that needs the compiled .br to actually exist before proceeding (e.g. compiling two screens back to back in one process) can wait for it instead of racing the background compile.
+Version 2.94 -- Added fnCheckScreenErrors(ScreenCode$, mat ErrObject, mat ErrField, mat ErrMessage$, mat ErrType) library function - runs the same validation the "To Do" debug listview shows, callable headless without the Designer UI. Fnprinttodebuglistview/Fncleardebuglistview now also mirror into a plain array so the results are readable without a GUI window open.
+Version 2.93 -- Added fnCompileScreen(ScreenCode$) library function so a screen's Helper Library can be loaded and compiled from code (headless), without going through the Designer's Load/Save-and-Compile menu options.
+Version 2.92 -- disabled mat VisibleRows and mat VisibleKeys$ for very large listviews that caused BR to crash.
+Version 2.91 -- Increased Tooltip Text length limit to 1000 characters to match the BR limit. The old limit was 255.
+Version 2.90 -- Updated the Demo to run until December 2023. Changed all references to MyEdit to say "Code Editor of Choice".
+Version 2.89 -- Added Red and Blue to the colors in the PowerSearch.
+Version 2.88 -- Added more details (Screen Name, File Layout Name) to the "The _______ record could not be found." error message.
+Version 2.87 -- Made the "Check for Updates" option on the "Help" menu compatible with BR 4.2.
+Version 2.86 -- Polished up fnMakeScreen and made it run a little more smoothly. Now doesn't launch the screens until the end, so they don't cover up the MakeScreen process. Also, the windows auto center and stretch, so it runs better under different resolutions.
+Version 2.85 -- Changed "fnMakeScreen" to a library function so that it can be called from the BR Program Wizard tool. Syntax is fnMakeScreen(;Layout$,OpenNewScreens)
+Version 2.84 -- Added settings for setting_LexiPath$ and setting_debug_locked_msg to the screenio.ini file. Fixed a bug in the setting_FileIOPath$ code.
+Version 2.83 -- Fixed a bug in the license checking code that caused it to crash under BR 4.2
+Version 2.82 -- Fxied a bug that caused the Function Select dialog to crash whenever you type new file name in the function box and click on anything.
+Version 2.81 -- Fixed a bug that broke PgDn (make control wider). Changed "Select All Controls" hotkey to F7.
+Version 2.80 -- Fixed a bug in ScreenIO that was messing up the Custom Function Select screen.
+Version 2.76 -- Tweaked the Screen Freeze and Screen Thaw to fix a bug that broke the load animations.
+Version 2.75 -- Added Ctrl-F (Select All Controls) and CTRL-I (Inverse Selection)
+Version 2.74 -- Increased Clipboard from 20000 (approx 150 controls) up to 999999 (7500 controls). Made it not crash when clipboard is full.
+Version 2.73 -- Fixed a bug that made it so if you have a leading space in the falsehood value for ~ignore~ then it would fail.
+Version 2.72 -- Fixed a bug that made it so that saving a screen left a record locked in the ScreenFlds file that would cause other saves to fail with error 61.
+Version 2.71 -- Fixed it so that typing a DATE$(mm/dd/ccyy) spec in a listview conversion routine won't crash, it'll simply fix it to DATE(mm/dd/ccyy) like its supposed to be.
+Version 2.70 -- Improved License Check routine to fix compatibility with BR4.32c linux version. (Previously, a bug caused valid licenses to not be detected.)
+Version 2.69 -- Added Project and Notes fields that can be set in the Screen Attributes window, and are viewable in the Load Screen dialog.
+Version 2.68 -- Made it automatically convert caption if you change an auto-added text field into a check box or radio button.
+Version 2.67 -- Changed it to update the existing screenflds records instead of deleting and readding all of them.
+Version 2.66 -- Changed it to not pad your custom functions with a space on each column for better compatibilty with the Atom editor, configurable with an ini setting
+Version 2.65 -- Fixed a bug that caused ScreenIO to crash when displaying a listview with no data in it.
+Version 2.64 -- Merged all lexi functionality. Now I call the lexi library so its the same code base and all lexi improvements appear in ScreenIO immediately.
+Version 2.63 -- Added fnBR43 library function to automatically included library statements. Cleaned up the Fnfm$ call in screenio.br.
+Version 2.62 -- Improved Tooltip Text for Control Attributes to state which ScreenIO array is used to view or change this attribute during runtime.
+Version 2.61 -- Added error handler to Download Code for when internet connection can't be found. Added error handler for uncompilable library.
+Version 2.60 -- Made it so that in a Mat MyF Screen, if there isn't a key to pass back, then it passes back "1". This way you can tell if the user accepted the Mat MyF Screen or not.
+Version 2.59 -- Fixed a bug in one of the parameters for the included custom function fnDeleteListviewRecord.
+Version 2.58 -- Added "Check For Updates" functionality.
+Version 2.57 -- Added ability to import screens that were saved with previous versions. Can import any .sio file saved April 2017 and later.
+Version 2.56 -- Added Created by User and Modified by User to the ScreenIO data files. These show up as columns in the Select Screen dialog in installations of ScreenIO with more then one contributing programmer.
+Version 2.55 -- Fixed a bug in the Power Search routine that caused a crash when running screenio in a long path.
+Version 2.54 -- moved call to fnRunAnim so that clock shows even when the first bunch of records are filtered out.
+Version 2.53 -- Changed File Menu "BR Console" to "Run Application" because thats what it does.
+Version 2.52 -- Fixed a bug that made FMT and PIC specs sometimes fail to work for listview columns.
+Version 2.51 -- Fixed a small bug that was causing fnInit_ and fnFinal_ functions to generate for every custom function instead of just Listview functions.
+Version 2.50 -- Filter Functions now include the ability to specify an "Init" and a "Final" function, all within the same filter function file. Init is called automatically, just prior to populating the listview, and Final is called just after. This is similar to the Listview Pre and Post Populate functions but its a lot easier to work with them all in the same .brs file with the filter function that they apply to.
+
+When you generate a new filter function it automatically makes shells of these functions for you. Just put whatever code you want in them.
+
+Version 2.49 -- ScreenIO now closes the screenio and screenfld data files right after reading them. This makes it possible now to update your customers without kicking them out of the system. You no longer have to worry about a file sharing error on these files when installing updates.
+
+Version 2.48 -- Added support for FileIO's new date field types. If a field is a date field then ScreenIO automatically treats it like a date and sets it as a Date field. Additionally, ScreenIO now supports a new custom function parameter showing which fields from the file are Date fields.
+Added mat VisibleKeys$ and mat VisibleRecords to tell which rows are currently visible in the filtered listview (Requires BR 4.3+)
+
+Version 2.47 -- Fixed the Generate Screen function to use Filter Boxes.
+Version 2.46 -- Changed Date processing so that if a year is not entered, it defaults to closest date rather then current year.
+Version 2.45 -- Fixed a bug with large fields larger then 255 bytes that was introduced with new Number processing functionality.
+
+Version 2.42
+Added feature where putting "N" in for the CNVRT spec property forces them to enter only valid numbers.
+Added ability to put in just "N" instead of having to put the whole spec "N 10" for the CNVRT spec property.
+
+Version 2.4
+Fixed a bug in the Orphaned Functions list
+
+Version 2.3 (Spring Conference 2017 Release)
+Added filter boxes for Screen Selection and Function Select
+Added options to ini file to enable or disable them
+  setting_Load_Filter
+  setting_FunctionSel_Filter
+Added Version Number to Comments in Program
+Made fnDesignScreen callable as a function
+Made File Layout List redraw every time so it reflects recent Layout Changes
+Fixed a bug in the "Launch Screen in New Window" code
+Added Screen Version field
+Implemeneted fnClearLayoutCache (new Fileio Feature) to get realtime Updates to File Layouts
+Fixed a compatibility issue for using Substitute to rearrange your folder structure
+Added a better message for Out Of Date Helper Libraries
+Began Tracking ScreenIO Version Carefully
+(Spring Conference 2017 Release)

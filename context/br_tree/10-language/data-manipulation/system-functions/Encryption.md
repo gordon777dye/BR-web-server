@@ -5,6 +5,8 @@ category: 10-language
 subcategory: 10-language/data-manipulation/system-functions
 kind: function
 related: [ENCRYPT, DECRYPT, internal functions, ENCRYPT$, DECRYPT$]
+corrections:
+  - "HTTPS setup corrected 2026-10-22 against the BR 5.0 source (http.cpp, config.cpp): the files are CERT=<base>.crt (certificate and chain) and <base>.key, wherever CERT= points, not https-private.pem / https-cert.pem in the BRSERVER directory; LOG=, URL_BASE= and PHRASE= take an =; PHRASE= gives the key passphrase, with OPTION 66 the fallback; the HTTP port listens too. The openssl example now makes a matching .crt/.key pair. Full detail moved to 60-integration/web/HTTP_SERVER.md#tls."
 ---
 (As of 4.30)
 
@@ -206,23 +208,22 @@ In the Client Server model the client knows the server’s public key and the se
 
 Encryption is invoked by Business Rules HTTP support as follows:
 
- CONFIG HTTPS port-number   [ LOG file-pathname ] [CERT= cert-file-basename]
- CONFIG OPTION  66   private-key-file-encryption-password
- OPEN #400: “HTTP=SERVER”, DISPLAY, OUTIN
+ CONFIG HTTP  port-number
+ CONFIG HTTPS port-number [LOG=log-file] [URL_BASE=document-root] CERT=cert-file-basename [PHRASE=passphrase]
+ OPEN #400: "NAME=HTTP_FILE,HTTP=SERVER", DISPLAY, OUTIN
 
-The BRSERVER executable directory must contain two files:
+CERT= names two PEM files, which may be anywhere:
 
- https-private.pem
- https-cert.pem
+ cert-file-basename.crt   the server certificate, followed by its intermediate certificates (the "full chain")
+ cert-file-basename.key   its private key (RSA or EC), encrypted or not
 
-These files are made by the following commands under Linux, MAC and cygwin for Windows: openssl req -new -x509 -out httpserver.pem -days 10000
+An encrypted key is opened with PHRASE=, or with the OPTION 66 value when PHRASE= is not given. The HTTP and HTTPS ports both listen. TLS 1.2 and 1.3 are supported.
 
-(this will prompt for the OPTION 66 password)
+For testing, this command under Linux, Mac, or cygwin or Git Bash for Windows makes a self-signed pair. It prompts for the passphrase to give as PHRASE= (add -nodes for an unencrypted key). Browsers warn about a self-signed certificate, so use one from a certificate authority in production:
 
- mv privkey.pem   https-private.pem
- mv httpserver.pem   https-cert.pem
+ openssl req -x509 -newkey rsa:2048 -days 365 -subj "/CN=myhost" -addext "subjectAltName=DNS:myhost" -keyout server.key -out server.crt
 
-This port specific service can then be accessed with browsers. When the specified port is accessed through a browser, BR establishes an HTTPS connection rather than an HTTP connection.
+(In Git Bash, write -subj "//CN=myhost": a single leading / is turned into a Windows path.) Then CERT= names server, with its path. When the HTTPS port is accessed through a browser, BR establishes an HTTPS connection rather than an HTTP connection. Certificate chains, renewal without a restart and Let's Encrypt are covered in [HTTP=SERVER](../../../60-integration/web/HTTP_SERVER.md#tls).
 
 ==Signing and Certificate Processing Industry Standards==
 The purpose of certificates is to verify the authenticity of unencrypted data. 

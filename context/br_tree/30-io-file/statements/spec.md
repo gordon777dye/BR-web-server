@@ -154,7 +154,9 @@ that matter on a `READ`, `NOKEY` and `NOREC` on a `REWRITE`.
   commas, quotes and leading blanks (unlike `INPUT`, which splits on commas) — from the keyboard
   (`#0`/none), a display/communications file, or a procedure file under `RUN PROC`. `WAIT=<sec>` arms
   a `TIMEOUT` trap (**error 4145**; `WAIT=0` = no wait,
-  `WAIT=-1` = wait forever, reset on each keypress). LINPUT targets a **single** string variable — it
+  `WAIT=-1` = wait forever, reset on each keypress). On an `HTTP=SERVER` or `HTTP=CLIENT` file the
+  statement's `WAIT=` bounds the read in place of the OPEN's `WAIT=` (the default when the statement has
+  none); a communications file always uses the OPEN's. LINPUT targets a **single** string variable — it
   **cannot** read into a string `MAT` (unlike `INPUT`, which can fill an array); read multiple lines by
   looping LINPUT (trap `EOF` when the file runs out). `RECL` doesn't limit input (it governs output only).
   On a **DISPLAY** open only (a display or `FORMAT=ASYNC` communications file — never INTERNAL/EXTERNAL),

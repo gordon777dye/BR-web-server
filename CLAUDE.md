@@ -87,5 +87,11 @@ On first startup the cert passphrase is prompted for, then stored encrypted in `
 - `www/`: the site being served.
 - `http_client/`: separate demos of BR's HTTP *client* (`get_site.br`, CA bundles). They are unrelated to the server.
 - `json_analyze.br` with `dim.proc`: a standalone JSON-analysis utility.
+- ScreenIO and FileIO 135 were ported from `C:\ADS\qsmrp` on 2026-10-26: `screenio.br` (with
+  its `.br.brs`), `screen\` (`screenio.dat`/`screenfld.dat`, layouts `filelay\screenio` and
+  `screenfld`), compiled screens in `screenio\`, event functions in `function\`, plus `clocks\`,
+  `Images\` and `fileio.ini`. The three screens (APDETAILEDIT, APDETAILLIST, RIVIAN_PRICE_CHG) are
+  qsmrp's and use qsmrp data files that brweb does not have. The replaced 2019 FileIO is in
+  `old\fileio.br.2019-04-22`. ScreenIO is interactive, so never call it from a web handler.
 
 @context/README.md

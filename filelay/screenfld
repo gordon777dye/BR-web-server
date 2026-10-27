@@ -1,0 +1,37 @@
+screen\screenfld.dat,SF_,13
+screen\screenfld.key,ScreenCode
+screen\screenfld.ky2,ScreenCode/ControlName
+recl=2500
+======================================================================
+ScreenCode$,            Screen Code,                            V   18,     1 -   18, 1 $
+ControlName$,           Control Name,                           V   50,    19 -   68, 2 $
+FieldName$,             Field Name from File Layout,            V   50,    69 -  118, 3 $
+Description$,           Caption or Caption Field,               V  255,   119 -  373, 4 $
+VPosition,              Vertical Position,                      B    1,   374 -  374, 1
+
+HPosition,              Horizontal Position,                    BH   2,   375 -  376, 2
+FieldType$,             Field Type Code,                        V    8,   377 -  384, 5 $
+SpecWidth,              Spec Width,                             BH   2,   385 -  386, 3
+Width,                  Width,                                  BH   2,   387 -  388, 4
+Height,                 Height,                                 B    1,   389 -  389, 5
+
+TrueValue$,             Value if True,                          V   60,   390 -  449, 6 $
+FalseValue$,            Value if False,                         V   60,   450 -  509, 7 $
+Function$,              Function or Validation,                 V  255,   510 -  764, 8 $
+Picture$,               Picture File,                           V  255,   765 - 1019, 9 $
+Parent$,                Parent Control for Listchld,            V   20,  1020 - 1039, 10 $
+
+FgColor$,               Foreground Color,                       C    6,  1040 - 1045, 11 $
+BgColor$,               Background Color,                       C    6,  1046 - 1051, 12 $
+Justify$,               L R C U or blank,                       C    1,  1052 - 1052, 13 $
+Attr$,                  Field Attributes,                       V  128,  1053 - 1180, 14 $
+Protected,              Protected Flag,                         B    1,  1181 - 1181, 6
+
+Invisible,              Invisible Flag,                         B    1,  1182 - 1182, 7
+Tooltip$,               Tooltip Text,                           V  255,  1183 - 1437, 15 $
+CnvrtIn$,               Incoming Conversion,                    V  255,  1438 - 1692, 16 $
+CnvrtOut$,              Outgoing Conversion,                    V  255,  1693 - 1947, 17 $
+Multiselect,            MultiSelect,                            B    1,  1948 - 1948, 8
+
+Userdata$,              Custom Data,                            V  255,  1949 - 2203, 18 $
+Gridlines,              Gridlines for Listviews,                B    1,  2204 - 2204, 9

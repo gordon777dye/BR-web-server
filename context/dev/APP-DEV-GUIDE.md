@@ -25,11 +25,15 @@ reserved. The path is **`topics.json` → `statement-semantics.md` → [`../br_t
 authoritative backstop), pulling in the catalogs and your app's data-model as needed.
 
 For access to the Business Rules compiler:
-1. Read BR_launch.md to extract the environment variable definitions
-2. Extract the PowerShell snippet that sets $env:BR_EXE, $env:BR_AI_UTIL, etc.
-3. Execute those environment variable assignments before attempting any BR invocation
-4. Use those variables in subsequent commands (e.g. $VAR_NAME in Bash)
-5. See section 6 below for advice on how to run BR and identify program errors.
+1. Read BR_launch.md for what each environment variable (`$BR_EXE`, `$BR_AI_UTIL`, etc.) names.
+2. Check whether they are already set; onboarding may have saved them in the user's Windows
+   profile with `setx`.
+3. If they aren't, set them with `context\app\env.cmd` (written by onboarding STEP 1). Shell
+   state doesn't carry between commands, so run it in the same command as the program that
+   needs them: `cmd /c "context\app\env.cmd && <command>"`. Inside that command, write the
+   variables as `!BR_EXE!` under `cmd /v:on /c`, not `%BR_EXE%`, which expands before `env.cmd`
+   runs ([`BR_launch.md`](BR_launch.md#br-launch-environment)).
+4. See section 6 below for advice on how to run BR and identify program errors.
 
 The language axis has **two parallel keyword indexes** — use whichever fits the token:
 - **[`topics.json`](topics.json)** for statements/clauses — fast, line-ranged semantics + the `lexicon`.

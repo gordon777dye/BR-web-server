@@ -35,10 +35,19 @@ straight to the master record — no sequential scan. Reading a keyed file **wit
 clause returns records **in key order** (a free sort).
 
 - **Key field**: up to **6 non-contiguous sections** (a *split key*), **≤128 bytes** total.
-- **Index types**: **Btree** (default, self-maintaining), Btree2 (`OPTION 22`, ~25–35% faster shared
-  I/O, `BTREE_VERIFY <master>[ OFF]` audits structure after each index-altering op), ISAM
-  (`OPTION 5 = 4`). **BR won't mix Btree index types within related files** — multiple opens of one
-  master with different-type indexes are rejected.
+- **Index types**: **Btree2** (the default for new indexes, ~25–35% faster shared I/O,
+  `BTREE_VERIFY <master>[ OFF]` audits structure after each index-altering op), Btree (`OPTION 22`
+  makes new indexes Btree), ISAM (`OPTION 5 = 4`). The option decides only what a **new** index is
+  made as (`INDEX`, `INDEX … REPLACE`, an `OPEN` that creates the key file); each index records its
+  kind in its header and is opened as that kind whatever the option says. One master may have Btree
+  and Btree2 indexes open and updated together. `INDEX … REPLACE` converts an index to the kind the
+  option asks for.
+- **Btree2 locking (5.01)**: a shared Btree2 index has no lock for the whole of it; each index
+  record has its own. A read holds each record it passes through only until it has the next one, an
+  update only the records it changes (usually one), so sessions wait only for one using the same
+  part of the index. `NOSHR` takes no locks. **Version 3:** the first 5.01 update (or `REORG`) marks
+  a Btree2 index version 3, and new ones are version 3. Earlier releases refuse it with error 4124,
+  so never run 5.01 and an earlier release on the same Btree2 index; upgrade them together.
 - **Primary vs overflow area**: `INDEX … REORG` sorts the overflow (recently added/changed) into
   the sorted primary area.
 
@@ -51,14 +60,27 @@ INDEX <master-file> <key-file> <key-positions> <key-lengths> [<work-path>]
 ```
 - Positions/lengths use `/` to separate up to 6 sections; append **`Y`** for `BASEYEAR` (Y2K)
   date handling (`23Y`; for binary date fields `2BY`).
-- `REPLACE` rebuilds; `VERIFY` audits a Btree2 index; `DUPKEYS`/`LISTDUPKEYS` and
+- `REPLACE` rebuilds; `VERIFY` checks a Btree2 index (below); `DUPKEYS`/`LISTDUPKEYS` and
   `BADKEYS`/`LISTBADKEYS` control duplicate/invalid-key handling (`BADKEYS` = Y2K/baseyear keys whose
   master field holds non-numeric data; with both, bad keys list before dup keys); `>file` redirects
   the list. Parameters may be separated by **spaces or commas**; key fields **may overlap**.
 - `REORG` reorganizes the index directly (no master read) — fast, since the already-sorted part is
   skipped. It does **not add new records** (keep the overflow current by opening the index whenever
   you write the master). It **fully rebuilds** only when the index is absent, isn't an index file,
-  or the stored key positions/lengths differ from those given.
+  or the stored key positions/lengths differ from those given. For a Btree2 index, `REORG` repairs
+  instead (below).
+- **Btree2: `VERIFY` and `REORG`.** `VERIFY` runs while programs use the index (no exclusive
+  access). It checks key order, that no record is reached twice, that every live master record's
+  key is present, and that no update was left unfinished. Anything that looks wrong is rechecked
+  once any update of that part has finished, so updates in progress are not reported. Clean: no error, and an old
+  `<index file>.flaws` is deleted. Otherwise error **9401**, the flaws are written to
+  `<index file>.flaws` (one per line, kind first: `OUT_OF_RANGE`, `STALE_REF`, `SEPARATOR`,
+  `MISSING`, `INTERRUPTED`, `STRUCTURE`), and the index is marked as needing repair. Freed index
+  records are not reused until it is repaired. `REORG` needs the index to itself. It checks the
+  ranges `.flaws` names (or everything, master file included, without one), repairs them in place,
+  adds missing keys, puts unused records on the free list, shortens the file,
+  then clears the mark and deletes `.flaws`. When the index cannot be repaired (`STRUCTURE`), it
+  rebuilds it from the master file as `REPLACE` does.
 - `INDEX` performs an implicit `CLEAR` (unless a program is active), runs from READY mode / a
   procedure / `EXECUTE`, can be interrupted with `Ctrl-A` and resumed with `GO`; `-N` suppresses the
   action log.
@@ -87,6 +109,10 @@ master name; consistent share params).
 ### Keyed I/O
 - `READ #n, KEY=k$: … NOKEY <ref>` — fetch by key.
 - `RESTORE #n, KEY>=k$:` / `SEARCH>=…` — position for a sequential keyed scan.
+- A sequential read (forward or `PRIOR`) goes on from the last key it read. That holds even when
+  other sessions, or another channel of the same program, have added or deleted keys since. On a
+  **Btree2** index it stays in key order, gives each key once, and misses none that was there
+  throughout. A key added or deleted meanwhile is met or not, according to where it falls.
 - `REWRITE` without `KEY=` updates the last record read (fast); with `KEY=` it searches first
   (slower). **Changing the key field value is allowed** — BR automatically updates all related key
   files opened as a group (the old error 0059 is deprecated).

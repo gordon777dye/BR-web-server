@@ -51,6 +51,10 @@ tooling at whatever BR codebase you're on. There are three published parts:
   the prefix **(none)** (none when BR starts in the app root). (completed in ONBOARDING STEP 1; see
   `dev/BR_launch.md#start-folder`)
 
+- BR environment variables are **not saved** (this machine also has the kit at `C:\ADS\qsmrp`), so
+  prefix BR commands with `cmd /c "context\app\env.cmd && …"`. (completed in ONBOARDING STEP 1;
+  see `dev/BR_launch.md#br-launch-environment`)
+
 ## Installation
 
 Note: This context kit itegrates with any BR app. 

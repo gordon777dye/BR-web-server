@@ -1,0 +1,64 @@
+screen\screenio.dat,SI_,23
+screen\screenio.key,ScreenCode
+======================================================================
+ScreenCode$,            Screen Code,                            V   18,     1 -   18, 1 $
+Caption$,               Caption,                                V   60,    19 -   78, 2 $
+VSize,                  V Size,                                 B    1,    79 -   79, 1
+HSize,                  H Size,                                 BH   2,    80 -   81, 2
+Attributes$,            Screen Attributes,                      V  255,    82 -  336, 3 $
+
+Picture$,               Background Picture File,                V   60,   337 -  396, 4 $
+FgColor$,               Foreground Color,                       C    6,   397 -  402, 5 $
+BgColor$,               Background Color,                       C    6,   403 -  408, 6 $
+FileLay$,               File Layout for Screen,                 V   18,   409 -  426, 7 $
+EnterFn$,               Enter,                                  V  255,   427 -  681, 8 $
+
+Project$,               Project,                                V  255,   682 -  936, 9 $
+Notes$,                 Notes,                                  V  255,   937 - 1191, 10 $
+InitFn$,                Initialize,                             V  255,  1192 - 1446, 11 $
+ReadFn$,                Read,                                   V  255,  1447 - 1701, 12 $
+LoadFn$,                Load,                                   V  255,  1702 - 1956, 13 $
+
+WriteFn$,               Write,                                  V  255,  1957 - 2211, 14 $
+WaitFn$,                Wait,                                   V  255,  2212 - 2466, 15 $
+LockedFn$,              Record Locked,                          V  255,  2467 - 2721, 16 $
+MergeFn$,               Merge Function,                         V  255,  2722 - 2976, 17 $
+LoopFn$,                Main Loop,                              V  255,  2977 - 3231, 18 $
+
+NokeyFn$,               Nokey,                                  V  255,  3232 - 3486, 19 $
+PreListviewFn$,         Listview Prepopulate,                   V  255,  3487 - 3741, 20 $
+PostListviewFn$,        Listview Postpopulate,                  V  255,  3742 - 3996, 21 $
+ExitFn$,                Exit,                                   V  255,  3997 - 4251, 22 $
+Border,                 Window Border,                          B    1,  4252 - 4252, 3
+
+WindCap$,               Window Caption,                         V   80,  4253 - 4332, 23 $
+WaitTime,               Wait Time -1 for disable,               BH   2,  4333 - 4334, 4
+InputAttr$,             Input Attributes,                       V  255,  4335 - 4589, 24 $
+CreateDate,             Date Created,                           BH   3,  4590 - 4592, 5
+ModifYDate,             Date Modified,                          BH   3,  4593 - 4595, 6
+
+CreateUser$,            User who Created,                       V   30,  4596 - 4625, 25 $
+ModifYUser$,            Last User who Modified,                 V   30,  4626 - 4655, 26 $
+ReadIndex,              Index to use when reading,              B    1,  4656 - 4656, 7
+ReturnIndex,            Index to use when returning,            B    1,  4657 - 4657, 8
+DebugScreen$,           Test call for your screen,              V   64,  4658 - 4721, 27 $
+
+Debugkey$,              Test Key$,                              V  255,  4722 - 4976, 28 $
+DebugParentKey$,        Test Parent Key$,                       V  255,  4977 - 5231, 29 $
+DebugRecord,            Test Record Number,                     BH   3,  5232 - 5234, 9
+Debugpath$,             Test Path$,                             V  255,  5235 - 5489, 30 $
+DebugPassed$,           Test Mat Passed Data,                   V  255,  5490 - 5744, 31 $
+
+ProtectedText$,         Protected Attribute for Text,           V  255,  5745 - 5999, 32 $
+ProtectedCheck$,        Protected Attribute for Check Boxes,    V  255,  6000 - 6254, 33 $
+ProtectedButton$,       Protected Attribute for Buttons,        V  255,  6255 - 6509, 34 $
+ScreenioLocking,        Use ScreenIO Locking,                   B    1,  6510 - 6510, 10
+ScreenioMerge,          Use ScreenIO AutoMerge,                 B    1,  6511 - 6511, 11
+
+OtherChanges$,          Attribute for Others Changes,           V  255,  6512 - 6766, 35 $
+MyChanges$,             Attribute for My Changes,               V  255,  6767 - 7021, 36 $
+LockWindow$,            Attribute for Lock Window Color,        V  255,  7022 - 7276, 37 $
+ActiveColor$,           Active Color for Window,                V  255,  7277 - 7531, 38 $
+Userdata$,              Userdata array for use in functions,    V  255,  7532 - 7786, 39 $
+
+Version,                Current Version of Screen,              BH   4,  7787 - 7790, 12

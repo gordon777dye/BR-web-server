@@ -120,7 +120,8 @@ share restrictions. Code these even in single-user programs (it's far cheaper th
 - **Lock zone & file size** — BR locks not the record itself but a byte in a reserved zone keyed to the
   record number (so locking works on growing files and lets `ODBC`/report writers read locked records).
   That zone caps the lockable file size: [`OPTION 33`](../../00-configuration/config-directives/OPTION_(Config).md)
-  selects `30` = 1 GB, `31` = 2 GB (default), `32` = 4 GB, or `64` = 64-bit locking for larger files.
+  selects `30` = 1 GB, `31` = 2 GB, `32` = 4 GB, or `64` = 64-bit locking for larger files (the default
+  as of BR 5.01 on Windows, Linux and macOS). Every engine sharing files must use the same setting.
 - **File-name locking** — the `PROTECT` command takes one of four parameters: **`RESERVE`** (deny others
   any access to the full pathname — BR checks an internal reservation table before *every* OPEN and
   returns **error 4148** *without touching the disk*), **`READ`** (others may read but not change it;

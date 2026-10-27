@@ -54,7 +54,7 @@ The index file generally consists of two parts: a primary (or sorted) area and a
 ==BTree Facility==
 The BTREE_VERIFY statement is now operational.  Note that the keyword previously was BTREE2VERIFY.
 
-To activate the BTREE2 facility, specify OPTION 22 in the `BRConfig.sys` file.  For more details, see New Btree Facility under 3.90 Initial Changes below.
+New indexes are BTREE2 indexes. To create BTREE indexes instead, specify OPTION 22 in the `BRConfig.sys` file. An existing index is always used as the kind it was made as, and `INDEX ... REPLACE` remakes it as the kind the option asks for. For more details, see New Btree Facility under 3.90 Initial Changes below.
 
 ==Techniques for using multiple index files==
 Several key files may be opened and automatically maintained with each master file. The total number of key files is limited only by the operating system limit for the total number of open files.

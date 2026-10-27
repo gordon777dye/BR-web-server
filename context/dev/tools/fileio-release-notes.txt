@@ -1,0 +1,183 @@
+Version 135: Added support for Specs using variables such as PD 5._PRICE
+
+Version 134: Added support for -BY and -Y in addition to -U in indexes.
+
+Version 133: Increased Length of Key String to allow support for more complicated key definitions using longer subscript names in more combinations.
+
+Version 132: Added Error Log file when files fail to open, that log the Status Stacks information to aid in debugging later.
+
+Version 130: Made the fix in Version 128 below conditional, so that it only happens for older BR versions that needed it.
+
+Version 129: Added EmailLibrary$ to the fileio.ini so that you can specify a custom email library to use your own email program instead of SendEmail.exe.
+
+Version 128: Uncommented code that changes CSV export paths like @:C:\Folder\File.csv to @::C:\Folder\File.csv to fix when a CSV file is being saved on the client.
+
+Version 127: Added SuppressLoggingErrorMessage to the fileio.ini file to suppress the "A File is Locked on the Server" error message that occurs when the logfile cannot be written to.
+
+Version 126: Added an option for "BypassFixRpt" to increase performance by bypassing the code that compresses form statements. Set this to 1 to increase performance, but set it to 0 if you have large file layouts that require additional compression of your form statements, thanks to Mike Miller.
+
+Version 125: Made a change to reduce output to the command console and increase preformance during interrogation to see if a file is opened for Input or not.
+
+Version 124: Added library functions "fnFileIO_Settings$" and "fnFileIO_Settings" to read the fileio ini file.
+
+Version 123: Added support to fnReadLayoutArrays to read the optional 4th Column of the layout and return it into the provided array.
+
+Version 122: Added "DATE(DAYS)" and "DATE(SERIAL)" as synonyms for DATE(JULIAN) in the 4th column of the file layout to indicate that a field is a date stored in the Days (BR's Julian) format.
+
+Version 121: Added the "Export" button to the multiselect listview of Layouts in the Data Crawler, so that its easier to export all data files at once.
+
+Version 120: Increased fileio field size limit for automatic upgrade of datafiles to 2048
+
+Version 119: Added skeleton for function to Search Legacy Read Statements. Code is currently commented out.
+
+Version 118: Added -t120 to give a longer timeout value for the shell calls to sendemail because the default isn't long enough and they time out sometimes.
+
+Version 117: Added code so that it doesn't error if you try to run this fileio next to an older version of ScreenIO.
+
+Version 116: Added the "Generate ScreenIO Screen" button to FileIO that calls the new ScreenIO Generate Screen library.
+
+Version 115: Fixed a bug that broke compatibility with BR 4.2. This bug prevented automatic updates from working under BR 4.2 previously. Now they work again.
+
+Version 114: Made a better error message for error 608 "Open Permission Conflict"
+
+Version 113: Fixed a bug in fnExportListviewCSV where it wasn't working under Client Server unless you were using Shell Default Client.
+
+Version 112: Fixed a bug in the progress bar that would cause problems if you are calling it before calling any other fileio functions. (Thanks John Bowman for the Bug Report).
+Fixed a bug in fnCalculateHours and made fnClientServer a library function so you can use it in your own programs. (Thanks Laura Smith for these fixes.)
+
+Version 111: Fixed a bug in the CSV Import Dialog that caused a problem on occasion.
+
+Version 110: Added support for Partial Keys (Syntax Example: data\customer.key, name/startdate(5:8)/startdate(1:4)). Fixed fnBuildKey to support the -U uppercase flag for case insensitive indexes. Created a few Unit Tests for some fileio functions.
+
+Version 109: Added support in fnCompare for Drive Letters in File Layouts.
+
+Version 108: Made Index Parsing more robust. It now will no longer get bugged by partial subscript matches. Also, made the subscript names case insensitive. Also, fixed a bug that was preventing the -U uppercase flag for case insensitive indexes from working.
+
+Version 107: Fixed some bugs in fnCalculateHours, thanks Laura Smith for this function.
+
+Version 106: Fixed a bug that prevented fnReadSubs (legacy function) from working.
+
+Version 105: Added "SERIAL" as a synonym for "JULIAN" when specifying the Date on Disk format in the file layout ",DATE(SERIAL)"
+Made the $ sign optional in the File Layouts (unless its a G spec. For G spec, if you want to read the G field into a string variable, you still need the $. For all other specs, the spec type determines if its a string field or not.)
+
+Version 104: Added "Check For Updates" functionality. Moved recent changes to FileIOUpdateLog.txt
+
+Version 103: Fixed a bug when exporting data files that had no numbers and data files that had no strings
+
+Version 102: Added optional parameters Mat F$ and mat F to fnSetSubscripts for two arrays that get resized for the data file.
+
+Version 101: Fixed a glitch in the automatic update process when adding an additional key
+
+Version 100: Fixed a bug in the CSV import routine. Thanks Mikhail Zheleznov!!
+
+Version 99: Increased Length used in Export functionality to support fields up to 1000 characters long (matching the ScreenIO limit).
+
+Version 98: Fixed a bug with the automatic Date Handling logic that caused FileIO's automatic updates to crash
+
+Version 97: added fnCalculateHours(timein$,tout$) which returns the hours between timein and tout, which must be passed in as hhmmss
+
+Version 96: Added functions to convert time between American and Military time: fnStandardTime$ and fnMilitaryTime$
+
+Version 95: Fixed a small bug that caused trouble using the SendEmail function when
+ fileio is not installed in the default location. Thanks John Bowman!
+
+Version 94:
+ Fixed a bug that occasionally caused the Datacrawler to crash when reading large negative values stored in ZD fields.
+
+Version 93:
+ Added an option to the Export Listview CSV so that it supports multi-select listviews and exports only the selected rows.
+
+Version 92:
+ Fixed a bug introduced in Version 91 that broke layouts with all strings or all numbers (not mixed)
+
+Version 91:
+ Date formatting in 4th column in the layout (by Gabriel Bakker and Mikhail Zheleznov)
+ for csv export, data crawler, and other FileIO library functions such as:
+ fnReadLayoutArrays
+ fnReadEntireLayout
+ fnOpenFile
+ fnExportToCSV
+ fnCsvExport
+ fnShowData
+
+ For example:
+ Specify DATE(YMD) to indicate the date is saved in the file as MDY.
+ Specify DATE(JULIAN) if the date is saved in the file as a julian date.
+
+ This automatically integrates with ScreenIO to format the fields as dates automatically when
+  you put the controls on your screen. It automatically works in the Data Crawler. And the
+  date formats are returned by the fnReadLayout functions.
+
+ Specify your preferred DateFormatDisplay and DateFormatExport in the fileio.ini file.
+
+ Press F6 (View Raw) or F7 (Edit Raw) in the data crawler to bypass date formatting and see the raw disk values.
+
+ FileIO Date Processing works with Automatic Updates, so if you change your file format on disk,
+  for example, from DATE(YMD) to DATE(JULIAN) and increase the version number, FileIO will automatically
+  update the date format on disk. You'll have to update any programs that work with the date, however, including
+  screenIO programs.
+
+ Fixed a bug with fnExportListviewCSV that made it require OPTION 38. It no longer requires OPTION 38.
+
+Version 90:
+ Made fnAddToForm into a library function so people can use it in their programs.
+ Removed "let" from subscript assignment code resulting in 4 fewer characters per subscript
+  resulting in fewer lines of code to run to set them, and faster execution.
+  (Thanks Mikhail Zheleznov for both of these contributions)
+
+Version 89:
+ Added fnSubstituteStringCode which is like fnSubstituteString but instead of using the file layout it uses a
+  list of variables passed in as BR code to the function.
+
+Version 88:
+ Added fnSubstituteString(&Message$,LayoutName$,mat F$,mat F) Which takes the passed in record and layout and subsitutes anything it finds
+  in the string that matches.
+ Fixed EmailSend function to handle CRLFs as well as \n's for CR in the Message String
+  Added ability to type ::U or ::L or ::T to Upper, Lower, or Title Case a substitute value in fnSubstituteString
+
+Version 87:
+ Fixed DisplayLength of L spec fields to 17.
+ Fixed another bug in CSV Export that would fail if there was a quoted string field with a comma in it.
+
+Version 86:
+ Fixed it so that mat badreads doesn't error when there are lots of bad records.
+
+Version 85:
+ Added option to Save the Selected Columns on CSV export by filename and restore them next time.
+
+Version 84:
+ Added option for Select Columns Only.
+ Added code to CSV Export so that if Dialog is off and Filename is not given, then
+  an unused filename will be generated.
+ Fixed bug in reading Rows and Columns during Upgrade Process that caused an error when running in
+  Gui Off mode on a Linux Terminal, when doing an update of a file.
+
+Version 83:
+ Select Columns on CSV Export. Made Select Columns screen slightly smaller.
+
+Version 82:
+ Fixed a minor Bug in Datacrawler
+
+Version 81:
+ Improvements to the built in "Compare" (before and after) functionality (formerly called "AuditBR")
+
+Version 80:
+ Fixed a bug in CSV Import involving Quoted fields
+
+Version 79:
+ Minor Graphical Improvements, Fine Tuned Progress Bar Function
+
+Vesion 78:
+ Dramatically improved the Bad Read functionality. If some records cannot be read, FileIO tells you about it and
+  asks if you want to see them. If you say "Yes" it displays them in Notepad. This is a big help when writing layouts
+  for preexisting files with PD fields in them, because before you just wouldn't know they were gone.
+
+Version 77:
+ Made the Progress bar a callable library function, so that you can use it in your own programs. Call fnProgressBar in
+  whatever looping code you want to display the progress bar for, give it the percent done. Call fnCloseBar when you're done.
+
+Version 76:
+ Custom File Layout Extensions. Special Thanks to John Bowman who wrote nearly all of the code supporting this. Includes a Layout
+  Wizard to help you implement it now. Added Filter Box to the Data Crawler. Added Settings for Filter Boxes and Custom Layouts.
+  Better Progress Bar for fnUpdate. Many minor improvements. Implemented Update Message instead of the "Create File" message you
+   saw before on update.

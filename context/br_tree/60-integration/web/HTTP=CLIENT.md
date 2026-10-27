@@ -16,7 +16,7 @@ The `Open Display|OPEN` string for DISPLAY files requires a parameter called HTT
 ##CONTROL= optional display filename
 #[ PRINT ] Optional - accumulate post data.
 #[ PRINT ] Optional - additional post data. When the first LINPUT is issued POSTing of all print lines occurs and all responses are buffered before the LINPUT returns data. If no POST data is provided (no PRINT is issued) GET is used at LINPUT instead of POST. 
-#LINPUT - until EOF is reached or until another PRINT is issued. A PRINT clears the LINPUT buffer.
+#LINPUT - until EOF is reached or until another PRINT is issued. A PRINT clears the LINPUT buffer. The first LINPUT waits for the whole transfer for its own WAIT= when it has one, otherwise for the OPEN's WAIT= (default 15 seconds), then fails with error 4145; a negative WAIT= on the LINPUT never times out.
 
 Processing must be performed in the above sequence or an error is generated. 
 

@@ -7,7 +7,7 @@ subcategory: 60-integration/web
 kind: spec
 status: 2b           # reference base + br_tree enrichment (BR-as-webserver model); PHP-bridge model removed 2026-07-03; no source conflicts
 related: [json-datastore, screenio]
-keywords: [WEB_SERVER12, WebForm, HTTP, web-server, BR_FUNC]
+keywords: [WEB_SERVER12, WebForm, HTTP, web-server, BR_FUNC, HTTP=SERVER, HTTPS]
 ---
 
 # Web integration
@@ -103,4 +103,5 @@ Control statements (case-insensitive) include `USER-AGENT`, `REFERER`, `COOKIE-O
 - [30-io-file/statements](../../30-io-file/statements/spec.md#open) — `HTTP=CLIENT`; FileIO reads for dynamic content
 - [10-language/flow-control/functions-udf](../../10-language/flow-control/functions-udf/spec.md) — `DEF FN` helpers (escaping, auth)
 - Backing keyword pages: [Connecting_to_browsers_online_Tutorial](Connecting_to_browsers_online_Tutorial.md) (worked example),
+  [HTTP=SERVER](HTTP_SERVER.md) (the server interface `WEB_SERVER.BR` is written to, and HTTPS setup),
   [HTTP=CLIENT](HTTP=CLIENT.md) (outbound HTTP client — relocated from client-server)

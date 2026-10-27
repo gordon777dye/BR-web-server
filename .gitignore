@@ -31,7 +31,21 @@
 !/dim.proc
 !/fileio.br
 !/fileio.br.brs
+!/fileio.ini
+!/FileIO Online Documentation.url
 !/filelay/
+# ScreenIO, ported from qsmrp 2026-10-26: the library, its screen definitions (screen\),
+# compiled screens (screenio\), event functions (function\), and its clock and images.
+!/screenio.br
+!/screenio.br.brs
+!/screenio/
+!/screen/
+!/function/
+!/clocks/
+!/Images/
+# Harness procedures: br_mcp_driver starts BR on these, from BR's start folder (the app root).
+!/BR_dev.prc
+!/BR_user.prc
 !/filetypes.txt
 !/HTTPS Certificate Creation and Use.txt
 !/json_analyze.br

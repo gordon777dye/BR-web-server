@@ -14,6 +14,7 @@ corrections:
   - "BR 5.0, 2026-10-21, from the source change (confirmed headless with a proc: a folder renamed, a folder moved into an existing folder, and a file and a folder refused on E: with both left in place): RENAME gains `-D` to rename a folder (wbos.cpp, RENAME_CMD), and RENAME refuses a target on another file system with 4138, whose message now covers both cases (renameFile() in file_os.cpp, MoveFileEx without MOVEFILE_COPY_ALLOWED; EXDEV on Unix). Added the rename-folder and rename-filesystem paragraphs and `-D` in the BNF."
   - "BR 5.0, 2026-10-21, from the source change (confirmed headless with a test program against a three-level tree): COPY and FREE gain `-R`: the name matches folders too and a matched folder is taken whole, each entry keeping its place below the name's fixed part; `**` alone searches below (wbos.cpp: expandFolders(), fixedLength(), makeFoldersFor(); findSources() and globCollect() take a folders flag). RENAME and DROP refuse it with 1006. Added the copy-recursive paragraph and table, FREE -R in drop-free, and `R` in both BNF lines."
   - "BR 5.0, 2026-10-21, from the source change (confirmed headless against test trees, including a move to another drive): new command MOVE (wbos.cpp moveFiles() and moveEntry(); MOVE_CMD and T1_MOVE in bascmd.h, tblcmd.cpp, commandc.cpp, wbserver.cpp; Tab completion in fields.h), and a name ending in a separator matches folders only (globSplit(), sourcesWanted(), keepFolderSlash()). Added the move paragraph, its BNF line, the trailing-separator rule, and MOVE to the keywords."
+  - "BR 5.01, 2026-10-24, from the source change (confirmed headless against test trees): MOVE takes a folder named on its own, without wildcards, with or without `-R` - to a name nothing has yet it takes that name, into a folder that exists it goes under its own name, onto a file it is 4150 (moveFolderAsItself() in wbos.cpp); and the to of COPY, RENAME and MOVE gets both OPTION 84 readings (chooseTargetReading()). Added the folder-on-its-own paragraph and the example table to MOVE, and took MOVE out of the trailing-separator rule's folders-only-with-`-R` sentence."
   - "TYPE added to the frontmatter keywords. `TYPE <file>` is in this page's BNF and its semantics, and was not declared. Found in brls phase 13."
   - "FREE's abbreviation `FR` removed: FREE has none, so only `FREE` in full deletes a file. `FRE` is refused with error 1000 (unidentified source remaining), and in 5.0 `FR` goes to the same refusal (it had reached calculator mode, where a bare `FR` printed a variable). `F <file>` also ends in error 1000; a bare `F` is still an expression. Confirmed by running `FR <file>`, `fr <file>`, `FR` and `F <file>` headless: error 1000 each time and the file kept; `FREE <file>` deleted it. 2026-10-20."
 ---
@@ -116,8 +117,9 @@ the listing is sorted as one. Under `-O`, `-O` sorts within each directory. Rule
 - A comma inside braces is part of the name (`DIR *.{brs,prc}`); outside braces it separates names.
 - A name that ends with `\` or `/` matches folders only: `DIR src\*\` lists the folders in `src`,
   `DIR src\**\` every folder below it. `DIR src\`, with no pattern before the separator, lists what is
-  in `src`. For `COPY`, `MOVE` and `FREE`, which take folders only with `-R`, `src\` is the folder
-  `src` itself; without `-R` such a name matches nothing.
+  in `src`. For `COPY` and `FREE`, which take folders only with `-R`, `src\` is the folder `src`
+  itself; without `-R` such a name matches nothing. `MOVE src\ to` is `MOVE src to`, a
+  [folder named on its own](#move-folder).
 - `**` descends at most 40 levels. No match is error **4152**.
 - `COPY`, `RENAME`, `FREE`, `DROP` and `TYPE` take the same patterns for the files they act on, directory
   by directory in name order. With a directory target, files from several directories (`**`) all go into
@@ -172,6 +174,25 @@ A file onto one that exists follows the [overwrite](#overwrite) rules, and a fil
 keeps its folder there. A folder moved into itself is **4299**. Options `-R`, `-F`, `-V`
 (`Move? (y/n/all)`), `-N`, `-P` and the redirections; `-D`, `-S` and a record length are refused with
 **1006**. Abbreviation `MO`.
+
+<a id="move-folder"></a>**A folder named on its own** - one folder, no wildcards (BR 5.01) - is moved
+as itself, with or without `-R`. To a name nothing has yet, it takes that name: a rename, or copied
+under that name and freed. Into a folder that exists, it goes under its own name, merged with a
+folder of that name already there. Onto an existing file it is **4150**. A wildcard pattern matches
+folders only with `-R`.
+
+| Command | Result |
+|---|---|
+| `MOVE cc ..`, `MOVE cc/ ..` | `..\cc`, with everything in it |
+| `MOVE src dest` (`dest` exists) | `dest\src`; merged with a `dest\src` already there |
+| `MOVE src newname` | `src` renamed `newname` |
+| `MOVE src aa/bb` | `aa\bb\src` when `aa\bb` exists ([`/` in a file name](../../30-io-file/file-model/spec.md#slash)) |
+| `MOVE src other` (`other` is a file) | error **4150** |
+| `MOVE src src\sub` | error **4299** |
+| `MOVE src .` | nothing moves |
+| `MOVE x.dat dest` | `dest\x.dat` |
+| `MOVE src dest -R` | `dest\src` |
+| `MOVE src* dest` | error **4152**: wildcards match folders only with `-R` |
 
 <a id="rename"></a>**RENAME** renames or moves one or more files (wildcards ok — `RENAME C:*.*
 C:\DIR\*.*` moves a whole group keeping each original name). Options: `-N` (no action log), `-P`

@@ -57,3 +57,21 @@ Please record any context kit errors here that are found in the course of its us
    web_server's new `FNJSON_UNBALANCED`. A global `DIM` of the same size works. The probes are
    `context/scratch/mini_bigloc_a.brs` to `_d.brs`. Suggest an `essentials.md` §2 note: keep
    optional string locals at 32,000 or less, and use a global for anything larger.
+
+## 2026-10-26 — found while bringing brweb's kit up to the qsmrp kit's level
+
+1. **ONBOARDING STEP 1 says to fill in a README line that the README doesn't have.** STEP 1 step 4
+   and the closing checklist both say to fill in the "BR environment variables are" line at the
+   end of the AI Model Rules in `context/README.md`. The kit's `README.md` has no such line; the
+   two fill-in lines it does have are the source-masters line and the "BR starts in" line. brweb's
+   README now has the line, added by hand. Suggest adding a
+   `- BR environment variables are ___________. (completed in ONBOARDING STEP 1)` line to the
+   kit's README.
+2. **`env.cmd` and `setx.cmd` in ONBOARDING STEP 1 are written with LF line endings in the qsmrp
+   kit's own copies.** cmd can mis-handle `goto` labels in LF-only batch files, and `setx.cmd`
+   depends on `goto failed`. brweb's copies are CRLF. Suggest the step say to write them with CRLF.
+3. **`BR_launch.md` gives one install's paths as if they were the kit's.** "The procedure has to
+   sit in BR's start folder" says "For this application the first `DRIVE` is
+   `DRIVE m:,c:\ads,xxx,\qsmrp`, so that folder is `C:\ADS\qsmrp`". In any other app (brweb starts
+   in `C:\ADS_test\gabriel\brweb`) that sentence is wrong. Suggest pointing to the "BR starts in"
+   line in `context/README.md` instead.

@@ -31,6 +31,7 @@ corrections:
     expect them to be there when the call returns - and a string is no longer limited by the size
     of BR's key buffer. BR 5.0."
   - "MSG(\"sleeptime\",n) takes milliseconds, not centiseconds (line 14) or seconds (the closing paragraph); the two statements also contradicted each other. BR 5.0 brmsg.cpp BrMsg_SleeptimeObjCmd stores `sleeptime = (*num) * 1000` and hands it to wb_sleepex, which sleeps in microseconds (common.cpp); the default is `static DWORD sleeptime = 200000` µs = 0.2 s, i.e. 200. Confirmed empirically: a pacing test written to the documented 100 = 1 second ran ten times fast. Reported in context/ERRORS.md 2026-09-28."
+  - "MSG(\"menu\") was listed as \"redisplay the menu\". It chooses an item of BR's own menu by name - MSG(\"menu\",\"File|Open\") - and the program gets FKEY 98 and MENU$ as from a click (brmsg.cpp BrMsg_MenuObjCmd, harness.cpp harnessQueueProgramMenu). Added the Choosing a menu item section; it is refused in a restricted session (numfunct.cpp restrictedMsgCheck permits it not). Confirmed off screen with OPTION 82: File|Open and a submenu item each gave FKEY 98 and the item's MENU$, and a path naming no item gave 0415. BR 5.01, 2026-10-24."
   - "Special-character table listed F14 between F9 and F11; the key table in brmsg.cpp defines |F1| through |F12| only, so the row is F10 (there is no F13 or F14)."
   - "Special-character table completed from brmsg.cpp's SpecialChar[] table, which has 20 names the page omitted: CLR, SPACE, SEL, PRINT, EXEC, SNAP, LWIN, RWIN, APPS, NUM#, and the ALTL/ALTR, CTRLL/CTRLR and SHIFTL/SHIFTR press/release pairs. Each description is the entry's Windows VK_ code. The L variants are byte-for-byte the same event as the plain modifier; the R variants add KEYEVENTF_EXTENDEDKEY. NUM, was described as the key pad comma; it sends VK_SEPARATOR."
 ---
@@ -61,7 +62,7 @@ Client / Server with Unix the same as WINDOWS.
 | `shot` | write a PNG of the screen to a file |
 | `restore` | restore the screen |
 | `loop` | the loop check |
-| `menu` | redisplay the menu |
+| `menu` | choose an item of BR's own menu by name, as a click on it would — see [below](#choosing-a-menu-item); **refused in a restricted session, 4154** |
 | `harness` | open or close this session's assistant channel |
 | `grant` | lend the keyboard to an assistant, or take it back |
 | `notify` | post a message an assistant can read |
@@ -69,8 +70,9 @@ Client / Server with Unix the same as WINDOWS.
 
 A **restricted session** permits eighteen of these: `state`, `getpos`, `getwpos`, `getcpos`,
 `getcb`, `putcb`, `loop`, `sleeptime`, `harness`, `grant`, `dump`, `shot`, `send`, `restore`,
-`notify`, `agentask`, `agenttext`, `agentline`. The pointer actions and anything not in the table
-are refused with **4154**, and each refusal is logged as a security event naming the action.
+`notify`, `agentask`, `agenttext`, `agentline`. The pointer actions, `menu`, and anything not in
+the table are refused with **4154**, and each refusal is logged as a security event naming the
+action.
 
 ## Where the keys go
 
@@ -86,6 +88,32 @@ another BR session. That is also why error `0413` existed, and why it is now ret
 apart, while the program runs and reads them. So `sleeptime` paces what a person sees being typed,
 a string is no longer limited by the size of BR's key buffer, and **a program must not expect every
 key to be there when the call returns.**
+
+<a id="choosing-a-menu-item"></a>
+## Choosing a menu item
+
+```
+X = MSG("menu", "File|Open")               ! an item on the File menu
+X = MSG("menu", "File|Recent|first.br")    ! an item on a submenu
+```
+
+**`MSG("menu", <path$>)` chooses an item of the menu BR shows on its main window** (`DISPLAY
+MENU`) as a click on it would: the program gets `FKEY` 98, and `MENU$` returns the item's data,
+exactly as if the user had chosen it.
+
+- **The path is the menu's labels**, from the menu bar title down to the item, separated by `|`.
+  Case is ignored, and so are the `&` accelerator marks and the shortcut text after a tab, so
+  `"File|Open"` matches `&File` and `&Open	Ctrl-O`. A bar title alone chooses nothing.
+- **It is queued with the keys** from `send` and the clicks, and delivered in that order while the
+  program waits for input, `sleeptime` apart. MSG returns before it arrives.
+- **It needs no mouse, no focus and no visible window.** It works with BR's window covered,
+  unfocused or off the screen.
+- **A path that names no item is error 0415**, and BR's log lists the paths the menu has.
+- **Every choice is logged** at the security level: `MSG chose menu item <id>`.
+
+**Why by name and not by position.** `lclick` and the other clicks are refused over the menu: a
+drop-down menu is run by Windows itself, which only real mouse input on a visible window can drive.
+A program knows a menu by its labels anyway.
 
 ## Error codes
 

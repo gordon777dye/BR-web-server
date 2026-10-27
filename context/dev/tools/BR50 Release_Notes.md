@@ -1,6 +1,6 @@
-# BR 5.0 Release Notes
+# BR 5.0 Release Notes - For Development - Not for Customer Use
 
-What changed in BR 5.0 that a user, an administrator or a support engineer needs to know about.
+What changed in BR 5.0 that an administrator or a support engineer needs to know about.
 Entries that can change how an existing program behaves come first, because those are the ones worth
 reading before an upgrade rather than after.
 
@@ -15,33 +15,27 @@ Deeper reference material stays in its own document; this page links to it rathe
   - [1.4 `MSG("gettext", …)` has been removed](#msggettext--has-been-removed)
   - [1.5 The `MSG` pointer actions now move a pointer BR keeps itself](#the-msg-pointer-actions-now-move-a-pointer-br-keeps-itself)
   - [1.6 `SPAWN_RESTRICTED` is a new reserved word](#spawn-restricted-is-a-new-reserved-word)
-  - [1.7 `GO` after an `AI` line keeps the conversation](#go-after-an-ai-line-keeps-the-conversation)
-  - [1.8 `PRINT NEWPAGE` now scrolls the console off rather than discarding it](#print-newpage-now-scrolls-the-console-off-rather-than-discarding-it)
-  - [1.9 The splash screen now waits 2 seconds, not 20](#the-splash-screen-now-waits-2-seconds-not-20)
-  - [1.10 `MSG` string arguments no longer carry the variable's unused tail](#msg-string-arguments-no-longer-carry-the-variables-unused-tail)
-  - [1.11 `MSG("loop", …)` now copies between arrays of the same width](#msgloop--now-copies-between-arrays-of-the-same-width)
-  - [1.12 `MSG` actions that return text no longer add a trailing null character](#msg-actions-that-return-text-no-longer-add-a-trailing-null)
-  - [1.13 The serial number is no longer shown on the status line](#the-serial-number-is-no-longer-shown-on-the-status-line)
-  - [1.14 Row and column are shown on the status line by default](#row-and-column-are-shown-on-the-status-line-by-default)
-  - [1.15 The OVERTYPE indicator is now teal](#the-overtype-indicator-is-now-teal)
-  - [1.16 The command console is set aside rather than hidden](#the-command-console-is-set-aside-rather-than-hidden)
-  - [1.17 `CONFIG CONSOLE` now defaults to `DATA_ONLY`](#config-console-now-defaults-to-data-only)
-  - [1.18 `OPTION 82` - work off the display area](#option-82-work-off-the-display-area)
-  - [1.19 A program saved by 5.0 will not load in an earlier BR](#a-program-saved-by-50-will-not-load-in-an-earlier-br)
-  - [1.20 `OPTION 60` - save in the 4.2/4.3 object format](#option-60-save-in-the-42-43-object-format)
-  - [1.21 `SOFLOW-GROW` - a string can grow instead of overflowing](#soflow-grow-a-string-can-grow-instead-of-overflowing)
-  - [1.22 `>` can send output into an array](#redirection-into-an-array)
-  - [1.23 `DIR` takes glob patterns](#dir-glob-patterns)
-  - [1.24 Tab completes file names at the `READY` prompt](#tab-completes-file-names)
-  - [1.25 `OPTION 84` - a `/` in a file name](#option-84-slash)
-  - [1.26 `FR` is refused as `FRE` is](#fr-is-refused-as-fre-is)
-  - [1.27 `COPY` and `RENAME` ask before overwriting a file (`OPTION 6`)](#copy-and-rename-ask-before-overwriting)
-  - [1.28 New `OPTION`s, and which ones are legacy](#new-options-and-legacy-options)
-  - [1.29 `DIR` has a new listing and new options (`OPTION 8`)](#dir-new-listing)
-  - [1.30 `-?` lists a command's options](#command-help)
-  - [1.31 `RENAME` stays on one file system, and renames folders with `-D`](#rename-folders-and-file-systems)
-  - [1.32 `COPY -R` and `FREE -R` take folders whole](#copy-free-recursive)
-  - [1.33 `MOVE` - rename when possible, otherwise copy and free](#move)
+  - [1.7 The splash screen now waits 2 seconds, not 20](#the-splash-screen-now-waits-2-seconds-not-20)
+  - [1.8 The serial number is no longer shown on the status line](#the-serial-number-is-no-longer-shown-on-the-status-line)
+  - [1.9 Row and column are shown on the status line by default](#row-and-column-are-shown-on-the-status-line-by-default)
+  - [1.10 The command console is set aside rather than hidden](#the-command-console-is-set-aside-rather-than-hidden)
+  - [1.11 `CONFIG CONSOLE` now defaults to `DATA_ONLY`](#config-console-now-defaults-to-data-only)
+  - [1.12 `OPTION 82` - work off the display area](#option-82-work-off-the-display-area)
+  - [1.13 A program saved by 5.0 will not load in an earlier BR](#a-program-saved-by-50-will-not-load-in-an-earlier-br)
+  - [1.14 `OPTION 60` - save in the 4.2/4.3 object format](#option-60-save-in-the-42-43-object-format)
+  - [1.15 `SOFLOW-GROW` - a string can grow instead of overflowing](#soflow-grow-a-string-can-grow-instead-of-overflowing)
+  - [1.16 `>` can send output into an array](#redirection-into-an-array)
+  - [1.17 `DIR` takes glob patterns](#dir-glob-patterns)
+  - [1.18 Tab completes file names at the `READY` prompt](#tab-completes-file-names)
+  - [1.19 `OPTION 84` - a `/` in a file name](#option-84-slash)
+  - [1.20 `FR` is refused as `FRE` is](#fr-is-refused-as-fre-is)
+  - [1.21 `COPY` and `RENAME` ask before overwriting a file (`OPTION 6`)](#copy-and-rename-ask-before-overwriting)
+  - [1.22 New `OPTION`s, and which ones are legacy](#new-options-and-legacy-options)
+  - [1.23 `DIR` has a new listing and new options (`OPTION 8`)](#dir-new-listing)
+  - [1.24 `-?` lists a command's options](#command-help)
+  - [1.25 `RENAME` stays on one file system, and renames folders with `-D`](#rename-folders-and-file-systems)
+  - [1.26 `COPY -R` and `FREE -R` take folders whole](#copy-free-recursive)
+  - [1.27 `MOVE` - rename when possible, otherwise copy and free](#move)
 - [2. Security](#security)
   - [2.1 The debugger connection is now encrypted and authenticated](#the-debugger-connection-is-now-encrypted-and-authenticated)
   - [2.2 The debugger port no longer accepts connections from the network](#the-debugger-port-no-longer-accepts-connections-from-the-network)
@@ -214,41 +208,8 @@ them returned error 412 — so no existing program can be relying on the old beh
 [Starting a disposable restricted session](#starting-a-disposable-restricted-session). A program that
 uses `SPAWN_RESTRICTED` as a variable name will no longer compile, and needs the variable renamed.
 
-<a id="go-after-an-ai-line-keeps-the-conversation"></a>
-### 1.7 `GO` after an `AI` line keeps the conversation
-
-**New 2026-10-09.** Breaking out of a program, asking the assistant something and typing `GO` used
-to lose the answer. The program resumes and repaints its own screen over the Command Console,
-which is where the conversation was - so it vanished from the screen without ever reaching the
-history either.
-
-`GO` now scrolls the console off first, exactly as `PRINT NEWPAGE` does, so the conversation goes
-into the history where `HISTORY` and the screen log can still find it. A whole screenful is
-scrolled, because the conversation sits at the bottom of a scrolling window and everything above
-it has to move first. Nothing is scrolled when there was no conversation to keep.
-
-<a id="print-newpage-now-scrolls-the-console-off-rather-than-discarding-it"></a>
-### 1.8 `PRINT NEWPAGE` now scrolls the console off rather than discarding it
-
-`PRINT NEWPAGE` clears the screen as before. What changed is where the old contents go: they are
-now scrolled into the console history, so what the program had just printed can still be read
-after the page is cleared. Previously a `NEWPAGE` lost it.
-
-An explicit clear - a `CLEAR` command, or the clear a `SORT` or an `INDEX` does - still discards
-what was on the screen. The distinction is deliberate: a user asking to clear the screen means it,
-whereas a program starting a new page is not asking to destroy the last one.
-
-Paging forward through a listing with PgDn is kept for the same reason. It redraws the screen
-rather than scrolling it, so until now everything on it went without trace - including a command
-typed between two pages and its answer. PgDn and the down arrow are one movement at two
-magnitudes, and they now leave the same thing behind.
-
-Nothing a program can see changes. The screen is as blank afterwards as it ever was and the cursor
-lands where it always did; only the history is different, and only when
-[console history](#console-history) is switched on - which it is by default.
-
 <a id="the-splash-screen-now-waits-2-seconds-not-20"></a>
-### 1.9 The splash screen now waits 2 seconds, not 20
+### 1.7 The splash screen now waits 2 seconds, not 20
 
 The first session on a workstation used to hold the splash screen for 20 seconds before going on,
 and so did any session whose startup produced a configuration message. Both now wait **2 seconds**.
@@ -258,50 +219,8 @@ user counts and any configuration messages, sessions 2 to 9 still start with no 
 `UNATTENDED` session still has no wait in any case. A configuration message that matters is in the
 log as well as on the splash, so the shorter wait does not lose it.
 
-<a id="msg-string-arguments-no-longer-carry-the-variables-unused-tail"></a>
-### 1.10 `MSG` string arguments no longer carry the variable's unused tail
-
-**Fixed 2026-10-03.** A BR string is stored as a character count followed by the characters, inside
-a variable of its declared width. Every `MSG` action that *takes* a string read the full declared
-width and ignored the count, so a variable wider than its contents arrived with its unused tail
-attached — and that tail is not spaces, it is whatever the variable last held.
-
-```
-DIM A$*30
-LET A$="AB"
-LET X=MSG("send",A$)      ! typed AB, then 28 characters of whatever
-```
-
-A string **literal** was never affected, being exactly the size of its contents, which is why this
-went unnoticed: `MSG("send","AB")` always behaved. Affected actions were `send` and `loop`.
-
-<a id="msgloop--now-copies-between-arrays-of-the-same-width"></a>
-### 1.11 `MSG("loop", …)` now copies between arrays of the same width
-
-**Fixed 2026-10-03.** `MSG("loop", MAT A$, MAT B$)` refused with a string-size error unless the
-destination was at least three characters wider than the source, so the ordinary case — two arrays
-declared alike — never worked. An element holds a character count and its declared number of
-characters; the size test was counting a terminating null that the format does not have and BR
-never reads. A string may now be as long as the element is wide.
-
-The same test guards every `MSG` action that answers with text, so an action returning a value exactly
-as long as the receiving variable is wide no longer refuses it either.
-
-<a id="msg-actions-that-return-text-no-longer-add-a-trailing-null"></a>
-### 1.12 `MSG` actions that return text no longer add a trailing null character
-
-Every `MSG` action that answers with text - `state`, `getcb`, `getpos`, `getwpos`, `getcpos`,
-and the error messages some actions write back - returned the text with **one extra
-character on the end, `CHR$(0)`**. `LEN` counted it, `RTRM$` did not remove it (it is not a space),
-and writing the value to a file put a null byte in the file.
-
-The length is now the text's own. If a program worked around this - trimming the last character,
-slicing to `LEN(X$)-1`, or comparing with `(1:n)` - that workaround now removes a real character,
-so check any program that reads a value from one of these actions. A program that simply used the
-value is unaffected and is now correct.
-
 <a id="the-serial-number-is-no-longer-shown-on-the-status-line"></a>
-### 1.13 The serial number is no longer shown on the status line
+### 1.8 The serial number is no longer shown on the status line
 
 **Changed 2026-10-03.** The status line no longer has a serial number field. It was a fixed
 nine-digit field that never changed during a session, and on the graphical status line it was
@@ -320,7 +239,7 @@ a server must be the same release** - which has always been the rule, and is wor
 because a mismatch here would garble the status line rather than refuse to connect.
 
 <a id="row-and-column-are-shown-on-the-status-line-by-default"></a>
-### 1.14 Row and column are shown on the status line by default
+### 1.9 Row and column are shown on the status line by default
 
 **Changed 2026-10-03.** The field at the right-hand end of the status line shows the cursor's
 row and column while a program is at an input. Previously this was off unless the configuration
@@ -333,26 +252,8 @@ The field is now sized from the screen, so a screen with more than ninety-nine r
 gets the extra digit it needs. Previously such a position was cut short - on a 132-column screen,
 column 105 was stored as `10:10`.
 
-<a id="the-overtype-indicator-is-now-teal"></a>
-### 1.15 The OVERTYPE indicator is now teal
-
-**Changed 2026-10-08, and reversed 2026-10-10.** The status line's `OVER` indicator is white on a
-teal background. `INSERT` keeps the status line's own attributes - or reverse video where the mode
-differs from the configured default - so a field in insert mode looks ordinary.
-
-`CONFIG INSERT` decides which mode a field comes up in, and it defaults to insert wherever data
-highlighting is on. 
-
-A site that sets `CONFIG INSERT OFF` has it the other way around, with overtype as the resting state
-and the colour present most of the time. The two remain distinguishable either way, which is the
-requirement; which of them is remarkable is the site's own business.
-
-The colour is specified outright rather than taken from the sixteen attribute colours, so it
-cannot be changed by `CONFIG ATTRIBUTE` and cannot collide with a colour an application has given
-a meaning of its own.
-
 <a id="the-command-console-is-set-aside-rather-than-hidden"></a>
-### 1.16 The command console is set aside rather than hidden
+### 1.10 The command console is set aside rather than hidden
 
 **Changed 2026-10-10.** When the console has nothing to show it is moved off the display area
 instead of being hidden. It is still there, and still a window: it paints, it can be captured, and
@@ -367,7 +268,7 @@ a person at the keyboard, and to support staff capturing a screen.
 A parked window has no taskbar button, so an operator is not offered a window they cannot see.
 
 <a id="config-console-now-defaults-to-data-only"></a>
-### 1.17 `CONFIG CONSOLE` now defaults to `DATA_ONLY`
+### 1.11 `CONFIG CONSOLE` now defaults to `DATA_ONLY`
 
 **Changed 2026-10-10.** The default was `OFF`. Under `DATA_ONLY` the console appears when
 something is written to it and goes away again when there is nothing to show, so output a program
@@ -377,7 +278,7 @@ An application that writes to the console and was built expecting no console win
 one when it writes. `CONFIG CONSOLE OFF` restores the previous behaviour.
 
 <a id="option-82-work-off-the-display-area"></a>
-### 1.18 `OPTION 82` - work off the display area
+### 1.12 `OPTION 82` - work off the display area
 
 **New 2026-10-10.** `OPTION 82 ON` puts a session's windows past the edge of the display and
 leaves them there. It is for sessions nobody is watching - test runs, development drivers,
@@ -400,7 +301,7 @@ name suggests, enough that requiring it would have put this out of reach of the 
 want it.
 
 <a id="a-program-saved-by-50-will-not-load-in-an-earlier-br"></a>
-### 1.19 A program saved by 5.0 will not load in an earlier BR
+### 1.13 A program saved by 5.0 will not load in an earlier BR
 
 **Please read this before upgrading if programs are saved on one machine and run on another, or if
 some machines will stay on 4.3 for a while.**
@@ -421,7 +322,7 @@ If a program has to be read by a 4.2 or 4.3 BR, see [`OPTION
 60`](#option-60-save-in-the-42-43-object-format) below.
 
 <a id="option-60-save-in-the-42-43-object-format"></a>
-### 1.20 `OPTION 60` - save in the 4.2/4.3 object format
+### 1.14 `OPTION 60` - save in the 4.2/4.3 object format
 
 **`OPTION 60` has a new meaning, and its old one is gone.**
 
@@ -448,7 +349,7 @@ or 4.3 wants 4.2/4.3 code generation with it.
 `STATUS CONFIG` reports `OPTION 60` again; while it had no meaning it was left out.
 
 <a id="soflow-grow-a-string-can-grow-instead-of-overflowing"></a>
-### 1.21 `SOFLOW-GROW` - a string can grow instead of overflowing
+### 1.15 `SOFLOW-GROW` - a string can grow instead of overflowing
 
 A string that would overflow can now be made longer instead of failing. It is **off unless you ask
 for it**, so no existing program changes.
@@ -523,7 +424,7 @@ mode.
 working.
 
 <a id="redirection-into-an-array"></a>
-### 1.22 `>` can send output into an array
+### 1.16 `>` can send output into an array
 
 Where a command takes `> file` to send its output to a file, it now also takes the name of a string
 array of the program that is loaded:
@@ -566,7 +467,7 @@ the `READY` prompt.
   without saying so. It now ends with the error.
 
 <a id="dir-glob-patterns"></a>
-### 1.23 `DIR` takes glob patterns
+### 1.17 `DIR` takes glob patterns
 
 The name given to `DIR` may now be a glob pattern. `*` and `?` work as they always have. These are new:
 
@@ -610,7 +511,7 @@ where `*` is not in the last part.
   and `DIR src\**\` every folder below it. `DIR src\`, with no pattern before the separator, lists
   what is in `src`. For `COPY`, `MOVE` and `FREE`, which act on folders only with `-R`, `src\` is the
   folder `src` itself and `src\*.brs\` the folders in `src` named `*.brs`; see
-  [1.32](#copy-free-recursive).
+  [1.26](#copy-free-recursive).
 - **Nothing matched** is error 4152, file not found.
 - **Depth.** `**` goes down at most 40 directories.
 - **The other file commands take them too.** `COPY`, `MOVE`, `RENAME`, `FREE`, `DROP` and `TYPE` accept the
@@ -620,13 +521,13 @@ where `*` is not in the last part.
   their sub-directories, so two files of the same name overwrite each other. `RENAME` and a
   non-directory `COPY` target keep their `*` rule (`RENAME a{1,2}.txt *.bak`). `MKDIR`, `RMDIR` and
   `CHDIR` name one directory and take no pattern, but they do take a `/` as a separator (see
-  [1.25](#option-84-slash)).
+  [1.19](#option-84-slash)).
 
 The full statement of the patterns, with `/` in names and Tab completion, is the document
 `filename-patterns.md` in the context kit (`br_tree/70-commands/file-directory`).
 
 <a id="tab-completes-file-names"></a>
-### 1.24 Tab completes file names at the `READY` prompt
+### 1.18 Tab completes file names at the `READY` prompt
 
 At the `READY` prompt, Tab completes the file name the cursor is in, from the server's files, for
 `COPY`, `RENAME`, `FREE`, `DROP`, `TYPE`, `DIR`, `LOAD`, `RUN`, `SAVE`, `REPLACE`, `MERGE`, `PROC`,
@@ -638,10 +539,10 @@ else Tab still moves to the next tab stop.
 
 The full statement — which words of each command are completed, the abbreviations, redirections,
 quoting, directories-only for `RMDIR` and `CHDIR`, and the listing — is section 3 of
-`filename-patterns.md`, in the same place as for 1.23.
+`filename-patterns.md`, in the same place as for 1.17.
 
 <a id="option-84-slash"></a>
-### 1.25 `OPTION 84` - a `/` in a file name
+### 1.19 `OPTION 84` - a `/` in a file name
 
 A `/` in a file name has always meant System/23: `file/directory/drive`, with `file//10` the spooler
 and `file//11` AUX. It can now also be a **folder separator**, so `data/rpt/a.dat` and `src/**/*.cpp`
@@ -675,11 +576,11 @@ has only one reading.
   folders are created or removed. Level 0 or 5 removes the doubt.
 - **It applies to** `OPEN`, `LOAD`/`SAVE`, `DIR`, `COPY`, `RENAME`, `FREE`, `DROP`, `MKDIR`, `RMDIR`,
   `TYPE` and the other commands and statements that name a file. The `DIR` glob patterns of
-  [1.23](#dir-glob-patterns) work with `/` as with `\`.
+  [1.17](#dir-glob-patterns) work with `/` as with `\`.
 - **`OPTION 84` is a configuration setting** and may be changed with `CONFIG OPTION 84 n`.
 
 <a id="fr-is-refused-as-fre-is"></a>
-### 1.26 `FR` is refused as `FRE` is
+### 1.20 `FR` is refused as `FRE` is
 
 `FREE` has no abbreviation: only `FREE` in full deletes a file. `FRE` is refused with error 1000,
 "unidentified source remaining", and deletes nothing, and `FR` now takes that same refusal. Before,
@@ -687,7 +588,7 @@ has only one reading.
 printed the value of a variable named `FR`; it is now error 1000 as well.
 
 <a id="copy-and-rename-ask-before-overwriting"></a>
-### 1.27 `COPY` and `RENAME` ask before overwriting a file (`OPTION 6`)
+### 1.21 `COPY` and `RENAME` ask before overwriting a file (`OPTION 6`)
 
 `COPY` used to replace a target that already existed without a word, and `RENAME` refused one with
 error 4150 (file already exists) unless given `-F`. Both now ask, on a line of their own:
@@ -717,7 +618,7 @@ error 4150 (file already exists) unless given `-F`. Both now ask, on a line of t
   no-op, so a configuration file that still says `OPTION 6` keeps the behaviour it has always had.
 
 <a id="new-options-and-legacy-options"></a>
-### 1.28 New `OPTION`s, and which ones are legacy
+### 1.22 New `OPTION`s, and which ones are legacy
 
 BR 5.0 adds eight `OPTION` numbers (8 and 78 to 84), gives two existing numbers new meanings (6 and
 60), and retires one (55). **Six of them are legacy options**: each one turns a 5.0 behaviour change
@@ -728,12 +629,12 @@ look here first.
 
 | Set | To get | Instead of the 5.0 default | See |
 |---|---|---|---|
-| `OPTION 6 ON` | `COPY` replaces an existing file without asking, and `RENAME` refuses one with error 4150 unless given `-F` | both ask `Overwrite ...? (y/n/all)` | [1.27](#copy-and-rename-ask-before-overwriting) |
-| `OPTION 8 ON` | `DIR` lists as it did before 5.0, as if every `DIR` were given `-O`: the 8.3 layout with two-digit years, and the old meanings of `-A`, `-L`, `-N`, `-O` and `-U` | the 5.0 listing: ISO dates, sizes in full, long names only, sorted by name | [1.29](#dir-new-listing) |
-| `OPTION 60 ON` | `SAVE` writes the 4.2/4.3 object format (save level 38), which a 4.2 or 4.3 BR can load | level 39, which an earlier BR refuses with error 2240 | [1.19](#a-program-saved-by-50-will-not-load-in-an-earlier-br), [1.20](#option-60-save-in-the-42-43-object-format) |
+| `OPTION 6 ON` | `COPY` replaces an existing file without asking, and `RENAME` refuses one with error 4150 unless given `-F` | both ask `Overwrite ...? (y/n/all)` | [1.21](#copy-and-rename-ask-before-overwriting) |
+| `OPTION 8 ON` | `DIR` lists as it did before 5.0, as if every `DIR` were given `-O`: the 8.3 layout with two-digit years, and the old meanings of `-A`, `-L`, `-N`, `-O` and `-U` | the 5.0 listing: ISO dates, sizes in full, long names only, sorted by name | [1.23](#dir-new-listing) |
+| `OPTION 60 ON` | `SAVE` writes the 4.2/4.3 object format (save level 38), which a 4.2 or 4.3 BR can load | level 39, which an earlier BR refuses with error 2240 | [1.13](#a-program-saved-by-50-will-not-load-in-an-earlier-br), [1.14](#option-60-save-in-the-42-43-object-format) |
 | `OPTION 79 3` | no font errors reported to the program, as before 5.0. The conditions are still logged | `0`: errors 6249, 6251 and 6253 are all reported | |
 | `OPTION 81 ON` | 4.3.3's print sizing: a proportional face is never scaled, and a fixed-pitch face is stretched to the cell | the size derived from the pitch, with every face scaled to the cell | [4](#printing-and-fonts) |
-| `OPTION 84 0` | a `/` in a file name read only as System/23 (`file/directory/drive`) | `1`: a name that could be either is tried both ways | [1.25](#option-84-slash) |
+| `OPTION 84 0` | a `/` in a file name read only as System/23 (`file/directory/drive`) | `1`: a name that could be either is tried both ways | [1.19](#option-84-slash) |
 
 - **Each may be set in `brconfig.sys` or with `CONFIG OPTION`**, and `STATUS CONFIG` shows it.
 - **A configuration file carried over from 4.3 is safe with all six.** `OPTION 6` was a no-op there
@@ -751,7 +652,7 @@ look here first.
 |---|---|---|
 | `OPTION 78 a b` | grid and list selection backgrounds lightened by `a` when dark and darkened by `b` when light, each 0 to 127 (default is 40 for both) | |
 | `OPTION 80 ON` | for a large font, type at the size its pitch implies, with the line advance growing to fit - at fewer lines per page | [4](#printing-and-fonts) |
-| `OPTION 82 ON` | this session's windows parked off the display area | [1.18](#option-82-work-off-the-display-area) |
+| `OPTION 82 ON` | this session's windows parked off the display area | [1.12](#option-82-work-off-the-display-area) |
 | `OPTION 83 ON` | operating-system calls not asked about, and BR sessions this one starts not restricted. Configuration file only | [2.12](#option-83-for-an-application-that-starts-br-sessions) |
 
 **Retired:** `OPTION 55` (fixed-pitch alignment for NWP printing) is now refused in
@@ -759,7 +660,7 @@ look here first.
 configuration file before upgrading.
 
 <a id="dir-new-listing"></a>
-### 1.29 `DIR` has a new listing and new options (`OPTION 8`)
+### 1.23 `DIR` has a new listing and new options (`OPTION 8`)
 
 **Please read this before upgrading if a program reads the output of `DIR`**, for instance with
 `DIR >file` or [`DIR >arr$`](#redirection-into-an-array): the layout has changed. `DIR -O`, or
@@ -848,7 +749,7 @@ keyboard, long since withdrawn, and 4.3 refused it as a bad `OPTION`, so no work
 file already has it.
 
 <a id="command-help"></a>
-### 1.30 `-?` lists a command's options
+### 1.24 `-?` lists a command's options
 
 Every command takes `-?` in place of its arguments and lists the forms and options it accepts,
 instead of running:
@@ -893,7 +794,7 @@ pause, a digit from 2 to 9 shows the next that many lines, and any other key the
 before.
 
 <a id="rename-folders-and-file-systems"></a>
-### 1.31 `RENAME` stays on one file system, and renames folders with `-D`
+### 1.25 `RENAME` stays on one file system, and renames folders with `-D`
 
 **`RENAME` works within one file system.** A *to* on another drive, share or mounted file system
 is refused with error **4138**, "can't rename from one file system to another, or between client
@@ -916,7 +817,7 @@ RENAME reports archive -D           archive is a folder, so this is archive\repo
 - Without `-D`, `RENAME` acts on files only. For `COPY`, `-D` means leave out deleted records.
 
 <a id="copy-free-recursive"></a>
-### 1.32 `COPY -R` and `FREE -R` take folders whole
+### 1.26 `COPY -R` and `FREE -R` take folders whole
 
 `-R` lets the name match folders as well as files, and a folder that matches is taken whole, with
 everything in it at every level. The pattern decides what matches exactly as it does without `-R`:
@@ -951,13 +852,13 @@ each file is asked about, and a folder that still has a file in it is kept.
 
 `RENAME` and `DROP` do not take `-R`: given it, they stop with error **1006**.
 
-**A name that ends with `\` or `/` matches folders only** (see [1.23](#dir-glob-patterns)), so with
+**A name that ends with `\` or `/` matches folders only** (see [1.17](#dir-glob-patterns)), so with
 `-R`, `COPY src\*\ backup -R` copies the folders in `src`, each whole, and not its files, and
 `FREE tmp\*\ -R` frees the folders in `tmp` and leaves its files. Without `-R` such a name matches
 nothing (4152), as these commands then act on files only.
 
 <a id="move"></a>
-### 1.33 `MOVE` - rename when possible, otherwise copy and free
+### 1.27 `MOVE` - rename when possible, otherwise copy and free
 
 `MOVE from to` moves each file that *from* matches, and with `-R` each folder, to *to*. A file or
 folder is renamed when the system can do the whole of it in one step. When it cannot - *to* is on
@@ -975,7 +876,7 @@ MOVE src\**\*.bak old -R            every .bak file below src, each keeping its 
   each moved whole; `**` searches the folders below, and a name ending in `\` matches folders only.
   Without `-R`, *to* is a folder the files go into, or a name for them (`*` in it as for `COPY`). With
   `-R`, *to* is a folder, made as needed, and each file and folder keeps its place below the fixed
-  part of *from*, as in [1.32](#copy-free-recursive).
+  part of *from*, as in [1.26](#copy-free-recursive).
 - **One at a time.** Each file or folder is moved completely before the next: renamed, or copied
   and freed. A folder that is being copied is moved entry by entry in the same way, so whatever
   in it can still be renamed is renamed. An entry that has already gone with a folder moved before
@@ -1998,9 +1899,7 @@ many different colours in one line keeps fewer. At 80 columns the default costs 
 memory.
 
 The screen is also kept when something is about to paint over it rather than scroll it, which
-would otherwise lose it without trace: `PRINT NEWPAGE` (see
-[`PRINT NEWPAGE` now scrolls the console off rather than discarding it](#print-newpage-now-scrolls-the-console-off-rather-than-discarding-it)),
-and paging forward through a listing with PgDn, which redraws the screen instead of scrolling it.
+would otherwise lose it without trace: `PRINT NEWPAGE`, and paging forward through a listing with PgDn, which redraws the screen instead of scrolling it.
 Paging **back** with PgUp keeps nothing, because those lines are about to be shown again.
 
 **Program lines are not kept.** When you list a program, BR already lets you arrow up and down over

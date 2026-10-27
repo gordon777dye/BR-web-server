@@ -277,7 +277,7 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | `KPS(n[,seg])` | key start position; `seg` selects a split-key section; `-1` if not open / no key / bad seg |
 | `LREC(n)` / `REC(n)` | last record / current record number |
 | `RLN(n[,newlen])` | record length of open file `n`; the optional `newlen` **resets** it (EXTERNAL files only, and not above the OPEN `RECL=`) |
-| `VERSION(n[,ver])` | the marked **version number** of INTERNAL file `n` (**not** the BR release); the optional `ver` sets it when the file is open `OUTPUT` (also settable with `VERSION=` on OPEN) |
+| `VERSION(n[,ver])` | the marked **version number** of INTERNAL file `n` (**not** the BR release); the optional `ver` sets it when the file is open `OUTPUT` (also settable with `VERSION=` on OPEN); a **negative** `ver` leaves the version as it is and empties the file's deleted record chain, which the next `OUTPUT`/`OUTIN` open that reuses records builds again (see `OPTION 51`) |
 | `LINESTATUS$(n)` | serial-line/modem status of communications channel `n` — see [30-io-file/serial-comm](../../../30-io-file/serial-comm/spec.md) |
 | `LINES(n)` | lines printed since last new-page (= `KREC` for display files) |
 | `LINESPP(n)` | current lines per page (PRINTER `LPP`, else 66) |

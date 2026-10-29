@@ -50,6 +50,6 @@ LET X=MSG("harness",8720,"DEVELOP")
 !
 !   To let it TYPE, for ten minutes:  LET X=MSG("grant",600)
 !   To take that back:                LET X=MSG("grant",0)
-!   To send it away entirely:         LET X=MSG("harness",0)
 !
 ! No SYSTEM at the end: this hands you a session to work in.
+! LET X=MSG("grant",-1) ! grants unlimited AI access

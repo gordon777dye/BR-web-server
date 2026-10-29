@@ -46,6 +46,8 @@
 # Harness procedures: br_mcp_driver starts BR on these, from BR's start folder (the app root).
 !/BR_dev.prc
 !/BR_user.prc
+# Claude Code's MCP entry for the harness; it runs context\app\br_mcp.cmd.
+!/.mcp.json
 !/filetypes.txt
 !/HTTPS Certificate Creation and Use.txt
 !/json_analyze.br

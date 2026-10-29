@@ -79,3 +79,6 @@ node_modules/
 !/dev/tools/fileio-release-notes.txt
 !/app/env.cmd
 !/app/onboarding/setx.cmd
+# The harness MCP entry (../.mcp.json runs it) and the GUI ON config it starts BR with.
+!/app/br_mcp.cmd
+!/dev/tools/brconfig.ai_gui

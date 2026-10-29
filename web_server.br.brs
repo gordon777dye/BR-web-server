@@ -1995,10 +1995,7 @@
 19640 let SUB1 = 1 ! First Time Switch !:
       do  !:
          read #125,using Form25: PAGE$ ioerr Short_Rec eof Send_Page_Eof
-19660    if 1 OR MIME_TYPE$(1:4) = "text" then !:
-            let WORK$(INF:0) = PAGE$ ! Append Page Data !:
-         else !:
-            let WORK$(INF:0) = XLATE$(PAGE$,"STR2UTF")
+19660    let WORK$(INF:0) = PAGE$ ! Append Page Data 
 19670    if DEBUG AND MIME_TYPE$(1:4) = "text" AND SUB1 then !:
             print #DEBUG: "========== send page ==========" !:
             print #DEBUG: "PRINT WORK$ "; LEN(WORK$);" bytes: " !:

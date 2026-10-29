@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "br": {
+      "type": "stdio",
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "C:\\ads_test\\gabriel\\brweb\\context\\app\\br_mcp.cmd"
+      ],
+      "env": {}
+    }
+  }
+}

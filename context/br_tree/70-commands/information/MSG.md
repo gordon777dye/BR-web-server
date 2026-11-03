@@ -118,19 +118,20 @@ A program knows a menu by its labels anyway.
 ## Error codes
 
 *`0412` Invalid Action Code — the first parameter is not an action. **`MSG("kb")` raises this.**
-*`0414` Wrong number of arguments passed
-*`0415` Some error that has err message
-*`0416` Not enough elements in dimensioned array
-*`0417` Dimensioned string length is not big enough
-*`0418` Unknown
-*`0419` Error in special char spec
-*`0440` MSG answer is not a number and the result variable is numeric
-*`4154` restricted session: this operation is not permitted
+
+- `0414` Wrong number of arguments passed
+- `0415` Some error that has err message
+- `0416` Not enough elements in dimensioned array
+- `0417` Dimensioned string length is not big enough
+- `0418` Unknown
+- `0419` Error in special char spec
+- `0440` MSG answer is not a number and the result variable is numeric
+- `4154` restricted session: this operation is not permitted
 
 *`0413` Window Not On Top is **retired**. It was `kb`'s refusal when BR was not the foreground
 window; nothing raises it now. The number stays reserved and is never reused.
 
-====Special Keystroke Values====
+#### Special Keystroke Values
 
 Special characters are enclosed in pipes **|**, and are translated to BR's own key values the way
 `key_scan.cpp` translates a physical key. `|CTRL+|` and `|SHIFT+|` are tracked across the keys that
@@ -142,179 +143,107 @@ function, arrow or editing key gives that key's control or shifted variant.
 Apps keys, and PrintScreen. They are accepted in the string and discarded, so `LWIN`, `RWIN`,
 `APPS` and `SNAP` in the table below do nothing on BR 5.0.
 
-=====Examples=====
+##### Examples
 
 If you want to send ctrl+c, you must send the following string:
 
- 00010 MSG("send","|CTRL+|c|CTRL-|")
+```
+00010 MSG("send","|CTRL+|c|CTRL-|")
+```
 
 This says that you want depress the "CTRL" key, type "c", and then release "CTRL".
 
 Example:
 
- MSG("send","|CTRL+|p|CTRL-|")
+```
+MSG("send","|CTRL+|p|CTRL-|")
+```
 
 Will input the CTRL-P character, which causes BR to perform a printscreen operation.
 
-=====Special Character List=====
+##### Special Character List
 
 **Each char must be enclosed in pipes**
 
-{|
-|-valign="top"
-|**ALT+ ||width="75%"| press ALT - see note below
-|-valign="top"
-|**ALT- || release ALT
-|-valign="top"|**
-|-valign="top"
-|**CTRL+ || press CTRL
-|-valign="top"
-|**CTRL- || release CTRL
-|-valign="top"
-|**
-|-valign="top"
-|**SHIFT+ || press SHIFT
-|-valign="top"
-|**SHIFT- || release SHIFT
-|-valign="top"
-|**
-|-valign="top"
-|**ALTL+ ALTL- || press / release ALT — the same key event as ALT+ / ALT-
-|-valign="top"
-|**ALTR+ ALTR- || press / release ALT with the Windows extended-key flag set
-|-valign="top"
-|**CTRLL+ CTRLL- || press / release CTRL — the same key event as CTRL+ / CTRL-
-|-valign="top"
-|**CTRLR+ CTRLR- || press / release CTRL with the Windows extended-key flag set
-|-valign="top"
-|**SHIFTL+ SHIFTL- || press / release SHIFT — the same key event as SHIFT+ / SHIFT-
-|-valign="top"
-|**SHIFTR+ SHIFTR- || press / release SHIFT with the Windows extended-key flag set
-|-valign="top"
-|**
-|-valign="top"
-|**TAB || press the tabulation key
-|-valign="top"
-|**RET || press the return key
-|-valign="top"
-|**ESC || press the escape key
-|-valign="top"
-|**SPACE || press the space bar
-|-valign="top"
-|**CLR || press the Clear key (VK_CLEAR)
-|-valign="top"
-|**
-|-valign="top"
-|**BACK || press the backward key
-|-valign="top"
-|**DEL || press the delete key
-|-valign="top"
-|**INS || press the insert key
-|-valign="top"
-|**HELP || press the help key
-|-valign="top"
-|**
-|-valign="top"
-|**LEFT || send the cursor to the left (left arrow)
-|-valign="top"
-|**RIGHT || send the cursor to the right (right arrow)
-|-valign="top"
-|**UP || send the cursor up (up arrow)
-|-valign="top"
-|**DOWN || send the cursor down (down arrow)
-|-valign="top"
-|**
-|-valign="top"
-|**PGUP || press the page up key
-|-valign="top"
-|**PGDN || press the page down key
-|-valign="top"
-|**HOME || press the home key
-|-valign="top"
-|**END || press the end key
-|-valign="top"
-|**
-|-valign="top"
-|**SNAP || press the Print Screen key (VK_SNAPSHOT)
-|-valign="top"
-|**PRINT || press the Print key (VK_PRINT — not Print Screen)
-|-valign="top"
-|**SEL || press the Select key (VK_SELECT)
-|-valign="top"
-|**EXEC || press the Execute key (VK_EXECUTE)
-|-valign="top"
-|**LWIN || press the left Windows key
-|-valign="top"
-|**RWIN || press the right Windows key
-|-valign="top"
-|**APPS || press the Applications (context menu) key
-|-valign="top"
-|**
-|-valign="top"
-|**F1 || press the function key F1
-|-valign="top"
-|**F2 || press the function key F2
-|-valign="top"
-|**F3 || press the function key F3
-|-valign="top"
-|**F4 || press the function key F4
-|-valign="top"
-|**F5 || press the function key F5
-|-valign="top"
-|**F6 || press the function key F6
-|-valign="top"
-|**F7 || press the function key F7
-|-valign="top"
-|**F8 || press the function key F8
-|-valign="top"
-|**F9 || press the function key F9
-|-valign="top"
-|**F10 || press the function key F10
-|-valign="top"
-|**F11 || press the function key F11
-|-valign="top"
-|**F12 || press the function key F12
-|-valign="top"
-|**
-|-valign="top"
-|**NUM0 || press the 0 on the key pad
-|-valign="top"
-|**NUM1 || press the 1 on the key pad
-|-valign="top"
-|**NUM2 || press the 2 on the key pad
-|-valign="top"
-|**NUM3 || press the 3 on the key pad
-|-valign="top"
-|**NUM4 || press the 4 on the key pad
-|-valign="top"
-|**NUM5 || press the 5 on the key pad
-|-valign="top"
-|**NUM6 || press the 6 on the key pad
-|-valign="top"
-|**NUM7 || press the 7 on the key pad
-|-valign="top"
-|**NUM8 || press the 8 on the key pad
-|-valign="top"
-|**NUM9 || press the 9 on the key pad
-|-valign="top"
-|**
-|-valign="top"
-|**NUM* || press the * on the key pad
-|-valign="top"
-|**NUM+ || press the + on the key pad
-|-valign="top"
-|**NUM- || press the - on the key pad
-|-valign="top"
-|**NUM, || press the key pad separator key (VK_SEPARATOR)
-|-valign="top"
-|**NUM# || press the key pad decimal point (VK_DECIMAL)
-|-valign="top"
-|**NUM/ || press the / on the key pad
-|-valign="top"
-|**
-|-valign="top"
-|}
-To send the pipe character specify <nowiki>|||</nowiki>.
+|  |  |
+| --- | --- |
+| ALT+ | press ALT - see note below |
+| ALT- | release ALT |
+| CTRL+ | press CTRL |
+| CTRL- | release CTRL |
+|  |  |
+| SHIFT+ | press SHIFT |
+| SHIFT- | release SHIFT |
+|  |  |
+| ALTL+ ALTL- | press / release ALT — the same key event as ALT+ / ALT- |
+| ALTR+ ALTR- | press / release ALT with the Windows extended-key flag set |
+| CTRLL+ CTRLL- | press / release CTRL — the same key event as CTRL+ / CTRL- |
+| CTRLR+ CTRLR- | press / release CTRL with the Windows extended-key flag set |
+| SHIFTL+ SHIFTL- | press / release SHIFT — the same key event as SHIFT+ / SHIFT- |
+| SHIFTR+ SHIFTR- | press / release SHIFT with the Windows extended-key flag set |
+|  |  |
+| TAB | press the tabulation key |
+| RET | press the return key |
+| ESC | press the escape key |
+| SPACE | press the space bar |
+| CLR | press the Clear key (VK_CLEAR) |
+|  |  |
+| BACK | press the backward key |
+| DEL | press the delete key |
+| INS | press the insert key |
+| HELP | press the help key |
+|  |  |
+| LEFT | send the cursor to the left (left arrow) |
+| RIGHT | send the cursor to the right (right arrow) |
+| UP | send the cursor up (up arrow) |
+| DOWN | send the cursor down (down arrow) |
+|  |  |
+| PGUP | press the page up key |
+| PGDN | press the page down key |
+| HOME | press the home key |
+| END | press the end key |
+|  |  |
+| SNAP | press the Print Screen key (VK_SNAPSHOT) |
+| PRINT | press the Print key (VK_PRINT — not Print Screen) |
+| SEL | press the Select key (VK_SELECT) |
+| EXEC | press the Execute key (VK_EXECUTE) |
+| LWIN | press the left Windows key |
+| RWIN | press the right Windows key |
+| APPS | press the Applications (context menu) key |
+|  |  |
+| F1 | press the function key F1 |
+| F2 | press the function key F2 |
+| F3 | press the function key F3 |
+| F4 | press the function key F4 |
+| F5 | press the function key F5 |
+| F6 | press the function key F6 |
+| F7 | press the function key F7 |
+| F8 | press the function key F8 |
+| F9 | press the function key F9 |
+| F10 | press the function key F10 |
+| F11 | press the function key F11 |
+| F12 | press the function key F12 |
+|  |  |
+| NUM0 | press the 0 on the key pad |
+| NUM1 | press the 1 on the key pad |
+| NUM2 | press the 2 on the key pad |
+| NUM3 | press the 3 on the key pad |
+| NUM4 | press the 4 on the key pad |
+| NUM5 | press the 5 on the key pad |
+| NUM6 | press the 6 on the key pad |
+| NUM7 | press the 7 on the key pad |
+| NUM8 | press the 8 on the key pad |
+| NUM9 | press the 9 on the key pad |
+|  |  |
+| NUM* | press the * on the key pad |
+| NUM+ | press the + on the key pad |
+| NUM- | press the - on the key pad |
+| NUM, | press the key pad separator key (VK_SEPARATOR) |
+| NUM# | press the key pad decimal point (VK_DECIMAL) |
+| NUM/ | press the / on the key pad |
+|  |  |
+
+To send the pipe character specify |||.
 
 MSG("sleeptime",milliseconds) specifies the number of milliseconds to wait before issuing each string and each control character (`1000` = one second). The default is 200 (0.2 seconds).
 

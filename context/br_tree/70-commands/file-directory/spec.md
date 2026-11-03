@@ -49,7 +49,7 @@ PROTECT <file-ref> ',' { RESERVE | RELEASE | READ | WRITE }   -- PROT; reserve a
 <a id="semantics"></a>
 ## Semantics
 
-<a id="chdir"></a>**CHDIR / MKDIR / RMDIR** navigate/create/remove directories.
+<a id="chdir"></a><a id="mkdir"></a><a id="rmdir"></a>**CHDIR / MKDIR / RMDIR** navigate/create/remove directories.
 `CHDIR` with no path just *shows* the current directory. A leading `\` means an absolute path from
 the root; without it the path is appended to the current directory. `drive:` **alone** changes the
 current drive; `drive:\path` changes the current directory *on* that drive without switching to it.
@@ -225,13 +225,13 @@ abc.txt` turns `Abc.txt` into `abc.txt`. [`OPTION 6`](../../00-configuration/con
 restores the earlier behaviour: `COPY` replaces the file silently and `RENAME` refuses it with **4150**
 unless `-F`.
 
-**TYPE** sends a file's contents to the
+<a id="type"></a>**TYPE** sends a file's contents to the
 screen, a printer, or another file. **`-P`** pauses after each screenful; at the pause a digit
 from 2 to 9 shows the next that many lines before pausing again (BR 5.0), and any other key the next
 screenful. **MKDIR** subdirectory names follow file-name rules, and the same
 name may exist under different parent directories.
 
-<a id="drop-free"></a>**DROP** empties a file's contents — freeing all allocated space and leaving
+<a id="drop-free"></a><a id="drop"></a><a id="free"></a>**DROP** empties a file's contents — freeing all allocated space and leaving
 only the header record for internal files — but keeps the name (size→0). **FREE** deletes the
 file(s) outright (unrecoverable). Both take `-N`/`-P`/`-V` and accept wildcards (use `-V` to
 verify); `-A` is accepted and has no effect, as on `COPY`. **`FREE <name> -R`** (BR 5.0) deletes

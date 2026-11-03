@@ -11,8 +11,8 @@ _Backing keyword pages below._
 | [FnSnap__Array_Functions](FnSnap__Array_Functions.md) | function | Sorts an array either ascending or descending and optionally excludes elements at the top and bottom to allow headers and footers to remain… |
 | [FnSnap__Date_and_Time](FnSnap__Date_and_Time.md) | function | Converts CYMD to DAYS |
 | [FnSnap__FILE](FnSnap__FILE.md) | function | FnBldSort creates a sort control file with FILE RECORD and MASK statements. |
-| [FnSnap__FNSNAP_Obsolete_functions](FnSnap__FNSNAP_Obsolete_functions.md) | function | FNMGCLR ! Clear message and reset error processing flags |
+| [FnSnap__FNSNAP_Obsolete_functions](FnSnap__FNSNAP_Obsolete_functions.md) | function | FNMGCLR ! Clear message and reset error processing flags — Clears the message line form the old FNSNAP message line setup |
 | [FnSnap__Miscellaneous_Functions](FnSnap__Miscellaneous_Functions.md) | function | Creates an email file for EMAILMONITOR |
-| [FnSnap__Printing_and_PCL](FnSnap__Printing_and_PCL.md) | function | FNFONT$*30(SYMBOL_SET$,PROPORTIONAL,CHR_PER_INCH,STYLE$,WEIGHT$,TYPEFACE$) |
+| [FnSnap__Printing_and_PCL](FnSnap__Printing_and_PCL.md) | function | FNFONT$*30(SYMBOL_SET$,PROPORTIONAL,CHR_PER_INCH,STYLE$,WEIGHT$,TYPEFACE$) — Creates an HP 5 PCL font string from certain parameters |
 | [FnSnap__Screen_Processing](FnSnap__Screen_Processing.md) | function | Creates a button on the button bar. Buttons are created left to right and can be removed with FNCLRBUTTON |
-| [FnSnap__Window_Maintenance](FnSnap__Window_Maintenance.md) | function | FNLISTSPEC$*50(&LISTWIN,SR,SC,LROWS,LCOLS,AROWS,MAT H$,MAT W,MAT F$;HTEXT$*100,G$) |
+| [FnSnap__Window_Maintenance](FnSnap__Window_Maintenance.md) | function | FNLISTSPEC$*50(&LISTWIN,SR,SC,LROWS,LCOLS,AROWS,MAT H$,MAT W,MAT F$;HTEXT$*100,G$) — Creates a window that contains either a list box or a… |

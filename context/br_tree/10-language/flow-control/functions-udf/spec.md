@@ -101,7 +101,7 @@ not `FNGETNAME$()` (empty `()` is a syntax error). Call a function for its side 
   the same trailing clause list every statement takes, not one specific to DEF. `CONV` is what shows
   up in practice, guarding a `VAL()`/`CNVRT$()` call in the body: `DEF FNVAL(PC$*80)=VAL(PC$) CONV
   Ignore` falls through to 0 on a non-numeric string instead of raising an error.
-- **Multi-line** functions run between `DEF FN<name>` and `FNEND` and **return a value** by assigning
+- <a id="fnend"></a>**Multi-line** functions run between `DEF FN<name>` and `FNEND` and **return a value** by assigning
   to their own name: `LET FN<name> = <expression>` (if never assigned, they return 0 / null). Only
   multi-line functions can do file I/O, change by-reference params, and **recurse** (a fresh local
   copy of each by-value parameter is created per call).

@@ -16,22 +16,24 @@ Two methods are used to identify clicked controls: Fkey numbers and NXTFLD. This
 
 If a control that is part of an active Input Fields operation is double clicked, then NXTFLD will identify the relative position of the control within the Fields operation. However, for hot field identification it is necessary to use Fkey values to identify the respective controls.
 
-===Interrogating the Next Control===
+### Interrogating the Next Control
 
 It is desirable to know which control was clicked when a user clicks on a hot control (a control that has an Fkey assigned). Furthermore, if the control is a GRID or LIST then it can be useful to know where the user clicked within the control. Two methods are used to identify clicked controls: Fkey numbers and NXTFLD.
 
 The **NxtFld** function returns the number of the field containing the `cursor` from the last `INPUT FIELDS`, `RINPUT FIELDS`, `INPUT SELECT`, or `RINPUT SELECT` operation.
 
-===Comments and Examples===
+### Comments and Examples
 
- 00100 DIM SF$(3)
- 00110 LET SF$(1)="10,30,c 10,r"
- 00120 LET SF$(2)="12,30,c 10,r"
- 00130 LET SF$(3)="14,30,c 10,r"
- 00140 INPUT FIELDS MAT SF$: A$, B$, C$
- 00150 PRINT "Cursor ended on FIELD"; NXTFLD
- 00160 PRINT "Cursor ended on ROW"; NXTROW
- 00170 PRINT "Cursor ended on COLUMN"; NXTCOL
+```
+00100 DIM SF$(3)
+00110 LET SF$(1)="10,30,c 10,r"
+00120 LET SF$(2)="12,30,c 10,r"
+00130 LET SF$(3)="14,30,c 10,r"
+00140 INPUT FIELDS MAT SF$: A$, B$, C$
+00150 PRINT "Cursor ended on FIELD"; NXTFLD
+00160 PRINT "Cursor ended on ROW"; NXTROW
+00170 PRINT "Cursor ended on COLUMN"; NXTCOL
+```
 
 In the sample program above, the there are three fields available for input. The operator can move the cursor in any direction, but only within these three fields. After the operator hits the <ENTER> key, line 150 will print the number 1, 2 or 3 depending on which field the operator left the cursor on. In addition, line 160 will print the row number (10, 12, or 14) containing the cursor when input was ended. Also, line 130 will print the column number (30 through 39).
 
@@ -39,8 +41,10 @@ NXTFLD provides valuable information when several fields are entered in one stat
 
 As NXTFLD returns the subscript in the field definition array of the field containing the cursor from the last `INPUT FIELDS`, `RINPUT FIELDS`, `INPUT SELECT`, or `RINPUT SELECT`, NXTFLD can be especially useful with the on-line help facility. By using NXTFLD in the HELP$ function in line 990 for the value of the "mark", the operator can be directed to the most relevant portion of the text under the topic HOURS.ENTRY in the help file that explains the valid entries for that field. For example:
 
- 00810 INPUT FIELDS MAT FLD$: HRS,OT,DT,SICK HELP 90
- 00820 STOP
- 00990 HELP$("HOURS.ENTRY", NXTFLD) : RETRY
+```
+00810 INPUT FIELDS MAT FLD$: HRS,OT,DT,SICK HELP 90
+00820 STOP
+00990 HELP$("HOURS.ENTRY", NXTFLD) : RETRY
+```
 
 `Option` 43 Use old style Input Select with respect to setting CURFLD to the `NXTFLD` value when a selection is made.

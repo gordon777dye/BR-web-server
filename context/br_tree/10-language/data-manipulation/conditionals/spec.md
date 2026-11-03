@@ -20,6 +20,7 @@ related: [expressions, other-flow]
 keywords: [IF, THEN, ELSE, GOTO]
 ---
 
+<a id="if"></a>
 # Conditionals (IF)
 
 `IF` / `THEN` / `ELSE` / `END IF` branching. The conditions themselves — relational and logical

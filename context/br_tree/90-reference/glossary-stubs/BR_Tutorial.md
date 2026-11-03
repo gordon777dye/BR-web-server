@@ -18,24 +18,24 @@ For visual learners, there is a youtube channel devoted to BR, and includes demo
 1. `Introduction`
 
 2. `Basic Commands`
-*`Print`
-*`DIR and LOAD`
-*`SAVE, REPLACE, DEL, and FREE`
-*`Using External Editors`
+- `Print`
+- `DIR and LOAD`
+- `SAVE, REPLACE, DEL, and FREE`
+- `Using External Editors`
 
 3. `More Operating and Programming Fundamentals`
-*`INPUT & LET Statements`
-*`GO Statement`
-*`Comments`
-*`Variables`
+- `INPUT & LET Statements`
+- `GO Statement`
+- `Comments`
+- `Variables`
 
 4. `Constants and Variables`
 
 5. `GOTO, IF, and Other Basic Statements`
 
 6. `Debugging Features`
-*`LIST`
-*`RUN Step and Trace`
+- `LIST`
+- `RUN Step and Trace`
 
 7. `Unformatted and Formatted Printing`
 
@@ -46,9 +46,9 @@ For visual learners, there is a youtube channel devoted to BR, and includes demo
 10. `Arrays`
 
 11. `Full Screen Processing, Using Print Fields and Input Fields`
-*`Statements`
-*`Multiple Field Processing`
-*`Control and Display Attributes`
+- `Statements`
+- `Multiple Field Processing`
+- `Control and Display Attributes`
 12. `Procedures`
 
 13. `Introduction to File Processing`
@@ -62,9 +62,6 @@ For visual learners, there is a youtube channel devoted to BR, and includes demo
 17. `Display Files`
 
 18. `Error Handling and Recovery`
-*`EXIT Statement`
-*`ON ERROR Statement`
+- `EXIT Statement`
+- `ON ERROR Statement`
 `Solutions to Exercises`
-
-<noinclude>
-</noinclude>

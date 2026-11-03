@@ -6,6 +6,6 @@ subcategory: 90-reference/glossary-stubs
 kind: concept
 related: [Line Label (program), Line Label (procedure), Client Server, br_parms.txt]
 ---
-*`Line Label (program)`
-*`Line Label (procedure)`
-*Label - also used as a `Client Server` term - see `br_parms.txt`
+- `Line Label (program)`
+- `Line Label (procedure)`
+- Label - also used as a `Client Server` term - see `br_parms.txt`

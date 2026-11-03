@@ -14,6 +14,6 @@ _Backing keyword pages below._
 | [LOGGING](LOGGING.md) | config-directive | As of 4.3, the debug versions of BR now expect you to use a LOGGING configuration statement. |
 | [Multi-spooled_printers](Multi-spooled_printers.md) | config-directive | All multi-user versions of Business Rules allow using more than one spooled printer. |
 | [OPTION_(Config)](OPTION_(Config).md) | config-directive | The numbered OPTION feature toggles used in the BRConfig.sys file. Most may also be enabled at runtime with a CONFIG OPTION <n> statement… |
-| [PRINTER](PRINTER.md) |  | Also see the [[Printing]] section. |
+| [PRINTER](PRINTER.md) | config-directive | Also see the Printing section. |
 | [PRINTER.SYS](PRINTER.SYS.md) | config-directive | Printer.sys is an easy way to do NWP and PCL (Printer.CLS adds HTML and Text). |
 | [RD](RD.md) | config-directive | The RD BRconfig.sys specification sets the tolerance level for assuming two values are equal. |

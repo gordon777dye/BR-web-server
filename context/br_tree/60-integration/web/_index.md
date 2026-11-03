@@ -10,4 +10,5 @@ _Backing keyword pages below._
 |---|---|---|
 | [Connecting_to_browsers_online_Tutorial](Connecting_to_browsers_online_Tutorial.md) | tutorial | BR can also be connected to websites (and therefore also smart phones) to display or accept information. |
 | [HTTP=CLIENT](HTTP=CLIENT.md) | reference | HTTP INPUT/OUTPUT |
+| [HTTP=SERVER — BR's built-in web server](HTTP_SERVER.md) | reference | A BR program becomes a web server by opening a DISPLAY file with HTTP=SERVER. BR runs the server on its own threads. |
 | [PhpIO](PhpIO.md) | statement | The PhpIO Library requires both the ScreenIO library to function. It uses the BR Internet Bridge created by Chris Shields to run the screens… |

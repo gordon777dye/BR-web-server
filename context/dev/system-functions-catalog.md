@@ -332,7 +332,7 @@ Signatures below are source-verified against `strfunct.cpp`/`numfunct.cpp` (`GET
 | `GET$("#f,r,c", prop$)` | str | read a `.NET`/PEM control property (remote `PEM_PROPERTY_CALL`) |
 | `SET$("#f,r,c", assign$)` | str | set a control property, `"prop=value"` (dotted paths allowed) |
 | `INVOKE$("#f,r,c", method$, MAT args$)` | str | invoke a control method (`method$` from `INPUT FIELDS … METHOD_NAMES`); results written back into the args array |
-| `DLL(a$, b$, [arg…])` | num | call a client-side DLL command (≥2 args, first two strings; errors 0321–0327) |
+| `DLL(a$, b$, [arg…])` | num | call a client-side DLL command (≥2 args, first two strings; errors 0322–0327) |
 | `CALL` ✗ | num | **reserved keyword, no implementation** — in `table7k` but rejected as a function expression |
 
 > **OS shell access — `SYSTEM` (a command, not a function).** Not in `table6k`/`table7k`, so it has no

@@ -10,6 +10,8 @@ The "error-cond line-ref" parameter is replaced with one or more pairs of specif
 
 For example:
 
- ...EOF donereading...
+```
+...EOF donereading...
+```
 
 When the program runs this statement and comes to an `EOF|End of File` error, it will transfer to the line labeled "donereading".

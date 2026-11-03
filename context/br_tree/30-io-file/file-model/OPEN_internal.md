@@ -8,31 +8,41 @@ related: [statement, SHR, 0608, 4125, Functions, STATUS, Commands, OPTION, BRCon
 ---
 The **Open (OPE) Internal** `statement` activates a Business Rules! internal file for input/output.
 
- 00150   Open #1: "Name=test.int,RecL=128,Use",internal,outin
+```
+00150   Open #1: "Name=test.int,RecL=128,Use",internal,outin
+```
 
-:1.) When a file is opened for both `SHR` and INPUT, Business Rules will no longer change the time and date of the file. As a result of this change, when a file is to be opened both for OUTIN and for INPUT, the OPEN for OUTIN must be executed first. Otherwise an error `0608` will result. This will affect current programs.
-:2.) The NOCLOSE parameter in any OPEN statement will leave that file open when a program ends or chains to another program. The only way this file is closed is by explicitly closing the file, CLEAR ALL, or by exiting from Business Rules!.
+1.) When a file is opened for both `SHR` and INPUT, Business Rules will no longer change the time and date of the file. As a result of this change, when a file is to be opened both for OUTIN and for INPUT, the OPEN for OUTIN must be executed first. Otherwise an error `0608` will result. This will affect current programs.
+2.) The NOCLOSE parameter in any OPEN statement will leave that file open when a program ends or chains to another program. The only way this file is closed is by explicitly closing the file, CLEAR ALL, or by exiting from Business Rules!.
 
- 00100 OPEN #1:"NAME=TEST,NOCLOSE",INTERNAL,INPUT,RELATIVE
+```
+00100 OPEN #1:"NAME=TEST,NOCLOSE",INTERNAL,INPUT,RELATIVE
+```
 
-:3.) The OPEN internal statement now allows for the VERSION= parameter. If a VERSION= number (0 to 32000) is specified and a file is being newly created, that version number will be saved in the header portion of the data file. Key files are not affected. If the file exists, the version number specified will be compared with the version number in the file and an error `4125` will result if they are not the same. The default version number is 0, which also causes no checking to be performed. If the version number of an opened file is non-zero, it can be displayed by the STATUS FILES command. For more information and examples, see "VERSION" in the `Functions` section and `STATUS` FILES in the `Commands` section.
-:4.) OPEN internal now assumes a B-tree indexed file unless OPTION 5 is used in the BRConfig.sys file to set the universal default to ISAM or the ISAM parameter is used within the syntax of the OPEN statement to override the B-tree default on an individual basis. (If `OPTION` 5 is specified in `BRConfig.sys`, the OPEN statement's BTREE parameter can be used to override the ISAM default on an individual basis.) OPEN internal now allows the BTREE or ISAM parameters, as follows:
+3.) The OPEN internal statement now allows for the VERSION= parameter. If a VERSION= number (0 to 32000) is specified and a file is being newly created, that version number will be saved in the header portion of the data file. Key files are not affected. If the file exists, the version number specified will be compared with the version number in the file and an error `4125` will result if they are not the same. The default version number is 0, which also causes no checking to be performed. If the version number of an opened file is non-zero, it can be displayed by the STATUS FILES command. For more information and examples, see "VERSION" in the `Functions` section and `STATUS` FILES in the `Commands` section.
+4.) OPEN internal now assumes a B-tree indexed file unless OPTION 5 is used in the BRConfig.sys file to set the universal default to ISAM or the ISAM parameter is used within the syntax of the OPEN statement to override the B-tree default on an individual basis. (If `OPTION` 5 is specified in `BRConfig.sys`, the OPEN statement's BTREE parameter can be used to override the ISAM default on an individual basis.) OPEN internal now allows the BTREE or ISAM parameters, as follows:
 
- 00100 OPEN "NAME=filename,kfname=indexname,kps=...,ISAM"...
- 00100 OPEN "NAME=filename,kfname=indexname,kps=...,BTREE".. .
+```
+00100 OPEN "NAME=filename,kfname=indexname,kps=...,ISAM"...
+00100 OPEN "NAME=filename,kfname=indexname,kps=...,BTREE".. .
+```
 
-:5.) OPEN internal now accepts the LINKED keyword, which specifies that the file to be opened is linked. OPEN internal's existing KPS= and KLN= parameters may be optionally used with LINKED files to identify a key field. This key field can then be used by the READ statement's LINK= parameter to Verify file integrity for each read. Error `0606` (Invalid element in OPEN) will result if the program attempts to use the first eight bytes of the record as the key field.
+5.) OPEN internal now accepts the LINKED keyword, which specifies that the file to be opened is linked. OPEN internal's existing KPS= and KLN= parameters may be optionally used with LINKED files to identify a key field. This key field can then be used by the READ statement's LINK= parameter to Verify file integrity for each read. Error `0606` (Invalid element in OPEN) will result if the program attempts to use the first eight bytes of the record as the key field.
 
 The following example creates the linked file LINKFILE, and identifies record positions 9 through 12 as the key field for verification:
 
- 00010 OPEN#1:"NAME=LINKFILE,NEW,RECL=63,LINKED,KPS=9/23,KLN=4/6",INTERNAL,OUTIN,REL
+```
+00010 OPEN#1:"NAME=LINKFILE,NEW,RECL=63,LINKED,KPS=9/23,KLN=4/6",INTERNAL,OUTIN,REL
+```
 
-:6.) The WAIT specification in the OPEN statement for all physical files will now also be used as the number of seconds to wait before re-attempting to open a file that another workstation has locked. Previously it affected the wait time on locked records only. Error code `4146` will be returned if the OPEN fails due to file locking.
+6.) The WAIT specification in the OPEN statement for all physical files will now also be used as the number of seconds to wait before re-attempting to open a file that another workstation has locked. Previously it affected the wait time on locked records only. Error code `4146` will be returned if the OPEN fails due to file locking.
 
-===Temporary Indexes===
+### Temporary Indexes
+
 TMPIDX is a new parameter in the OPEN string. This specifies that the index should be created when the file is opened and removed when the file is closed.
 
-===Comments and Examples===
+### Comments and Examples
+
 An OPEN statement must be executed for a particular file before any I/O statement can act on that file.
 
 This section discusses opening internal files, which are one of three major file types in Business Rules (the other two file types are display and external).
@@ -43,46 +53,59 @@ Internal files utilize six I/O statements: READ, REREAD, WRITE, and REWRITE, DEL
 
 Before reading input from an existing internal file called STATES, a program must have a statement such as the following:
 
- 00500 OPEN #2: "name=STATES", INTERNAL, INPUT ,SEQUENTIAL
+```
+00500 OPEN #2: "name=STATES", INTERNAL, INPUT ,SEQUENTIAL
+```
 
 After line 500 is executed, the internal file STATES can be used for input using the file number, #2.
 
 The following statement would create a new internal file called ZIPCODES and define a record length of 31 bytes:
 
- 00510 OPEN #3: "NAME=zipcodes,NEW,recl=31", INTERNAL,OUTPUT, RELATIVE
+```
+00510 OPEN #3: "NAME=zipcodes,NEW,recl=31", INTERNAL,OUTPUT, RELATIVE
+```
 
 A string constant, string variable, or string expression can be used for the OPEN statement clause which indicates what file is to be opened. Consider the following examples.
 
- 01000 OPEN #1: "NAME=CUSTOMER.DAT", INTERNAL,INPUT
- 01005 PRINT "Enter FILE for balances"
- 01010 INPUT F$
- 01015 LET F$ = "NAME=" & F$ & ".DAT"
- 01020 OPEN #2: F$, INTERNAL, INPUT, SEQUENTIAL
- 01030 OPEN #3: "NAME=SALES"&STR$(MONTH)&" .DAT",INTERNAL,INPUT,RELATIVE
+```
+01000 OPEN #1: "NAME=CUSTOMER.DAT", INTERNAL,INPUT
+01005 PRINT "Enter FILE for balances"
+01010 INPUT F$
+01015 LET F$ = "NAME=" & F$ & ".DAT"
+01020 OPEN #2: F$, INTERNAL, INPUT, SEQUENTIAL
+01030 OPEN #3: "NAME=SALES"&STR$(MONTH)&" .DAT",INTERNAL,INPUT,RELATIVE
+```
 
 Line 1000 shows OPEN using a string constant. Lines 1005 to 1020 show opening a file with a name constructed from a prompted keyboard entry. Line 1030 will open the file SALES10.DAT if the value of MONTH is 10.
 
 The KPS= and KLN= parameters (denoted by the "key-spec" parameter in the diagram) can be used to create an index file at the same time that a master file is being created. The following example shows how a single key can be a combination of three sections of the record (up to six sections may be defined). KPS specifies the starting position of each key section and KLN specifies the length of each section (the first section starts in column 1 and is 4 bytes in length; the second starts in column 10 and is 2 bytes in length; the third starts in column 20 and is 2 bytes in length).
 
- 00100 OPEN #9: "NAME=history,REPLACE,RECL=80,KFNAME=hist.key,KPS=1/10/20,KLN=4/2 /2",INTERNAL,OUTPUT,KEYED
+```
+00100 OPEN #9: "NAME=history,REPLACE,RECL=80,KFNAME=hist.key,KPS=1/10/20,KLN=4/2 /2",INTERNAL,OUTPUT,KEYED
+```
 
-===Syntax===
- OPEN #<`file number`> : {"NAME=<`file ref`>[, {`NEW`|`USE`|`REPLACE`}] [, `RECL`=<integer>] [, `KFNAME`=<`file ref`>] [, <`key spec`>] [, <`share spec`>] [, `RESERVE`] [, `Version|VERSION=`] [, `WAIT`=<integer>] [, `TRANSLATE`=<`file ref`>]"|<`string expression`>}, `INTERNAL`, {`Input Parameter|INPUT`|`OUTPUT`|`OUTIN`} [, {`SEQUENTIAL`|`RELATIVE`|`KEYED`}] [<`error condition`> <`line ref`>][,...]
+### Syntax
+
+```
+OPEN #<`file number`> : {"NAME=<`file ref`>[, {`NEW`|`USE`|`REPLACE`}] [, `RECL`=<integer>] [, `KFNAME`=<`file ref`>] [, <`key spec`>] [, <`share spec`>] [, `RESERVE`] [, `Version|VERSION=`] [, `WAIT`=<integer>] [, `TRANSLATE`=<`file ref`>]"|<`string expression`>}, `INTERNAL`, {`Input Parameter|INPUT`|`OUTPUT`|`OUTIN`} [, {`SEQUENTIAL`|`RELATIVE`|`KEYED`}] [<`error condition`> <`line ref`>][,...]
+```
 
 `Image:Openinternal.png|900px`
 
-===Defaults===
-:1.) Use the existing file.
-:2.) The file is not keyed.
-:3.) Do not create a new-keyed file.
-:4.) NOSHR.
-:5.) Do not lock the file.
-:6.) Wait 15 seconds.
-:7.) No translation.
-:8.) SEQUENTIAL.
-:9.) Interrupt the program if an error occurs and ON is not active.
+### Defaults
 
-===Parameters===
+1.) Use the existing file.
+2.) The file is not keyed.
+3.) Do not create a new-keyed file.
+4.) NOSHR.
+5.) Do not lock the file.
+6.) Wait 15 seconds.
+7.) No translation.
+8.) SEQUENTIAL.
+9.) Interrupt the program if an error occurs and ON is not active.
+
+### Parameters
+
 The required "file number" parameter is a numeric expression that must equal 255 or an integer from 1 to 999, inclusive. Two special default values for "file number" are provided to facilitate I/O from the keyboard and to the printer and screen. These special defaults are: #0 (reserved to resize the main BR window), and #255 (reserved for printer, equivalent to DOS PRN:). No OPEN is necessary for these two reserved values.
 
 From this point, there are two possible paths through the OPEN internal syntax. The top path will be described first.
@@ -119,23 +142,24 @@ The keywords "SEQUENTIAL", "RELATIVE", and "KEYED" are optional parameters that 
 
 The OPEN internal statement provides for error processing with the optional "error-cond line-ref" parameter. See `Error Conditions` for more information.
 
-===Technical Considerations===
-:1.) Relevant error conditions are: `ERROR`, `EXIT`, `IOERR` and `LOCKED`.
-:2.) Blanks are not allowed before the equal sign in any of the OPEN parameters.
-:3.) Although most Business Rules statements are syntactically checked as they are entered, syntax checking is delayed until execution time on some parts of the OPEN statement (parts where quoted strings or string variables can be used). Also, the distinction between uppercase and lowercase is ignored in OPEN statements; the "NAME=file-ref" parameter is no exception.
-:4.) When an internal file is opened for INPUT or OUTIN the sequential pointer is positioned at the beginning of the file.
-:5.) When an internal file is opened for OUTPUT, the sequential file pointer is positioned at the end of the file, so that new records will be added at the end of existing records. The REPLACE parameter can be used to override this. All existing records in the file are dropped when REPLACE is used.
-:6.) Business Rules utilizes the operating system's ability to automatically allocate more space to a file (until the disk is full) when more space is needed.
-:7.) Variables can be used for "file number" and "file-ref".
-:8.) The system always adds 1 byte (for deleted records) to the record length that you specify. As the hardware often reads in blocks of 512 bytes, efficient or "nice" values of RECL are based on being evenly divisible into 512. Good choices for RECL are of the form 2**N-1, e.g., 7, 15, 31, 63, 127, 255, 511, 1023.
-:9.) See `Functions` for more information about the FILENUM and FILE$ functions. These functions should be especially useful for displaying messages after an OPEN error due to file-sharing conflicts with another workstation. See also the `STATUS` FILES command, which displays information about file opens and file reservations.
-:10.) The number of open files allowed by the operating system dictates the number of OPEN statements allowed in a Business Rules program.
-:11.) When opening files for input BR will now open them read only.  THIS ALLOWS FILES WITH READ ONLY PERMISSIONS TO BE OPENED.
-:12.) Version 3.9 will support long filenames with a variety of alternatives with respect to case sensitivity.   Unix defaults to case sensitive, and DOS/Windows defaults to case insensitive.   Business Rules! defaults to lower case on all platforms, unless overridden by a FILENAMES configuration statement.
-:13.) Opening files for INPUT will now open them read only.  THIS ALLOWS FILES WITH READ ONLY PERMISSIONS TO BE OPENED. A consequence of this is the undetectability of multiple opens input NOSHR.  However, this poses no jeopardy to data.  Any open requesting write permissions will not be allowed while the file is opened input NOSHR, and no input NOSHR will be allowed while the file is opened for writing, but two opens input NOSHR may be allowed on the same file at the same time. Under some circumstances, two attempts to open a file input NOSHR will fail and sometimes they won't.  This is dependent on the operating system and what files are already opened.  But, while restrictions have been loosened, they require no changes to your applications to assure data integrity.
+### Technical Considerations
 
-===Supplemental Syntax ("key-spec" parameter)===
+1.) Relevant error conditions are: `ERROR`, `EXIT`, `IOERR` and `LOCKED`.
+2.) Blanks are not allowed before the equal sign in any of the OPEN parameters.
+3.) Although most Business Rules statements are syntactically checked as they are entered, syntax checking is delayed until execution time on some parts of the OPEN statement (parts where quoted strings or string variables can be used). Also, the distinction between uppercase and lowercase is ignored in OPEN statements; the "NAME=file-ref" parameter is no exception.
+4.) When an internal file is opened for INPUT or OUTIN the sequential pointer is positioned at the beginning of the file.
+5.) When an internal file is opened for OUTPUT, the sequential file pointer is positioned at the end of the file, so that new records will be added at the end of existing records. The REPLACE parameter can be used to override this. All existing records in the file are dropped when REPLACE is used.
+6.) Business Rules utilizes the operating system's ability to automatically allocate more space to a file (until the disk is full) when more space is needed.
+7.) Variables can be used for "file number" and "file-ref".
+8.) The system always adds 1 byte (for deleted records) to the record length that you specify. As the hardware often reads in blocks of 512 bytes, efficient or "nice" values of RECL are based on being evenly divisible into 512. Good choices for RECL are of the form 2**N-1, e.g., 7, 15, 31, 63, 127, 255, 511, 1023.
+9.) See `Functions` for more information about the FILENUM and FILE$ functions. These functions should be especially useful for displaying messages after an OPEN error due to file-sharing conflicts with another workstation. See also the `STATUS` FILES command, which displays information about file opens and file reservations.
+10.) The number of open files allowed by the operating system dictates the number of OPEN statements allowed in a Business Rules program.
+11.) When opening files for input BR will now open them read only.  THIS ALLOWS FILES WITH READ ONLY PERMISSIONS TO BE OPENED.
+12.) Version 3.9 will support long filenames with a variety of alternatives with respect to case sensitivity.   Unix defaults to case sensitive, and DOS/Windows defaults to case insensitive.   Business Rules! defaults to lower case on all platforms, unless overridden by a FILENAMES configuration statement.
+13.) Opening files for INPUT will now open them read only.  THIS ALLOWS FILES WITH READ ONLY PERMISSIONS TO BE OPENED. A consequence of this is the undetectability of multiple opens input NOSHR.  However, this poses no jeopardy to data.  Any open requesting write permissions will not be allowed while the file is opened input NOSHR, and no input NOSHR will be allowed while the file is opened for writing, but two opens input NOSHR may be allowed on the same file at the same time. Under some circumstances, two attempts to open a file input NOSHR will fail and sometimes they won't.  This is dependent on the operating system and what files are already opened.  But, while restrictions have been loosened, they require no changes to your applications to assure data integrity.
 
-===Supplemental "File Ref" Parameter===
+### Supplemental Syntax ("key-spec" parameter)
 
-===Supplemental Syntax ("Share-spec" Parameter)===
+### Supplemental "File Ref" Parameter
+
+### Supplemental Syntax ("Share-spec" Parameter)

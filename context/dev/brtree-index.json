@@ -1,8 +1,8 @@
 {
-  "$comment": "Concept -> spec router over br_tree/. keyword_index maps a BR keyword to the spec path(s) that document it; each spec record carries title, status, anchors, and lead summary. Regenerate with tools/gen_brtree_index.exe.",
-  "generated": "2026-10-26",
+  "$comment": "Concept -> spec router over br_tree/. keyword_index maps a BR keyword to the spec path(s) that document it; section_index maps each statement, READY command and system function to the spec section(s) (anchor) that cover it, each with a kind - command, function, statement or reference - saying what that section documents the word as; each spec record carries title, status, anchors, and lead summary. Regenerate with tools/gen_brtree_index.exe.",
+  "generated": "2026-11-01",
   "source": "br_tree/",
-  "source_sha256": "06b6e466bac18ef45a9dba31713326a9a6965608573525e4145a626f51ad7bfe",
+  "source_sha256": "9460af8944898d2a5c47ea80543c91cf316230e5ef21d7e3d5e0a3a85a398a0c",
   "count": 38,
   "keyword_index": {
     "!:": [
@@ -69,6 +69,7 @@
       "30-io-file/serial-comm"
     ],
     "BELL": [
+      "10-language/data-manipulation/system-functions",
       "40-io-printing/statements"
     ],
     "BH": [
@@ -268,6 +269,7 @@
       "00-configuration/environment"
     ],
     "DATE": [
+      "10-language/data-manipulation/system-functions",
       "20-io-screen/fields-attributes",
       "30-io-file/form-spec"
     ],
@@ -326,7 +328,8 @@
       "30-io-file/form-spec"
     ],
     "DLL": [
-      "00-configuration/installation-tooling"
+      "00-configuration/installation-tooling",
+      "10-language/data-manipulation/system-functions"
     ],
     "DO": [
       "10-language/flow-control/other-flow"
@@ -379,6 +382,7 @@
       "30-io-file/statements"
     ],
     "ERR": [
+      "10-language/data-manipulation/system-functions",
       "10-language/flow-control/error-handling"
     ],
     "ERROR": [
@@ -388,7 +392,8 @@
       "10-language/flow-control/error-handling"
     ],
     "EXECUTE": [
-      "70-commands/program-management"
+      "70-commands/program-management",
+      "70-commands/sort"
     ],
     "EXISTS": [
       "10-language/data-manipulation/system-functions"
@@ -538,6 +543,9 @@
     "INDEX": [
       "30-io-file/keys-indexes"
     ],
+    "INF": [
+      "10-language/data-manipulation/system-functions"
+    ],
     "INPUT": [
       "20-io-screen/input-output",
       "30-io-file/file-model"
@@ -618,6 +626,7 @@
       "50-libraries/screenio"
     ],
     "LINE": [
+      "10-language/data-manipulation/system-functions",
       "10-language/flow-control/error-handling"
     ],
     "LINES": [
@@ -707,6 +716,7 @@
       "70-commands/information"
     ],
     "MENU": [
+      "10-language/data-manipulation/system-functions",
       "20-io-screen/controls"
     ],
     "MENU$": [
@@ -747,6 +757,7 @@
       "10-language/data-manipulation/declaration"
     ],
     "NEWPAGE": [
+      "10-language/data-manipulation/system-functions",
       "20-io-screen/windows-cursor",
       "40-io-printing/statements"
     ],
@@ -967,6 +978,7 @@
       "30-io-file/statements"
     ],
     "REC": [
+      "10-language/data-manipulation/system-functions",
       "30-io-file/statements"
     ],
     "RELATIVE": [
@@ -977,6 +989,7 @@
       "50-libraries/library-facility"
     ],
     "REM": [
+      "10-language/data-manipulation/system-functions",
       "10-language/syntax"
     ],
     "RENAME": [
@@ -1079,6 +1092,9 @@
     "SEQUENTIAL": [
       "30-io-file/statements"
     ],
+    "SERIAL": [
+      "10-language/data-manipulation/system-functions"
+    ],
     "SERVER": [
       "00-configuration/client-server"
     ],
@@ -1090,7 +1106,8 @@
     ],
     "SETENV": [
       "00-configuration/config-directives",
-      "00-configuration/environment"
+      "00-configuration/environment",
+      "10-language/data-manipulation/system-functions"
     ],
     "SETFONT": [
       "40-io-printing/pcl-pdf"
@@ -1117,7 +1134,7 @@
       "10-language/flow-control/error-handling"
     ],
     "SORT": [
-      "40-io-printing/sort"
+      "70-commands/sort"
     ],
     "SOURCE": [
       "70-commands/editing",
@@ -1188,6 +1205,7 @@
       "10-language/data-manipulation/system-functions"
     ],
     "SYSTEM": [
+      "10-language/flow-control/error-handling",
       "70-commands/program-management"
     ],
     "ScreenIO": [
@@ -1417,6 +1435,1851 @@
       "60-integration/web"
     ]
   },
+  "section_index": {
+    "ABS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "abs",
+        "kind": "function"
+      }
+    ],
+    "AIDX": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "aidx",
+        "kind": "function"
+      }
+    ],
+    "ALERT": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "alert",
+        "kind": "command"
+      }
+    ],
+    "ATN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "atn",
+        "kind": "function"
+      }
+    ],
+    "AUTO": [
+      {
+        "spec": "70-commands/editing",
+        "anchor": "auto",
+        "kind": "command"
+      }
+    ],
+    "BELL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "bell",
+        "kind": "function"
+      },
+      {
+        "spec": "40-io-printing/statements",
+        "anchor": "bell",
+        "kind": "clause"
+      }
+    ],
+    "BREAK": [
+      {
+        "spec": "70-commands/information",
+        "anchor": "break",
+        "kind": "command"
+      }
+    ],
+    "BRERR$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "brerr$",
+        "kind": "function"
+      }
+    ],
+    "BR_DATE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "br_date$",
+        "kind": "function"
+      }
+    ],
+    "BR_FILENAME$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "br_filename$",
+        "kind": "function"
+      }
+    ],
+    "CALL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "call",
+        "kind": "deprecated"
+      }
+    ],
+    "CEIL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "ceil",
+        "kind": "function"
+      }
+    ],
+    "CFORM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "cform$",
+        "kind": "function"
+      }
+    ],
+    "CHAIN": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "chain",
+        "kind": "statement"
+      }
+    ],
+    "CHDIR": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "chdir",
+        "kind": "command"
+      }
+    ],
+    "CHR$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "chr$",
+        "kind": "function"
+      }
+    ],
+    "CLEAR": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "clear",
+        "kind": "command"
+      }
+    ],
+    "CLOSE": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "close",
+        "kind": "statement"
+      }
+    ],
+    "CMDKEY": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "cmdkey",
+        "kind": "function"
+      }
+    ],
+    "CNT": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "cnt",
+        "kind": "function"
+      }
+    ],
+    "CNVRT$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "cnvrt$",
+        "kind": "function"
+      }
+    ],
+    "CODE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "code",
+        "kind": "function"
+      }
+    ],
+    "CONFIG": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config",
+        "kind": "reference"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "config",
+        "kind": "reference"
+      }
+    ],
+    "CONTINUE": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "continue",
+        "kind": "statement"
+      }
+    ],
+    "COPY": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "copy",
+        "kind": "command"
+      }
+    ],
+    "COS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "cos",
+        "kind": "function"
+      }
+    ],
+    "CURCOL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "curcol",
+        "kind": "function"
+      }
+    ],
+    "CURFLD": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "curfld",
+        "kind": "function"
+      }
+    ],
+    "CURPOS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "curpos",
+        "kind": "function"
+      }
+    ],
+    "CURROW": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "currow",
+        "kind": "function"
+      }
+    ],
+    "CURTAB": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "curtab",
+        "kind": "function"
+      }
+    ],
+    "CURWINDOW": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "curwindow",
+        "kind": "function"
+      }
+    ],
+    "DATA": [
+      {
+        "spec": "10-language/data-manipulation/assignment",
+        "anchor": "data-table",
+        "kind": "statement"
+      }
+    ],
+    "DATE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "date",
+        "kind": "function"
+      },
+      {
+        "spec": "20-io-screen/fields-attributes",
+        "anchor": "format-codes",
+        "kind": "reference"
+      },
+      {
+        "spec": "30-io-file/form-spec",
+        "anchor": "format-codes",
+        "kind": "reference"
+      }
+    ],
+    "DATE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "date$",
+        "kind": "function"
+      }
+    ],
+    "DAYS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "days",
+        "kind": "function"
+      }
+    ],
+    "DEBUG": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "anchor": "debug",
+        "kind": "reference"
+      }
+    ],
+    "DEBUG_STR": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "debug_str",
+        "kind": "function"
+      },
+      {
+        "spec": "70-commands/information",
+        "anchor": "debug-str",
+        "kind": "command"
+      }
+    ],
+    "DECRYPT$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "decrypt$",
+        "kind": "function"
+      }
+    ],
+    "DEF": [
+      {
+        "spec": "10-language/flow-control/functions-udf",
+        "anchor": "def",
+        "kind": "statement"
+      }
+    ],
+    "DEG": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "deg",
+        "kind": "function"
+      }
+    ],
+    "DEL": [
+      {
+        "spec": "70-commands/editing",
+        "anchor": "del",
+        "kind": "command"
+      }
+    ],
+    "DELETE": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "delete",
+        "kind": "statement"
+      }
+    ],
+    "DIDX": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "didx",
+        "kind": "function"
+      }
+    ],
+    "DIM": [
+      {
+        "spec": "10-language/data-manipulation/declaration",
+        "anchor": "dim",
+        "kind": "statement"
+      }
+    ],
+    "DIR": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "dir",
+        "kind": "command"
+      }
+    ],
+    "DISPLAY": [
+      {
+        "spec": "70-commands/information",
+        "anchor": "display",
+        "kind": "command"
+      }
+    ],
+    "DLL": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "anchor": "catalog",
+        "kind": "reference"
+      },
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "dll",
+        "kind": "function"
+      }
+    ],
+    "DO": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "do-loop",
+        "kind": "statement"
+      }
+    ],
+    "DROP": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "drop",
+        "kind": "clause"
+      },
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "drop",
+        "kind": "command"
+      }
+    ],
+    "EDIT": [
+      {
+        "spec": "70-commands/editing",
+        "anchor": "edit",
+        "kind": "command"
+      }
+    ],
+    "ENCRYPT$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "encrypt$",
+        "kind": "function"
+      }
+    ],
+    "END": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "end",
+        "kind": "statement"
+      }
+    ],
+    "ENV$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "env$",
+        "kind": "function"
+      }
+    ],
+    "ERR": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "err",
+        "kind": "function"
+      },
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "system-variables",
+        "kind": "function"
+      }
+    ],
+    "EXECUTE": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "execute",
+        "kind": "statement"
+      }
+    ],
+    "EXISTS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "exists",
+        "kind": "function"
+      }
+    ],
+    "EXIT": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "conditions",
+        "kind": "statement"
+      },
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "exit",
+        "kind": "statement"
+      }
+    ],
+    "EXP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "exp",
+        "kind": "function"
+      }
+    ],
+    "FILE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "file",
+        "kind": "function"
+      }
+    ],
+    "FILE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "file$",
+        "kind": "function"
+      }
+    ],
+    "FILENUM": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "filenum",
+        "kind": "function"
+      }
+    ],
+    "FKEY": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "fkey",
+        "kind": "function"
+      },
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "ignore",
+        "kind": "clause"
+      }
+    ],
+    "FNEND": [
+      {
+        "spec": "10-language/flow-control/functions-udf",
+        "anchor": "fnend",
+        "kind": "statement"
+      }
+    ],
+    "FOR": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "for-next",
+        "kind": "statement"
+      }
+    ],
+    "FORM": [
+      {
+        "spec": "30-io-file/form-spec",
+        "anchor": "when-a-form-is-compiled",
+        "kind": "reference"
+      }
+    ],
+    "FP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "fp",
+        "kind": "function"
+      }
+    ],
+    "FREE": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "free",
+        "kind": "clause"
+      },
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "free",
+        "kind": "command"
+      }
+    ],
+    "FREESP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "freesp",
+        "kind": "function"
+      }
+    ],
+    "GET$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "get$",
+        "kind": "deprecated"
+      }
+    ],
+    "GO": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "go",
+        "kind": "command"
+      }
+    ],
+    "GOSUB": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "gosub",
+        "kind": "statement"
+      }
+    ],
+    "GOTO": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "goto",
+        "kind": "statement"
+      }
+    ],
+    "GROW": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "grow",
+        "kind": "clause"
+      }
+    ],
+    "HELP": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "ignore",
+        "kind": "clause"
+      }
+    ],
+    "HELP$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "help$",
+        "kind": "function"
+      }
+    ],
+    "HEX$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "hex$",
+        "kind": "function"
+      }
+    ],
+    "IF": [
+      {
+        "spec": "10-language/data-manipulation/conditionals",
+        "anchor": "if",
+        "kind": "statement"
+      }
+    ],
+    "IGNORE": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "ignore",
+        "kind": "clause"
+      }
+    ],
+    "INDEX": [
+      {
+        "spec": "30-io-file/keys-indexes",
+        "anchor": "index",
+        "kind": "reference"
+      }
+    ],
+    "INF": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "inf",
+        "kind": "function"
+      }
+    ],
+    "INPUT": [
+      {
+        "spec": "20-io-screen/input-output",
+        "anchor": "select",
+        "kind": "statement"
+      }
+    ],
+    "INT": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "int",
+        "kind": "function"
+      }
+    ],
+    "INVOKE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "invoke$",
+        "kind": "deprecated"
+      }
+    ],
+    "IP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "ip",
+        "kind": "function"
+      }
+    ],
+    "KLN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "kln",
+        "kind": "function"
+      }
+    ],
+    "KPS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "kps",
+        "kind": "function"
+      }
+    ],
+    "KREC": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "krec",
+        "kind": "function"
+      }
+    ],
+    "KSTAT$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "kstat$",
+        "kind": "function"
+      }
+    ],
+    "LEN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "len",
+        "kind": "function"
+      }
+    ],
+    "LET": [
+      {
+        "spec": "10-language/data-manipulation/assignment",
+        "anchor": "let",
+        "kind": "statement"
+      }
+    ],
+    "LIBRARY": [
+      {
+        "spec": "50-libraries/library-facility",
+        "anchor": "library",
+        "kind": "statement"
+      }
+    ],
+    "LINE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "line",
+        "kind": "function"
+      },
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "system-variables",
+        "kind": "function"
+      }
+    ],
+    "LINES": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "lines",
+        "kind": "function"
+      }
+    ],
+    "LINESPP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "linespp",
+        "kind": "function"
+      }
+    ],
+    "LINESTATUS$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "linestatus$",
+        "kind": "function"
+      }
+    ],
+    "LINPUT": [
+      {
+        "spec": "20-io-screen/input-output",
+        "anchor": "linput",
+        "kind": "statement"
+      }
+    ],
+    "LIST": [
+      {
+        "spec": "70-commands/editing",
+        "anchor": "list",
+        "kind": "command"
+      }
+    ],
+    "LOAD": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "program-commands",
+        "kind": "command"
+      }
+    ],
+    "LOG": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "log",
+        "kind": "function"
+      }
+    ],
+    "LOGIN_NAME$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "login_name$",
+        "kind": "function"
+      }
+    ],
+    "LOOP": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "do-loop",
+        "kind": "statement"
+      }
+    ],
+    "LPAD$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "lpad$",
+        "kind": "function"
+      }
+    ],
+    "LREC": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "lrec",
+        "kind": "function"
+      }
+    ],
+    "LTRM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "ltrm$",
+        "kind": "function"
+      }
+    ],
+    "LWRC$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "lwrc$",
+        "kind": "function"
+      }
+    ],
+    "MAT": [
+      {
+        "spec": "10-language/data-manipulation/assignment",
+        "anchor": "mat",
+        "kind": "statement"
+      },
+      {
+        "spec": "10-language/data-manipulation/declaration",
+        "anchor": "redimensioning",
+        "kind": "statement"
+      }
+    ],
+    "MAT2STR": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "mat2str",
+        "kind": "function"
+      }
+    ],
+    "MAX": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "max",
+        "kind": "function"
+      }
+    ],
+    "MAX$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "max$",
+        "kind": "function"
+      }
+    ],
+    "MENU": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "menu",
+        "kind": "function"
+      },
+      {
+        "spec": "20-io-screen/controls",
+        "anchor": "menu",
+        "kind": "reference"
+      }
+    ],
+    "MENU$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "menu$",
+        "kind": "function"
+      },
+      {
+        "spec": "20-io-screen/controls",
+        "anchor": "menus",
+        "kind": "reference"
+      }
+    ],
+    "MERGE": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "merge",
+        "kind": "command"
+      }
+    ],
+    "MIN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "min",
+        "kind": "function"
+      }
+    ],
+    "MIN$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "min$",
+        "kind": "function"
+      }
+    ],
+    "MKDIR": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "mkdir",
+        "kind": "command"
+      }
+    ],
+    "MOD": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "mod",
+        "kind": "function"
+      }
+    ],
+    "MOVE": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "move",
+        "kind": "command"
+      }
+    ],
+    "MSG": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "msg",
+        "kind": "function"
+      }
+    ],
+    "MSG$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "msg$",
+        "kind": "function"
+      }
+    ],
+    "MSGBOX": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "msgbox",
+        "kind": "function"
+      }
+    ],
+    "NEWPAGE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "newpage",
+        "kind": "function"
+      },
+      {
+        "spec": "40-io-printing/statements",
+        "anchor": "newpage",
+        "kind": "clause"
+      }
+    ],
+    "NEXT": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "for-next",
+        "kind": "statement"
+      }
+    ],
+    "NXTCOL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "nxtcol",
+        "kind": "function"
+      }
+    ],
+    "NXTFLD": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "nxtfld",
+        "kind": "function"
+      }
+    ],
+    "NXTROW": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "nxtrow",
+        "kind": "function"
+      }
+    ],
+    "ON": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "on-goto",
+        "kind": "statement"
+      }
+    ],
+    "OPEN": [
+      {
+        "spec": "30-io-file/database",
+        "anchor": "open",
+        "kind": "reference"
+      },
+      {
+        "spec": "30-io-file/file-model",
+        "anchor": "file-ref",
+        "kind": "reference"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "open",
+        "kind": "statement"
+      }
+    ],
+    "OPTION": [
+      {
+        "spec": "10-language/data-manipulation/declaration",
+        "anchor": "option",
+        "kind": "statement"
+      }
+    ],
+    "ORD": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "ord",
+        "kind": "function"
+      }
+    ],
+    "OS_FILENAME$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "os_filename$",
+        "kind": "function"
+      }
+    ],
+    "PAUSE": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "pause",
+        "kind": "statement"
+      }
+    ],
+    "PI": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "pi",
+        "kind": "function"
+      }
+    ],
+    "PIC$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "pic$",
+        "kind": "function"
+      }
+    ],
+    "POS": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "pos",
+        "kind": "function"
+      },
+      {
+        "spec": "30-io-file/form-spec",
+        "anchor": "format-codes",
+        "kind": "reference"
+      }
+    ],
+    "PRINT": [
+      {
+        "spec": "40-io-printing/statements",
+        "anchor": "print",
+        "kind": "statement"
+      }
+    ],
+    "PRINTER_LIST": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "printer_list",
+        "kind": "function"
+      }
+    ],
+    "PROC": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "proc",
+        "kind": "command"
+      }
+    ],
+    "PROCERR": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "procerr",
+        "kind": "command"
+      }
+    ],
+    "PROCIN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "procin",
+        "kind": "function"
+      }
+    ],
+    "PROCLVL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "proclvl",
+        "kind": "function"
+      }
+    ],
+    "PROGRAM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "program$",
+        "kind": "function"
+      }
+    ],
+    "PROTECT": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "protect",
+        "kind": "command"
+      }
+    ],
+    "RAD": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rad",
+        "kind": "function"
+      }
+    ],
+    "RANDOMIZE": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "randomize",
+        "kind": "statement"
+      }
+    ],
+    "READ": [
+      {
+        "spec": "10-language/data-manipulation/assignment",
+        "anchor": "data-table",
+        "kind": "statement"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "read",
+        "kind": "statement"
+      }
+    ],
+    "REC": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rec",
+        "kind": "function"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "rec",
+        "kind": "clause"
+      }
+    ],
+    "RELEASE": [
+      {
+        "spec": "50-libraries/library-facility",
+        "anchor": "clearing",
+        "kind": "statement"
+      }
+    ],
+    "REM": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rem",
+        "kind": "function"
+      },
+      {
+        "spec": "10-language/syntax",
+        "anchor": "comments",
+        "kind": "statement"
+      }
+    ],
+    "RENAME": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "rename",
+        "kind": "command"
+      }
+    ],
+    "RENUM": [
+      {
+        "spec": "70-commands/editing",
+        "anchor": "renum",
+        "kind": "command"
+      }
+    ],
+    "REPLACE": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "replace",
+        "kind": "command"
+      }
+    ],
+    "REREAD": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "positioning-per-statement",
+        "kind": "statement"
+      }
+    ],
+    "RESERVE": [
+      {
+        "spec": "30-io-file/file-model",
+        "anchor": "reserve",
+        "kind": "reference"
+      }
+    ],
+    "RESTORE": [
+      {
+        "spec": "10-language/data-manipulation/assignment",
+        "anchor": "data-table",
+        "kind": "statement"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "restore",
+        "kind": "statement"
+      }
+    ],
+    "RETRY": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "retry",
+        "kind": "statement"
+      }
+    ],
+    "RETURN": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "gosub",
+        "kind": "statement"
+      }
+    ],
+    "REWRITE": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "rewrite",
+        "kind": "statement"
+      }
+    ],
+    "RINPUT": [
+      {
+        "spec": "20-io-screen/input-output",
+        "anchor": "select",
+        "kind": "statement"
+      }
+    ],
+    "RLN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rln",
+        "kind": "function"
+      }
+    ],
+    "RMDIR": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "rmdir",
+        "kind": "command"
+      }
+    ],
+    "RND": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rnd",
+        "kind": "function"
+      }
+    ],
+    "ROUND": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "round",
+        "kind": "function"
+      }
+    ],
+    "RPAD$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rpad$",
+        "kind": "function"
+      }
+    ],
+    "RPT$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rpt$",
+        "kind": "function"
+      }
+    ],
+    "RTRM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "rtrm$",
+        "kind": "function"
+      }
+    ],
+    "RUN": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "program-commands",
+        "kind": "command"
+      }
+    ],
+    "SAVE": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "replace",
+        "kind": "command"
+      }
+    ],
+    "SCR_FREEZE": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "scr_freeze",
+        "kind": "function"
+      }
+    ],
+    "SCR_THAW": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "scr_thaw",
+        "kind": "function"
+      }
+    ],
+    "SELECT": [
+      {
+        "spec": "20-io-screen/input-output",
+        "anchor": "select",
+        "kind": "statement"
+      }
+    ],
+    "SERIAL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "serial",
+        "kind": "function"
+      }
+    ],
+    "SESSION$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "session$",
+        "kind": "function"
+      }
+    ],
+    "SET$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "set$",
+        "kind": "deprecated"
+      }
+    ],
+    "SETENV": [
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "setenv",
+        "kind": "reference"
+      },
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "setenv",
+        "kind": "function"
+      }
+    ],
+    "SGN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sgn",
+        "kind": "function"
+      }
+    ],
+    "SHIFT": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "shift",
+        "kind": "deprecated"
+      }
+    ],
+    "SIN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sin",
+        "kind": "function"
+      }
+    ],
+    "SKIP": [
+      {
+        "spec": "30-io-file/form-spec",
+        "anchor": "skip",
+        "kind": "reference"
+      }
+    ],
+    "SLEEP": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sleep",
+        "kind": "function"
+      }
+    ],
+    "SORT": [
+      {
+        "spec": "70-commands/sort",
+        "anchor": "sort",
+        "kind": "command"
+      }
+    ],
+    "SPAWN_RESTRICTED": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "spawn_restricted",
+        "kind": "function"
+      }
+    ],
+    "SQL_DATE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sql_date$",
+        "kind": "function"
+      }
+    ],
+    "SQR": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sqr",
+        "kind": "function"
+      }
+    ],
+    "SRCH": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "srch",
+        "kind": "function"
+      }
+    ],
+    "SREP$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "srep$",
+        "kind": "function"
+      }
+    ],
+    "STATUS": [
+      {
+        "spec": "70-commands/information",
+        "anchor": "status",
+        "kind": "command"
+      }
+    ],
+    "STOP": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "stop",
+        "kind": "statement"
+      }
+    ],
+    "STR$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "str$",
+        "kind": "function"
+      }
+    ],
+    "STR2MAT": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "str2mat",
+        "kind": "function"
+      }
+    ],
+    "SUBPROC": [
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "subproc",
+        "kind": "command"
+      }
+    ],
+    "SUM": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "sum",
+        "kind": "function"
+      }
+    ],
+    "SYSERR": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "syserr",
+        "kind": "function"
+      }
+    ],
+    "SYSERR$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "syserr$",
+        "kind": "function"
+      }
+    ],
+    "SYSTEM": [
+      {
+        "spec": "10-language/flow-control/error-handling",
+        "anchor": "system",
+        "kind": "clause"
+      },
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "system",
+        "kind": "command"
+      }
+    ],
+    "TAN": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "tan",
+        "kind": "function"
+      }
+    ],
+    "TIME": [
+      {
+        "spec": "70-commands/information",
+        "anchor": "time",
+        "kind": "command"
+      }
+    ],
+    "TIME$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "time$",
+        "kind": "function"
+      }
+    ],
+    "TIMER": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "timer",
+        "kind": "function"
+      }
+    ],
+    "TRACE": [
+      {
+        "spec": "10-language/flow-control/other-flow",
+        "anchor": "trace",
+        "kind": "statement"
+      }
+    ],
+    "TRIM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "trim$",
+        "kind": "function"
+      }
+    ],
+    "TRUNC": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "trunc",
+        "kind": "function"
+      }
+    ],
+    "TYPE": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "type",
+        "kind": "command"
+      }
+    ],
+    "UDIM": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "udim",
+        "kind": "function"
+      }
+    ],
+    "UNHEX$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "unhex$",
+        "kind": "function"
+      }
+    ],
+    "UPRC$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "uprc$",
+        "kind": "function"
+      }
+    ],
+    "USERID$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "userid$",
+        "kind": "function"
+      }
+    ],
+    "VAL": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "val",
+        "kind": "function"
+      }
+    ],
+    "VARIABLE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "variable$",
+        "kind": "function"
+      }
+    ],
+    "VERIFY": [
+      {
+        "spec": "30-io-file/keys-indexes",
+        "anchor": "verify",
+        "kind": "reference"
+      }
+    ],
+    "VERSION": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "version",
+        "kind": "function"
+      }
+    ],
+    "WBPLATFORM$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "wbplatform$",
+        "kind": "function"
+      }
+    ],
+    "WBVERSION$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "wbversion$",
+        "kind": "function"
+      }
+    ],
+    "WRITE": [
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "write",
+        "kind": "statement"
+      }
+    ],
+    "WSID$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "wsid$",
+        "kind": "function"
+      }
+    ],
+    "XLATE$": [
+      {
+        "spec": "10-language/data-manipulation/system-functions",
+        "anchor": "xlate$",
+        "kind": "function"
+      }
+    ]
+  },
+  "statement_keywords": {
+    "CASE": [],
+    "CHAIN": [
+      "FILES"
+    ],
+    "CLOSE": [
+      "WAITEQ",
+      "FREE",
+      "DROP",
+      "RELEASE"
+    ],
+    "CONTINUE": [
+      "DO",
+      "FOR"
+    ],
+    "DATA": [],
+    "DEF": [],
+    "DELETE": [
+      "KEY=",
+      "RESERVE",
+      "RELEASE",
+      "LINK=",
+      "REC=",
+      "PRIOR",
+      "LAST",
+      "FIRST",
+      "NEXT",
+      "SAME"
+    ],
+    "DIM": [],
+    "DISPLAY": [
+      "BUTTONS",
+      "MENU",
+      "TEXT",
+      "DATA",
+      "STATUS"
+    ],
+    "DO": [
+      "WHILE",
+      "UNTIL"
+    ],
+    "END": [
+      "SELECT"
+    ],
+    "EXECUTE": [],
+    "EXIT": [
+      "FOR",
+      "SELECT"
+    ],
+    "FNEND": [],
+    "FOR": [
+      "TO",
+      "STEP"
+    ],
+    "FORM": [],
+    "GOSUB": [],
+    "GOTO": [],
+    "IF": [
+      "THEN"
+    ],
+    "INPUT": [
+      "WAITEQ",
+      "FIELDS",
+      "ATTR",
+      "HELP",
+      "SELECT",
+      "MENU",
+      "TEXT",
+      "DATA",
+      "STATUS"
+    ],
+    "LET": [],
+    "LIBRARY": [
+      "NOFILES",
+      "RELEASE"
+    ],
+    "LINPUT": [
+      "WAITEQ"
+    ],
+    "LOOP": [
+      "WHILE",
+      "UNTIL"
+    ],
+    "MAT": [],
+    "NEXT": [],
+    "ON": [
+      "ERROR",
+      "CONV",
+      "IOERR",
+      "PAGEOFLOW",
+      "SOFLOW",
+      "OFLOW",
+      "HELP",
+      "ZDIV",
+      "ATTN",
+      "LOCKED",
+      "EVENT",
+      "FKEY",
+      "FNKEY"
+    ],
+    "OPEN": [
+      "DISPLAY",
+      "INPUT",
+      "SEQUENTIAL",
+      "OUTPUT",
+      "OUTIN",
+      "EXTERNAL",
+      "RELATIVE",
+      "INTERNAL",
+      "KEYED",
+      "SQL"
+    ],
+    "OPTION": [],
+    "PAUSE": [],
+    "PRINT": [
+      "FIELDS",
+      "HELP",
+      "USING",
+      "WAITEQ",
+      "BORDER"
+    ],
+    "RANDOMIZE": [],
+    "READ": [
+      "USING",
+      "POS=",
+      "WAITEQ",
+      "RESERVE",
+      "RELEASE",
+      "KEY=",
+      "KEYONLY",
+      "KEY>=",
+      "SEARCH=",
+      "SEARCH>=",
+      "LINK=",
+      "REC=",
+      "PRIOR",
+      "LAST",
+      "FIRST",
+      "SAME",
+      "NEXT"
+    ],
+    "RELEASE": [],
+    "REM": [],
+    "REREAD": [
+      "USING",
+      "RESERVE",
+      "RELEASE"
+    ],
+    "RESERVE": [],
+    "RESTORE": [
+      "POS=",
+      "RESERVE",
+      "RELEASE",
+      "KEY=",
+      "KEY>=",
+      "SEARCH=",
+      "SEARCH>=",
+      "LINK=",
+      "REC=",
+      "PRIOR",
+      "FIRST",
+      "END",
+      "NEXT",
+      "SAME",
+      "LAST"
+    ],
+    "RETRY": [],
+    "RETURN": [],
+    "REWRITE": [
+      "USING",
+      "POS=",
+      "KEY=",
+      "LINK=",
+      "REC=",
+      "LAST",
+      "FIRST",
+      "PRIOR",
+      "NEXT",
+      "SAME",
+      "RESERVE",
+      "RELEASE"
+    ],
+    "RINPUT": [
+      "WAITEQ",
+      "FIELDS",
+      "ATTR",
+      "HELP",
+      "SELECT"
+    ],
+    "SELECT": [],
+    "STOP": [],
+    "TRACE": [
+      "PRINT",
+      "OFF",
+      "ON"
+    ],
+    "USE": [],
+    "WRITE": [
+      "USING",
+      "REC=",
+      "POS=",
+      "WAITEQ",
+      "RESERVE",
+      "RELEASE"
+    ]
+  },
   "specs": [
     {
       "path": "00-configuration/client-server",
@@ -1567,6 +3430,7 @@
         "pdf",
         "dotnet",
         "diagnostics",
+        "debug",
         "automation",
         "see-also"
       ],
@@ -1659,6 +3523,7 @@
         "other-flow"
       ],
       "anchors": [
+        "if",
         "syntax",
         "semantics",
         "examples",
@@ -1904,7 +3769,19 @@
         "KREC",
         "PROGRAM$",
         "DEBUG_STR",
-        "PRINTER_LIST"
+        "PRINTER_LIST",
+        "INF",
+        "SERIAL",
+        "BELL",
+        "ERR",
+        "LINE",
+        "NEWPAGE",
+        "REC",
+        "REM",
+        "DATE",
+        "MENU",
+        "SETENV",
+        "DLL"
       ],
       "related": [
         "expressions",
@@ -1919,18 +3796,149 @@
         "mat-qualifier",
         "tables",
         "string-functions",
+        "chr$",
+        "ord",
+        "lwrc$",
+        "uprc$",
+        "trim$",
+        "ltrm$",
+        "rtrm$",
+        "lpad$",
+        "rpad$",
+        "rpt$",
+        "len",
+        "pos",
+        "srep$",
+        "xlate$",
+        "login_name$",
         "conversion-functions",
+        "str$",
+        "val",
+        "cnvrt$",
+        "cform$",
+        "hex$",
+        "unhex$",
+        "pic$",
         "numeric-functions",
+        "int",
+        "fp",
+        "ip",
+        "ceil",
+        "round",
+        "trunc",
+        "abs",
+        "sgn",
+        "sqr",
+        "mod",
+        "rem",
+        "max",
+        "min",
+        "max$",
+        "min$",
+        "atn",
+        "cos",
+        "sin",
+        "tan",
+        "deg",
+        "rad",
+        "exp",
+        "log",
+        "pi",
+        "inf",
+        "rnd",
         "accepted-and-ignored",
         "date-functions",
+        "date$",
+        "time$",
+        "days",
+        "date",
+        "br_date$",
+        "sql_date$",
         "array-functions",
+        "udim",
+        "sum",
+        "srch",
+        "aidx",
+        "didx",
+        "str2mat",
+        "mat2str",
         "str2mat-delimiter",
         "file-query",
+        "file$",
+        "file",
+        "filenum",
+        "freesp",
+        "exists",
+        "br_filename$",
+        "os_filename$",
+        "kps",
+        "lrec",
+        "rec",
+        "rln",
+        "version",
+        "linestatus$",
+        "lines",
+        "linespp",
+        "kln",
+        "krec",
         "screen-query",
+        "kstat$",
+        "nxtfld",
+        "nxtcol",
+        "nxtrow",
+        "curtab",
+        "curpos",
+        "scr_freeze",
+        "scr_thaw",
+        "curcol",
+        "currow",
+        "curfld",
+        "curwindow",
+        "cmdkey",
+        "fkey",
+        "menu",
+        "menu$",
         "system-info",
+        "err",
+        "line",
+        "cnt",
+        "brerr$",
+        "env$",
+        "code",
+        "procin",
+        "wsid$",
+        "userid$",
+        "serial",
+        "session$",
+        "proclvl",
+        "timer",
+        "setenv",
+        "variable$",
+        "wbversion$",
+        "wbplatform$",
+        "syserr",
+        "syserr$",
+        "shift",
+        "msg$",
+        "msg",
+        "sleep",
+        "spawn_restricted",
+        "help$",
+        "program$",
+        "debug_str",
+        "printer_list",
+        "newpage",
+        "bell",
         "integration-functions",
+        "get$",
+        "set$",
+        "invoke$",
+        "call",
+        "dll",
         "msgbox",
         "encryption",
+        "encrypt$",
+        "decrypt$",
         "examples",
         "see-also"
       ],
@@ -1970,7 +3978,8 @@
         "OFLOW",
         "PAGEOFLOW",
         "TIMEOUT",
-        "IGNORE"
+        "IGNORE",
+        "SYSTEM"
       ],
       "related": [
         "other-flow",
@@ -1980,8 +3989,13 @@
         "system-variables",
         "levels",
         "conditions",
+        "ignore",
+        "system",
         "soflow-grow",
+        "grow",
         "recovery",
+        "retry",
+        "continue",
         "modes",
         "os-errors",
         "examples",
@@ -2013,6 +4027,7 @@
         "syntax",
         "semantics",
         "def",
+        "fnend",
         "parameters",
         "local-variables",
         "examples",
@@ -2068,6 +4083,9 @@
         "exit",
         "randomize",
         "termination",
+        "stop",
+        "end",
+        "pause",
         "trace",
         "examples",
         "see-also"
@@ -2154,6 +4172,7 @@
         "date-picker",
         "grid-list",
         "menus",
+        "menu",
         "picture",
         "help",
         "examples",
@@ -2234,6 +4253,7 @@
         "select",
         "field-help",
         "plain-input",
+        "linput",
         "navigation",
         "examples",
         "see-also"
@@ -2366,6 +4386,7 @@
         "file-ref",
         "sharing",
         "locking",
+        "reserve",
         "linked",
         "wsid",
         "slash",
@@ -2419,6 +4440,7 @@
       "anchors": [
         "syntax",
         "repetition",
+        "skip",
         "format-codes",
         "semantics",
         "when-a-form-is-compiled",
@@ -2454,6 +4476,7 @@
       "anchors": [
         "semantics",
         "index",
+        "verify",
         "open-keyed",
         "key-clause",
         "keyed-io",
@@ -2552,6 +4575,8 @@
         "keyonly",
         "no-abbreviation",
         "close",
+        "drop",
+        "free",
         "rec",
         "examples",
         "see-also"
@@ -2593,32 +4618,6 @@
       "summary": "Rich printer formatting beyond plain PRINT USING: fonts, color, positioning, images, and boxes/shading — emitted as escape sequences (\\E…) or PRINTER.SYS substitution tags ([NAME]) inside PRINT #255: output. The plain print statements are in statements; the tag definitions live in PRINTER.SYS under 00-configuration."
     },
     {
-      "path": "40-io-printing/sort",
-      "name": "sort",
-      "file": "br_tree/40-io-printing/sort/spec.md",
-      "title": "SORT facility",
-      "category": "40-io-printing",
-      "status": "2b",
-      "keywords": [
-        "SORT"
-      ],
-      "related": [
-        "statements",
-        "keys-indexes"
-      ],
-      "anchors": [
-        "syntax",
-        "semantics",
-        "file",
-        "alts",
-        "record",
-        "mask",
-        "examples",
-        "see-also"
-      ],
-      "summary": "Produces sorted output from an internal file via a sort control file of specifications. For ordered access without a separate sort, an index (30-io-file/keys-indexes) reads records in key order."
-    },
-    {
       "path": "40-io-printing/statements",
       "name": "statements",
       "file": "br_tree/40-io-printing/statements/spec.md",
@@ -2643,10 +4642,13 @@
         "sort"
       ],
       "anchors": [
+        "print",
         "syntax",
         "semantics",
         "destinations",
         "options",
+        "bell",
+        "newpage",
         "separators",
         "using",
         "pic",
@@ -2656,7 +4658,7 @@
         "examples",
         "see-also"
       ],
-      "summary": "PRINT (and PRINT USING) for screen/printer/display output, formatting with FORM/PIC, cursor positioning, page control, and opening printer files. On-screen PRINT FIELDS is in 20-io-screen/input-output; the record-layout FORM codes are canonically in 30-io-file/form-spec; printer configuration (spooling, PRINTER.SYS) is in 00-configuration."
+      "summary": ""
     },
     {
       "path": "50-libraries/fileio",
@@ -2737,6 +4739,7 @@
       "anchors": [
         "syntax",
         "semantics",
+        "library",
         "clearing",
         "linkage-loopback",
         "fileio",
@@ -2894,6 +4897,8 @@
         "syntax",
         "semantics",
         "chdir",
+        "mkdir",
+        "rmdir",
         "dir",
         "dir-glob",
         "copy",
@@ -2904,7 +4909,10 @@
         "rename-folder",
         "rename-filesystem",
         "overwrite",
+        "type",
         "drop-free",
+        "drop",
+        "free",
         "protect",
         "examples",
         "see-also"
@@ -2949,11 +4957,13 @@
         "syntax",
         "semantics",
         "date-time",
+        "time",
         "break",
         "display",
         "list-search",
         "debug-str",
         "status-verify",
+        "status",
         "console",
         "msg",
         "printer-list",
@@ -3019,13 +5029,45 @@
         "chain",
         "procedures",
         "proc",
+        "subproc",
         "run-proc",
+        "procerr",
+        "alert",
         "look-ahead",
         "express",
         "examples",
         "see-also"
       ],
       "summary": "Loading, saving, running, and chaining programs, plus procedure files (command scripts). Commands run immediately (no line number) and — crucially — from program code via EXECUTE. Line-editing commands are in editing; file/dir commands in file-directory."
+    },
+    {
+      "path": "70-commands/sort",
+      "name": "sort",
+      "file": "br_tree/70-commands/sort/spec.md",
+      "title": "SORT command and facility",
+      "category": "70-commands",
+      "status": "2b",
+      "keywords": [
+        "SORT",
+        "EXECUTE"
+      ],
+      "related": [
+        "statements",
+        "keys-indexes"
+      ],
+      "anchors": [
+        "sort",
+        "syntax",
+        "semantics",
+        "sort-command",
+        "file",
+        "alts",
+        "record",
+        "mask",
+        "examples",
+        "see-also"
+      ],
+      "summary": "Produces sorted output from an internal file via a sort control file of specifications. For ordered access without a separate sort, an index (30-io-file/keys-indexes) reads records in key order."
     }
   ]
 }

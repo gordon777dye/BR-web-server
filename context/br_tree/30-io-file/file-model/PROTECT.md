@@ -14,17 +14,19 @@ The "RESERVE" parameter prevents others from using the specified file or file na
 
 The following procedure file illustrates the use of PROTECT to prevent others from using the customer file while deleted records are removed and the index is rebuilt:
 
- PROCERR RETURN
- PROTECT CUSTMAST,RESERVE
- PROCERR STOP
- SKIP DONE IF ERR <> 0
- COPY CUSTMAST WORK[WSID] -D
- FREE CUSTMAST
- RENAME WORK[WSID] CUSTMAST
- INDEX CUSTMAST,CUSTMAST.KEY,1,4,REPLACE
- PROTECT CUSTMAST,RELEASE
- :DONE
- CHAIN "MENU"
+```
+PROCERR RETURN
+PROTECT CUSTMAST,RESERVE
+PROCERR STOP
+SKIP DONE IF ERR <> 0
+COPY CUSTMAST WORK[WSID] -D
+FREE CUSTMAST
+RENAME WORK[WSID] CUSTMAST
+INDEX CUSTMAST,CUSTMAST.KEY,1,4,REPLACE
+PROTECT CUSTMAST,RELEASE
+:DONE
+CHAIN "MENU"
+```
 
 If the PROTECT RESERVE instruction had not been issued for the above procedure, another workstation would have been able to open the file during the COPY; such an occurrence would prevent the FREE and RENAME commands from executing.
 
@@ -32,27 +34,39 @@ When PROTECT RESERVE is successful, other workstations are not allowed access to
 
 The PROTECT command may also be used to reserve a file's name even when the FREE command has been used to delete the rest of the file. This feature allows you to reserve a file, then delete the file while continuing to reserve the file's name. You can then rename the contents of another file to the reserved file name. You can even reserve files that do not exist.
 
-==Comments and Examples==
+## Comments and Examples
+
 Multi-user file protection is controlled with the RESERVE and RELEASE parameters. PROTECT with the RESERVE parameter allows a file or file name to be reserved for exclusive use at the workstation issuing the command.
 
- PROTECT CUSTOMER.FIL RESERVE
+```
+PROTECT CUSTOMER.FIL RESERVE
+```
 
 RESERVE status keeps a file locked even when the file is not open. It also reserves the file name, even when the file is freed, so that no other workstation can create a file with the same name. The RELEASE parameter removes this exclusive control.
 
- PROTECT CUSTOMER.FIL RELEASE
+```
+PROTECT CUSTOMER.FIL RELEASE
+```
 
 The second type of file protection is controlled with the READ and WRITE parameters. The READ parameter makes a file read-only (makes it write-protected) until changed by another PROTECT command with a WRITE parameter. Permissions at the operating system determine the success or failure or the READ and WRITE options.
 
- PROTECT CUSTOMER.FIL, READ
- PROTECT CUSTOMER.FIL, WRITE
+```
+PROTECT CUSTOMER.FIL, READ
+PROTECT CUSTOMER.FIL, WRITE
+```
 
 For additional information about locking or sharing both files and records, see `Multi-User Programming`.
 
-==Syntax==
- PROTECT <file name> {READ|`RELEASE`|`RESERVE`|WRITE}
+## Syntax
+
+```
+PROTECT <file name> {READ|`RELEASE`|`RESERVE`|WRITE}
+```
+
 `Image:Protect.png`
 
-==Parameters==
+## Parameters
+
 **File NAME** is the name and path of the file to be protected.<br>
 
 **READ** allows all workstations to read file data, but not to change it (the file is write protected). This parameter restricts all workstations, including the workstation that issues the command.<br>
@@ -63,7 +77,8 @@ For additional information about locking or sharing both files and records, see 
 
 **WRITE** removes READ-only status and allows all workstations to READ and WRITE to the file.
 
-==Technical Considerations==
+## Technical Considerations
+
 # An alternative to releasing locked files with PROTECT RELEASE is to use the `CLOSE` statement with its RELEASE parameter. (This can only be done when the file to be released is currently open.)
 # An alternative to reserving files with PROTECT RESERVE is to use the OPEN statement with its RESERVE parameter.
 # The STATUS ALL command provides a list of file name reservations which have been issued from the current workstation.

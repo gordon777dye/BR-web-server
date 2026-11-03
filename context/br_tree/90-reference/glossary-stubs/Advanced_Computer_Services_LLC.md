@@ -8,4 +8,4 @@ related: []
 ---
 `Image:ACS_logo.gif`
 
-**Advanced Computer Services LLC** official home page is [http://planetacs.net/ planetacs.net].
+**Advanced Computer Services LLC** official home page is [planetacs.net](http://planetacs.net/).

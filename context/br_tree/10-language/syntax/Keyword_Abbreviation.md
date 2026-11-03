@@ -8,7 +8,7 @@ related: [Alert, Auto, Break, ChDir, Clear, Config, Copy, Date, Del, Dir]
 provenance: recovered-2b (redirect-collision casualty re-fetched from wiki)
 corrections: "All 15 stale abbreviations corrected against BR's own matcher (tokensub over the keyword tables). Values here are computed, not transcribed; see spec.md#abbreviations for the rule and brls abbreviations.json for the full comparison."
 ---
-'''These abbreviations have been corrected against Business Rules' own keyword matcher.'''
+**These abbreviations have been corrected against Business Rules' own keyword matcher.**
 The list as originally published is stale in fifteen places: it gave abbreviations that later
 releases made ambiguous (`DE` against `DEBUG`, `DI` against `DISPLAY`, `FR` against `FRE`,
 `REN` against `RENUM`, `LI` against `LIBRARY`), one the interpreter has no way to match at all
@@ -22,14 +22,13 @@ An abbreviation, which is longer than what is listed is also, accepted. DELETE c
 
 For primary keywords, each abbreviation is unique; the rule for determining the abbreviation is explained below. Secondary keyword abbreviations are not unique; instead, Business Rules uses the context and placement of the keyword to determine its meaning.
 
-==**Command Abbreviations**==
+## **Command Abbreviations**
 
 A list of the shortest acceptable abbreviations for command names follows. The full keyword appears with its shortest acceptable abbreviation, if any, directly afterwards.
 
 **Caution**
 
 Business Rules automatically expands abbreviated keywords only when the abbreviations appear in program statements (not commands or procedures) and only when they are not part of a literal expression. Some future additions to Business Rules may make a few abbreviations invalid, it is strongly recommended that you spell out all keywords which Business Rules won't expand for you when they are to remain a permanent part of your application. This includes all keywords which appear in procedure files, BRConfig.sys file or in the literal expressions of EXECUTE statements.
-
 
 `Alert` (AL)
 
@@ -107,7 +106,7 @@ Business Rules automatically expands abbreviated keywords only when the abbrevia
 
 `Verify` (V)
 
-==**Statement Abbreviations**==
+## **Statement Abbreviations**
 
 A list of the shortest acceptable abbreviations for statement names follows. The full keyword is followed by its shortest acceptable abbreviation (if any) in parentheses.
 
@@ -217,7 +216,3 @@ There are two special situations where it will seem as if the same abbreviation 
 `use` (u)
 
 `write` (w)  <!-- corrected: no other statement begins with W -->
-
-
-<noinclude>
-</noinclude>

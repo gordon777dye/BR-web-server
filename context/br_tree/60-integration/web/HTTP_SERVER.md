@@ -8,6 +8,7 @@ related: [HTTP=CLIENT, Open Display, FILE$, web]
 keywords: [HTTP=SERVER, HTTPS, CONFIG HTTP, CONFIG HTTPS, PAGE-URL, POST-VAR, PAGE-FLUSH, REDIRECT-TO, URL_BASE, CERT, PHRASE, "CHUNK=", "PROXY=", "BIND=", "THREADS=", BR_NODE, X-Forwarded-For, reverse proxy, NGINX]
 corrections:
   - "Rewritten 2026-10-22 against the BR 5.0 source (br/brs/http.cpp, bopen.cpp, config.cpp, strfunct.cpp, primop1b.cpp) and its test runs, replacing a version written from GoAhead-era source. Changed: the read timeout is the LINPUT's WAIT=, or the OPEN's WAIT= (default 15 s) when the LINPUT has none; URL_BASE= and CERT= take an operating-system path or a BR path; OPTION 66 is the passphrase when PHRASE= is not given; a renewed certificate is used without a restart; error 757 is not raised; response framing, HEAD and PAGE-FLUSH streaming added."
+  - "2026-11-01: brought current with the HTTP=SERVER error codes 0763-0799. Every setup fault now has its own code, with the details in SYSERR$; the rules those codes enforce are stated in §1, §2.1 and §3.1, and §2.9 lists them. Corrected: another BR on the same port gets 752, not 740; NAME= is not required; the keyword order does not matter; the start-up lines reach LOG= with no LOGGING statement. Added FILE$ HTTP-REFUSED and UPLOAD-ERROR."
   - "2026-10-26: brought current with web_server.br 2.17 (was 2.03), checked against its source. It writes one header block per response (2.03 followed every page with an empty one) and corrects the Content-Length of page files that bring their own headers; its HTTPS redirect drops the request's port and adds the HTTPS port unless 443, none behind a proxy (2.03 kept the plain-HTTP port); sessions, relogin data and the data store are on disk, so a proxy needs no stickiness for logins and a restart loses nothing (2.03 held sessions in memory); a urlencoded body is split before decoding, and a JSON body is passed whole. History: brweb's old\\CHANGE_LOG.md."
 ---
 # HTTP=SERVER — BR's built-in web server
@@ -37,21 +38,27 @@ HTTPS <port>[-<last>] (the same keywords)
 
 | Item | Meaning |
 |---|---|
-| `<port>` | `HTTP` sets the plain port (default **80**). `HTTPS` sets the TLS port (default **443**) **and turns HTTPS on** - without an `HTTPS` line there is no TLS listener. |
-| `-<last>` | A range of up to 100 ports: the server takes the first one free, so several BR processes can start from one configuration (§4). All taken: **752**. |
-| `LOG=` | Server log file, as a **BR name** (resolved through `DRIVE`). See [§3.2 step 5](#tls-steps) for what it records. |
-| `URL_BASE=` | Document root for static files: an operating-system path, or a BR path, which is resolved through the `DRIVE` mapping when it is not a directory as written (`web_server.br` passes a BR path). Default: `web`, in BR's working directory. |
-| `CERT=` | Base name of the certificate pair: `<basename>.crt` and `<basename>.key` (§3). An operating-system path or a BR path, as for `URL_BASE=`. Required with `HTTPS`. |
+| `<port>` | `HTTP` sets the plain port (default **80**). `HTTPS` sets the TLS port (default **443**) **and turns HTTPS on** - without an `HTTPS` line there is no TLS listener. A port is 1 to 65535. |
+| `-<last>` | A range of up to 100 ports, lowest first: the server takes the first one free, so several BR processes can start from one configuration (§4). All taken: **752**. |
+| `LOG=` | Server log file, as a **BR name** (resolved through `DRIVE`). Its folder must already exist, and the name must be a file, not a folder. See [§3.2 step 5](#tls-steps) for what it records. |
+| `URL_BASE=` | Document root for static files: an operating-system path, or a BR path, which is resolved through the `DRIVE` mapping when it is not a directory as written (`web_server.br` passes a BR path). It must exist and be a folder: a wrong `URL_BASE=` fails the OPEN. Default: `web`, in BR's working directory; if that folder is missing the server still starts, and warns in its log. |
+| `CERT=` | Base name of the certificate pair, without an extension: `<basename>.crt` and `<basename>.key` (§3). An operating-system path or a BR path, as for `URL_BASE=`. Required with `HTTPS`. |
 | `PHRASE=` | Passphrase for an encrypted `.key`. Quote it if it contains spaces (`web_server.br` always quotes it). When there is no `PHRASE=`, the `OPTION 66` value is used. |
 | `URL_BASE=NONE` | No static files at all: every request not meant for the program gets **404**. For a site whose proxy serves the files (§4). |
 | `PROXY=` | The IP address of a local reverse proxy such as NGINX, or several separated by commas, written as numbers (`127.0.0.1`). Only requests from these addresses have their `X-Forwarded-*` headers believed (§4.1). |
-| `BIND=` | Listen on this one numeric address (IPv4, or IPv6 without brackets) instead of on all of them. |
+| `BIND=` | Listen on this one address of this machine (IPv4, or IPv6 without brackets), or a host name that resolves to one, instead of on all of them. |
 | `THREADS=` | The most worker threads the server starts, 1 to 1000; default **50**. Each connection being served, and each request waiting for the program, holds one. |
 
 Rules:
 
 - **Any order.** The keywords may be written in any order. A word the directive does not know
-  makes the line a configuration error.
+  is error 0770. Put quotes round a value containing a space, or the rest of the value counts as
+  an unknown word.
+- **Every keyword needs a value.** `CERT=` with nothing after it, or followed by another keyword,
+  is error 0773.
+- **A faulty line changes nothing.** `CONFIG` raises the error and keeps the earlier settings. A
+  faulty line in `brconfig.sys` is shown when BR starts, and the first `HTTP=SERVER` OPEN raises its
+  error.
 - **The values are global.** Both directives set the same settings, so they can go on either
   line. The ports are separate. A `[WSID]` in `LOG=` gives each BR process its own log.
 - **They take effect when the first `HTTP=SERVER` OPEN starts the server.** It then keeps
@@ -70,7 +77,7 @@ Rules:
 
 | Statement | Effect |
 |---|---|
-| `OPEN #n: "NAME=<any>, HTTP=SERVER [, AUTH] [, RECL=<n>] [, EOL=NONE] [, WAIT=<sec>] [, CHUNK=<bytes>]", DISPLAY, OUTIN` | Starts the server the first time it is opened, then attaches channel `#n` to the request queue. `NAME=` is required syntax but names nothing; both programs use `name=http_file`. The file must be `DISPLAY`. |
+| `OPEN #n: "NAME=<any>, HTTP=SERVER [, AUTH] [, RECL=<n>] [, EOL=NONE] [, WAIT=<sec>] [, CHUNK=<bytes>]", DISPLAY, OUTIN` | Starts the server the first time it is opened, then attaches channel `#n` to the request queue. `NAME=` names nothing; both programs use `name=http_file`. `HTTP=` is `SERVER` or `CLIENT`. The file must be `DISPLAY`, opened `OUTIN`: it reads requests and writes their responses. |
 | `LINPUT #n: POST$` (also `INPUT #n:`) | First sends the **previous** request's response, if one is pending. Then it waits for the next queued request, makes it the channel's current request, and returns its body. |
 | `PRINT #n: X$` | Appends to the current request's response. Nothing is sent until the next read, a `PAGE-FLUSH`, or `CLOSE` - or, with `CHUNK=`, until a chunk's worth has been printed. |
 | `FILE$(n, "<keyword>")` | Reads facts about the current request, or acts on it. See §2.3. |
@@ -84,9 +91,9 @@ OPEN options that matter:
 | `RECL=` | Size of each piece a read takes from the request body. Both programs use `RECL=32000`. A `LINPUT` into a large enough string returns a whole 100,005-byte body in one statement. |
 | `EOL=NONE` | Used by both programs, so a `PRINT` adds no line ending and the program controls every byte. |
 | `WAIT=` | **How long a read waits for a request** before it fails with error **4145**, unless the read gives its own. Default **15** seconds. `WAIT=0` fails at once when nothing is queued. A `WAIT=` written on the `LINPUT` or `INPUT` statement (`linput #1,wait=300:`) overrides it for that read: `WAIT=0` fails at once, and a negative `WAIT=` (`wait=-1`) waits until a request comes. |
-| `CHUNK=` | **Streams large responses in pieces of this many bytes** (256 to 16,777,216). Once that much has been printed and not sent, it is sent as if by `PAGE-FLUSH`, and a program that gets more than four chunks ahead of a slow client waits in `PRINT` until the client catches up - so a page of any size takes only a few chunks of memory. See §2.5. Given on a file that is not `HTTP=SERVER`, or out of range: error **0605**. |
+| `CHUNK=` | **Streams large responses in pieces of this many bytes** (256 to 16,777,216). Once that much has been printed and not sent, it is sent as if by `PAGE-FLUSH`, and a program that gets more than four chunks ahead of a slow client waits in `PRINT` until the client catches up - so a page of any size takes only a few chunks of memory. See §2.5. Given on a file that is not `HTTP=SERVER`: error **0767**. Out of range: error **0766**. |
 
-Only **one** channel through one port may hold `HTTP=SERVER` at a time. A second OPEN on any port by the same BR, or an OPEN on the same port by another BR session gives error **740**.
+Only **one** channel may hold `HTTP=SERVER` at a time in one BR: a second OPEN gives error **740**. Another BR process on the same port gets **752**.
 
 <a id="routing"></a>
 ### 2.2 Which requests reach the program
@@ -127,6 +134,8 @@ case-insensitive.
 | `"PAGE-FLUSH"` | **Action.** Sends what has been printed so far, without ending the response (§2.5). Returns nothing useful: call it as `LET X$ = FILE$(n,"PAGE-FLUSH")`. |
 | `"REDIRECT-TO-<url>"` | **Action.** Answers the request with **302** `Location: <url>`. Text printed and not yet flushed is dropped. Returns `""`. |
 | `"HTTPINFO"` | Client channels only. On a server channel: error **744**. |
+| `"HTTP-REFUSED"` | Requests turned away since the last call, which the program therefore never read: licence refusals, oversize bodies, then the last one's code, client and time: `3,1,799,192.168.1.40,14:03:22`. `""` when there are none. Each call clears the counts. It needs no current request, so check it after a 4145. The counts are of requests, not people, and cover this BR process. |
+| `"UPLOAD-ERROR"` | `769,<reason>` if a file of the current request's upload could not be stored, otherwise `0`. |
 
 On a channel that is not `HTTP=SERVER` these raise **742**. With no current request they raise
 **746**.
@@ -143,7 +152,7 @@ On a channel that is not `HTTP=SERVER` these raise **742**. With no current requ
   encoded `&` is data. It passes a body with `Content-Type: application/json` on whole.
 - Reads after the body is used up keep returning 4270. The **next** request is not fetched until
   the program has printed something or closed the channel, so answer every request.
-- A body over **64 MB** is refused with **413** before the program sees it. A request that
+- A body over **64 MB** is refused with **413** before the program sees it, and counted as 798 by `HTTP-REFUSED`. A request that
   carries both `Transfer-Encoding` and `Content-Length` (a request-smuggling technique) is
   refused with **400**.
 
@@ -210,7 +219,7 @@ A `multipart/form-data` upload is saved by the server before the program sees th
 - `&uploadfile=<stored path>` is appended to `PAGE-URL`, once per file.
 - The other form fields are `POST-VAR-` values. The body `LINPUT` returns is empty.
 - An existing file of the same name is replaced. A failed upload is recorded in the server log,
-  and the request still reaches the program, without its `&uploadfile=`.
+  and the request still reaches the program, without its `&uploadfile=`: `UPLOAD-ERROR` reports it.
 
 <a id="lifecycle"></a>
 ### 2.7 Other behaviour
@@ -221,7 +230,7 @@ A `multipart/form-data` upload is saved by the server before the program sees th
 | The program ends, BR stays up | The server keeps running; queued requests wait for the next `HTTP=SERVER` OPEN. |
 | BR exits with requests still queued | Each gets **503**. |
 | Keyboard during a read | The wait polls the keyboard: an Fkey ends it early (error 4145), Break interrupts it. `web_server.br` uses `on fkey 93` to exit. |
-| More client addresses than licences | Licences are counted per client IP address seen within 30 minutes. The count is the larger of the HTTP licence count and the BR user count. A further address gets **503** for every request, static files included. |
+| More client addresses than licences | Licences are counted per client IP address seen within 30 minutes. The count is the larger of the HTTP licence count and the BR user count. A further address gets **503** for every request, static files included; `HTTP-REFUSED` counts it as 799 and the server log records it. |
 
 <a id="sequence"></a>
 ### 2.8 Typical sequence
@@ -250,21 +259,62 @@ passes `brls -check -sema` but has not been run.
 <a id="errors"></a>
 ### 2.9 Errors
 
+Each setup fault has its own code. `BRERR$` says what is wrong, and `SYSERR$` gives the file, port
+or word concerned (`0763`-`0767` leave `SYSERR$` alone). Both logs record the same, with no
+`LOGGING` statement needed.
+
 | Code | Meaning |
 |---|---|
-| 0716 | HTTP sequence error: a write with no current request |
-| 0740 | The HTTP server is already running (a second `HTTP=SERVER` OPEN) |
+| 0415 | Bad `FILE$` information type (an unknown keyword) |
+| 0716 | `PRINT` to the file before a request was read |
+| 0740 | This BR already has an `HTTP=SERVER` file open |
 | 0742 | Request not valid because this is not an HTTP server |
 | 0744 | Request not valid because this is not an HTTP client (`HTTPINFO` on a server channel) |
-| 0746 | HTTP server not responding to active inquiry (`FILE$` with no current request) |
-| 0750 | Could not start HTTP server - the reason is in the server log: a certificate or key that will not load, a wrong passphrase, `HTTPS` without `CERT=` |
-| 0752 | Could not bind to HTTP port - another program has it, or every port of a range is taken |
-| 0754 | Failed to process path information for the http server log file |
-| 0756 | Failed to open the http server log file |
-| 0415 | Bad `FILE$` information type (an unknown keyword) |
-| 4145 | No request arrived within the read's `WAIT=`, or the OPEN's when the read has none |
+| 0746 | No current request (`FILE$` before a read) |
+| 0750 | Could not start the HTTP server, for a reason with no code of its own, such as lack of memory |
+| 0752 | The port is in use, by another program or BR session, or every port of a range is |
+| 0754 | The `LOG=` name cannot be processed |
+| 0756 | The `LOG=` file will not open, such as access denied |
+| 0763 | `HTTP=` is not `SERVER` or `CLIENT` |
+| 0764 | The file is not `DISPLAY` |
+| 0765 | `HTTP=SERVER` is not opened `OUTIN` |
+| 0766 | `CHUNK=` out of range |
+| 0767 | `CHUNK=` on a file that is not `HTTP=SERVER` |
+| 0768 | The BR license does not include HTTP |
+| 0769 | An upload was not stored. Reported by `UPLOAD-ERROR`, never raised |
+| 0770 | Unknown word on a `CONFIG HTTP` or `HTTPS` line |
+| 0771 | Port missing, or not 1 to 65535 |
+| 0772 | Port range backwards, or over 100 ports |
+| 0773 | A keyword has no value |
+| 0774 | `THREADS=` out of range |
+| 0775 | `BIND=` is not a valid address |
+| 0776 | `PROXY=` is not numeric addresses |
+| 0777 | A value is too long or has an unmatched quote |
+| 0778 | The folder for `LOG=` does not exist |
+| 0779 | `LOG=` names a folder |
+| 0780 | The `URL_BASE=` folder does not exist |
+| 0781 | `URL_BASE=` names a file |
+| 0782 | `HTTPS` with no `CERT=` |
+| 0783 | `.crt` file not found |
+| 0784 | `.crt` file cannot be read |
+| 0785 | `.crt` file is not a PEM certificate |
+| 0786 | `.crt` file is binary (DER or PFX) |
+| 0787 | `.crt` file holds a private key |
+| 0788 | `.key` file not found |
+| 0789 | `.key` file cannot be read |
+| 0790 | `.key` file is not a PEM private key |
+| 0791 | The key is encrypted and no passphrase was given |
+| 0792 | The passphrase is wrong |
+| 0793 | The key does not belong to the certificate |
+| 0794 | The server certificate is not first in the `.crt` file |
+| 0795 | TLS refused the certificate or key, such as a key that is too small |
+| 0796 | The system denied this BR the port |
+| 0797 | The `BIND=` address is not on this machine |
+| 0798 | A body over 64 MB was refused. Reported by `HTTP-REFUSED`, never raised |
+| 0799 | A client over the HTTP licence count was refused. Reported by `HTTP-REFUSED`, never raised |
+| 4145 | No request arrived within the read's `WAIT=`, or the OPEN's when the read has none. `SYSERR$` says which, and how many requests were refused meanwhile |
 | 4270 | End of file: the current request's body is used up, or it had none |
-| 9990 | This version was made without HTTP support. Also returned when there is no HTTP licence |
+| 9990 | This version was made without HTTP support |
 
 `STATUS LICENSE` lists the HTTP licence.
 
@@ -277,9 +327,9 @@ passes `brls -check -sema` but has not been run.
 
 | Need | Detail |
 |---|---|
-| A BR with HTTP support and licence | Without them the OPEN fails with 9990. |
+| A BR with HTTP support and licence | Without HTTP support the OPEN fails with 9990; without an HTTP licence, 0768. |
 | A certificate file, `<basename>.crt` | PEM. The **server certificate first, then its intermediate certificate(s)**, in one file - what certificate authorities call the *full chain* (certbot's `fullchain.pem`). BR sends the whole chain; browsers need the intermediates, and most refuse a server that sends only its own certificate. |
-| A private key file, `<basename>.key` | PEM, beside the `.crt` and with the same base name. RSA or EC (ECDSA), encrypted or not. BR checks that it belongs to the certificate. |
+| A private key file, `<basename>.key` | PEM, beside the `.crt` and with the same base name. RSA or EC (ECDSA), encrypted or not, and strong enough for OpenSSL's default security level. BR checks that it belongs to the certificate. |
 | The passphrase, if the key is encrypted | `PHRASE=`, or the `OPTION 66` value when there is no `PHRASE=`. |
 | Names the certificate covers | `subjectAltName` must include the host name clients use. |
 | Free ports | The HTTPS port and the HTTP port, because both listen (§1). A port in use gives 752. |
@@ -307,9 +357,8 @@ passes `brls -check -sema` but has not been run.
    HTTPS 443 LOG=web\httpserver.log URL_BASE=C:\site\www CERT=C:\site\certs\server PHRASE=<passphrase>
    ```
 
-   Keep the keyword order (§1).
 4. **Open the channel** in the serving program (§2.1). The server starts here, so a certificate
-   or key that will not load shows up as a failed OPEN: **750**.
+   or key that will not load shows up as a failed OPEN, with its own error from §2.9.
 5. **Check the log** given by `LOG=`. A good start writes:
 
    ```
@@ -320,7 +369,7 @@ passes `brls -check -sema` but has not been run.
    - `with 0 chain certificate(s)` means the intermediates were left out of `<basename>.crt`.
    - A certificate expiring within 14 days, or already expired, is reported here and in the BR
      log.
-   - A failure names its cause, e.g. `cannot read private key … (wrong PHRASE= or OPTION 66?)`.
+   - A failure names its code and the file, e.g. `HTTP error 788: … C:\site\certs\server.key`.
    - At log level 10 the log also records every request.
 6. **Test from a client**, checking the chain and the name, not just the connection:
 

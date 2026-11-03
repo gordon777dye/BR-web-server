@@ -2,7 +2,7 @@
 
 ScreenIO library, Lexi, and the PhpIO web deployment.
 
-**📄 Guide → [spec.md](spec.md)** _(status: 2b)_ — A Rapid-Application-Development library (a Sage AX tool) for building event-driven, screen-based applications;
+**📄 Guide → [spec.md](spec.md)** _(status: 2b)_ — A Rapid-Application-Development library (a Sage AX tool) for building event-driven, screen-based applications
 
 <!-- keep -->
 Deep-reference pages:

@@ -9,12 +9,14 @@ provenance: recovered-2b (redirect-collision casualty re-fetched from wiki)
 ---
 This text is origionally from NWP.DOC from ftp.brulescorp.com and was dated `June 5`, `2007`.
 
-==Requirements==
-*Must be BR `4.0` or later. Most Features are only available in `4.16`+.
+## Requirements
+
+- Must be BR `4.0` or later. Most Features are only available in `4.16`+.
 Some are available in `4.17`+ only.
-*Must specify WIN:/.... as the device type.  This can be done with SUBSTITUTE statements and it overrides SPOOLCMD.
-::Specify CONFIG OPTION 31 to suppress NWP.
-::Specify CONFIG OPTION 31 OFF to resume NWP.
+
+- Must specify WIN:/.... as the device type.  This can be done with SUBSTITUTE statements and it overrides SPOOLCMD.
+Specify CONFIG OPTION 31 to suppress NWP.
+Specify CONFIG OPTION 31 OFF to resume NWP.
 
 Note- By specifying DIRECT:/printer-name SPOOLCMD may be overridden without having to specify WIN:/ with OPTION 31 ON. This sends reports directly to a printer without NWP or SPOOLCMD processing.
 
@@ -24,7 +26,7 @@ Error `6245` indicates an invalid or unsupported (by BR) escape sequence has bee
 
 Non-PCL keywords such as font= must be lower case.
 
-;EPSON COMPATIBLE CODES
+**EPSON COMPATIBLE CODES**
 
 Notation:
 2 means CHR$(2) or HEX$("02")
@@ -39,7 +41,6 @@ Code	Print property change
 15	Begin compressed print
 18	End compressed print
 
-
 Escape followed by code
 
 Code	Print property change
@@ -53,7 +54,6 @@ Code	Print property change
 '-'	Underline - 1 (on) or 0 (off) e.g. "\E-1"
 '_'	Overscore - 1 (on) or 0 (off)  [BR now accepts 1 or '1' here.]
 'g'	15 cpi
-
 
 'k'	Select typeface family:
 0 – default			4 – script
@@ -70,7 +70,7 @@ Also see the list of specific face names available below.
 'P'	10 cpi – pica
 'W'	Double width printing - 1 (on) or 0 (off)
 
-;FONT SIZING AND POSITIONING
+**FONT SIZING AND POSITIONING**
 
 Non-Proportional (fixed width) fonts vary in height based on characters per inch (CPI). Proportional fonts ignore CPI specifications.
 
@@ -84,7 +84,7 @@ NWP considers CPI and LPI when positioning and boxing with both fixed and propor
 
 Positioning can be done in terms of rows and columns, 720ths of an inch (decipoints), PCL units (pixels), or simply inches (with decimal fractions).  Font pitch (width) is given in CPI. Font height is given in points (72nd of an inch).  Picture sizes are given in inches.
 
-;HP HARDWARE FONT SELECTION METHODOLOGY
+**HP HARDWARE FONT SELECTION METHODOLOGY**
 
 HP printers select font based the following criteria in order of importance.
 
@@ -115,7 +115,6 @@ For both HP printers and NWP 1) HMI is honored in proportional fonts only for th
 
 In NWP, when HMI is specified after setting the pitch, BR ignores the HMI until the last character of each 'field' has been printed, and then positions the cursor as if HMI had been honored all along.
 
-
 NWP ONLY CODES
 
 You can specify any FONT NAME that Windows supports by specifying:
@@ -138,7 +137,6 @@ A PICTURE may be specified as:
 	\Epicture='width,height,imagefile.jpg [: TILE|NORESIZE|ISOTROPIC ]'
 
 Where 'width' and 'height' are given in inches, and the remainder of the image specification matches that of New GUI Console pictures.
-
 
 PARAMETERIZED SUBSTITUTION VALUES
 
@@ -175,7 +173,6 @@ Now printing proportional text!!	This is a long text field that spans two boxes.
 
 This can be done by appending a CHR$(5) character to the field contents. That will cause a fill character to be added to the printed field length which correlates to the vertical line above or below the boxed field. CHR$(5) is recognized only in one of the BOXING modes (described next).
 
-
 Additional variations may also be specified:
 
 	\Ebegin_boxtop	enclose sides and above
@@ -204,8 +201,7 @@ AUTOMATIC SHADING can be specified in a similar manner:
    PRINTER NWP [SHADE], "\E*c20G\Ebegin_shade"
    PRINTER NWP [NOSHADE], "\Eend_shade"
 
-
-;Paper Source
+**Paper Source**
 
 WIN:/SELECT or PREVIEW:/SELECT provides the opportunity to select a paper source tray. ENV$ keywords can be used to obtain a number associated with the paper source...
 MEDIA$ = ENV$("LAST_MEDIA_SELECTED")
@@ -230,11 +226,11 @@ Sample Test Program For Selecting Media or Tray
 00130    close #10:
 
 Also see specification 'H" in the following table. Either of these methods may be used to select the paper source, but not both concurrently.
-*HP COMPATIBLE CODES
-*ESCAPE '&' FOLLOWED BY
 
+- HP COMPATIBLE CODES
+- ESCAPE '&' FOLLOWED BY
 
-;Page Specifications
+**Page Specifications**
 
 Lowercase 'l', then a number followed by 'C', 'D', 'E', 'P', 'F', 'H', 'O', or 'A'.
 	'C'	VMI (vertical motion index) number of 48ths of an inch per line.
@@ -250,14 +246,22 @@ These two values (P and F) are treated synonymously by BR. They both set the bot
 Example:
 "\E&l40P"		Set to 40 lines per page.
 	'H'	Set paper source
- 2 - Manual Feed
- 3 - Manual Envelope Feed
- 4 - Paper Tray 2 (lower tray)
- 5 - Paper Tray 3 (optional paper source)
+
+```
+2 - Manual Feed
+3 - Manual Envelope Feed
+4 - Paper Tray 2 (lower tray)
+5 - Paper Tray 3 (optional paper source)
+```
+
 	'O'	Page orientation: 0=portrait, 1=landscape.
 Example:
 "\E&l0O"   	set page orientation
- (must come before other sequences).
+
+```
+(must come before other sequences).
+```
+
 	'A'	Designates the size of the paper which in turn defines the size of the logical page:
 1     - Executive (7¼ x 10½ in).
 2     - Letter (8½ x 11 in).
@@ -272,8 +276,7 @@ Envelopes:
 91   - International C5 (162mm x 229mm).
 100 - International B5 (176mm x 250mm).
 
-
-;Position Cursor or margin
+**Position Cursor or margin**
 
 Lowercase 'a' followed by a number, then by 'V', 'H', 'C', or 'R'
 
@@ -287,8 +290,7 @@ Example:
 	'L'	Set the left margin to the left edge of the specified column.
 (Right margin defaults to the maximum setting)
 
-
-;Line Termination
+**Line Termination**
 
 Lowercase 'k', followed by a number, then by 'G', 'H', or 'S'.
 
@@ -308,8 +310,7 @@ Fixed fonts use CPI instead, normally the size of one blank character.
 2 - Compressed 16.67 cpi
 4 - Uncompressed 12 cpi
 
-
-;SYMBOL SET SELECTION, LANGUAGE, ETC.
+**SYMBOL SET SELECTION, LANGUAGE, ETC.**
 
 Note: Cannot combine commands.
 

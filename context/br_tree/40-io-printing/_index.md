@@ -7,5 +7,4 @@ _0 entries._
 
 ## Subfolders
 - [pcl-pdf/](pcl-pdf/_index.md) — Printer languages and formats: PCL, PDF, PJL, barcodes, pictures.
-- [sort/](sort/_index.md) — Report sorting: SORT, AIDX/DIDX usage, sort order.
 - [statements/](statements/_index.md) — Print statements and page control: PRINT (printer), PAGEOFLOW, page breaks, borders.

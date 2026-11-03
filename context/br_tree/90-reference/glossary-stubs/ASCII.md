@@ -7,7 +7,7 @@ kind: concept
 related: []
 provenance: recovered-2b (redirect-collision casualty re-fetched from wiki)
 ---
-;DECIMAL, ASCII (PC), HEX AND OCTAL
+**DECIMAL, ASCII (PC), HEX AND OCTAL**
 
 `Image:apph.jpg`
 

@@ -10,7 +10,9 @@ provenance: placed-2b (the FONT page from the BR wiki added to config-directives
 
 The **Font** `config` specification is supported. See also `Font (Config)`.
 
- FONT fontname 3DFONT=fontname
+```
+FONT fontname 3DFONT=fontname
+```
 
 This supports two fonts simultaneously, one for background and captions and one font for input fields.
 
@@ -23,7 +25,9 @@ Version `4.1`+ allows specific proportional or non-proportional fonts for text, 
 Multiple fonts are now supported under Windows. The default is still `SYSTEMPC`. Any installed
 non-proportional font is permitted that is named in the following BRCONFIG.SYS statement:
 
- SCREEN OPENDFLT   FONT=, FONT.TEXT=, FONT.LABELS=, FONT.BUTTONS=
+```
+SCREEN OPENDFLT   FONT=, FONT.TEXT=, FONT.LABELS=, FONT.BUTTONS=
+```
 
 Where the options are  arial: modern: slant: width+   (etc.)
 
@@ -41,12 +45,16 @@ Individual controls inherit the font settings of the window the same way windows
 The default font is the user's Windows default font. Separate fonts may be invoked for Labels, Buttons,
 and Text (data entry fields):
 
- OPEN #0: "Srow=5,Scol=5,Rows=25,Cols=80,FONT=Arial", Display, Outin
- (specifies a base font)
+```
+OPEN #0: "Srow=5,Scol=5,Rows=25,Cols=80,FONT=Arial", Display, Outin
+(specifies a base font)
+```
 
- OPEN #0: "Rows=30,Cols=100,FONT.LABELS=Terminal,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console", Display, Outin
+```
+OPEN #0: "Rows=30,Cols=100,FONT.LABELS=Terminal,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console", Display, Outin
+```
 
-====Font Qualifiers====
+#### Font Qualifiers
 
 | Qualifier | Values | Notes |
 |---|---|---|
@@ -65,6 +73,8 @@ allocated for the text:
 - **Width-** — make the font small enough to accommodate a string of capital W's.
 - **NoWidth** — clear the Width adjustment setting.
 
- OPEN #0: "Rows=30,Cols=100,FONT.LABELS=Terminal:bold:slant,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console", Display, Outin
+```
+OPEN #0: "Rows=30,Cols=100,FONT.LABELS=Terminal:bold:slant,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console", Display, Outin
+```
 
 The former `FONTSIZE=99x99` parameter is only supported when GUI is OFF.

@@ -1,7 +1,7 @@
 # BR WEB_SERVER
 
 This document describes **web_server 2.17** running on the BR build supplied with it
-(`brserver-x64-Debug.exe`, BR 5.01). Some details, especially certificate handling and the
+(`brserver-x64-Debug.exe`, BR 5.0n). Some details, especially certificate handling and the
 reverse-proxy settings, depend on that build's HTTP engine.
 
 The Web Server program acts as a complete web server. No other program is required to serve web
@@ -47,7 +47,7 @@ static files and shares the BR requests among the BR sessions.
 | BR processes | one | one or more, all started from the same folder and `Web_Server.INI` |
 | Ports BR listens on | 443 (HTTPS) and 80 (HTTP), on all addresses | a range such as 8081-8084, plain HTTP, on 127.0.0.1 only |
 | Static files | served by BR | served by NGINX (`NOLOGIN` sites) or by BR (login sites) |
-| Needs | BR 4.32g or later | web_server 2.06 or later and a BR build with `PROXY=`/`BIND=` support, such as the supplied `brserver-x64-Debug.exe` |
+| Needs | BR 4.32g or later | web_server 2.06 or later and a BR 5.0n build with `PROXY=`/`BIND=` support, such as the supplied `brserver-x64-Debug.exe` |
 
 Start with configuration 1. A BR process answers one BR request at a time, so move to
 configuration 2 when one process can no longer keep up. The sections below give the setup for

@@ -108,7 +108,7 @@ RINPUT <variable> [ TIMEOUT <ref> ]                   -- single variable: prints
 ```
 `INPUT` reads comma-separated values into the list (type-checked for numerics; `CONV`/`SOFLOW`
 handle bad data) — it takes **no prompt argument** (`INPUT "X", A$` does not compile; emit the
-prompt with a separate `PRINT` first). `LINPUT` reads an entire line into one string. Plain
+prompt with a separate `PRINT` first). <a id="linput"></a>`LINPUT` reads an entire line into one string. Plain
 `RINPUT <var>` ("reverse input") prints the current value and prompts for a replacement; it is
 seldom used because `RINPUT FIELDS` is preferred (it accepts a single variable only, not a list).
 Program-driven plain `PRINT`

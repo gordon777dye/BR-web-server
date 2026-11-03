@@ -76,6 +76,8 @@ by that name.
 - **`WBSERVER.DAT`** (located via the `BRSERVER`/`WBSERVER` BRConfig.sys statement, else the first
   `DRIVE`) tracks workstation IDs and **must be the *same* file for every workstation** sharing data —
   two stations using *different* `WBSERVER.DAT`s and opening the same file raise **error 4175**.
+  The first session to sign on when no other is using it empties it and writes it out afresh;
+  sessions that start at the same moment sign on one after another, and each gets a WSID of its own.
 - **Windows spooling gotcha**: a client printing to a local printer must set the printer's Spool Data
   Format to **RAW** (the default EMF drops BR's pass-through data), or bypass the spooler with
   `SUBSTITUTE PRN:/10 LPT1:`.

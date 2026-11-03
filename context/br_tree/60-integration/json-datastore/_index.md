@@ -8,4 +8,4 @@ _Backing keyword pages below._
 
 | File | Kind | Summary |
 |---|---|---|
-| [Json](Json.md) | config-directive | http://brforum.brulescorp.com/viewtopic.php?p=3358#p3358 |
+| [Json](Json.md) | config-directive | http://brforum.brulescorp.com/viewtopic.php?p=3358#p3358 — FNPut_Object( object-name, string-variable$ ) |

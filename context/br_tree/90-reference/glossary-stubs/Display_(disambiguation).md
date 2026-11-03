@@ -8,8 +8,8 @@ related: [OPEN, Open Display, statement, Open Communications, Display Menu, Disp
 ---
 The "DISPLAY" parameter identifies an `OPEN`ed file as a type of display file. 
 
-*`Open Display` `statement`
-*`Open Communications` `statement`
-*`Display Menu`
-*`Display (Command)`
-*`Display Buttons`
+- `Open Display` `statement`
+- `Open Communications` `statement`
+- `Display Menu`
+- `Display (Command)`
+- `Display Buttons`

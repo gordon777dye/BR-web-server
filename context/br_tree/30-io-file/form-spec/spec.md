@@ -74,7 +74,7 @@ interchangeable.
   error **1020** (*missing parenthesis*). `2*(C 8,3*C 4)` is legal — the inner `3*` repeats a field,
   not a group — while `2*(C 8,(C 4))` is not.
 - **`POS n`** positions to byte/column `n` (forward or backward); **`X n`** skips `n` positions;
-  **`SKIP n`** skips `n` print lines (`SKIP 0` = carriage-return, no line-feed → overstrike; `POS 0`
+  <a id="skip"></a>**`SKIP n`** skips `n` print lines (`SKIP 0` = carriage-return, no line-feed → overstrike; `POS 0`
   suppresses output and holds the line position). PRINT defaults to `SKIP 1` at statement end.
 - **`POS`, `X` and `SKIP` cannot carry a repeat factor.** BR stores their count in the same slot a
   factor would occupy, so `3*POS 5` is a syntax error rather than three positionings. To repeat one,

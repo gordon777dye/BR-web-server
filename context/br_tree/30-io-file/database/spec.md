@@ -1,7 +1,7 @@
 ---
 title: Database operations (SQL / ODBC)
 file: spec.md
-source: 'CONFIG DATABASE (00-configuration/config-directives) + SQL/ODBC error codes (90-reference/error-codes 3002–3015, 4002–4015, 0366, 4270) + wiki DATABASE page + 4.3/4.30 release notes (90-reference/limits-constants: OPEN…SQL inline/file forms, ENVDB.BRS STATUS.DATABASE interrogation). Worked examples derived from the BR "brg_demo" SQL example set (db_connect / mysql_read / mysql_write / sqlite_read / sqlite_write.wbs, dsn.fil — working material, since pruned)'
+source: 'CONFIG DATABASE (00-configuration/config-directives) + SQL/ODBC error codes (90-reference/error-codes 3002–3015, 4002–4015, 4270) + wiki DATABASE page + 4.3/4.30 release notes (90-reference/limits-constants: OPEN…SQL inline/file forms, ENVDB.BRS STATUS.DATABASE interrogation). Worked examples derived from the BR "brg_demo" SQL example set (db_connect / mysql_read / mysql_write / sqlite_read / sqlite_write.wbs, dsn.fil — working material, since pruned)'
 category: 30-io-file
 subcategory: 30-io-file/database
 kind: spec
@@ -338,9 +338,6 @@ second processing context; the two lists run parallel through 3012/4012, then di
 | 3015 | — | Undefined SQL data type |
 | — | 4015 | The specified database has not been opened |
 
-Also relevant: **0366** (`brvbCommandMissing`) — no SQL command was supplied with the submit/fetch
-statement (i.e., the channel had no bound SQL to run).
-
 Also common: **4270** — `EOF` on `READ` when no `EOF` clause was provided. This is normal end-of-
 result-set behavior, not a driver failure.
 
@@ -438,5 +435,4 @@ When a query fails:
 - `CONFIG DATABASE CLEAR` examples: [config-directives](../../00-configuration/config-directives/spec.md)
 - SQL/ODBC error codes: [3002](../../90-reference/error-codes/3002.md)–[3015](../../90-reference/error-codes/3015.md),
   [4002](../../90-reference/error-codes/4002.md)–[4015](../../90-reference/error-codes/4015.md),
-  [0366](../../90-reference/error-codes/0366.md),
   [4270](../../90-reference/error-codes/4270.md)

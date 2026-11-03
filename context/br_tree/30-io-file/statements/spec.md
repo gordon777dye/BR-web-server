@@ -227,9 +227,9 @@ that matter on a `READ`, `NOKEY` and `NOREC` on a `REWRITE`.
   one. The abbreviation you may be reaching for does not exist, and the error names something else.
   The ordinary keywords on these same statements — `USING`, `POS=`, `KEY=`, `KEY>=`, `SEARCH=`,
   `SEARCH>=`, `REC=`, `WAIT=`, `RESERVE`, `RELEASE` — are `table4k` entries and abbreviate normally.
-- <a id="close"></a>**CLOSE** options (both require the file opened `NOSHR`): **`DROP`** empties the
+- <a id="close"></a>**CLOSE** options (both require the file opened `NOSHR`): <a id="drop"></a>**`DROP`** empties the
   file's *contents* — the file remains (internal files keep only the header record, all space freed);
-  **`FREE`** *erases* the file from the system. A trailing **`,RELEASE`** also releases the file's
+  <a id="free"></a>**`FREE`** *erases* the file from the system. A trailing **`,RELEASE`** also releases the file's
   **name reservation** (a filename reserved via `PROTECT`/OPEN becomes available to others again). (These
   are the statement parameters; the same-named
   `DROP`/`FREE` **commands** do the equivalent from the console —

@@ -8,6 +8,7 @@ kind: spec
 status: 2b           # synthesized from the reference; new leaf
 recovered-fold: ATTN_Mode, CONV, EOF, NOREC, Operating_Mode, Operating_System_Error, PAUSE_mode, RETRY (8 redirect-collision pages folded from re-fetched source — full operating-mode table, OS-error 4300/4320+SysErr, ON-eligibility, RETRY caveats; verbatim retained on the BR wiki)
 corrections:
+  - "GROW given an anchor of its own, `grow` (the section keeps `soflow-grow`), so the index can send the help key to it, and named beside IGNORE and SYSTEM in the paragraph that says they are actions rather than line numbers, with a link to the section. It was documented only as a section with no anchor named for the word, unlike IGNORE and SYSTEM."
   - "GROW added to the frontmatter keywords, with the ON SOFLOW GROW section (BR 5.0: BR50 Release_Notes.md 1.21). GROW is a new word after ON SOFLOW, in BR's statement table, with no syntax tree of its own in syn.txt: brls accepts `ON SOFLOW GROW` and refuses a line number after it, as BR does."
   - "The error-condition roster was one list of 13 and is two rosters of 17 and 13. `<error-condition>` is used as a nonterminal in all four levels of the trapping BNF and was never given a production; §conditions named 13 words informally and said only that \"not every condition works with ON\". BR keeps the two sets in different places, and neither matches that list. A statement or EXIT clause is whatever `getExit` accepts — a table4k clause keyword whose token value appears in BR's `synexits` table, which is 17 words; `ON` takes its conditions from `ON`'s own syntax tree in `syn.txt`, which is 13, two of them taking an operand. Missing from the old list as statement clauses: ERROR, EVENT, LOCKED, TIMEOUT. Missing as ON conditions: ATTN, ERROR, EVENT, FKEY, FNKEY, LOCKED. Also added: that the clauses repeat with a space and not a comma, and the LOCKED-before-IOERR-before-ERROR ordering rule. LOCKED, TIMEOUT and the ordering rule were already in the tree, in `90-reference/error-codes/Locked_Error_Cond.md`, `IOERR.md` and the file-I/O and screen specs — they had simply never been folded into the roster, and three backing pages (`Error-Cond_Line-Ref.md`, `EXIT.md`, `EXIT_Error_Cond.md`) point at an `Error Conditions` page this tree does not have, which is where a complete roster would have lived. EVENT is listed as compiling and never firing - nothing in BR raises the condition, so the branch is unreachable in both rosters; it is a forward look left in the tables, the same shape as SELECT and CASE. Stated by the maintainer, and consistent with the reference corpus, which traps it 0 times. brls reports it as `non-functional-form`. Sources are level 1: BR's `synexits`/`table4v`/`table4k` (carried verbatim in `lsp/brls/brsz/`) and `lsp/syn.txt`. Found in brls phase 7, when `ON POS(…) GOTO A,B,C NONE Done` and a second exit clause on one statement were both rejected by a parser whose roster had been transcribed from the file-I/O spec's BNF; see lsp/brls/LSP_PLAN.md finding 33. HELP was deliberately left out of the frontmatter keywords for the reason DROP/FREE/INPUT were — it also names a command — and that exclusion was reversed in brls phase 13; see the entry below."
   - "RETRY and CONTINUE had no syntax line. The spec described both at length in prose and its BNF block covered only the four levels of trapping, so the two recovery statements — which the page's own frontmatter declares as keywords — were documented without a form. `dev/statement-semantics.md`'s retry-continue topic did carry the BNF, which is backwards: the distilled layer held a syntax line the curated reference did not. Added under §recovery, with the fact that both are primary operations taking no operand. That last point is not cosmetic: `syn.txt` gives CONTINUE a two-branch tree taking DO or FOR, and neither form exists — BR compiles them and does nothing, which brls now reports as `non-functional-form`. Stated by the maintainer; see lsp/brls/LSP_PLAN.md finding 32. Added in brls phase 5."
@@ -26,7 +27,7 @@ corrections:
     it and from functions.json's existing FKEY/FNKEY entries, not from a new source."
   - "HELP added to the frontmatter keywords, reversing the exclusion recorded above. The reason for it was sound when it was written and stopped being so: a name-only router hands a spelling's every sense the same specs, so declaring HELP here would once have told the *command* sense that the error-handling roster documents it. brls has since grown a disambiguation table (cmd/gendata, `ambiguities`) that narrows a sense to named routes, which is how DROP, FREE and INPUT are handled, and HELP now has a row naming the three specs that document the clause — this one for the error condition, 20-io-screen/input-output for `INPUT/RINPUT FIELDS … HELP <line-ref>`, and 20-io-screen/windows-cursor, which documents the field-help clause *and* the console HELP command. So both senses now reach pages about themselves, where the exclusion left both reaching nothing: HELP was the one member of this page's own 17-word roster that routed to no spec at all, and langdata.TestEveryExitClauseIsDocumented carried an unexplained `continue` for it. That skip is gone. IGNORE added at the same time — it is in this page's BNF at all four trapping levels as an action rather than a branch target, and was declared nowhere. Found in brls phase 13."
 related: [other-flow, conditionals]
-keywords: [GROW, ON ERROR, ERROR, IOERR, RETRY, CONTINUE, EXIT, ERR, LINE, SOFLOW, ZDIV, ATTN, CONV, DUPREC, EOF, EVENT, FKEY, FNKEY, HELP, LOCKED, NOKEY, NONE, NOREC, OFLOW, PAGEOFLOW, TIMEOUT, IGNORE]
+keywords: [GROW, ON ERROR, ERROR, IOERR, RETRY, CONTINUE, EXIT, ERR, LINE, SOFLOW, ZDIV, ATTN, CONV, DUPREC, EOF, EVENT, FKEY, FNKEY, HELP, LOCKED, NOKEY, NONE, NOREC, OFLOW, PAGEOFLOW, TIMEOUT, IGNORE, SYSTEM]
 ---
 
 # Error handling
@@ -82,8 +83,9 @@ places. A name in one is not necessarily in the other.
 everywhere the others are and traps nothing, in either roster.
 
 The clauses **repeat with no delimiter between them** — `… NOKEY 910 EOF 900` is two clauses, not
-one clause and a syntax error. A `line-ref` may also be `IGNORE` or `SYSTEM`, which are actions
-rather than branch targets (`… ERROR IGNORE`).
+one clause and a syntax error. <a id="ignore"></a>A `line-ref` may also be `IGNORE` or <a id="system"></a>`SYSTEM`, which are actions
+rather than branch targets (`… ERROR IGNORE`). `ON SOFLOW` has a third such action, `GROW`, which takes no line
+number: see [ON SOFLOW GROW](#grow).
 
 **Order matters when several are listed**, because each of these traps a superset of the one before:
 list `LOCKED` before `IOERR` before `ERROR`, or the broader one takes the error first. At the `ON`
@@ -158,7 +160,7 @@ Specifics worth knowing:
 - **`NOREC`** (error **57**) traps three, only under `RELATIVE` access with a `REC=` clause: the record
   was deleted, the number is ≥2 past the last record (`WRITE`), or past the last record (`READ`).
 
-<a id="soflow-grow"></a>
+<a id="soflow-grow"></a><a id="grow"></a>
 ## ON SOFLOW GROW (BR 5.0)
 
 A string that would overflow can be made longer instead of failing. It is off unless asked for, so no
@@ -206,8 +208,8 @@ CONTINUE             -- resume at the statement *after* the one that caused it
 `CONTINUE FOR`, and no secondary operation of any kind on either — `syn.txt`
 carries a two-branch tree for `CONTINUE` that BR does not implement.
 
-- **`RETRY`** re-executes the statement (clause) that caused the most recent error — analogous to
-  `RETURN` at the end of a subroutine; **`CONTINUE`** instead resumes at the *next* statement (common
+- <a id="retry"></a>**`RETRY`** re-executes the statement (clause) that caused the most recent error — analogous to
+  `RETURN` at the end of a subroutine; <a id="continue"></a>**`CONTINUE`** instead resumes at the *next* statement (common
   with `PAGEOFLOW`). Caveats: with no outstanding error (or one suppressed by `ON … IGNORE`) `RETRY`
   itself errors; a **second error before `RETRY` loses the first return address** — so handlers often do
   `ON ERROR SYSTEM` on entry and reinstate their traps just before `RETRY` to avoid loops. The

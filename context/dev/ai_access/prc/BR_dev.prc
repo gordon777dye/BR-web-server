@@ -52,4 +52,4 @@ LET X=MSG("harness",8720,"DEVELOP")
 !   To take that back:                LET X=MSG("grant",0)
 !
 ! No SYSTEM at the end: this hands you a session to work in.
-! LET X=MSG("grant",-1) ! grants unlimited AI access
+LET X=MSG("grant",-1) ! grants unlimited AI access

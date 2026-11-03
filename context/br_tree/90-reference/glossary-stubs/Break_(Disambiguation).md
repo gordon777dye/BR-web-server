@@ -6,5 +6,5 @@ subcategory: 90-reference/glossary-stubs
 kind: concept
 related: [Break (config), Break (command)]
 ---
-*`Break (config)`
-*`Break (command)`
+- `Break (config)`
+- `Break (command)`

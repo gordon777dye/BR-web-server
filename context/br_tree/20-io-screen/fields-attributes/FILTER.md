@@ -11,7 +11,7 @@ Grid and list **filter** search fields are available as of BR! `4.3` for
 
 A new field type is defined (similar to `SEARCH`):
 
-*(Diagram of the FILTER field — the source's `Filter.png` image is not available in this tree
+- (Diagram of the FILTER field — the source's `Filter.png` image is not available in this tree
 and could not be recovered.)*
 
 ```

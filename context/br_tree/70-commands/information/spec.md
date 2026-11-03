@@ -53,7 +53,7 @@ Each of these commands lists its forms and options when given
 <a id="semantics"></a>
 ## Semantics
 
-- <a id="date-time"></a>**DATE/TIME** (commands, `DA`/`TI`) set or show the clock for this terminal,
+- <a id="date-time"></a><a id="time"></a>**DATE/TIME** (commands, `DA`/`TI`) set or show the clock for this terminal,
   **session only** (per-workstation, lost on exit, no effect on the OS clock) — distinct from the
   [`DATE$`/`TIME$`](../../10-language/data-manipulation/system-functions/spec.md#date-functions)
   *functions* that only read it. Quirk: `DATE` is *set* as `mm-dd-yy` (or `mm/dd/yy`) but *reported*
@@ -86,7 +86,7 @@ Each of these commands lists its forms and options when given
   <a id="debug-str"></a>**`DEBUG_STR(level, str$)`** (function, BR 4.3+) emits `str$` to the log
   (when `level` ≤ the active log level) and to the debugger, or to the command console if no
   debugger is attached and GUI is ON (levels >10 clamp to 10).
-- <a id="status-verify"></a>**STATUS** (`ST`) reports system state by topic; with none, the
+- <a id="status-verify"></a><a id="status"></a>**STATUS** (`ST`) reports system state by topic; with none, the
   general status (program, active procedures, …). Topics, any of which may be abbreviated:
   `ALL`, `ATTRIBUTES`, `BREAKPOINTS`, `BTREE_VERIFY`, `COLORS`, `CONFIG`, `DATABASE`,
   `DIMS [LENGTHS [n]]`, `ENCRYPTION`, `ENV [name]`, `FILES [name]`, `FONTS`, `KEYBOARD`, `LIBRARY`,

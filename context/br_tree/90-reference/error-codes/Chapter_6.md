@@ -6,21 +6,23 @@ subcategory: 90-reference/error-codes
 kind: error-code
 related: [Answers 6.2, Answers 6.3, Answers 6.4, Answers 6.5, Answers 6.6, Answers 6.7, Answers 6.8]
 ---
-===Debugging Features=== 
+### Debugging Features
 
 Mistakes! This chapter won’t teach you how to avoid them, but it should help make discovering them a lot easier.  When you are finished you should be able to: 
 
-*Use the RUN command’s STEP and TRACE options. 
-*Use the LIST command to search for a character string. 
-*Use PRINT as a command while the program is in execution. 
-*Use BREAK and DISPLAY.
-*Use LOGGING.
-*Use READ and DATA statements to automate data entry steps. 
+- Use the RUN command’s STEP and TRACE options. 
+- Use the LIST command to search for a character string. 
+- Use PRINT as a command while the program is in execution. 
+- Use BREAK and DISPLAY.
+- Use LOGGING.
+- Use READ and DATA statements to automate data entry steps. 
 
 As your programs become longer, the mistakes that you make will be more and more difficult to detect, which may result in a bug-filled program.  A common error such as the following, where a numeric variable is assigned to a character string, could easily become lost in a program of 250 or more lines if the system did not provide a way to help you detect it: 
 
- 2330 PRINT “Enter customer name” 
- 2340 INPUT CUSTNAME 
+```
+2330 PRINT “Enter customer name” 
+2340 INPUT CUSTNAME 
+```
 
 Business Rules! has a number of features which are designed to make error detection easier.  To learn more about these debugging features (so called because errors in programs are often called bugs), you should enter the program below, named CHECKBAL into Business Rules!. 
 
@@ -36,7 +38,7 @@ Enter END or STOP from error mode, then LIST the program to see if you can figur
 
 You should come to the conclusion the “F” is an illegal value for the numeric variable DEBIT, therefore it cannot be entered. 
 
-====Quick Quiz 6.1==== 
+#### Quick Quiz 6.1
 
 1. What is the 5-digit number that appears in the center of the status line after an error occurs? <br>
 a) The number of the error-causing program line.  <br>
@@ -47,7 +49,7 @@ Answers:  <br>
 1-b. 
  
 
-===6.2 Using LIST to search for a character string ===
+### 6.2 Using LIST to search for a character string
 
 In the last section you learned that F cannot be entered for the variable DEBIT.  But you still need some way for the operator to signify that he is finished entering data, so what do you do? 
 
@@ -61,33 +63,41 @@ LIST “F” will produce this listing:
 
 You may make changes directly to the lines in this listing.  When you push Enter after changing each line.  Business Rules! will consider the changes to be permanent.  Go ahead and replace the F’s with -99’s and then LIST again to verify the changes are made.
 
-===More about LIST=== 
+### More about LIST
 
 LIST command is case-sensitive when used with double quotes like this:
 
- LIST "a"
+```
+LIST "a"
+```
 
 The result will display only lines which contain only lowercase "a", but NOT uppercase "A".
 
 LIST command is case-insensitive when used with single quotes like this:
 
- LIST 'a'
+```
+LIST 'a'
+```
 
 The result will display all lines which contain lowercase "a" and uppercase "A".
 
 The LIST command provides all sorts of helpful ways to make the life of a programmer easier.  Besides using it to list an entire program or to search for a certain piece of information, you can use it to display a screen full of program lines starting with the program line you indicate.  The following command causes the system to display line 10 and the full screen of information that follows: 
 
- LIST 10- 
+```
+LIST 10- 
+```
 
 The next example causes the system to display line 180 and the full screen of information that comes before the line (notice the placement of the dash): 
 
- LIST -180 
+```
+LIST -180 
+```
 
 You can even tell the system to list a specific range of program lines.  The following command causes lines 70 to 120 to be displayed: 
 
 LIST 70,120 
 
-====Quick Quiz 6.2 ====
+#### Quick Quiz 6.2
 
 1. Use the LIST command’s search feature to answer the following questions: <br> 
 a) Which lines contain the string “THEN”?  <br>
@@ -116,7 +126,8 @@ c) LIST -99999
 
 `Answers 6.2`  <br>
 
-===6.3 Checking CHECKBAL’s calculations ===
+### 6.3 Checking CHECKBAL’s calculations
+
 You have now fixed one of the major bugs in the CHECKBAL program.  A LIST of the code should look as follows: 
 
 `image:6.3.png`
@@ -138,7 +149,8 @@ LIST your program again and see if you can determine the cause of this miscalcul
 
 If the assignments check out okay, you may need a more sophisticated debugging tool.  The next lesson will explain two options of the RUN command, STEP and TRACE, which will allow you to regulate and view the step-by-step progress of a program. 
 
-====Quick Quiz 6.3 ====
+#### Quick Quiz 6.3
+
 1. The reason that the CHECKBAL program came up with a wrong answer is: <br>
 a) Business Rules! made an arithmetic error. <br>
 b) The program has an error in it. <br>
@@ -151,13 +163,15 @@ c) At the statements that contain mathematical formulas. <br>
 
 `Answers 6.3`
 
-===6.4 The RUN command’s STEP and TRACE options===
+### 6.4 The RUN command’s STEP and TRACE options
 
 The RUN command has two options, STEP and TRACE, which are helpful for following the flow of a program during the debugging process.  There are four possible combinations: 
 
- RUN STEP 
- RUN TRACE 
- RUN STEP TRACE or RUN TRACE STEP 
+```
+RUN STEP 
+RUN TRACE 
+RUN STEP TRACE or RUN TRACE STEP 
+```
 
 **RUN STEP** tells Business Rules! to pause after the execution of each program line.  During the pause, Business Rules! is in STEP mode.  The word STEP appears in the left corner of the status line, and the number of the next line to be executed appears on the right (near the center). In release 4.3 and later, stepping through a program will also display each statement just before executing it.
 
@@ -183,7 +197,8 @@ RUN TRACE tells Business Rules! to print a record of the line numbers on the scr
 
 RUN STEP TRACE (or RUN TRACE STEP) performs a combination of the STEP and TRACE functions.  For each statement, Business Rules! prints the line number on the screen, enters STEP mode and waits for Enter before executing the line. 
 
-====Quick Quiz 6.4 ====
+#### Quick Quiz 6.4
+
 1. Which form of the RUN command should you use when you want program execution to pause after every line?  <br>
 a. RUN PAUSE  <br>
 b. RUN TRACE TRACE  <br> 
@@ -201,7 +216,7 @@ c. The next line to be executed.
 
 `Answers 6.4`<br>
 
-===6.5 Checking variable values from STEP mode ===
+### 6.5 Checking variable values from STEP mode
 
 Business Rules! STEP mode accepts and allows execution of most commands.  This feature of STEP mode allows you to test the values of variables with PRINT commands throughout a program.  Why would you want to test the values of a program’s variables?  For a program such as CHECKBAL, checking values allows you to narrow down the source of a miscalculation. 
 
@@ -209,11 +224,15 @@ You already know for instance, that the value of BAL is incorrect when the PRINT
 
 To check the value of BAL at the start of the CHECKBAL program, type in and Enter: 
 
- RUN STEP 
+```
+RUN STEP 
+```
 
 When the program enters STEP mode at line 10, type in and Enter: 
 
- PRINT BAL 
+```
+PRINT BAL 
+```
 
 Business Rules! will print the current value of BAL, 0, on the next line.  Note that the program is still in STEP mode; it remains in this mode until you press Enter all by itself. 
 
@@ -225,17 +244,23 @@ You could check the values of all the variables in CHECKBAL2 at this point, but 
 
 Check the value of BAL at this time by entering: 
 
- BAL 
+```
+BAL 
+```
 
 Business Rules! should respond with the same wrong answer, $42.09, which you got the first time you ran the program with the above figures.  Since this line 150 is the first line in which BAL is changed in the program, at least one of the other variables in the same LET statement (the source of the number assigned to BAL) must be incorrect also. 
 
 While you are still in STEP mode, you can tell Business Rules! to LIST line 150 with the following command (When you want to LIST just one line, type the keyword LIST and the line number): 
 
- LIST 150    
+```
+LIST 150    
+```
 
 Business Rules! will give you this: 
 
- 00150 BALANCE: LET BAL=STARTBAL-TOTDEB+TOTCRED 
+```
+00150 BALANCE: LET BAL=STARTBAL-TOTDEB+TOTCRED 
+```
 
 Keeping the program in STEP mode, go ahead and check the values of each of the other three variables in line 150.  After you have checked all three, the bottom of your screen should show the following: 
 
@@ -245,7 +270,9 @@ Do any of the values seem out of place?  Does having a value of 0 for STARTBAL 
 
 Use the LIST command to check all other occurrences of STARTBAL: 
 
- LIST “STARTBAL” 
+```
+LIST “STARTBAL” 
+```
 
 You may be surprised to see that Business Rules! responds with a listing of line 150 only.  If STARTBAL does not exist anywhere else in the program, what variable was your $456.98 starting balance assigned to?  LIST the entire program to see: 
 
@@ -257,7 +284,7 @@ Remove the dollar sign from the STARTBAL$ variable in line 30, and then RUN the 
 
 You have now successfully debugged the CHECKBAL program. 
 
-====Quick Quiz 6.5 ====
+#### Quick Quiz 6.5
 
 1. What is the purpose of checking variable values during STEP mode?  <br>
 a)   Helps detect syntax errors.  <br>
@@ -286,7 +313,8 @@ c)   Business Rules! prints the value that BAL equals after line 140 is execut
 
  
 
-===6.6 Using READ and DATA for automatic data entry ===
+### 6.6 Using READ and DATA for automatic data entry
+
 Now that you have successfully debugged the CHECKBAL2 program, we’re going to show you a step that would have made it easier (gee, what a dirty trick!).
 
 You probably got tired very quickly of entering data for CHECKBAL2 each time that you ran it.  A couple of simple, temporary changes to your program could automate this process for you and thereby reduce your debugging time. 
@@ -295,7 +323,9 @@ Instead of requiring input from the operator, your programs can be instructed to
 
 The DATA statement is designed to store values which will be assigned to variables during program execution.  An example of values that you could store in a DATA statement is the withdrawal/debit information that the CHECKBAL program needs.  The following DATA statement stores all five values and the number that signifies the end of data, -99. 
 
- 00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+```
+00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+```
 
 All DATA statements contain the keyword DATA and at least one data item.  When the statement is to contain more than one data item (as in the above example), the individual items must be separated by commas.  There is no need to use spaces between data items, but you may if you wish. 
 
@@ -303,26 +333,32 @@ Business Rules! handles DATA statements differently than it does most other stat
 
 Business Rules! data tables are internal constructs, which means that Business Rules! designs them only for its own use; you cannot ever actually see them. 
 
- 00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+```
+00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+```
 
 If you could see them, the above line 170 (which is so far the only DATA statement in the CHECKBAL program), would create the following data table (<- is the data pointer):
 
- 34.20 &lt;- 
- 2.56 
- 98.42 
- 17.99 
- 10.00 
- -99 
+```
+34.20 &lt;- 
+2.56 
+98.42 
+17.99 
+10.00 
+-99 
+```
 
 The values in a data table can only be accessed by “READ data” statements.   All READ data statements contain the keyword READ and at least one variable name. When more than one variable name is used, the names must be separated with commas.  Replace the INPUT statement at line 70 of the CHECKBAL2 program with the following READ statement: 
 
- 70 READ DEBIT 
+```
+70 READ DEBIT 
+```
 
 READ tells the system to find the data table and assign the first available data item (the one to which the data pointer is set) to the named variable.  As soon as the data item has been assigned, the pointer moves to the next item on the table. 
 
 Use RUN STEP to run the CHECKBAL program with the changes noted above.  Check the value of DEBIT each time that the system is about to execute line 70, then answer the questions in the next Quick Quiz 6.6.
 
-====Quick Quiz 6.6 ====
+#### Quick Quiz 6.6
 
 1. Why does the PRINT statement at line 60 still instruct the operator to provide withdrawal/debit information, even though it would send an error message if you tried to enter information at line 70? <br>
 a)   The withdrawal/debit question must remain in the program so that the READ statement can read it. <br>
@@ -336,15 +372,12 @@ c)   Six times.
 
 3. Match the following: <br>
 
-{|  class="wikitable"
-|a)   DATA statement. ||1.Accesses values from a data table. 
-|-
-|b)   DATA item. ||2.Marks the next data item to be used. 
-|-
-|c)   READ statement. ||3.One of the values listed in a DATA statement. 
-|-
-|d)   Pointer. ||4.Stores value which will be assigned to variables. 
-|}
+|  |  |
+| --- | --- |
+| a)   DATA statement. | 1.Accesses values from a data table. |
+| b)   DATA item. | 2.Marks the next data item to be used. |
+| c)   READ statement. | 3.One of the values listed in a DATA statement. |
+| d)   Pointer. | 4.Stores value which will be assigned to variables. |
 
 4. Which of the following statements is correct? <br>
 a)   Business Rules! constructs a data table the first time that it encounters a DATA statement during normal program flow. <br>
@@ -353,7 +386,7 @@ c)   DATA SEE is the command which allows you to look at a program’s data ta
 
 `Answers 6.6` <br>
 
-===6.7 Using multiple DATA statements in a single program ===
+### 6.7 Using multiple DATA statements in a single program
 
 The CHECKBAL2 program in the last lesson used only one READ statement (which was executed several times because it occurred in a loop) and one DATA statement.  It is also possible to use each statement more than once in program. 
 
@@ -361,29 +394,44 @@ You learned earlier that Business Rules! automatically searches an entire progra
 
 If you wish to add a second DATA statement for deposit/credit values to the CHECKBAL2 program, your two data statements could be as follows: 
 
- 00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
- 00175 ! above (or prior) line gives data for withdrawal/debit 
- 00180 DATA 155.54,49.72,-99 
- 00185 ! above line gives data for deposit/credit 
+```
+00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+00175 ! above (or prior) line gives data for withdrawal/debit 
+00180 DATA 155.54,49.72,-99 
+00185 ! above line gives data for deposit/credit 
+```
 
 Business Rules! would create the following table for this information: 
- 34.20 <- 
- 2.56 
- 98.42 
- 17.99 
- 10.00 
- -99 
- 155.54 
- 49.72 
- -99 
+
+```
+34.20 <- 
+2.56 
+98.42 
+17.99 
+10.00 
+-99 
+155.54 
+49.72 
+-99 
+```
 
 Now here’s a test: if you also want the program to automatically enter the starting balance data, where should you put the DATA statement and what should it include?  Choose the best answer from the following possibilities (look at the line number to determine where the statement will be placed): 
   
- 00165 DATA 456.98,-99 
+```
+00165 DATA 456.98,-99 
+```
+
        OR 
- 00190 DATA 456.98 
+
+```
+00190 DATA 456.98 
+```
+
        OR 
- 00167 DATA 456.98 
+
+```
+00167 DATA 456.98 
+```
 
 The first answer above is wrong because -99 is not required as an end-of-data indicator.  The two DATA statements which are already in the program include -99 as the last item only because the CHECKBAL program requires this number before it will exit from the DEBIT or CREDIT loops.  
 
@@ -391,43 +439,51 @@ The second answer above is wrong because it would cause the starting balance dat
 
 The third choice is the correct answer.  Adding this line to the CHECKBAL2 program will cause Business Rules! to construct the data table such as the following when the program is run: 
 
- 456.54 <- 
- 34.20 
- 2.56 
- 98.42 
- 17.99 
- 10.00 
- -99 
- 155.54 
- 49.72 
- -99 
+```
+456.54 <- 
+34.20 
+2.56 
+98.42 
+17.99 
+10.00 
+-99 
+155.54 
+49.72 
+-99 
+```
 
 You may have already realized that there are a number of other ways to make Business Rules! construct the above data table for the CHECKBAL2 program.  There is no limit as to the number of data items which can be used in a single DATA statement (except that the total length of the line cannot exceed 800 characters), so you could put all the data items into a single statement, as follows: 
 
- 20000 DATA 456.54,34.20,2.56,98.42,17.99,10.00,-99,155.54,49.72,-99 
+```
+20000 DATA 456.54,34.20,2.56,98.42,17.99,10.00,-99,155.54,49.72,-99 
+```
 
 There is also no limit to the number of DATA statements which may appear in a program.  You could put each data item into a separate DATA statement if you wanted to (however, this would not be an efficient use of program space or your time): 
 
- 30010 DATA 456.54 
- 30020 DATA 34.20 
- 30030 DATA 2.56 
- 30040 DATA 98.42 
- 30050 DATA 17.99 
- 30060 DATA 10.00 
- 30070 DATA -99 
- 30080 DATA 155.54 
- 30090 DATA 49.72 
- 30100 DATA -99 
+```
+30010 DATA 456.54 
+30020 DATA 34.20 
+30030 DATA 2.56 
+30040 DATA 98.42 
+30050 DATA 17.99 
+30060 DATA 10.00 
+30070 DATA -99 
+30080 DATA 155.54 
+30090 DATA 49.72 
+30100 DATA -99 
+```
 
 Business Rules! would construct the same data table from the above two examples as it would from the following set of DATA statements (which we have already discussed).  The advantage of the following method, as you will learn in the next lesson, is that it allows you to match up each READ statement to a DATA statement which contains the values it will access. 
 
 If you have not already done so, incorporate these statements into the CHECKBAL2 program. 
 
- 00167 DATA 456.98 
- 00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
- 00180 DATA 155.54,49.72,-99 
+```
+00167 DATA 456.98 
+00170 DATA 34.20,2.56,98.42,17.99,10.00,-99 
+00180 DATA 155.54,49.72,-99 
+```
 
-====Quick Quiz 6.7 ====
+#### Quick Quiz 6.7
 
 1. How many data tables does Business Rules! construct for a program with 30 DATA statements? <br>
 a)   Three.  Each data table may include information from up to ten DATA statements. <br>
@@ -443,12 +499,14 @@ c)   The last value in a DATA statement must always be -99.
 
  
 
-===6.8 Using multiple READ statements in a program ===
+### 6.8 Using multiple READ statements in a program
 
 Before you run the version of the CHECKBAL2 program that you have just created, you should change the INPUT statements in lines 30 and 110 to READ statements.  This allows the program to access the new values that you have included in the DATA statements.  Change the statements to the following: 
 
- 00030 READ STARTBAL 
- 00110 READ CREDIT 
+```
+00030 READ STARTBAL 
+00110 READ CREDIT 
+```
 
 Go ahead an RUN the CHECKBAL2 program.  It should continue to print the same questions on the screen as it did before, but it will no linger stop and wait for input.  (Of course, you could remove these PRINT statements if you wanted to.)  It should come up with an ending balance of 499.07, which is correct. 
 
@@ -460,7 +518,9 @@ Each variable in a READ statement may access only one item from the data table.�
 
 Using the data table below, can you figure out which values Business Rules! would assign to the variables in line 11000? 
 
- 11000 READ NAME$,BIRTHDATE$,SEX$,EYECOLOR$,HEIGHT$,WEIGHT$ 
+```
+11000 READ NAME$,BIRTHDATE$,SEX$,EYECOLOR$,HEIGHT$,WEIGHT$ 
+```
 
 “Armand Tate” 
 “6/28/57” 
@@ -478,7 +538,7 @@ Using the data table below, can you figure out which values Business Rules! woul
 
 The RESTORE statement allows you to tell Business Rules! to reset the data pointer to the first item in the data table.  When a data table runs out of data items and this statement has not been used, Business Rules! sends an error. 
 
-====Quick Quiz 6.8 ====
+#### Quick Quiz 6.8
 
 1. Which data item does the first variable in a READ statement access? <br>
 a)   The first item in the data table. <br>
@@ -492,7 +552,7 @@ c)   Duplicates each DATA statement in a program. <br>
 
 `Answers 6.8` <br>
 
-====Chapter 6 Exercise ====
+#### Chapter 6 Exercise
 
 A company has four employees with current annual salaries of $36,000, $28,000, $16,000 and $20,000.  Put these four numbers in a DATA statement.  
 
@@ -504,39 +564,33 @@ Save this program under the name NEWSAL, and you will continue to modify it with
 
 `Solutions#CHAPTER 6|Solution` 
 
-===6.9 Using BREAK and DISPLAY===
+### 6.9 Using BREAK and DISPLAY
 
 Two more tools that are useful for debugging (as of 4.1) are the BREAK and DISPLAY commands. 
 
 While a program is loaded, you can always enter STATUS BREAK and all the program's current debug settings will be displayed on the screen.  
 
-===6.10 LOGGING===
+### 6.10 LOGGING
 
 The LOGGING config statement will provide logging for debugging purposes. 
 
 By adding this syntax to your BRConfig.sys file, BR will record what happens when the program runs.
 
- LOGGING loglevel, logfile
+```
+LOGGING loglevel, logfile
+```
 
 Where loglevel is a number representing an activity to be logged, as seen in the chart below. Choosing a higher number will also include all the levels below it:
 
-{|
-|-
-||**0 - MAJOR_ERROR**||major problems occurring during execution
-|-
-||**1 - NOTABLE_ERROR**||unexpected error likely to cause problems
-|-
-||**2 - MINOR_ERROR**||unexpected error that can be ignored
-|-
-||**3 - MAJOR_EVENT**||starting program, exiting and shelling
-|-
-||**4 - SECURITY_EVENT**||logons, logon attempts etc
-|-
-||**5 - MINOR_EVENT**||individual commands entered during execution
-|-
-||**9 - DEBUGGING_EVENT**||added for debugging purposes
-|-
-|}
+|  |  |
+| --- | --- |
+| \|**0 - MAJOR_ERROR** | major problems occurring during execution |
+| \|**1 - NOTABLE_ERROR** | unexpected error likely to cause problems |
+| \|**2 - MINOR_ERROR** | unexpected error that can be ignored |
+| \|**3 - MAJOR_EVENT** | starting program, exiting and shelling |
+| \|**4 - SECURITY_EVENT** | logons, logon attempts etc |
+| \|**5 - MINOR_EVENT** | individual commands entered during execution |
+| \|**9 - DEBUGGING_EVENT** | added for debugging purposes |
 
 And logfile is the file where BR will record the information. 
 

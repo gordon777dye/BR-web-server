@@ -8,14 +8,16 @@ related: [ON FKEY, CMDKEY]
 ---
 The FKEY error condition is available for use only with the ON error statement. It cannot be used at the end of a program line or in the Exit statement.
 
-===Syntax===
+### Syntax
 
 `file:FKeyEC.png|300px`
 
-===Parameters===
+### Parameters
+
 The "numeric expression" portion of the FKEY error condition is a numeric expression that evaluates to a number from 1 to 10. The value of the num-expr determines which function key, when pressed, will activate the ON statement's GOTO.
 
-===Error Traps:===
+### Error Traps:
+
 During program processing (the status line says "RUN"), FKEY traps the pressing of a function key which is specified by the "num-expr" parameter.
 
 Business Rules tests for the pressing of function keys before execution of each

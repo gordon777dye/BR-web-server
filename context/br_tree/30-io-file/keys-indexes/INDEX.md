@@ -6,25 +6,33 @@ subcategory: 30-io-file/keys-indexes
 kind: statement
 related: [command, Index Facility, index file, DUPKEYS, REORG, LISTDUPKEYS, procedure files, CLEAR, EXECUTE, BaseYear]
 ---
-The **Index** `command` creates or recreates an index file. See the `Index Facility` for additional information. You may also find it useful to familiarize yourself with the concept of a [https://en.wikipedia.org/wiki/Index_(database) Database Index]
+The **Index** `command` creates or recreates an index file. See the `Index Facility` for additional information. You may also find it useful to familiarize yourself with the concept of a [Database Index](https://en.wikipedia.org/wiki/Index_(database))
 
 For a simple tutorial, see `Index_and_Sort_facilities_Tutorial|Index Tutorial`.
 
-==Syntax==
- INDEX <data file> <`index file`> <key start position>[/...] <key length>[/...] [-<work path>] [{`DUPKEYS`|NATIVE|`REORG`|REPLACE|VERIFY|`LISTDUPKEYS`[>[>]<output file>]}][...] [-N] 
+## Syntax
+
+```
+INDEX <data file> <`index file`> <key start position>[/...] <key length>[/...] [-<work path>] [{`DUPKEYS`|NATIVE|`REORG`|REPLACE|VERIFY|`LISTDUPKEYS`[>[>]<output file>]}][...] [-N] 
+```
 
 `Image:Index.png|1000px`
 
-==Comments and Examples==
+## Comments and Examples
+
 Index works both in `procedure files` and as a separate `:Category:Commands|command`. It performs a `CLEAR` operation, except when a program is active, and creates or recreates the index file as specified.
 
 The following command replaces INDEX.FIL, if it already exists, with a new index file for the master file MASTER.FIL. The key is a field that starts at position 10 and consists of 5 characters:
 
- INDEX MASTER.FIL INDEX.FIL 10 5 REPLACE
+```
+INDEX MASTER.FIL INDEX.FIL 10 5 REPLACE
+```
 
 The next command creates a new index file HIST.KEY for the master file HISTORY. The first key is a field that starts at position 1 and consists of 4 characters. The second key starts at position 10 and has 2 characters, and the third field starts at position 20 and has 2 characters:
 
- INDEX HISTORY HIST.KEY 1/10/20 4/2/2
+```
+INDEX HISTORY HIST.KEY 1/10/20 4/2/2
+```
 
 In the following example, INDEX reorganizes the existing CUST.KEY index file. However, if CUST.KEY does not exist, a new index file by the same name is built. The REORG parameter greatly speeds up the INDEX command because it takes advantage of the part of the key file that is already in sorted order. The first key field starts at position 1 and consists of 6 characters. The second key field starts at position 4 and consists of 3 characters. **Note** that the key fields overlap.
 
@@ -32,16 +40,20 @@ In the following example, INDEX reorganizes the existing CUST.KEY index file. Ho
 
 The next example builds a new index file called PAY.KEY for the PAYROLL master file. The key field starts at position 1 and consists of 6 characters. This command allows duplicate keys, and it sends a listing of duplicate keys to the file DUP. No warning error will occur if duplicate keys are encountered. **Note** that the parameters in this Index command are separated by commas rather than by spaces:
 
- INDEX PAYROLL,PAY.KEY,1,6,DUPKEYS,LISTDUPKEYS >DUP
+```
+INDEX PAYROLL,PAY.KEY,1,6,DUPKEYS,LISTDUPKEYS >DUP
+```
 
 Also note that the creation of indexes can be interrupted with Ctrl-A, and can then be resumed with GO.
 
-==Defaults==
+## Defaults
+
 # Use space on the current default drive and directory as temporary work space.
 # Display a record of duplicate keys on the screen.
 # Send an error if duplicate keys are found; use the collating sequence specified in the BRConfig.sys file (or by the most recent CONFIG command); completely build (or rebuild) the specified index; send an error message and abort the index procedure if the specified index file already exists.
 
-==Parameters==
+## Parameters
+
 The **data file name** parameter specifies the name of the data file for the index you wish to create.
 
 **Index file name** specifies the name of the index file for the desired index.
@@ -71,9 +83,9 @@ There are three cases in which INDEX with the REORG parameter will completely bu
 # When the specified file is not an index file.
 # When any of the key starting pos or key length parameters stored in the header record are different from those specified in the INDEX REORG command.
 
-**VERIFY and REORG on a Btree2 index** (the default kind for new indexes; `OPTION 22` makes new indexes Btree). **VERIFY** checks the index while programs go on using it: key order, that no index record is reached twice, that every live master record's key is in the index, and that no update was left unfinished. Anything that looks wrong is checked again under the index's lock, so a key being changed at that moment is not reported. If nothing is wrong, VERIFY ends without an error and deletes any `.flaws` file an earlier VERIFY left. Otherwise it ends with error 9401, writes what it found to *index file*`.flaws` (for example `CUST.KEY.flaws`), one flaw per line with its kind first (`OUT_OF_RANGE`, `STALE_REF`, `SEPARATOR`, `MISSING`, `INTERRUPTED` or `STRUCTURE`), and marks the index as needing repair. Until it is repaired, the index adds records at the end of the file instead of reusing freed ones.
+**VERIFY and REORG on a Btree2 index** (the default kind for new indexes; `OPTION 22` makes new indexes Btree). **VERIFY** checks the index while programs go on using it: key order, that no index record is reached twice, that every live master record's key is in the index, and that no update was left unfinished. Anything that looks wrong is checked again under the index's lock, so a key being changed at that moment is not reported. If nothing is wrong, VERIFY ends without an error and deletes any `.flaws` file an earlier VERIFY left. Otherwise it ends with error 9401, writes what it found to *index file*`.flaws` (for example `CUST.KEY.flaws`): a first line `VERIFIED`, then one flaw per line with its kind first (`OUT_OF_RANGE`, `STALE_REF`, `SEPARATOR`, `MISSING`, `INTERRUPTED`, `EXTRA`, `DISORDER`, `DAMAGED`, `DEPTH`, `TWICE` or `STRUCTURE`), and marks the index as needing repair. Until it is repaired, the index adds records at the end of the file instead of reusing freed ones.
 
-**REORG** on a Btree2 index needs the index to itself. It repairs the index in place: it checks the parts the `.flaws` file names (or, without one, the whole index and the whole master file), puts keys back where they belong, adds the keys missing for live master records, puts every index record no longer used on the free list and shortens the file. It then clears the repair mark and deletes the `.flaws` file. An index it cannot repair in place, such as one with a `STRUCTURE` flaw, is rebuilt from the master file as REPLACE would.
+**REORG** on a Btree2 index also runs while programs go on using the index. It repairs the index in place: it checks the parts a `.flaws` file VERIFY wrote names (or, without one - or with one only reads wrote - the whole index and the whole master file; a new index, or one REPLACE rebuilds, starts without one), puts keys back where they belong, rewrites an index record whose keys are out of order or repeated (`DISORDER`) with the keys that belong in it, in order and once each, keeping only those its master records still have, removes the link to an index record that is unusable (`DAMAGED`) or a level too deep (`DEPTH`) and frees everything below it, removes a second link to an index record reached twice (`TWICE`), removes keys whose master record is deleted or has another key (`EXTRA`), adds the keys missing for live master records (after removing such a link it checks the whole master file, `.flaws` file or not), and puts the index records set aside while it needed repair on the free list. It then clears the repair mark and deletes the `.flaws` file. It does not shorten the file; REPLACE rebuilds an index at its smallest. Each repair locks only the index records it changes, and a missing key is added under its master record's lock. If records a repair needs stay locked by programs, REORG ends with error 0061, and the index stays marked for a later REORG. Removing a `DAMAGED` or `DEPTH` record needs the master file to put its keys back; if REORG cannot open it, it ends with that file's error, and the index stays marked for repair. An index it cannot repair in place - one whose first index record cannot be used (`STRUCTURE`) - is rebuilt from the master file as REPLACE would; a rebuild needs the index to itself, so while programs have it open REORG ends with a file-sharing error instead. The rebuild takes duplicate keys as DUPKEYS does, since a WRITE can already have given the index duplicates. A read through a Btree2 index passes over a key whose record is deleted or has another key, or that points at the record just read, and writes it to the `.flaws` file (`EXTRA`, or `REPEATED`) for REORG, without marking the index as needing repair.
 
  	INDEX CUSTOMER CUST.KEY 1 6 VERIFY
  	INDEX CUSTOMER CUST.KEY 1 6 REORG
@@ -82,9 +94,9 @@ There are three cases in which INDEX with the REORG parameter will completely bu
 
 The **-N** option suppresses all information that would normally be output (except LISTDUPKEYS information).
 
-==BADKEYS==
+## BADKEYS
 
-==Special Considerations==
+## Special Considerations
 
 The Index command may be executed in a program as part of the `EXECUTE` statement. If a program is active, this method of running the INDEX command does not CLEAR memory.
 
@@ -92,7 +104,9 @@ The Index command may be executed in a program as part of the `EXECUTE` statemen
 
 The INDEX command may now include a SHR parameter. This allows another workstation to access the master file while indexing. For example:
 
- INDEX master.fil index.fil 1 4 REPLACE SHR
+```
+INDEX master.fil index.fil 1 4 REPLACE SHR
+```
 
 **Note** that SHR should be used only for making temporary indexes because master files normally should not be modified when rebuilding indexes. When INDEX is used with the SHR parameter, all records in the master file can be accessed by the INDEX command, even if a record is locked by another user. 
 
@@ -102,30 +116,41 @@ This is useful for looking up names, where the capitalization of the data on fil
 
 The following code writes data as is to the master file, but writes all uppercase characters to the key file.
 
- 00010 OPEN #1:"name=XXX,kfname=XXX.key,replace,recl=63,kps=1,kln=4u",INTERNAL,OUTIN,KEYED
- 00020 WRITE #1,USING 30: "aaAA"
- 00030 FORM C 4
- 00040 READ #1,USING 30,KEY="AAaa": X$
- 00050 PRINT X$
+```
+00010 OPEN #1:"name=XXX,kfname=XXX.key,replace,recl=63,kps=1,kln=4u",INTERNAL,OUTIN,KEYED
+00020 WRITE #1,USING 30: "aaAA"
+00030 FORM C 4
+00040 READ #1,USING 30,KEY="AAaa": X$
+00050 PRINT X$
+```
 
- INDEX MASTER.FIL KEY.FIL 1/3 2/2U REPLACE
+```
+INDEX MASTER.FIL KEY.FIL 1/3 2/2U REPLACE
+```
 
 If a key field is a two digit year it should be flagged as such so BR will use `BaseYear` when comparing values for sorting purposes. Place the letter Y after either the field position or its length. 
 
- INDEX MASTER.FIL KEY.FIL 1/3 2/2Y REPLACE
+```
+INDEX MASTER.FIL KEY.FIL 1/3 2/2Y REPLACE
+```
 
 If a two digit year is stored in binary or packed decimal form, the INDEX command needs to indicate that by following the Y with either P or D as in:
 
- INDEX MASTER.FIL KEY.FIL 1/3 2/2YB REPLACE
+```
+INDEX MASTER.FIL KEY.FIL 1/3 2/2YB REPLACE
+```
 
 The INDEX command defaults to B-tree indexing unless OPTION 5 is used in the BRConfig.sys file to set the universal default to ISAM or the ISAM parameter is used within the syntax of the INDEX command to override the B-tree default on an individual basis. If OPTION 5 is specified in BRConfig.sys, the INDEX command's BTREE parameter can be used to override the ISAM default on an individual basis.
 
-;INDEX will completely rebuild the `B-tree` index when any of the following three conditions is true:
-:1) When the REPLACE parameter is specified in the INDEX command,
-:2) When INDEX REORG is specified and the key starting positions and/or lengths in the existing index file are different than those specified on the INDEX command, or
-:3) When INDEX REORG is specified and the key file does not exist.
+**INDEX will completely rebuild the `B-tree` index when any of the following three conditions is true**:
+
+1) When the REPLACE parameter is specified in the INDEX command,
+2) When INDEX REORG is specified and the key starting positions and/or lengths in the existing index file are different than those specified on the INDEX command, or
+3) When INDEX REORG is specified and the key file does not exist.
 
 The syntax of the INDEX command allows the BTREE or ISAM parameters, as follows:
 
- INDEX file.dat,file.idx,1,2,REPLACE,ISAM
- INDEX file.dat,file.idx,1,2,REPLACE,BTREE
+```
+INDEX file.dat,file.idx,1,2,REPLACE,ISAM
+INDEX file.dat,file.idx,1,2,REPLACE,BTREE
+```

@@ -16,13 +16,13 @@ _26 entries._
 | [32,767](32,767.md) | constant | In versions of Business Rules! prior to 4.20 32,767 is the System Limits|maximum length for strings and the maximum number of items allowed… |
 | [4.16](4.16.md) | constant | Note- When printing directly to an HP compatible printer (not NWP), sometimes it is necessary to specify HP in the INIT statement (see… |
 | [4.17](4.17.md) | constant | 4.17 is the latest Stable version of Business Rules! |
-| [4.18a](4.18a.md) | constant | Business Rules! Release 4.18 is stable and is being successfully deployed. It is the solid version of :Category:Release 4.17|4.17. |
+| [4.18a](4.18a.md) | constant | Business Rules! Release 4.18 is stable and is being successfully deployed. It is the solid version of 4.17. |
 | [4.18c](4.18c.md) | constant | Files may now be opened in both INTERNAL and EXTERNAL mode concurrently. |
 | [4.18J](4.18J.md) | constant | OPTION 61 will prevent automatic mapping of drives that are referenced by the second parameter of a drive statement and will produce a… |
-| [4.2](4.2.md) | constant | The prior versions were :Category:Release 4.0|4.0 and :Category:Release 4.1|4.1. |
-| [4.20](4.20.md) | constant | The prior versions were :Category:Release 4.0|4.0 and :Category:Release 4.1|4.1. |
+| [4.2](4.2.md) | constant | The prior versions were 4.0 and 4.1. |
+| [4.20](4.20.md) | constant | The prior versions were 4.0 and 4.1. |
 | [4.20E](4.20E.md) | constant | Business Rules! Release 4.20E |
-| [4.20ja](4.20ja.md) | constant | Please use a :Category:Release 4.1|prior version for deployment until this on has a status of stable. |
+| [4.20ja](4.20ja.md) | constant | Please use a prior version for deployment until this on has a status of stable. |
 | [4.3](4.3.md) | constant | The prior version was 4.2 |
 | [4.30](4.30.md) | constant | The prior versions were 4.1 and 4.2. |
 | [4.31](4.31.md) | constant | Release Notes 4.31h |

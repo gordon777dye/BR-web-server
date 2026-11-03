@@ -18,7 +18,7 @@
 00200       if CUSTOMERFILE=0 then !:
                let CUSTOMERFILE=FNOPEN("customer",MAT CUSTOMER$,MAT CUSTOMER,MAT FORM$,1)
 00210       if (CUST_ID_SUB := SRCH(KEYS$,"^cust_ID")) > 0 AND (CUST_DEST_SUB := SRCH(KEYS$,"^cust_dest")) > 0 then 
-00220          let FNSEND_PAGE("customer_list1.htm",NULL$,NULL$,0,1) !:
+00220          let FNSEND_PAGE("customer_list1.htm") !:
                ! Send Http Header & Html Header - Suppress Length
 00230          let SEARCH_KEY$ = RTRM$(RPAD$(VALUES$(CUST_ID_SUB),8) & "ST" & VALUES$(CUST_DEST_SUB)) !:
                if VALUES$(CUST_DEST_SUB) = NULL$ then !:
@@ -42,7 +42,7 @@
 00340       end if 
 00350 ! 
 00360 Donereadingcustomer: ! ***** Done Reading Customer File
-00370       let FNSEND_PAGE("customer_list3.htm",NULL$,NULL$,1) !:
+00370       let FNSEND_PAGE("customer_list3.htm") !:
             ! Send Http Footer - Suppress Http Header
 00570    fnend 
 00840 ! 

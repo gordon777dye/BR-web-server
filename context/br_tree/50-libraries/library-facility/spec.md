@@ -34,7 +34,7 @@ shipped function packs are in [fnsnap](../fnsnap/spec.md).
 <a id="semantics"></a>
 ## Semantics
 
-- A function must be **linked with `LIBRARY`** before it can be called — even one defined locally
+- <a id="library"></a>A function must be **linked with `LIBRARY`** before it can be called — even one defined locally
   with `DEF LIBRARY`. **The `<library-program>` file reference is optional**, which selects between two
   linkage methods:
   - **Named linkage** (reference given, `LIBRARY "PRESLIB": FNX`) links each function **directly** to

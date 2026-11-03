@@ -4,14 +4,16 @@ file: error-reference.md
 category: dev
 kind: reference
 status: 1a
-description: Distilled reference for 70 of the most critical BR error codes, organized by category with causes, scenarios, fixes, and example code.
+description: Distilled reference for 66 of the most critical BR error codes, organized by category with causes, scenarios, fixes, and example code.
 corrections:
   - "Error 0117 \"Invalid numeric expression\" removed: **there is no BR error 117.** BR's own table (brs/wberrdefs.h) runs 105, 106, 108, 120, 121, 122, 123, 130 with nothing between 108 and 120, and br_tree has no page for it — of the 69 write-ups here it was the only one with neither a br_tree page nor a definition in BR's source, which is how gendata found it. The entry was also wrong about its own subject: it gave \"Division by zero: LET x = 5 / 0\" as the leading cause, and BR's divide-by-zero is error **6** (BREDIVIDEBYZERO). Found in brls phase 5."
+  - "Errors 4115, 4173 and 4197 removed: BR 5's error table (brs/wberrdefs.h) does not define them and the BR 5 source does not raise them; their br_tree pages were moved to the deprecated list. Related-error lists and counts updated. 2026-10-31."
+  - "Corrected against BR 5's error table (brs/wberrdefs.h), which wins wherever this file disagreed: 4167, 4170, 4171, 4172 and 4175 now describe their BR 5 meanings (they described old WBServer reserve/release and file-open errors); 1002, 0108, 0202, 1005 retitled and rewritten to the table message; 0303, 0315 and 4123 retitled to it; 4230 removed (not in the table). 2026-11-01."
 ---
 
 # BR Error Code Reference
 
-This is a curated, model-friendly distillation of 70 critical BR error codes, in 68 write-ups (4194/4195/4196 share one). Each entry gives the cause, common scenarios, fixes, example recovery code and related errors. Organized by category for quick lookup.
+This is a curated, model-friendly distillation of 66 critical BR error codes, in 64 write-ups (4194/4195/4196 share one). Each entry gives the cause, common scenarios, fixes, example recovery code and related errors. Organized by category for quick lookup.
 
 Every code here is one BR's own error table defines. Do not add an entry without checking
 `brs/wberrdefs.h` or a `br_tree/90-reference/error-codes/` page for it first — one invented entry
@@ -19,13 +21,13 @@ Every code here is one BR's own error table defines. Do not add an entry without
 
 ## Table of Contents
 
-1. **[File I/O Errors (41xx)](#file-io-errors)** — 26 codes
+1. **[File I/O Errors (41xx)](#file-io-errors)** — 24 codes
 2. **[Function Definition Errors (03xx)](#function-definition)** — 11 codes
 3. **[Flow Control Errors (02xx)](#flow-control)** — 9 codes
 4. **[Array & Subscript Errors (01xx)](#array-subscript)** — 7 codes
 5. **[Syntax & Parsing Errors (10xx)](#syntax-parsing)** — 11 codes
 6. **[Critical System Errors (90xx)](#critical-system)** — 2 codes
-7. **[Other Important Errors](#other)** — 4 codes
+7. **[Other Important Errors](#other)** — 2 codes
 
 ---
 
@@ -54,33 +56,7 @@ READ #1: recvar
 CLOSE #1:
 ```
 
-**Related errors:** 4101, 4115, 4138, 4152
-
----
-
-### Error 4115 — Database Not Opened
-
-**Cause:** Attempted to perform an operation on a database file that has not been opened with an OPEN statement.
-
-**Common scenarios:**
-- Accessing file data before OPEN statement executes
-- File reference used in wrong scope or subroutine
-- OPEN statement executed conditionally but data access is unconditional
-
-**Fix:**
-1. Add OPEN statement before any READ, WRITE, or other file operations
-2. Verify OPEN statement is not nested in a conditional block that may be skipped
-3. Check file number consistency between OPEN and data access statements
-
-**Example recovery code:**
-```br
-0010 LET filename$ = "mydata.dat"
-0020 OPEN #1: "NAME=" & FILENAME$, INTERNAL, INPUT
-0030 READ #1: RECORD$
-0040 CLOSE #1:
-```
-
-**Related errors:** 4100, 4152, 4173
+**Related errors:** 4101, 4138, 4152
 
 ---
 
@@ -143,9 +119,9 @@ REWRITE #2: RECORD$
 
 ---
 
-### Error 4123 — Incomplete Record or Corrupted B-Tree
+### Error 4123 — Invalid or Corrupt BTREE File
 
-**Cause:** File corruption in the B-tree index structure, often due to bit-locking issues or index exceeding size limits.
+**Cause:** The BTREE file is invalid or corrupt. BR's table message: "invalid or corrupt BTREE file". Often due to bit-locking issues or an index exceeding size limits. (An incomplete record is a separate error, 4271.)
 
 **Common scenarios:**
 - Power failure during index write operation
@@ -359,7 +335,7 @@ LOOP
 **Fix:**
 1. Close and reopen file to re-establish reservation
 2. Verify file still exists and is accessible after rename
-3. Check WBSERVER.DAT integrity (error 4161-4166)
+3. Check WBSERVER.DAT integrity
 4. Release file locks if stuck and retry operation
 
 **Example recovery code:**
@@ -370,7 +346,7 @@ LOOP
 0040 OPEN #1: "NAME=" & NEWNAME$, INTERNAL, OUTIN
 ```
 
-**Related errors:** 4138, 4170, 4171, 4172
+**Related errors:** 4138, 4174
 
 ---
 
@@ -474,144 +450,67 @@ NEXT i
 CLOSE #1:
 ```
 
-**Related errors:** 4100, 4152, 4173
+**Related errors:** 4100, 4152
 
 ---
 
-### Error 4170 — Unable to Release File
+### Error 4170 — The Assistant May Not Set AI_TURN_OK
 
-**Cause:** Attempted to release a file lock that was locked by a different user (WSID and SESSION ID do not match).
+**Cause:** A line the assistant sent tried to set `AI_TURN_OK`. That flag is the consent for an `AI` turn while a program or procedure is running, and only the program or procedure bridging the turn may set it. BR's table message: "the assistant's own commands may not set AI_TURN_OK - only the program or procedure bridging the turn may". The attempt is refused and logged.
 
 **Common scenarios:**
-- User A locked file, User B tries to release it
-- Session IDs don't match after reconnection
-- File reservation in inconsistent state
+- An assistant's own command line runs `SETENV("AI_TURN_OK", ...)`
+- An assistant tries to authorise its own turn
 
 **Fix:**
-1. Verify only the user who locked the file releases it
-2. Have correct user perform the RELEASE statement
-3. Check WSID and SESSION information with STATUS command
-4. Use `RESERVE #filenumber:` to re-establish exclusive access
+1. Set the flag from the program or procedure that runs the `AI` command, not from the assistant's line
+2. Clear it yourself afterwards when the turn did not open (it is cleared when a turn ends)
 
 **Example recovery code:**
 ```br
-0010 RESERVE #1:
-0020 ! Perform exclusive operations
-0030 RELEASE #1:
-0040 ! Verify release with STATUS
-0050 LET FSTATUS = FILE(1)
-0060 PRINT "File status:"; FSTATUS
+00200    LET X=SETENV("AI_TURN_OK","Y")
+00210    AI what is wrong with this record
+00220    LET X=SETENV("AI_TURN_OK","")
 ```
 
-**Related errors:** 4171, 4172, 4173
+**Related errors:** 4167, 4171
 
 ---
 
-### Error 4171 — Could Not Lock (Reserve)
+### Error 4171 — The AI Request Was Not Started
 
-**Cause:** Unable to lock the "reserve checking in process" marker when attempting to reserve a file.
+**Cause:** An `AI` request was refused. BR's table message: "this AI request was not started: a turn is the person's to start, and only two may wait behind the one running". There are two causes.
 
 **Common scenarios:**
-- File reservation system is stuck
-- WBSERVER.DAT corrupted or inaccessible
-- Multiple processes competing for same reservation
-- Timeout waiting for lock
+- A line the assistant sent used the `AI` command (including `AI NEW`): a turn is the person's to start, and a reply is how one ends
+- A turn is already running and two requests are already waiting behind it; a request made during a turn waits, up to two, and the next one is refused
 
 **Fix:**
-1. Check WBSERVER.DAT integrity (see errors 4161-4166)
-2. Restart BR or file server to reset reservation system
-3. Reduce concurrent access or stagger file operations
-4. Check system logs for lock timeouts
+1. Do not use `AI` from an assistant's own command line; answer instead
+2. Wait for the running turn to finish before asking again
 
-**Example recovery code:**
-```br
-0010 LET retry_count = 0
-0020 RETRY_LOOP: RESERVE #1: IOERR 0030
-0030 IF ERR = 4171 THEN
-0040   LET retry_count = retry_count + 1
-0050   IF retry_count > 3 THEN
-0060     PRINT "Failed to reserve file after 3 retries"
-0070     GOTO 0120
-0080   END IF
-0090   LET Z = SLEEP(1)
-0100   GOTO RETRY_LOOP
-0110 END IF
-0120 !
-```
-
-**Related errors:** 4172, 4173, 4174
+**Related errors:** 4158, 4170
 
 ---
 
-### Error 4172 — Could Not Lock (Release)
+### Error 4172 — This OPTION May Be Set Only in the Configuration File
 
-**Cause:** Unable to lock the "reserve checking in process" marker when attempting to release a file.
-
-**Common scenarios:**
-- File release operation interrupted
-- WBSERVER.DAT access problem
-- File reservation becomes orphaned
-- Race condition in multi-user environment
-
-**Fix:**
-1. Retry the RELEASE operation
-2. Close and reopen the file
-3. Check WBSERVER.DAT integrity
-4. Restart the application if orphaned reservations suspected
-
-**Example recovery code:**
-```br
-0010 ON ERROR GOTO 0050
-0020 RELEASE #1:
-0030 CLOSE #1:
-0040 GOTO 0100
-0045 !
-0050 IF ERR = 4172 THEN
-0060   ! Force close without release
-0070   CLOSE #1:
-0080   PRINT "File closed (forced)"
-0090 END IF
-0100 !
-```
-
-**Related errors:** 4170, 4171, 4173
-
----
-
-### Error 4173 — Could Not Open
-
-**Cause:** Unable to lock the "reserve checking in process" marker when opening a file.
+**Cause:** `CONFIG OPTION 83` was issued while BR was running. BR's table message: "this OPTION may be set only in the configuration file, never with a CONFIG command". It is refused whoever issues it, and a restricted session is refused `OPTION 83` outright.
 
 **Common scenarios:**
-- File reservation system overloaded
-- WBSERVER.DAT corrupted or full
-- System resource limits reached
-- Timeout during file open
+- A program or procedure runs `CONFIG OPTION 83`
+- An assistant sends `CONFIG OPTION 83 ON` inside a turn
 
 **Fix:**
-1. Verify WBSERVER.DAT has adequate space and is accessible
-2. Retry the OPEN operation
-3. Close other files to reduce load
-4. Check system memory and resources
-5. Restart BR if reservation system is stuck
+1. Put the option in the configuration file instead, and restart BR
 
 **Example recovery code:**
-```br
-0010 LET max_retries = 3
-0020 LET retry = 0
-0030 OPEN_RETRY: !
-0040 OPEN #1: "NAME=data.dat", INTERNAL, OUTIN IOERR OPEN_FAIL
-0050 GOTO OPEN_SUCCESS
-0060 OPEN_FAIL: !
-0070 IF ERR = 4173 AND retry < max_retries THEN
-0080   LET retry = retry + 1
-0090   LET Z = SLEEP(2)
-0100   GOTO OPEN_RETRY
-0110 END IF
-0120 OPEN_SUCCESS: !
 ```
+OPTION 83 ON
+```
+(a line in `brconfig.sys`)
 
-**Related errors:** 4170, 4171, 4172
+**Related errors:** 4154, 4168
 
 ---
 
@@ -640,7 +539,7 @@ OPEN #2: "NAME=local.dat", INTERNAL, OUTIN
 RESERVE #2:
 ```
 
-**Related errors:** 4138, 4170, 4171, 4172
+**Related errors:** 4138, 4174
 
 ---
 
@@ -672,7 +571,7 @@ DRIVE A: C:\BR\ \DEMO\
 DRIVE B: C:\DATA\ \FILES\
 ```
 
-**Related errors:** 4114, 4115, 4138
+**Related errors:** 4114, 4138
 
 ---
 
@@ -772,7 +671,7 @@ DRIVE E: C:\DATA\ \FILES\
 0100 !
 ```
 
-**Related errors:** 4138, 4160, 4173
+**Related errors:** 4138, 4160
 
 ---
 
@@ -853,9 +752,9 @@ END IF
 
 ---
 
-### Error 0303 — Illegal Pass by Reference to User Function
+### Error 0303 — Cannot Pass a Literal by Reference
 
-**Cause:** Attempted to pass a literal value to a function parameter declared as pass-by-reference (using & in DEF), but only variables can be passed by reference.
+**Cause:** A literal was passed to a function parameter declared as pass-by-reference (using & in DEF). BR's table message: "cannot pass a literal by reference". Only variables can be passed by reference.
 
 **Common scenarios:**
 - Calling function with constant: `fnTest("literal", &param)`
@@ -1098,9 +997,9 @@ FNEND
 
 ---
 
-### Error 0315 — Attempt to Re-dimension Sub-array
+### Error 0315 — Array Is Not Redimensionable
 
-**Cause:** Attempted to re-dimension an array that was passed to a function, or attempted to re-dimension a parameter that wasn't actually passed.
+**Cause:** An attempt to redimension an array that cannot be redimensioned. BR's table message: "array is not redimensionable". Typically it was passed to a function, or it is a parameter that wasn't actually passed.
 
 **Common scenarios:**
 - Function receives sub-array from parent, tries to MAT it
@@ -1220,43 +1119,20 @@ LIBRARY "helper.br": FNHELPER  ! not DEF again
 
 ---
 
-### Error 0202 — Function Not Active / GOSUB Error
+### Error 0202 — FNEND Encountered Outside of a Function
 
-**Cause:** FNEND encountered without active function, or GOSUB called within function with improper exit path.
+**Cause:** An `FNEND` was reached with no function active. BR's table message: "FNEND encountered outside of a function". (A function that is called but is not active is 0307; an `FNEND` with no `DEF` is 0306.)
 
 **Common scenarios:**
-- Function tries to exit via FNEND before GOSUB returns
-- GOSUB inside function exits function instead of returning from subroutine
-- Multiple FNEND without DEF
+- A `GOTO` or `GOSUB` that branches into the body of a function, so execution runs to its `FNEND` without a call
+- A function's lines reached by a branch instead of by calling the function
 
 **Fix:**
-1. Ensure GOSUB completes with RETURN before FNEND
-2. Verify execution paths in subroutines within functions
-3. Use RETURN to exit GOSUB (never FNEND)
-4. Match FNEND only with DEF
+1. Call the function (`LET X = FNNAME(...)`) instead of branching to its lines
+2. Keep `GOTO`/`GOSUB` targets outside `DEF` ... `FNEND` blocks
+3. Match each `FNEND` with its `DEF`
 
-**Example recovery code:**
-```br
-! WRONG: Function tries to FNEND before GOSUB returns
-! DEF fnProcess
-!   GOSUB helper
-!   FNEND  ! ERROR - GOSUB still active
-! helper:
-!   ...
-!   RETURN
-
-! RIGHT: Let GOSUB complete
-DEF fnProcess
-  GOSUB helper
-  LET FNPROCESS = RESULT
-FNEND
-
-helper:
-  LET result = 42
-  RETURN
-```
-
-**Related errors:** 0201, 0211
+**Related errors:** 0201, 0211, 0306, 0307
 
 ---
 
@@ -1580,25 +1456,23 @@ INPUT #1, FIELDS MAT FSPEC$: MAT X, MAT Y, MAT Z   ! all the same size
 
 ---
 
-### Error 0108 — Maximum String Length Exceeded
+### Error 0108 — System String Function Result Is Too Large
 
-**Cause:** String operation result exceeds BR's maximum string length of 32,767 bytes.
+**Cause:** A system string function produced a result larger than BR can return. BR's table message: "system string function result is too large". (Assigning too much to a string is a different error: 0004 and 0058, string overflow.)
 
 **Common scenarios:**
-- String concatenation creates too long result
-- Function like RPT$ creates excessive length
-- Loop building huge string
+- A function such as `RPT$` asked for a very long result
+- A repeat count taken from data that turned out huge
 
 **Fix:**
-1. Break large string operations into chunks
-2. Process strings in segments instead of all at once
-3. Limit repetition counts in string functions
-4. Use file I/O for very large strings
+1. Ask the function for less at a time and join the pieces
+2. Limit repetition counts that come from data
+3. Use file I/O for very large output
 
 **Example recovery code:**
 ```br
-! WRONG: Creating huge string
-! LET big_string$ = RPT$("=", 36000)  ! Exceeds 32767
+! WRONG: a RPT$ result this large
+! LET big_string$ = RPT$("=", 36000)
 
 ! RIGHT: Build in chunks
 LET chunk_size = 1000
@@ -1606,7 +1480,6 @@ LET big_string$ = ""
 FOR i = 1 TO 33
   LET big_string$ = big_string$ & RPT$("=", chunk_size)
 NEXT i
-! Or write to file for really large output
 ```
 
 **Related errors:** 0105, 0106, 0120
@@ -1831,39 +1704,18 @@ LET print_flag = x
 
 ---
 
-### Error 1002 — Invalid Use of Keyword
+### Error 1002 — Error Trap Not Allowed on an Immediate Statement
 
-**Cause:** A keyword is used in incorrect context or with wrong syntax.
+**Cause:** An error-trap clause (an exit such as `EOF`, `IOERR` or `ERROR` naming a line) was given on a statement typed at the command prompt without a line number. BR's table message: "error trap not allowed on immediate statement". An immediate statement runs outside any program, so there is no line to branch to.
 
 **Common scenarios:**
-- `THEN` without `IF`
-- `ELSE` without preceding `IF`/`THEN`
-- `NEXT` without `FOR`
-- Keyword in wrong position
+- An I/O statement with an exit clause typed at the `READY` prompt
 
 **Fix:**
-1. Verify keyword usage matches BR syntax
-2. Provide required context (e.g., IF before THEN)
-3. Check for proper nesting of control structures
-4. Consult BR language reference for syntax
+1. Give the statement a line number so it is part of a program
+2. Or leave the exit clause off when running the statement immediately
 
-**Example recovery code:**
-```br
-! WRONG: THEN without IF
-! THEN PRINT "Error"
-
-! WRONG: ELSE without IF
-! ELSE LET x = 10
-
-! RIGHT: Complete IF structure
-IF x > 5 THEN
-  PRINT "x is large"
-ELSE
-  PRINT "x is small"
-END IF
-```
-
-**Related errors:** 1000, 1001, 1006
+**Related errors:** 1000, 1001, 1006, 1011
 
 ---
 
@@ -1900,21 +1752,19 @@ PRINT 'It''s OK'     ! doubled quote escapes it inside the same quote type
 
 ---
 
-### Error 1005 — Duplicate Label or Function
+### Error 1005 — Duplicate Label
 
-**Cause:** A label or function name is defined more than once in the program.
+**Cause:** A line label is defined more than once in the program. BR's table message: "duplicate label". (A function defined twice is a different error: 0320.)
 
 **Common scenarios:**
-- Two labels with same name
-- Function defined twice
-- Include files with duplicate definitions
-- Copy-paste created duplicate
+- Two labels with the same name
+- Included or merged code that repeats a label
+- Copy-paste created a duplicate
 
 **Fix:**
-1. Remove duplicate definition
-2. Rename one to use different label/function name
-3. Check for accidental includes of same file twice
-4. Consolidate duplicate code into single definition
+1. Remove the duplicate definition
+2. Rename one of the labels
+3. Check for the same code being merged in twice
 
 **Example recovery code:**
 ```br
@@ -1932,7 +1782,7 @@ calculate:
   LET y = x + 10
 ```
 
-**Related errors:** 1001, 1006, 1011
+**Related errors:** 0320, 1001, 1006, 1011
 
 ---
 
@@ -2220,100 +2070,37 @@ LET result = fn1(temp4)
 
 ## Other Important Errors {#other}
 
-### Error 4197 — NULL in record
+### Error 4167 — The Operator Did Not Permit This Operation for the Assistant
 
-**Cause:** Network transmission included NULL bytes in record data, corrupting the data.
+**Cause:** An assistant (AI) turn tried a destructive operation without a keyboard grant, BR stopped to ask the operator at the console, and the answer was `N` — or there was nobody to ask because the session is `UNATTENDED`. BR's table message: "the operator did not permit this operation for the assistant".
 
 **Common scenarios:**
-- Network noise or data corruption
-- Invalid record structure
-- Binary data transmitted as text
+- The operator answered `N` to the question BR asked
+- An `UNATTENDED` session with an assistant attached and no grant
+- The question names the same verb a restricted session's refusals use, for example "to delete" or "to open for output"
 
 **Fix:**
-1. Verify network connection stability
-2. Check record format for binary data requirements
-3. Retry operation
-4. Use error correction in transmission
+1. Answer `Y` when the operator does mean to allow the operation
+2. Have the person at the session give the assistant a grant, so the operation is not asked about
+3. Do not run an assistant turn `UNATTENDED` unless it has the grant it needs
 
-**Related errors:** 4194, 4195, 4196
+**Related errors:** 4166, 4170
 
 ---
 
-### Error 4167 — File already open
+### Error 4175 — Different WBServer Files Detected
 
-**Cause:** Attempted to open a file that is already open with different access mode or file number.
-
-**Common scenarios:**
-- File opened as internal, attempting to open as external
-- Opening same file twice with different modes
-- Forgetting to close file before reopening
-
-**Fix:**
-1. Close file before reopening: `CLOSE #filenumber:`
-2. Use same file number and mode if multiple references needed
-3. Check for unconditional OPEN outside loops
-
-**Example recovery code:**
-```br
-! Check if file is open before opening
-IF EXISTS("data.dat") = 0 THEN
-  OPEN #1: "NAME=data.dat,RECL=128,NEW", INTERNAL, OUTPUT
-ELSE
-  OPEN #1: "NAME=data.dat", INTERNAL, OUTIN
-END IF
-! ... use file ...
-CLOSE #1:
-```
-
-**Related errors:** 4100, 4115, 4152
-
----
-
-### Error 4175 — Invalid file reservation request
-
-**Cause:** File reservation request contained invalid parameters or file state.
+**Cause:** BR found more than one `WBServer.dat` in use while opening a file. BR's table message: "different wbserver files detected".
 
 **Common scenarios:**
-- Attempting to reserve non-existant file
-- Invalid reservation parameters
-- File already reserved in conflicting way
+- The `WBServer.dat` location was set to a separate mapped drive (a `WBServer` config statement in `BRConfig.sys`), that drive was rebooted, and sessions that start afterwards get 4175 while sessions already in BR keep working
+- A release before 5.01, on Windows with `OPTION 33 31` or `32`, opening a file that BR 5.01 has open; it also logs a user with WSID 0 on another `wbserver.dat`. There is no other `wbserver.dat`: the two versions cannot have one file open together (see 4149)
 
 **Fix:**
-1. Verify file exists before attempting reservation
-2. Check reservation parameters
-3. Ensure file is properly opened before reserving
-4. Check for conflicting reservations
+1. Exit BR on every workstation, delete the `WBServer.dat` files, and let everyone re-enter
+2. Do not open a file in BR 5.01 and an earlier release at the same time
 
-**Example recovery code:**
-```br
-OPEN #1: "NAME=data.dat", INTERNAL, OUTIN
-RESERVE #1:   ! reserve for exclusive access
-! ... exclusive operations ...
-RELEASE #1:
-CLOSE #1:
-```
-
-**Related errors:** 4170, 4171, 4174
-
----
-
-### Error 4230 — Unable to translate
-
-**Cause:** Character set translation failed (encoding mismatch between file and system).
-
-**Common scenarios:**
-- ASCII/Unicode mismatch
-- Non-ASCII characters in data
-- File created on different system with different encoding
-- Locale/language data issues
-
-**Fix:**
-1. Verify file encoding matches BR configuration
-2. Convert file to proper encoding
-3. Check BRConfig.sys character set setting
-4. Use conversion tools if data is wrong encoding
-
-**Related errors:** 4124, 4125, 4180
+**Related errors:** 4149, 4179
 
 ---
 

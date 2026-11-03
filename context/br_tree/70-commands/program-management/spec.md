@@ -10,6 +10,7 @@ recovered-fold: REPLACE (folded+pruned — source-vs-object/.BRS/.BRO rules, .BA
 related: [file-directory, information, editing]
 keywords: [AI, RUN, LOAD, SAVE, REPLACE, MERGE, CLEAR, GO, EXECUTE, CHAIN, PROC, SYSTEM, LOGOFF, ALL, SUBPROC, PROCERR, ALERT, FILES, ECHO, NOECHO, SOURCE, OBJECT, ONLY, NOSTEP, NOTRACE]
 corrections:
+  - "PROCERR REM removed: BR no longer supports it (2026-10-31). In the refreshed BR source, command0.cpp's PROCERR accepts STOP_TYPE and RETURN_TYPE only and answers any other qualifier with BREMISSINGKEYWORD; wbos.cpp's PROCERR help lists STOP and RETURN. REM is still in table2k (REM_TYPE), but no command reads it."
   - "AI added to the frontmatter keywords, with the AI section (BR 5.0: BR50 Release_Notes.md 2.19, 2.13). The command had no page in this tree."
   - "Added the command-help section: `-?` as the whole of a command's arguments lists what the command takes (BR 5.0, wbosCommandHelp() in wbos.cpp, called from cmdproc() in commandc.cpp). In the same pass, from the BR 5.0 parsers (see br50 br/docs/FLAGS.md): SKIP's label is written without its colon - the BNF said `SKIP n|:label`, which never matches, while this page's own example used `SKIP BUSY` - and a label search wraps to the top of the procedure (command0.cpp SKIP_CMD); PROCERR REM documented (command0.cpp PROCERR, command.cpp proc_comment); SYSTEM -W and +n are accepted and ignored, -W setting SHC_WINDOWS only under BR_V4, and SYSTEM ONQ is no longer special (command7.cpp SYSTEM_CMD); CLEAR name clears a resident program without RESIDENT, and CLEAR ... STATUS demotes only while a program is halted (command7.cpp CLEAR). From source reading, not yet confirmed by a run. 2026-10-21."
   - "SAVE / REPLACE now states which object format is written: level 39 in BR 5.0, level 38 in 4.2/4.3, an older BR refusing level 39 with error 2240, and OPTION 60 selecting level 38. The page described source-versus-object and said nothing about the format level, which an upgrade has to know. From BR 5.0 source: brexe.cpp (SAVE_LEVEL, processNewSaveFile, loadExeFile's level test), config.cpp case 60. Confirmed on brserver 5.0 x64 Debug: a default SAVE wrote level 39 and BR 4.33c refused it with 2240; with OPTION 60 it wrote level 38 and 4.33c loaded it."
@@ -281,7 +282,7 @@ A **procedure** is an ASCII (DISPLAY) text file of commands run in order — one
 makes it **self-deleting** after execution.
 
 <a id="proc"></a>**Starting**: `PROC {name|*name|ECHO|NOECHO}` (runs it; `*` suppresses F2 logging;
-NOECHO hides lines). `SUBPROC file` runs a **nested** procedure (up to 9 deep) then resumes.
+NOECHO hides lines). <a id="subproc"></a>`SUBPROC file` runs a **nested** procedure (up to 9 deep) then resumes.
 From code: `CHAIN "PROC=…"` / `CHAIN "SUBPROC=…"` (ends program) or `EXECUTE "PROC …"` (keeps
 program running). `RUN PROC` feeds procedure lines to a program's `INPUT`/`LINPUT`.
 
@@ -311,8 +312,7 @@ RUN PROC                     ! ... then run what is in memory with proc-fed inpu
 **Flow & errors**: `SKIP n|label [IF <cond>]` branches — the label is written **without** its
 colon (`SKIP BUSY` goes to the line `:BUSY`; `SKIP :BUSY` never matches), and a label search that
 reaches the end of the procedure carries on from the top, so a skip may go backward;
-`PROCERR STOP` (default) halts on error, `PROCERR RETURN` continues (sets `ERR`), and
-`PROCERR REM`, with `RETURN`, keeps a program line that fails to load as a `REM`; `ALERT msg` pauses for the operator (`GO` resumes; under
+<a id="procerr"></a>`PROCERR STOP` (default) halts on error and `PROCERR RETURN` continues (sets `ERR`); <a id="alert"></a>`ALERT msg` pauses for the operator (`GO` resumes; under
 `PROC NOECHO` the message shows but the operator must press F2/F3 to see the *command* — bracket
 `ALERT` with `PROC ECHO`…`PROC NOECHO`); `CLEAR PROC` / `CLEAR ALL` close procedures.
 

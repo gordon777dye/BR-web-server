@@ -8,7 +8,7 @@ _Backing keyword pages below._
 
 | File | Kind | Summary |
 |---|---|---|
-| [Debugger](Debugger.md) | reference | A debugger is a third-party tool that attaches to a running BR session over a TCP connection (via [DEBUG CONNECT](#debug-connect)) to add… |
+| [Debugger](Debugger.md) | reference | A debugger is a third-party tool that attaches to a running BR session over a TCP connection (via DEBUG CONNECT) to add breakpoints… |
 | [Lexi](Lexi.md) | reference | Lexi, the BR! Lexical Preprocessor, rewrites a handful of extra constructs — plus, in its best-known feature, an entire program's line… |
 | [MyEdit_(BR_Edition)](MyEdit_(BR_Edition).md) | config-directive | MyEdit - BR Edition (MyEditBR) is the first third-party editor to be specifically written to support the Business Rules! language. |
 | [ODBC](ODBC.md) | config-directive | ODBC or Open DataBase Connectivity is discussed on the following pages: |

@@ -131,7 +131,7 @@ grid/list reference: [Grid_and_List](Grid_and_List.md).
 
 <a id="menus"></a>**Native menus (Windows only)** — define three parallel arrays: `MAT text$`
 (captions; leading spaces = submenu depth; `"-"` = separator; `&` marks the accelerator key),
-`MAT data$` (the value returned for each item), `MAT status$` (codes below). `DISPLAY MENU:` shows
+`MAT data$` (the value returned for each item), `MAT status$` (codes below). <a id="menu"></a>`DISPLAY MENU:` shows
 it; `INPUT MENU[ TEXT|DATA|STATUS]:` reads the current state (it does **not** wait — use `KSTAT$`
 or `INPUT FIELDS`; a menu click gives `KSTAT$` = 6200 and, 3.92I+, `FKEY` = 98). `MENU$` returns the
 selected item's data, `MENU` its subscript. Status codes: `E` send FKEY 98 (no submenu), `P`

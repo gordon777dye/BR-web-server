@@ -10,9 +10,12 @@ See also `Exit(disambiguation)`
 
 The Exit error condition may be coded at the end of program statements that accept error conditions. 
 
- 02200   -any statement-    Error-cond line-ref ...  EXIT exit-statement-reference
+```
+02200   -any statement-    Error-cond line-ref ...  EXIT exit-statement-reference
+```
 
-== Error Traps ==
+## Error Traps
+
 Exit does not actually trap errors. Instead, it points to a separate `Exit` statement that contains a list of error conditions that may address the error that occurred.
 
 When an error occurs and Business Rules discovers the Exit error condition at the end of the error-causing program statement, it immediately examines the associated Exit statement (which is located at the line number specified with the error condition). If it finds an error condition that addresses the error that occurred, it branches to the line number specified with that error condition. If it does not find an applicable error condition in the Exit statement, it continues looking for an applicable error condition in the original error-causing statement. 

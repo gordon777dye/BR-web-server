@@ -114,12 +114,12 @@ e.g. `INT(RND*100+1)` for 1–100.)
 
 <a id="termination"></a>
 ### Program termination & interruption
-- **`STOP`** halts the program (it can be resumed with `GO` from the console); used to mark the end
+- <a id="stop"></a>**`STOP`** halts the program (it can be resumed with `GO` from the console); used to mark the end
   of the main line before subroutines.
-- **`END [<num-expr>]`** ends the program, **closes all files**, and sets the [`CODE`](../../data-manipulation/system-functions/spec.md#system-info)
+- <a id="end"></a>**`END [<num-expr>]`** ends the program, **closes all files**, and sets the [`CODE`](../../data-manipulation/system-functions/spec.md#system-info)
   return value (`END 12` sets `CODE`=12; default 0). `END` is optional — a program auto-ends with
   `CODE`=0.
-- **`PAUSE`** interrupts execution so the operator can enter commands / inspect variables; `GO`
+- <a id="pause"></a>**`PAUSE`** interrupts execution so the operator can enter commands / inspect variables; `GO`
   resumes and restores the screen (a handy debugging breakpoint).
 - **`CHAIN`** also ends the program, but — unlike `STOP`/`END`/`PAUSE` — hands off to another
   program or procedure instead of stopping. It's documented in full in

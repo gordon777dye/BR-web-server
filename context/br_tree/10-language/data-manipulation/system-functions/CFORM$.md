@@ -14,23 +14,29 @@ In the past, use of a variable for I/O formatting, as in the statement has been 
 
 Example:
 
- 00010 dim formstring$*1000, id$*5, name$*30
- 00020 let formstring$ = CFORM$("FORM pos 1,C 5,C 30,2*N 5")
- 00030 READ #1 USING formstring$: id$, name$, age, weight
+```
+00010 dim formstring$*1000, id$*5, name$*30
+00020 let formstring$ = CFORM$("FORM pos 1,C 5,C 30,2*N 5")
+00030 READ #1 USING formstring$: id$, name$, age, weight
+```
 
 The CFORM$ function allows programs to "compile" format variables prior to their use. In the following sample code fragment, the contents of A$ are compiled by CFORM$ and reassigned to A$. This is done prior to the execution of a loop where A$ is used as the format variable. This speeds up execution because the `FORM` statement is not compiled in every execution of the `FOR` loop:
 
- 00900 let A$="FORM C 10, V 20, BH 3"
- 01000 let A$=CFORM$(A$)
- 01010 FOR X=1 TO 100
- 01020    READ #1,USING A$: Variables
- 01030 NEXT X
+```
+00900 let A$="FORM C 10, V 20, BH 3"
+01000 let A$=CFORM$(A$)
+01010 FOR X=1 TO 100
+01020    READ #1,USING A$: Variables
+01030 NEXT X
+```
 
 Below is a slower version of the above example. In this slower version, the `FORM` statement is hard-coded into the `FOR` loop and compiled by BR every time the loop executes. This is much slower than compiling it once using the CFORM$ function before executing the FOR loop.
 
- 01010 FOR X=1 TO 100
- 01020    READ #1,USING "FORM C 10, V 20, BH 3": Variables
- 01030 NEXT X
+```
+01010 FOR X=1 TO 100
+01020    READ #1,USING "FORM C 10, V 20, BH 3": Variables
+01030 NEXT X
+```
 
 **NOTE** that variables compiled by CFORM$ will be in an unreadable, machine-dependent internal format. Therefore, programs should never compile a format with CFORM$ and save it to a file for use by other programs. The output of CFORM$ can vary with each machine and with each release of BR.
 
@@ -38,7 +44,9 @@ Be aware that compiled FORM statements that reference variables do so by pointin
 
 Consider the following example:
 
- 1000 Let QTY_FORM$= CFORM$("FORM C 10, V 20, BH 4.QTY_DEC, BH 3")
+```
+1000 Let QTY_FORM$= CFORM$("FORM C 10, V 20, BH 4.QTY_DEC, BH 3")
+```
 
 where QTY_DEC holds the number of decimal positions in inventory quantities. Let's postulate that QTY_DEC is the fifth dictionary entry.
 

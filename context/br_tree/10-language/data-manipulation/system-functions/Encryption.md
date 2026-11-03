@@ -12,16 +12,17 @@ corrections:
 
 **Encryption** encompasses a number of different operations.  These operations can be used independently or in combination to meet different needs.  We use industry standard encryption available through OpenSSL.  Three technologies are widely used for encrypting data. BR supports the first two listed below through its `ENCRYPT` and `DECRYPT` `internal functions`. 
 
-==Overview of Two Encryption Methods==
+## Overview of Two Encryption Methods
 
 1. **Symmetric key ciphers** – where the same key is used to encrypt and decrypt data. You can specify a key to encrypt some data and later use the same key to decrypt the data.
 
 2. **Hashing routines** – one way routines that take data and convert it to a hash value.  Sometimes these are thought of as checksums such as MD5 sum.  Hash values are always the same length regardless of how big the hashed data is.  A 10 gb file will have a hash result that is the same length as a 200 byte file. Hashing routines have a number of specific uses, including:
-*Verify that data has not changed.
-*Verifying that two files are the same.
-*Validating passwords – this is based on the concept that if two values have the same hash value the values are equal.  Using this technique improves security because it allows a server to store passwords in an unrecoverable format.  Even the server software is unable to regenerate the original password.  It is only capable of checking if the hash of a password matches the stored password hash.
+- Verify that data has not changed.
+- Verifying that two files are the same.
+- Validating passwords – this is based on the concept that if two values have the same hash value the values are equal.  Using this technique improves security because it allows a server to store passwords in an unrecoverable format.  Even the server software is unable to regenerate the original password.  It is only capable of checking if the hash of a password matches the stored password hash.
 
-==Symmetric Key Ciphers==
+## Symmetric Key Ciphers
+
 There are two encryption functions in the BR language, `ENCRYPT$` and `DECRYPT$`.
 
 - ENCRYPT$(Data$ [,Key$ [,Encryption-type$ [,Initialization-vector$]]])
@@ -35,7 +36,8 @@ Encryption-type$ - The type of encryption to be done.  If not specified, a commo
 
 Initialization-vector$ - This is an arcane part of encryption standards. It exists to prevent attackers from being able to tell whether the unencrypted data has changed. This is described in more detail below, but is general only needed when interfacing with other non-BR programs.
 
-== Interfacing With Other Programs (encryption type and initialization vector)==
+## Interfacing With Other Programs (encryption type and initialization vector)
+
 There are a number of different types of encryption that BR supports through OpenSSL:  AES, BLOWFISH, DES, triple DES, RC4 and RC2.  Most symmetric key ciphers are block ciphers meaning that they encrypt one block at a time. This means if you have a bit message, it is broken up into multiple blocks and each block is encrypted. The block size can be set as (128, 192, 256) bits. Some encryption types don't support all of these values so STATUS ENCRYPTION should be checked to see what encryption types are available in BR. Besides block size, there are also various schemes for blocking data. One might expect that using 256 bit blocking would simply take every 32 bytes and call it a block.  This is not done though because there is a possibility that this would cause patterns in the encrypted data. To prevent this, there are various schemes known as codebooks which change the way data is blocked. Wikipedia explains this in more detail. 
 
 If the encryption type is not specified, AES:256:CBC:128 will be used. To be compatible with other programs, the entire encryption type must be specified in the format: `cipher:key-length:codebook:iv-length` (example: `AES:256:CBC:128`).
@@ -45,7 +47,11 @@ If the encryption type is not specified, AES:256:CBC:128 will be used. To be com
 Initialization-vector – this is used to cause the same data encrypted with the same key to have a different encrypted result. This is significant because otherwise an attacker looking at data seeing the same encrypted result twice would know that the key and the unencrypted data have not changed. Regardless of whether or not you are concerned about this potential security issue, the standard encryption methods require this value so interfacing with other programs may require you to use it. It is a common practice to use a random number for this value and store the value at the beginning of (ahead of) the encrypted result. This is what BR does if this parameter is omitted.
 
 As an example:
- ENCRYPT$(“test”,“key”) 
+
+```
+ENCRYPT$(“test”,“key”) 
+```
+
 Produces a string containing “random number initialization vector”&”encrypted result”.
 
 If the initialization vector is explicitly specified as in:
@@ -54,9 +60,9 @@ the result would be simply “encrypted result”.
 
 DECRYPT$ has the same arguments as ENCRYPT$ with the exception of the first parameter which is the encrypted data. DECRYPT$ expects to be used with the same key$, encryption-type$, and initialization-vector$ as was used to encrypt the data.  As with ENCRYPT$, if key$ is not specified, the value from the OPTION statement will be used. If encryption-type$ is not specified, “AES:256:CBC:128” will be used. If the initialization vector is not specified, it will be assumed that the encrypted data starts with an initialization vector.
 
-==Result Formats and Lengths==
+## Result Formats and Lengths
 
-===ENCRYPT$ Result Structure===
+### ENCRYPT$ Result Structure
 
 The output of ENCRYPT$ varies depending on whether an initialization vector (IV) is auto-generated or explicitly provided:
 
@@ -64,44 +70,51 @@ The output of ENCRYPT$ varies depending on whether an initialization vector (IV)
 
 When you do not specify an IV parameter, BR generates a random IV and **prepends it** to the encrypted data:
 
- Result = [Random IV] + [Encrypted Data]
+```
+Result = [Random IV] + [Encrypted Data]
+```
 
 The IV length is determined by the encryption type specification (the last number in cipher:key-length:mode:iv-length).
 
 **Example:**
-<pre>
+
+```
 encrypted$ = ENCRYPT$(“Hello World”, “mykey”, “AES:256:CBC:128”)
 ! Result structure: 16 bytes of random IV + encrypted “Hello World” data
 ! Total length ≈ 16 bytes (IV) + 16 bytes (padded/encrypted block) = ~32 bytes
-</pre>
+```
 
 **Case 2: IV Explicitly Specified**
 
 When an IV is explicitly provided, only the encrypted data is returned (no IV prepending):
 
- Result = [Encrypted Data]
+```
+Result = [Encrypted Data]
+```
 
 **Example:**
-<pre>
+
+```
 my_iv$ = “1234567890123456”  ! 16 bytes for AES
 encrypted$ = ENCRYPT$(“Hello World”, “mykey”, “AES:256:CBC:128”, my_iv$)
 ! Result: just encrypted “Hello World”, no IV prepended
 ! Total length ≈ 16 bytes (single AES block)
-</pre>
+```
 
-===ENCRYPT$ Result Length Calculation===
+### ENCRYPT$ Result Length Calculation
 
 For **symmetric ciphers**, output length depends on plaintext size due to block padding:
 
-* **Block ciphers (DES, AES, etc.):** Output = ceiling(plaintext_length / block_size) × block_size
+- **Block ciphers (DES, AES, etc.):** Output = ceiling(plaintext_length / block_size) × block_size
   - DES, DES-EDE, DES-EDE3, BF, CAST5, IDEA: 8-byte blocks
   - AES, CAMELLIA, SEED: 16-byte (128-bit) blocks
   - If IV is auto-generated, add IV length to total (e.g., AES with auto-IV: 16 + encrypted_data)
 
-* **Stream ciphers (RC4):** Output = plaintext_length (no padding)
+- **Stream ciphers (RC4):** Output = plaintext_length (no padding)
 
 **Examples:**
-<pre>
+
+```
 ! DES with 8-byte block: “test” (4 bytes) → 8 bytes encrypted
 encrypted$ = ENCRYPT$(“test”, “key”, “DES:64:CBC:64”)
 LEN(encrypted$) = 8 (with auto-IV) or 16 total (8 IV + 8 encrypted)
@@ -113,18 +126,20 @@ LEN(encrypted$) = 16 (with explicit IV) or 32 total (16 IV + 16 encrypted)
 ! RC4 stream cipher: “Hello” (5 bytes) → 5 bytes encrypted (no padding)
 encrypted$ = ENCRYPT$(“Hello”, “key”, “RC4:128:STREAM:0”)
 LEN(encrypted$) = 5
-</pre>
+```
 
-===DECRYPT$ Result Structure===
+### DECRYPT$ Result Structure
 
 DECRYPT$ reverses the process:
-* If IV was **auto-generated**, DECRYPT$ expects the encrypted data to **start with the IV** and extracts it automatically
-* If IV was **explicitly provided**, DECRYPT$ uses the provided IV to decrypt
+
+- If IV was **auto-generated**, DECRYPT$ expects the encrypted data to **start with the IV** and extracts it automatically
+- If IV was **explicitly provided**, DECRYPT$ uses the provided IV to decrypt
 
 **Important:** Use identical parameters for decryption as were used for encryption, except for the encrypted data itself.
 
 **Example:**
-<pre>
+
+```
 ! Encryption with auto-IV
 plaintext$ = “Secret Message”
 encrypted$ = ENCRYPT$(plaintext$, “key1”, “AES:256:CBC:128”)
@@ -139,9 +154,9 @@ iv_extracted$ = encrypted$(1:16)
 encrypted_only$ = encrypted$(17:LEN(encrypted$))
 recovered$ = DECRYPT$(encrypted_only$, “key1”, “AES:256:CBC:128”, iv_extracted$)
 ! Result: same as above
-</pre>
+```
 
-===Hash Result Lengths===
+### Hash Result Lengths
 
 Hash/digest algorithms produce **fixed-length output regardless of input size:**
 
@@ -158,7 +173,8 @@ Hash/digest algorithms produce **fixed-length output regardless of input size:**
 **Note:** The output is **binary data**, not hex-encoded. To display or transmit as readable hex, use `UNHEX$()`.
 
 **Examples:**
-<pre>
+
+```
 ! Hash with auto-generated result
 hash_result$ = ENCRYPT$(“password123”, “”, “MD5”)
 LEN(hash_result$) = 16 bytes (binary)
@@ -172,24 +188,28 @@ sha1_result$ = ENCRYPT$(“data”, “”, “SHA-1”)
 LEN(sha1_result$) = 20 bytes (binary)
 hex_sha1$ = UNHEX$(sha1_result$)
 ! Now 40 hex characters
-</pre>
+```
 
-==Hashing Routines==
+## Hashing Routines
+
 Multiple hashing algorithms are available in BR. These are provided through the ENCRYPT$ function by specifying a null key$ value:
 
- ENCRYPT$(data$, “”, “MD5”)
- ENCRYPT$(data$, “”, “SHA”)
- ENCRYPT$(data$, “”, “SHA-1”)
- ENCRYPT$(data$, “”, “DSS”)
- ENCRYPT$(data$, “”, “DSS-1”)
- ENCRYPT$(data$, “”, “MDC-2”)
- ENCRYPT$(data$, “”, “RIPEMD-160”)
+```
+ENCRYPT$(data$, “”, “MD5”)
+ENCRYPT$(data$, “”, “SHA”)
+ENCRYPT$(data$, “”, “SHA-1”)
+ENCRYPT$(data$, “”, “DSS”)
+ENCRYPT$(data$, “”, “DSS-1”)
+ENCRYPT$(data$, “”, “MDC-2”)
+ENCRYPT$(data$, “”, “RIPEMD-160”)
+```
 
 Hashing is also referred to as Message Digests or digests. This is what the MD in MD5 means. There is no way to restore data that has been hashed. Hashing is a one-way function so DECRYPT$ will return error **BRENODECRYPTENCRYPT** if attempted on a hashed value.
 
 **Note:** SHA is available for backward compatibility but SHA-1 or stronger algorithms are recommended for new code.
 
-==Asymmetric Encryption==
+## Asymmetric Encryption
+
 Asymmetric key encryption is also known as public/private key encryption.
 
 Public/private keys are created as a pair by a key generator.  They are a pair, and it is not possible to have two public keys for the same private key or vice versa. With regard to public/private key pairs, what one key encrypts the other key can decrypt, and neither key can decrypt what it has encrypted.  When a private key is used to encrypt data, the result is called a signature because everyone who has the public key can decrypt it.
@@ -208,24 +228,31 @@ In the Client Server model the client knows the server’s public key and the se
 
 Encryption is invoked by Business Rules HTTP support as follows:
 
- CONFIG HTTP  port-number
- CONFIG HTTPS port-number [LOG=log-file] [URL_BASE=document-root] CERT=cert-file-basename [PHRASE=passphrase]
- OPEN #400: "NAME=HTTP_FILE,HTTP=SERVER", DISPLAY, OUTIN
+```
+CONFIG HTTP  port-number
+CONFIG HTTPS port-number [LOG=log-file] [URL_BASE=document-root] CERT=cert-file-basename [PHRASE=passphrase]
+OPEN #400: "NAME=HTTP_FILE,HTTP=SERVER", DISPLAY, OUTIN
+```
 
 CERT= names two PEM files, which may be anywhere:
 
- cert-file-basename.crt   the server certificate, followed by its intermediate certificates (the "full chain")
- cert-file-basename.key   its private key (RSA or EC), encrypted or not
+```
+cert-file-basename.crt   the server certificate, followed by its intermediate certificates (the "full chain")
+cert-file-basename.key   its private key (RSA or EC), encrypted or not
+```
 
 An encrypted key is opened with PHRASE=, or with the OPTION 66 value when PHRASE= is not given. The HTTP and HTTPS ports both listen. TLS 1.2 and 1.3 are supported.
 
 For testing, this command under Linux, Mac, or cygwin or Git Bash for Windows makes a self-signed pair. It prompts for the passphrase to give as PHRASE= (add -nodes for an unencrypted key). Browsers warn about a self-signed certificate, so use one from a certificate authority in production:
 
- openssl req -x509 -newkey rsa:2048 -days 365 -subj "/CN=myhost" -addext "subjectAltName=DNS:myhost" -keyout server.key -out server.crt
+```
+openssl req -x509 -newkey rsa:2048 -days 365 -subj "/CN=myhost" -addext "subjectAltName=DNS:myhost" -keyout server.key -out server.crt
+```
 
 (In Git Bash, write -subj "//CN=myhost": a single leading / is turned into a Windows path.) Then CERT= names server, with its path. When the HTTPS port is accessed through a browser, BR establishes an HTTPS connection rather than an HTTP connection. Certificate chains, renewal without a restart and Let's Encrypt are covered in [HTTP=SERVER](../../../60-integration/web/HTTP_SERVER.md#tls).
 
-==Signing and Certificate Processing Industry Standards==
+## Signing and Certificate Processing Industry Standards
+
 The purpose of certificates is to verify the authenticity of unencrypted data. 
 
 Certain companies are authorized by the government to act as a Certificate Authority (CA). These companies (e.g. Verisign) issue electronic certificates which can be used to issue second level certificates. Certificates can have expiration dates and the line of authority extends from a CA to any number of levels (but a chain is only as strong as its weakest link). Certificates contain a list of signatures (described below) that trace back to a CA as follows: 
@@ -238,7 +265,8 @@ Any company that is issued a (self-prepared authority signed) certificate by a C
 
 Ostensibly, a certificate cannot be counterfeited because it requires the signature of its parent which can only be produced with its parent’s private key.  By providing both public keys ( signer and recipient ) in all certs along with signatures, a non-forgeable or alterable chain is established. 
 
-====Example:====
+#### Example:
+
 CA public key – known to browser
 certificate 1 (signed by CA – contains owner’s public key)
 certificate 2 (signed by second level - includes certificate 1 - contains owner’s public key)
@@ -248,16 +276,17 @@ A browser would find the CA information in the certificate and check to see if i
 
 To assure the line authority of any certificate, the public keys are associated with signers, not with documents. 
 
-==**Encryption Support by Version**==
+## **Encryption Support by Version**
 
 BR encryption support has evolved over time. The sections below distinguish between currently supported legacy algorithms, deprecated (removed) algorithms, and newer additions.
 
-==Old List (Still Supported)==
+## Old List (Still Supported)
 
 The following algorithms are supported for backward compatibility and remain available in current versions:
 
-===Symmetric Key Ciphers===
-<pre>
+### Symmetric Key Ciphers
+
+```
 DES (ECB, CBC, CFB1, CFB8, CFB64, OFB)
 DES-EDE / DES-EDE3 (Triple DES) (ECB, CBC, CFB1, CFB8, CFB64, OFB)
 RC4 (40, 128 in STREAM mode)
@@ -268,10 +297,11 @@ AES (128, 192, 256-bit; ECB, CBC, CFB1, CFB8, CFB128, OFB)
 IDEA (128-bit; ECB, CFB64, OFB, CBC) — not available on Mac OS X
 CAMELLIA (128, 192, 256-bit; ECB, CBC, CFB1, CFB8, CFB128, OFB) — not available on Mac OS X
 SEED (128-bit; ECB, CBC, CFB128, OFB) — not available on Mac OS X
-</pre>
+```
 
-===Message Digest Algorithms===
-<pre>
+### Message Digest Algorithms
+
+```
 MD5
 SHA   (original algorithm; use SHA-1 for new code — SHA-256 is not exposed in BR, see Wishlist below)
 SHA-1
@@ -279,39 +309,39 @@ DSS   (Digital Signature Standard)
 DSS-1
 MDC-2
 RIPEMD-160
-</pre>
+```
 
-==Deprecated (Removed / No Longer Available)==
+## Deprecated (Removed / No Longer Available)
 
 The following algorithms were available in earlier versions but are no longer exposed in current builds:
 
-<pre>
+```
 (None currently — all previously deprecated algorithms have been restored or remain available)
-</pre>
+```
 
-==STATUS ENCRYPTION==
+## STATUS ENCRYPTION
 
 The command:
 
-<pre>
+```
 STATUS ENCRYPTION
-</pre>
+```
 
 displays the encryption and digest algorithms supported by the currently running BR executable. This is the **authoritative source** for determining which algorithms, modes, and key lengths are available. Algorithm availability may vary by platform (e.g., IDEA, CAMELLIA, and SEED are unavailable on Mac OS X).
 
-==Notes==
+## Notes
 
-* Default encryption: `AES:256:CBC:128`
-* If no initialization vector is provided, BR prepends a random IV to the encrypted output.
-* DECRYPT$ must use the same parameters (key, encryption-type, IV) as were used for ENCRYPT$.
-* Attempting to use an unsupported encryption type or mode combination will return an error. Use STATUS ENCRYPTION to verify availability.
-* Error `BRENODECRYPTENCRYPT` is returned when attempting DECRYPT$ on a hashed value (one-way digests cannot be reversed).
+- Default encryption: `AES:256:CBC:128`
+- If no initialization vector is provided, BR prepends a random IV to the encrypted output.
+- DECRYPT$ must use the same parameters (key, encryption-type, IV) as were used for ENCRYPT$.
+- Attempting to use an unsupported encryption type or mode combination will return an error. Use STATUS ENCRYPTION to verify availability.
+- Error `BRENODECRYPTENCRYPT` is returned when attempting DECRYPT$ on a hashed value (one-way digests cannot be reversed).
 
-==Common Use Cases and Examples==
+## Common Use Cases and Examples
 
-===Example 1: Basic Encryption/Decryption with Auto-IV (Recommended)===
+### Example 1: Basic Encryption/Decryption with Auto-IV (Recommended)
 
-<pre>
+```
 ! Simple, secure encryption using defaults
 plaintext$ = "Sensitive data"
 key$ = "MySecretKey"
@@ -323,11 +353,11 @@ encrypted$ = ENCRYPT$(plaintext$, key$)
 ! Decrypt (IV auto-extracted)
 recovered$ = DECRYPT$(encrypted$, key$)
 ! Result: "Sensitive data" (padding removed, original plaintext recovered)
-</pre>
+```
 
-===Example 2: Consistent Encryption (Same Output Each Time)===
+### Example 2: Consistent Encryption (Same Output Each Time)
 
-<pre>
+```
 ! When you need deterministic output (same plaintext = same ciphertext)
 plaintext$ = "Important"
 key$ = "MySecretKey"
@@ -343,11 +373,11 @@ encrypted2$ = ENCRYPT$(plaintext$, key$, "AES:256:CBC:128", fixed_iv$)
 
 ! Decrypt using same IV
 recovered$ = DECRYPT$(encrypted$, key$, "AES:256:CBC:128", fixed_iv$)
-</pre>
+```
 
-===Example 3: Password Hashing (MD5, SHA-1)===
+### Example 3: Password Hashing (MD5, SHA-1)
 
-<pre>
+```
 ! One-way hashing for password validation
 password$ = "UserPassword123"
 
@@ -364,11 +394,11 @@ IF attempt_hash$ = password_hash$ THEN
 ELSE
    PRINT "Incorrect password"
 END IF
-</pre>
+```
 
-===Example 4: Working with Hash Output (Convert to Hex Display)===
+### Example 4: Working with Hash Output (Convert to Hex Display)
 
-<pre>
+```
 ! SHA-1 hash and display as hex string
 data$ = "Message to hash"
 hash_binary$ = ENCRYPT$(data$, "", "SHA-1")  ! 20 bytes binary
@@ -378,11 +408,11 @@ LEN(hash_binary$)  ! = 20
 hash_hex$ = UNHEX$(hash_binary$)
 PRINT "SHA-1 Hash: " & hash_hex$
 ! Output: SHA-1 Hash: ABC123DEF456... (40 hex characters)
-</pre>
+```
 
-===Example 5: Interoperability with External Systems===
+### Example 5: Interoperability with External Systems
 
-<pre>
+```
 ! Encrypt data to send to a non-BR system
 ! System expects: AES-128 CBC mode with explicit 16-byte IV, no IV prepending
 
@@ -402,11 +432,11 @@ received$ = ... ! Data from other system (IV + encrypted)
 received_iv$ = received$(1:16)
 received_encrypted$ = received$(17:LEN(received$))
 recovered$ = DECRYPT$(received_encrypted$, key$, "AES:128:CBC:128", received_iv$)
-</pre>
+```
 
-===Example 6: Working with Large Data (Output Length)===
+### Example 6: Working with Large Data (Output Length)
 
-<pre>
+```
 ! Encrypting data larger than one block
 large_data$ = "This is a longer message that spans multiple blocks"
 ! Length = 51 bytes
@@ -424,18 +454,18 @@ encrypted_des$ = ENCRYPT$(large_data$, key$, "DES:64:CBC:64")
 ! Stream cipher (RC4) has no padding
 encrypted_rc4$ = ENCRYPT$(large_data$, key$, "RC4:128:STREAM:0")
 ! With auto-IV: LEN(encrypted_rc4$) = 0 (RC4 has no IV) + 51 = 51 bytes
-</pre>
+```
 
-==Wishlist: Future Encryption Types==
+## Wishlist: Future Encryption Types
 
 The following modern algorithms are supported by OpenSSL but not currently exposed in BR:
 
-* SHA-256 (message digest)
-* SHA-512 (message digest)
-* AES:128:GCM:96
-* AES:192:GCM:96
-* AES:256:GCM:96
-* HMAC-SHA-256
-* HMAC-SHA-512
-* ChaCha20-Poly1305
-* PBKDF2 (password hashing)
+- SHA-256 (message digest)
+- SHA-512 (message digest)
+- AES:128:GCM:96
+- AES:192:GCM:96
+- AES:256:GCM:96
+- HMAC-SHA-256
+- HMAC-SHA-512
+- ChaCha20-Poly1305
+- PBKDF2 (password hashing)

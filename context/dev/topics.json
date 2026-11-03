@@ -1,8 +1,8 @@
 {
   "$comment": "Topic index + lexicon over statement-semantics.md and tools/lexicon.json. Router for the interpret/code bundles (see APP-DEV-GUIDE.md). 'lines' are 1-based inclusive ranges for cheap section loading; regenerate with tools/gen_topics.exe.",
-  "generated": "2026-10-14",
+  "generated": "2026-11-01",
   "source": "statement-semantics.md",
-  "source_sha256": "539cf9572b3045817df70388102a4bcffaceeb97d51da9ef08f1e3adb50a0a6a",
+  "source_sha256": "1aa6ac7121d647c4d6b6b455258ca4f51d647fd5ae246363423e4fa5bdfaec2c",
   "count": 49,
   "lexicon": {
     "note": "BR's lexicon is positional. Only system-function names (table6k u table7k) are reserved against variable names, and a variable never starts 'FN'. Statement, clause, and command keywords are keywords only by position: a variable or label may reuse their spelling. Resolve keyword-vs-variable-vs-label by position + arity, not by the lexeme and not by a symbol table: BR checks whether the mandatory operands the name requires are present — present means it IS that keyword/function, absent means it falls through to a variable. So declaring a name never shadows an intrinsic (DIM ABS is legal and PRINT ABS(3) still calls ABS), and X(3) vs SIN(3) turns on what the name requires, not on whether it was DIM'd. Full rule: br_tree/10-language/syntax/spec.md#name-resolution.",
@@ -167,6 +167,7 @@
         "FORM",
         "GOSUB",
         "GOTO",
+        "GROW",
         "IF",
         "IGNORE",
         "INPUT",
@@ -307,6 +308,7 @@
         "LOAD",
         "MERGE",
         "MKDIR",
+        "MOVE",
         "PROC",
         "PROCERR",
         "PROTECT",
@@ -711,7 +713,7 @@
           1051
         ]
       },
-      "br_tree": "../br_tree/40-io-printing/sort/spec.md"
+      "br_tree": "../br_tree/70-commands/sort/spec.md"
     },
     {
       "id": "index",

@@ -11,5 +11,5 @@ _Backing keyword pages below._
 | [Attribute_(Screen)](Attribute_(Screen).md) | statement | See also: Attribute (disambiguation) |
 | [FILTER](FILTER.md) | statement | Grid and list filter search fields are available as of BR! 4.3 for |
 | [Format_Specifications](Format_Specifications.md) | statement | The page presents a summary chart of format specifications. Also see the Format Specifications category and File I/O for detailed… |
-| [HTML_Color_Table](HTML_Color_Table.md) | statement | R=255 <BR> G=255 <BR> B=255</TD> |
+| [HTML_Color_Table](HTML_Color_Table.md) | statement | R=255 G=255 B=255</TD> |
 | [PIC](PIC.md) | statement | PIC({Z|#|$|*|+|-|^|B|D|CR|DR|DB|,|.}[...]) |

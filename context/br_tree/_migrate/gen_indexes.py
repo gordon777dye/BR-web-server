@@ -48,7 +48,7 @@ PURPOSE={
 "40-io-printing":"Printing authoring (coding side only; spool/printer config lives under 00-configuration).",
 "40-io-printing/statements":"Print statements and page control: PRINT (printer), PAGEOFLOW, page breaks, borders.",
 "40-io-printing/pcl-pdf":"Printer languages and formats: PCL, PDF, PJL, barcodes, pictures.",
-"40-io-printing/sort":"Report sorting: SORT, AIDX/DIDX usage, sort order.",
+"70-commands/sort":"The SORT command and its control file: report sorting, sort order.",
 "50-libraries":"Reusable library facility and the shipped function packs.",
 "60-integration":"Web & data-exchange integration — JSON/data store and BR as a web server.",
 "60-integration/json-datastore":"In-memory object/data store and JSON build/parse/serve functions.",
@@ -59,7 +59,7 @@ PURPOSE={
 "50-libraries/screenio":"ScreenIO library, Lexi, and the PhpIO web deployment.",
 "70-commands":"Executive/console commands. Integral to coding because they are runnable from program code via `EXECUTE \"<cmd>\"`.",
 "70-commands/program-management":"Run and manage programs: RUN, LOAD, MERGE, LIST, CHAIN, PROC, GO.",
-"70-commands/file-directory":"File and directory commands: CHDIR, DIR, COPY, FREE, drop options.",
+"70-commands/file-directory":"File and directory commands: CHDIR, DIR, COPY, MOVE, FREE, drop options.",
 "70-commands/information":"Status/info and console commands: Command Console, Display, DEBUG, MSG.",
 "70-commands/editing":"In-editor commands available in interactive/runnable form.",
 "90-reference":"Lookup-only reference material — not authoring specifications.",
@@ -67,7 +67,6 @@ PURPOSE={
 "90-reference/keyboard-shortcuts":"Key bindings (Ctrl+*, control keys) — not runnable via EXECUTE.",
 "90-reference/limits-constants":"Numeric limits and built-in constants (max integer, PI, ...).",
 "90-reference/glossary-stubs":"Disambiguation pages and single-letter stubs quarantined from the authoring docs.",
-"99-examples":"Multi-topic tutorials and course material (Fast Track, Chapters). Single-topic tutorials were co-located into their topic folder.",
 }
 
 def split_fm(text):
@@ -84,6 +83,11 @@ def clean(s):
     s=re.sub(r'\*\*([^*]*)\*\*', r'\1', s)
     s=re.sub(r"'''?([^']*)'''?", r'\1', s)
     s=re.sub(r'={2,}','',s)
+    s=re.sub(r'<br\s*/?>',' ',s,flags=re.I)
+    s=re.sub(r'^Description\|\s*','',s.strip())
+    s=re.sub(r'\[(?:https?|ftp)://\S+\s+([^\]]+)\]',r'',s)
+    s=re.sub(r'\[([^\]]+)\]\([^)]*\)',lambda m:m.group(1),s)
+    s=re.sub(r':Category:[^|]*\|','',s)
     s=re.sub(r'\s+',' ',s).strip()
     return s
 
@@ -101,11 +105,11 @@ def cut(s, limit=LIMIT):
     head=s[:limit+1]
     # Prefer ending on a sentence that finished inside the limit.
     end=max(head.rfind(". "), head.rfind("; "))
-    if end>=limit//2: return head[:end+1]
+    if end>=limit//2: return head[:end+1].rstrip(";")
     sp=head.rfind(" ")
     return (head[:sp] if sp>0 else head[:limit]).rstrip(",;:-—") + "…"
 
-SKIP_PREFIX=("=","#","|","{","<","[","File:","file:",":","*Mat","-",">")
+SKIP_PREFIX=("=","#","|","{","<","[","File:","file:","Image:",":","*Mat","-",">")
 
 def debullet(s):
     """Drop a leading wiki/markdown bullet marker.
@@ -116,31 +120,73 @@ def debullet(s):
     """
     return re.sub(r'^[*+]\s+', '', s)
 
+ANCHOR_RE=re.compile(r'^(?:<a id="[^"]*"></a>\s*)+')
+
 def summary(body, is_err=False):
     if is_err:
         m=re.search(r'\*\*Description:\*\*\s*(.+)', body)
         if m: return cut(clean(m.group(1)))
     lines=body.splitlines()
+    # Strip stable-anchor tags (`<a id="x"></a>`) from the start of a line before
+    # testing it: they sit in front of the first sentence of a spec, and the "<"
+    # skip rule then discarded the whole line and started the summary mid-paragraph.
+    # Fenced code is never prose, so it is skipped, tracked line by line.
+    fence=False
+    sig=""            # a lone signature (one `code` line or one-line fenced block), joined to the sentence after it
+    heading=""        # a short bold line, kept only as a last resort
+    seen=False        # any content line taken or skipped yet; a signature only counts as the first
     for i,line in enumerate(lines):
         l=line.strip()
+        if l.startswith("```"):
+            if not fence and not seen and i+2<len(lines) and lines[i+2].strip().startswith("```"):
+                sig=clean(lines[i+1].strip())
+            fence=not fence
+            seen=True
+            continue
+        if fence: continue
+        l=ANCHOR_RE.sub("",l)
         # `>` skips blockquotes. A page opening with a capture or provenance note
         # — "> Capture note. This is a local copy…" — was having that note lifted
         # as its summary, which describes the file's history and not its subject.
         if not l: continue
         if l.startswith(SKIP_PREFIX): continue
-        if l.startswith("**") and l.endswith("**") and len(l)<40: continue
+        if l.startswith("**") and l.endswith("**") and len(l)<40:
+            if not heading: heading=clean(l)
+            continue
+        if l.strip("`").startswith(("Image:","File:")): continue
+        if l.startswith("`") and l.endswith("`") and l.count("`")==2 and not seen:
+            sig=clean(l)
+            seen=True
+            continue
+        seen=True
         # Take the whole paragraph, not the first physical line of it. The specs
         # are hard-wrapped at about a hundred characters, so a one-line read ended
         # every summary mid-sentence — "Every signature below is taken" — and it
         # looked like truncation when it was the wrap.
         para=[debullet(l)]
         for nxt in lines[i+1:]:
-            n=nxt.strip()
-            if not n or n.startswith(SKIP_PREFIX): break
+            n=ANCHOR_RE.sub("",nxt.strip())
+            if not n or n.startswith(SKIP_PREFIX) or n.startswith("```"): break
             para.append(debullet(n))
         c=clean(" ".join(para))
-        if len(c)>15: return cut(c)
-    return ""
+        if len(c)>15: return cut(sig+" — "+c if sig else c)
+    if sig: return cut(sig)
+    # A page that is only a list (disambiguation pages) has nothing the loop will
+    # take, because `-` bullets never start a summary. The list is the content
+    # there, so join its first items.
+    items=[]
+    fence=False
+    for line in lines:
+        l=line.strip()
+        if l.startswith("```"): fence=not fence; continue
+        if fence: continue
+        if re.match(r'^[-*+]\s+\S',l):
+            items.append(clean(re.sub(r'^[-*+]\s+','',l)))
+        elif items:
+            break
+    items=[x for x in items if x]
+    if items: return cut("; ".join(items))
+    return heading
 
 def iter_md(folder):
     return sorted([p for p in folder.glob("*.md") if p.name!="_index.md"])

@@ -33,7 +33,7 @@ document extracts detailed runtime semantics from the BR language tree for LLM-f
 - 10-language/flow-control/other-flow/spec.md (GOTO, ON…GOTO/GOSUB, RANDOMIZE, STOP/END/PAUSE, FOR/NEXT, DO/LOOP, GOSUB/RETURN, EXIT)
 - 10-language/flow-control/error-handling/spec.md (ON ERROR, RETRY, error conditions)
 - 10-language/data-manipulation/assignment/spec.md (LET, :=, MAT ops, substring, DATA/READ/RESTORE)
-- 40-io-printing/sort/spec.md (SORT)
+- 70-commands/sort/spec.md (SORT)
 - 30-io-file/keys-indexes/spec.md (INDEX)
 - 30-io-file/database/spec.md (Database Operations: CONFIG DATABASE, OPEN...SQL, WRITE/READ)
 - 30-io-file/serial-comm/spec.md (OPEN serial)
@@ -1044,7 +1044,7 @@ MASK 31,30,C,A,1,30,C,A                   ! by field@31 then field@1, ascending
 - INDEX (keyed order as an alternative to sorting)
 - EXECUTE (run the SORT command from code)
 - OPEN file / READ (the internal file being sorted)
-- [40-io-printing/sort](../br_tree/40-io-printing/sort/spec.md) — full SORT control-file reference (comprehensive)
+- [70-commands/sort](../br_tree/70-commands/sort/spec.md) — full SORT control-file reference (comprehensive)
 - [30-io-file/keys-indexes](../br_tree/30-io-file/keys-indexes/spec.md) — keyed (index) order alternative
 
 ---

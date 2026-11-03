@@ -2,7 +2,7 @@
 
 Keyed/indexed access: keys, indexes, duplicate keys, reindex/reorg.
 
-**📄 Guide → [spec.md](spec.md)** _(status: 2b)_ — Building and using index (key) files for fast record access by key value.
+**📄 Guide → [spec.md](spec.md)** _(status: 2b)_ — Building and using index (key) files for fast record access by key value. The OPEN/READ/REWRITE statements are in statements
 
 _Backing keyword pages below._
 

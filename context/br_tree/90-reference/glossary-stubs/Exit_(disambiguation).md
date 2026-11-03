@@ -8,10 +8,10 @@ related: [keyword, Business Rules!, On Error, System, Exit Do, Exit, Error Handl
 ---
 The **Exit** `keyword` is used in many places in `Business Rules!`.  
 
-*`On Error`
-*`System` (Command)
-*`Exit Do`
-*`On Error`
-*`EXIT_Error_Cond|Exit` (Error Condition)
-*`Exit` Statement  
-*`Error Handling Statements`
+- `On Error`
+- `System` (Command)
+- `Exit Do`
+- `On Error`
+- `EXIT_Error_Cond|Exit` (Error Condition)
+- `Exit` Statement  
+- `Error Handling Statements`

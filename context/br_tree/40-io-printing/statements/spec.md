@@ -18,7 +18,7 @@ corrections:
 
 # Printing statements
 
-`PRINT` (and `PRINT USING`) for screen/printer/display output, formatting with `FORM`/`PIC`,
+<a id="print"></a>`PRINT` (and `PRINT USING`) for screen/printer/display output, formatting with `FORM`/`PIC`,
 cursor positioning, page control, and opening printer files. On-screen `PRINT FIELDS` is in
 [20-io-screen/input-output](../../20-io-screen/input-output/spec.md); the record-layout `FORM`
 codes are canonically in [30-io-file/form-spec](../../30-io-file/form-spec/spec.md); printer
@@ -50,7 +50,7 @@ OPEN '#255' ':' '"' NAME=<printer-spec> [',' RECL=<n>] [',' EOL=<eol>] [',' COPI
 <a id="destinations"></a>**Destinations**: `#0` screen (default), a window channel, `#255` printer
 (implicit open on first use), or any opened display channel.
 
-<a id="options"></a>**Options** (each followed by `;`): `BELL` sounds the bell, `NEWPAGE` starts a
+<a id="options"></a>**Options** (each followed by `;`): <a id="bell"></a><a id="newpage"></a>`BELL` sounds the bell, `NEWPAGE` starts a
 new page on whatever the channel is — clearing a screen or window, form-feeding a printer or
 display file, and zeroing that channel's line counter (use as the first output of a screen section
 or report page) — and `TAB(col)` moves to a column (wraps to next line if already past it).
@@ -145,7 +145,7 @@ In **client-server** mode: output prints on the *client* by default. `OPTION 30`
 ## See also
 
 - [pcl-pdf](../pcl-pdf/spec.md) — NWP/PCL escape sequences, fonts, color, boxes, images
-- [sort](../sort/spec.md) — sorting records for reports
+- [sort](../../70-commands/sort/spec.md) — sorting records for reports (the SORT command)
 - [30-io-file/form-spec](../../30-io-file/form-spec/spec.md) — canonical FORM field codes
 - [20-io-screen/input-output](../../20-io-screen/input-output/spec.md) — on-screen `PRINT FIELDS`
 - Printer **spooling / PRINTER.SYS config** → [00-configuration/config-directives](../../00-configuration/config-directives/spec.md)

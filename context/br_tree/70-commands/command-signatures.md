@@ -6,6 +6,7 @@ subcategory: 70-commands
 kind: reference
 related: [program-management, file-directory, information, editing]
 corrections:
+  - "PROCERR REM removed: BR no longer supports it (2026-10-31). In the refreshed BR source, command0.cpp's PROCERR accepts STOP_TYPE and RETURN_TYPE only and answers any other qualifier with BREMISSINGKEYWORD; wbos.cpp's PROCERR help lists STOP and RETURN. REM is still in table2k (REM_TYPE), but no command reads it."
   - "Brought into line with the 2026-10-21 corrections to the four command specs (from the BR 5.0 parsers; see br50 br/docs/FLAGS.md): a fifth reading rule for the `-?` command help; COPY/DROP/FREE lose -A, which BR accepts and ignores, and COPY gains -F; the record-length rule narrowed; TYPE gains -P; PROTECT gains READ and WRITE; EDIT gains its operands; BREAK and DISPLAY gain IF and FILE; PROCERR gains REM. brls reads these signatures through its generator, so it follows only once regenerated."
   - "Brought into line with BR50 Release_Notes.md (dev/tools): AI and DEBUG gain signatures (1.30, 2.19, 2.1, 2.2, 3.1, 3.2, 3.7); DIR gains the 5.0 options -T -S -R -M -N -B and +ddd (1.29), with the old letters kept for -O and OPTION 8; LIST gains CLAUSES and NOEJECT (1.30). New operand kind <plusint>."
 ---
@@ -127,7 +128,7 @@ CLEAR    [{ ALL | PROC [ONLY] | RESIDENT [<string>] [STATUS] }]
 GO       [RUN] [{ STEP | NOSTEP }] [{ TRACE [PRINT] | NOTRACE }] [<word>]
 PROC     [<text>]
 SUBPROC  <text>
-PROCERR  { STOP | RETURN | REM }
+PROCERR  { STOP | RETURN }
 AI       [{ NEW | <text> }]
 ALERT    <text>
 SKIP     <word> [IF <text>]
@@ -135,7 +136,7 @@ SKIP     <word> [IF <text>]
 -- 30-io-file/keys-indexes/spec.md#index and INDEX.md (SHR, BTREE, ISAM)
 INDEX    <path> <path> <word> <word> [<word>] { REPLACE | REORG | VERIFY | DUPKEYS | LISTDUPKEYS | BADKEYS | LISTBADKEYS | NATIVE | SHR | BTREE | ISAM | <redirect> }*
 
--- 40-io-printing/sort/spec.md#syntax
+-- 70-commands/sort/spec.md#syntax
 SORT     [<path>]
 ```
 

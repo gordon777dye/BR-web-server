@@ -2,12 +2,11 @@
 
 Every BR numeric error code, one file each. See the table below for fast lookup.
 
-_775 entries._
+_783 entries._
 
 | Code | Description |
 |---|---|
 | [0000](0000.md) | Successful completion no error |
-| [0001](0001.md) | Inquiry key pressed |
 | [0002](0002.md) | Conversion or CONV error |
 | [0004](0004.md) | String overflow |
 | [0005](0005.md) | Help key pressed and not trapped |
@@ -19,8 +18,8 @@ _775 entries._
 | [0058](0058.md) | I/O string overflow |
 | [0059](0059.md) | Attempt to rewrite over key field — DEPRECATED (2.x releases only) |
 | [0061](0061.md) | Time out on locked record |
-| [0062](0062.md) |  |
-| [0063](0063.md) | Network locking error |
+| [0062](0062.md) | Record to REWRITE or DELETE is not locked |
+| [0063](0063.md) | DEPRECATED ERROR in BR 5: Network locking error |
 | [0105](0105.md) | Variable is not an array |
 | [0106](0106.md) | Array size conflict |
 | [0108](0108.md) | Maximum String Length (32,767) Exceeded |
@@ -47,12 +46,9 @@ _775 entries._
 | [0307](0307.md) | Inactive user defined function |
 | [0309](0309.md) | Illegal nesting of Def |
 | [0310](0310.md) | Missing FNEND statement |
-| [0311](0311.md) | BRDLL_DCOM_Error |
-| [0312](0312.md) | BRDLL_Unhandled_VB_Error |
 | [0315](0315.md) | An attempt was made to re-dimension a sub-array |
 | [0317](0317.md) | attempt to redimension an array that is already on the RPN stack |
 | [0320](0320.md) | Duplicate Local or `Library Functions |
-| [0321](0321.md) | Function in DLL library not found |
 | [0322](0322.md) | Too few parameters were passed for the DLL function |
 | [0323](0323.md) | Too many parameters were passed for the DLL function |
 | [0324](0324.md) | Wrong parameter type |
@@ -66,47 +62,13 @@ _775 entries._
 | [0332](0332.md) | DLL entry point not found |
 | [0333](0333.md) | GET parameter list longer than input |
 | [0334](0334.md) | String from VB program is too long for variable |
-| [0335](0335.md) | No Default Button |
-| [0336](0336.md) | No input fields |
-| [0337](0337.md) | Timed out |
-| [0338](0338.md) | No time with wait |
-| [0339](0339.md) | Text exceeds field length |
-| [0340](0340.md) | Is not batch command |
-| [0341](0341.md) | Is not single command |
-| [0342](0342.md) | Improper combo index |
-| [0343](0343.md) | Improper input index |
-| [0344](0344.md) | Improper text index |
-| [0345](0345.md) | Improper label index |
-| [0346](0346.md) | Improper delete index |
-| [0347](0347.md) | Improper disable index |
-| [0348](0348.md) | Improper enable index |
-| [0349](0349.md) | Improper hide index |
-| [0350](0350.md) | Improper show index |
-| [0351](0351.md) | Improper newpage index |
-| [0352](0352.md) | Improper get index |
-| [0353](0353.md) | Improper button index |
-| [0354](0354.md) | Improper window index |
-| [0355](0355.md) | Window already open |
-| [0356](0356.md) | Mixed batch specs |
-| [0357](0357.md) | Improper menu index |
-| [0358](0358.md) | Control exceeds form boundary |
-| [0359](0359.md) | Improper button spec |
-| [0360](0360.md) | Font name error |
-| [0361](0361.md) | Font size error |
-| [0362](0362.md) | Improper Spec-A control referenced cannot be found on the FORM |
-| [0363](0363.md) | Populate flag contains invalid characters, is missing a number, or amount of data doesn't divide evenly into the number of columns. |
-| [0364](0364.md) | A control is used which cannot be used in this way |
-| [0365](0365.md) | Column Width Not Specified |
-| [0366](0366.md) | brvbCommandMissing |
-| [0367](0367.md) | brvbCriteriaSent |
-| [0368](0368.md) | brvbCriteriaMissing |
 | [0370](0370.md) | #exceeded maximum variable length (32,767) for legacy application |
 | [0402](0402.md) | Illegal LOG value |
 | [0403](0403.md) | Illegal SQR value |
 | [0410](0410.md) | Invalid internal function parameter |
 | [0411](0411.md) | Date format too long |
 | [0412](0412.md) | Invalid Action Code |
-| [0413](0413.md) | Window Not On Top |
+| [0413](0413.md) | DEPRECATED ERROR in BR 5: Window Not On Top |
 | [0414](0414.md) | Wrong number of arguments passed OR result array for FILE(... is wrong |
 | [0415](0415.md) | Some error that has err message OR bad FILE$ information type specifier |
 | [0416](0416.md) | Not enough elements in dimensioned array OR file is not a window |
@@ -124,7 +86,7 @@ _775 entries._
 | [0432](0432.md) | The given clause number is invalid |
 | [0434](0434.md) | Line number too long during Edit ~ |
 | [0436](0436.md) | Bad flags for MAT2STR or STR2MAT. Available as of BR! 4.30. |
-| [0438](0438.md) | Input String not valid UTF-8 format.<br> |
+| [0438](0438.md) | Input String not valid UTF-8 format. |
 | [0440](0440.md) | MSG answer is not a number and the result variable is numeric |
 | [0501](0501.md) | Not enough data for INPUT |
 | [0520](0520.md) | The given PEM property does not exist |
@@ -152,7 +114,7 @@ _775 entries._
 | [0611](0611.md) | Invalid BAUD rate |
 | [0614](0614.md) | Shr attempted for display file output |
 | [0615](0615.md) | Illegal open for display file |
-| [0616](0616.md) | Open #0 with TAB<nowiki>=</nowiki> |
+| [0616](0616.md) | Open #0 with TAB= |
 | [0618](0618.md) | Illegal OPEN for printer |
 | [0620](0620.md) | DEPRECATED ERROR: Duplicate OPEN for standard printer output |
 | [0622](0622.md) | user canceled during file dialog |
@@ -160,41 +122,83 @@ _775 entries._
 | [0626](0626.md) | attempt to use advanced file IO features with a DEBUG file or a client side file. |
 | [0630](0630.md) | Invalid row or column for window |
 | [0632](0632.md) | Problem with Index File |
+| [0633](0633.md) | BTREE2 index made before 5.01: rebuild it with INDEX ... REPLACE |
 | [0634](0634.md) | Socket API error |
 | [0635](0635.md) | Error using SSL socket. Available as of BR! 4.30. |
-| [0636](0636.md) | real printer used with PRINTER_TYPE<nowiki>=</nowiki> |
+| [0636](0636.md) | real printer used with PRINTER_TYPE= |
 | [0641](0641.md) | DEPRECATED ERROR: Missing protection device |
 | [0642](0642.md) | Parent Window Number Does Not Specify an Open Window |
 | [0701](0701.md) | Page overflow (See also: PAGEOFLOW or BRConfig.sys#PAGEOFLOW) |
 | [0702](0702.md) | File not open Keyed or Linked |
-| [0703](0703.md) | Illegal access by <nowiki>REC=</nowiki> |
+| [0703](0703.md) | Illegal access by REC= |
 | [0704](0704.md) | File handle not open |
 | [0706](0706.md) | Illegal file handle no access to 8087 chip |
 | [0707](0707.md) | Line referenced is not FORM |
 | [0711](0711.md) | Unable to restore |
 | [0714](0714.md) | Read beyond end of record |
 | [0715](0715.md) | Illegal sequence |
-| [0716](0716.md) | HTTP sequence error |
+| [0716](0716.md) | `PRINT` to an HTTP server file before a request was read |
 | [0717](0717.md) | Error deleting record from BTREE2 file. As of 4.30 |
 | [0718](0718.md) | Key length (KLn) conflict |
 | [0719](0719.md) | File driver error |
 | [0720](0720.md) | Write beyond end of record |
 | [0721](0721.md) | Attempted I/O conflict with Open |
-| [0722](0722.md) | Attempt to set read only mode for existing combo box |
 | [0724](0724.md) | Invalid date format |
 | [0725](0725.md) | Field too small |
 | [0726](0726.md) | Data mapping error / Conversion Error |
 | [0727](0727.md) | DEPRECATED ERROR (as of 4.3) FORM Variable not referenced |
 | [0731](0731.md) | Invalid Seek method or position |
 | [0737](0737.md) | attempt to set readonly mode for existing Combobox |
-| [0738](0738.md) | SELECT should be a trailing attribute.<br> |
-| [0740](0740.md) | The HTTP server is already running. |
+| [0738](0738.md) | SELECT should be a trailing attribute. |
+| [0740](0740.md) | This BR already has an `HTTP=SERVER` file open |
 | [0742](0742.md) | Request not valid because this is not an HTTP server |
 | [0744](0744.md) | Request not valid because this is not an HTTP client |
-| [0746](0746.md) | There isn't an active inquiry |
+| [0746](0746.md) | No current HTTP request - read one with `LINPUT` first |
 | [0748](0748.md) | Bad keyword in HTTP control file. |
+| [0750](0750.md) | Could not start the HTTP server |
+| [0752](0752.md) | HTTP port is in use by another program or BR session |
+| [0754](0754.md) | Failed to process path information for the http server log file |
+| [0756](0756.md) | Failed to open the http server log file |
+| [0757](0757.md) | Http server failed to assign (via rename) specified filename |
 | [0760](0760.md) | Picture does not exist |
 | [0762](0762.md) | Image spec had syntax errors. |
+| [0763](0763.md) | HTTP= must be SERVER or CLIENT |
+| [0764](0764.md) | An HTTP file must be opened DISPLAY |
+| [0765](0765.md) | HTTP=SERVER must be opened OUTIN |
+| [0766](0766.md) | CHUNK= must be 256 to 16777216 |
+| [0767](0767.md) | CHUNK= is valid only with HTTP=SERVER |
+| [0768](0768.md) | This BR license does not include HTTP |
+| [0769](0769.md) | An uploaded file could not be stored |
+| [0770](0770.md) | Unknown word on CONFIG HTTP or HTTPS - quote a value containing spaces |
+| [0771](0771.md) | CONFIG HTTP or HTTPS needs a port from 1 to 65535 |
+| [0772](0772.md) | HTTP port range must run low to high, at most 100 ports |
+| [0773](0773.md) | CONFIG HTTP or HTTPS keyword has no value |
+| [0774](0774.md) | THREADS= must be 1 to 1000 |
+| [0775](0775.md) | BIND= is not a valid address |
+| [0776](0776.md) | PROXY= must be numeric IP addresses separated by commas |
+| [0777](0777.md) | CONFIG HTTP or HTTPS value is too long or has an unmatched quote |
+| [0778](0778.md) | The folder for the HTTP LOG= file does not exist |
+| [0779](0779.md) | HTTP LOG= names a folder, not a file |
+| [0780](0780.md) | HTTP URL_BASE= folder does not exist |
+| [0781](0781.md) | HTTP URL_BASE= names a file, not a folder |
+| [0782](0782.md) | HTTPS needs CERT= naming `<base>` for `<base>.crt` and `<base>.key` |
+| [0783](0783.md) | HTTPS certificate file not found - CERT= is the name without .crt |
+| [0784](0784.md) | HTTPS certificate file cannot be read |
+| [0785](0785.md) | HTTPS certificate file is not a PEM certificate |
+| [0786](0786.md) | HTTPS certificate file is binary (DER or PFX) - convert it to PEM |
+| [0787](0787.md) | HTTPS .crt file holds a private key - are .crt and .key swapped? |
+| [0788](0788.md) | HTTPS private key file not found - `<base>.key` must sit beside `<base>.crt` |
+| [0789](0789.md) | HTTPS private key file cannot be read |
+| [0790](0790.md) | HTTPS .key file is not a PEM private key |
+| [0791](0791.md) | HTTPS private key is encrypted - give PHRASE= or OPTION 66 |
+| [0792](0792.md) | HTTPS private key passphrase is wrong |
+| [0793](0793.md) | HTTPS private key does not belong to the certificate |
+| [0794](0794.md) | HTTPS .crt must list the server certificate first, then intermediates |
+| [0795](0795.md) | TLS refused the certificate or key - see SYSERR$ |
+| [0796](0796.md) | The system denied this BR the HTTP port |
+| [0797](0797.md) | HTTP BIND= address is not on this machine |
+| [0798](0798.md) | A request body was over 64 MB and was refused |
+| [0799](0799.md) | A client was refused: all HTTP licenses are in use |
 | [0801](0801.md) | Invalid syntax for Form Variable |
 | [0802](0802.md) | PIC syntax error |
 | [0803](0803.md) | Missing format spec |
@@ -203,7 +207,6 @@ _775 entries._
 | [0810](0810.md) | Invalid MsgBox button specification |
 | [0811](0811.md) | Invalid MsgBox icon specification |
 | [0812](0812.md) | Invalid hex color |
-| [0813](0813.md) | Field ATTRIBUTE [..] not defined in the BRCONFIG.SYS file. |
 | [0814](0814.md) | Bad or missing trailing attribute |
 | [0816](0816.md) | Illegal Form specification |
 | [0818](0818.md) | DEPRECATED ERROR as of 4.30: Number too large for PIC format |
@@ -242,7 +245,7 @@ _775 entries._
 | [0886](0886.md) | Nothing to Input |
 | [0887](0887.md) | Sort column is not valid |
 | [0888](0888.md) | SEARCH field type row & col do not reference 2D control. |
-| [0890](0890.md) | One cause for error 890 is specifying ENTER-CRLFS instead of ENTER_CRLFS in BR 4.2j and higher. |
+| [0890](0890.md) | Bad attribute keyword following ^ symbol |
 | [0902](0902.md) | Cannot SETENV to system ENV$ variable |
 | [0903](0903.md) | Not a recognized SetEnv action |
 | [0904](0904.md) | Illegal Character used in an BR! Environmental Variable |
@@ -254,17 +257,35 @@ _775 entries._
 | [0941](0941.md) | NULL boolean value used where allow null is false |
 | [0945](0945.md) | The length of the date format is excessively long |
 | [1000](1000.md) | Unidentified source remaining |
+| [10000](10000.md) | Trigger help |
+| [10001](10001.md) | Trigger function key error trap |
+| [10002](10002.md) | Input during sleep forces on exit processing |
+| [10003](10003.md) | Input during fields forces on exit processing |
+| [10004](10004.md) | Failed accessing registry values |
+| [10005](10005.md) | Could not find the given ENV variable |
+| [10006](10006.md) | Does not fit in ENV buffer |
+| [10007](10007.md) | There is no config attribute with the give name |
+| [10008](10008.md) | Bad release format |
+| [10009](10009.md) | Trap an input slash during primop processing |
 | [1001](1001.md) | Reserved word |
-| [10013](10013.md) | "accept failed errno 10013" reported in the client server log file. |
-| [10018](10018.md) | Thought I would share. Had an odd one today where a client running BR off a drive share couldn't get in BR because they got an error 10018… |
+| [10010](10010.md) | Break triggered by debugger |
+| [10011](10011.md) | All odbc file numbers are in use |
+| [10012](10012.md) | Too many users |
+| [10013](10013.md) | Wsid is already assigned |
+| [10014](10014.md) | Wsid is already in use in another session |
+| [10015](10015.md) | Wbserver error wbserver.dat corrupt |
+| [10016](10016.md) | Wbserver bad locking version - option 33 |
+| [10017](10017.md) | Wbserver problem finding path |
+| [10018](10018.md) | Wbserver other error |
+| [10019](10019.md) | Wbserver failed to truncate existing file |
 | [1002](1002.md) | Invalid use of keyword |
+| [10020](10020.md) | Wbserver problem re-opening file shared |
+| [10021](10021.md) | Combo auto complete search not found |
+| [10022](10022.md) | Shutting down the client |
 | [10023](10023.md) | Too many sessions - maximum 9 sessions allowed |
 | [1003](1003.md) | Missing quote |
-| [10038](10038.md) | Error 10038 is Socket operation on nonsocket. |
 | [1005](1005.md) | Duplicate label or function |
-| [10054](10054.md) | Client Server connection is broken. |
 | [1006](1006.md) | Syntax error |
-| [1007](1007.md) | (Invalid Error) |
 | [1008](1008.md) | Invalid keyword in shell interpreter |
 | [1011](1011.md) | Illegal immediate statement |
 | [1012](1012.md) | Illegal line number |
@@ -285,7 +306,6 @@ _775 entries._
 | [1070](1070.md) | Invalid Variable name |
 | [1080](1080.md) | Too many variables in a single chain or read statement |
 | [1100](1100.md) | Illegal multiple statement operations |
-| [1101](1101.md) | Illegal immediate statement |
 | [1102](1102.md) | END IF or END DEF followed by another statement |
 | [1120](1120.md) | Nested IF not allowed |
 | [1121](1121.md) | Open ended THEN or ELSE not allowed |
@@ -301,7 +321,6 @@ _775 entries._
 | [1152](1152.md) | Program is active |
 | [1154](1154.md) | Unexpected formatting applied during Edit |
 | [1156](1156.md) | Duplicate line numbers during Edit |
-| [1314](1314.md) | ??? |
 | [2002](2002.md) | Line number not present |
 | [2003](2003.md) | Illegal line number sequence |
 | [2005](2005.md) | No lines available for LIST |
@@ -310,12 +329,12 @@ _775 entries._
 | [2024](2024.md) | The encryption method is only valid one way |
 | [2026](2026.md) | Missing encryption key |
 | [2030](2030.md) | Failed processing encryption |
-| [2040](2040.md) |  |
+| [2040](2040.md) | Command conflicts with BR model |
 | [2070](2070.md) | DEPRECATED ERROR as of 4.30: Not enough memory |
-| [2080](2080.md) | Insufficient dimensioned storage |
+| [2080](2080.md) | DEPRECATED ERROR in BR 5: Insufficient dimensioned storage |
 | [2082](2082.md) | #Data structure too long |
 | [2083](2083.md) | Array re-dimensioned too big |
-| [2090](2090.md) | not enough compilation storage |
+| [2090](2090.md) | DEPRECATED ERROR in BR 5: not enough compilation storage |
 | [2092](2092.md) | Error code for execute statements |
 | [2100](2100.md) | Too many active procedure files |
 | [2101](2101.md) | Illegal line number |
@@ -325,15 +344,14 @@ _775 entries._
 | [2108](2108.md) | Program is active |
 | [2109](2109.md) | No `.br |
 | [2111](2111.md) | Missing lines for a program in object code |
+| [2113](2113.md) | Source lines missing |
 | [2116](2116.md) | Cannot SAVE during LOAD or MERGE |
-| [2120](2120.md) | Source code not loaded |
+| [2120](2120.md) | DEPRECATED ERROR in BR 5: Source code not loaded |
 | [2130](2130.md) | Program changed at another workstation |
-| [2160](2160.md) | Load Failure |
 | [2198](2198.md) | No Default Printer. |
 | [2220](2220.md) | Missing or duplicate file specification |
 | [2222](2222.md) | More than one of -W -R -C flags were specified on a Shell call |
 | [2240](2240.md) | Incorrect Business Rules Release |
-| [2250](2250.md) | Code exceeds 64K |
 | [2260](2260.md) | Data space exceeds 1MB |
 | [2270](2270.md) | Library not found |
 | [2272](2272.md) | User Defined Function not found |
@@ -346,7 +364,6 @@ _775 entries._
 | [2292](2292.md) | Conflict between uses of a library nofiles vs files |
 | [2294](2294.md) | No longer used (4.2) |
 | [2300](2300.md) | A feature was referenced that is no longer supported |
-| [255](255.md) | The file number 255 is generally reserved as a file handle for printing. |
 | [3002](3002.md) | SQL create statement failed |
 | [3003](3003.md) | SQL free statement failed |
 | [3004](3004.md) | SQL prepare failed |
@@ -364,7 +381,7 @@ _775 entries._
 | [3022](3022.md) | Database not connected |
 | [3024](3024.md) | Duplicate open on connection |
 | [3031](3031.md) | DEPRECATED ERROR as of 4.30: 0 bytes available on disk |
-| [4.1](4.1.md) | :Category:Release 4.18|4.18 is the last release of 4.1. 4.18 is stable and is no longer receiving active development. |
+| [4.1](4.1.md) | 4.18 is the last release of 4.1. 4.18 is stable and is no longer receiving active development. |
 | [4002](4002.md) | SQL create statement failed |
 | [4003](4003.md) | SQL free statement failed |
 | [4004](4004.md) | SQL prepare failed |
@@ -380,7 +397,6 @@ _775 entries._
 | [4015](4015.md) | The specified database has not been opened |
 | [4100](4100.md) | Invalid or missing file number |
 | [4114](4114.md) | DEPRECATED ERROR as of 4.30: Invalid disk or disk drive reference |
-| [4115](4115.md) | The specified database has not been opened. |
 | [4120](4120.md) | Invalid Y2K data found in a Y2K index field |
 | [4121](4121.md) | DEPRECATED ERROR as of 4.30: Invalid use of key file |
 | [4122](4122.md) | Invalid access for file type |
@@ -423,15 +439,13 @@ _775 entries._
 | [4165](4165.md) | Restricted session: brrestrict.sys does not permit this file |
 | [4166](4166.md) | The assistant's own commands may not raise the keyboard grant - only the person at the session may |
 | [4167](4167.md) | The operator did not permit this operation for the assistant |
-| [4168](4168.md) | Write failed |
-| [4169](4169.md) | Release failed |
-| [4170](4170.md) | Unable to release file |
-| [4171](4171.md) | Could not lock (reserve) |
-| [4172](4172.md) | could not lock (release) |
-| [4173](4173.md) | Could not open |
+| [4168](4168.md) | The session reached for the operating system while an assistant was attached |
+| [4169](4169.md) | AI was used while a program or procedure was active and ENV$("AI_TURN_OK") was not "Y" |
+| [4170](4170.md) | A line the assistant sent tried to set AI_TURN_OK |
+| [4171](4171.md) | A line the assistant sent used the AI command |
+| [4172](4172.md) | This OPTION may be set only in the configuration file, never with a CONFIG command |
 | [4174](4174.md) | Attempted file reservation on non-local file. |
 | [4175](4175.md) | Multiple WBServer.dat files |
-| [4176](4176.md) | Could not lock the first region |
 | [4177](4177.md) | DEPRECATED ERROR, as of 4.30: No command provided. Windows shell call without command |
 | [4179](4179.md) | Failed to lock in progress byte in WBServer.dat (formerly Share.exe not loaded) |
 | [4180](4180.md) | Drive start. Bad drive statement |
@@ -440,7 +454,6 @@ _775 entries._
 | [4194](4194.md) | Null record encountered. Or REWRITE check for null bytes failed. |
 | [4195](4195.md) | Null record encountered. READ check for null bytes failed. |
 | [4196](4196.md) | Null record encountered. Specifically, WRITE check for null bytes failed |
-| [4197](4197.md) |  |
 | [4200](4200.md) | DEPRECATED ERROR, as of 4.30: DOS/Windows/Novell error 0 |
 | [4201](4201.md) | DEPRECATED ERROR, as of 4.30: Operating System Error 1 |
 | [4202](4202.md) | DEPRECATED ERROR, as of 4.30: Operating System Error 2 |
@@ -513,7 +526,7 @@ _775 entries._
 | [4286](4286.md) | DEPRECATED ERROR, as of 4.30: Operating System Error 86 (Invalid password) |
 | [4287](4287.md) | DEPRECATED ERROR, as of 4.30: Operating System Error 87 (Invalid parameter) |
 | [4288](4288.md) | DEPRECATED ERROR, as of 4.30: Operating System Error 88 |
-| [4299](4299.md) | DEPRECATED ERROR, as of 4.30: Invalid rename |
+| [4299](4299.md) | cannot copy or rename file to itself |
 | [4300](4300.md) | A shell call was issued with the -e flag to obtain any non-zero error codes. |
 | [4301](4301.md) | DEPRECATED ERROR, as of 4.30: Unix / Linux error 1 |
 | [4302](4302.md) | DEPRECATED ERROR, as of 4.30: Unix / Linux error 2 |
@@ -578,9 +591,6 @@ _775 entries._
 | [4361](4361.md) | Novell error 161 |
 | [4370](4370.md) | (deleted) same as 4148 |
 | [4399](4399.md) | Windows file not shareable or (as of 4.3) File name is not a UNC path |
-| [4412](4412.md) | Novell error 212 |
-| [4431](4431.md) | Printing related |
-| [4433](4433.md) | "something about the printer on fisrt print line after hex code... but only in one program." |
 | [4500](4500.md) | Shell call error |
 | [4501](4501.md) | Invalid shell call, or OS function failure |
 | [4502](4502.md) | File not found |
@@ -626,11 +636,7 @@ _775 entries._
 | [5922](5922.md) | Attempted to print to a network printer, but computer is offline or non-existent. |
 | [5975](5975.md) | Printed to a Printer that doesn't exist |
 | [606](606.md) | Invalid element in Open statement |
-| [6200](6200.md) | 6200 is the KStat$ value of a menu click. |
 | [6201](6201.md) | Spooling error |
-| [6210](6210.md) | Passthrough printing |
-| [6211](6211.md) | Too many printers |
-| [6212](6212.md) | Job failed |
 | [6213](6213.md) | Printer setup error |
 | [6214](6214.md) | Resource not found |
 | [6215](6215.md) | Not enough memory |
@@ -639,25 +645,23 @@ _775 entries._
 | [6218](6218.md) | Resource not loaded |
 | [6219](6219.md) | Unable to allocate memory |
 | [6220](6220.md) | Unable to lock memory |
-| [6221](6221.md) | Cderr noinstance |
-| [6222](6222.md) | BR internal error |
-| [6223](6223.md) | Cderr nohook |
-| [6224](6224.md) | Cderr notemplate |
-| [6225](6225.md) | Cderr structsize |
-| [6226](6226.md) | Pderr createfailure |
-| [6227](6227.md) | Pderr defaultdifferent |
-| [6228](6228.md) | Pderr Dndmmismatch |
-| [6229](6229.md) | Pderr getdevmodefail |
-| [6230](6230.md) | Pderr Initfailure |
-| [6231](6231.md) | Pderr loaddrvfailure |
-| [6232](6232.md) | Pderr Nodefaultprn |
-| [6233](6233.md) | Pderr Nodevices |
-| [6234](6234.md) | Pderr parsefailure |
-| [6235](6235.md) | Pderr printernotfound |
-| [6236](6236.md) | Pderr retdeffailure |
-| [6237](6237.md) | #Pderr setupfailure |
-| [6240](6240.md) | Pderr generalcodes |
-| [6241](6241.md) | Out of range |
+| [6221](6221.md) | Printing windlg no hisntance |
+| [6222](6222.md) | Printing windlg no hook |
+| [6223](6223.md) | Printing windlg no template |
+| [6224](6224.md) | Printing windlg struct size |
+| [6225](6225.md) | Printing windlg create IC failure |
+| [6226](6226.md) | Printing windlg default different |
+| [6227](6227.md) | Printing windlg drag and drop mismatch |
+| [6228](6228.md) | Printing windlg print dev mode failure |
+| [6229](6229.md) | Printing windlg error initializing printer |
+| [6230](6230.md) | Printing windlg error loading driver |
+| [6231](6231.md) | Printing windlg no default printer |
+| [6232](6232.md) | Printing windlg no devices |
+| [6233](6233.md) | Printing windlg parse failure |
+| [6234](6234.md) | Printing windlg printer not found |
+| [6235](6235.md) | Printing windlg return default failure |
+| [6236](6236.md) | Printing windlg setup failure |
+| [6240](6240.md) | Failed opening printer DC |
 | [6242](6242.md) | Bad parameterized printer substitutions |
 | [6243](6243.md) | Parameter Mismatch |
 | [6244](6244.md) | Maximum Exceeded |
@@ -668,22 +672,22 @@ _775 entries._
 | [6249](6249.md) | Invalid NWP font specification |
 | [6250](6250.md) | Invalid PDF import specification |
 | [6251](6251.md) | Requested print font is not available, a substitute was used |
-| [6252](6252.md) | Print PDF requires either READER or an output file name. |
+| [6252](6252.md) | Print PDF requires either READER or an output file name |
 | [6253](6253.md) | Internal font resolution error |
 | [6254](6254.md) | Creating a new PDF document failed. |
-| [6255](6255.md) | Adding a page to a PDF document failed. |
-| [6256](6256.md) | Sending a PDF document failed. |
-| [6257](6257.md) | Adding an image to a PDF document failed. |
+| [6255](6255.md) | Adding a page to a PDF document failed |
+| [6256](6256.md) | Ending a PDF document failed |
+| [6257](6257.md) | Adding an image to a PDF document failed |
 | [6270](6270.md) | Windows printer non-existent |
 | [6272](6272.md) | bad initializer for PJL mode |
-| [6298](6298.md) | Printer error |
+| [6274](6274.md) | Print job has been cancelled |
 | [7600](7600.md) | Illegal or missing key start position |
 | [7601](7601.md) | Illegal key length |
-| [7602](7602.md) |  |
+| [7602](7602.md) | Bad key |
 | [7603](7603.md) | Duplicate key found |
 | [7604](7604.md) | Missing parameters for Index |
 | [7605](7605.md) | Illegal INDEX parameter |
-| [7606](7606.md) | INDEX records in does not match records out. |
+| [7606](7606.md) | INDEX records in does not match records out |
 | [7607](7607.md) | Insufficient storage |
 | [7609](7609.md) | Master file not internal |
 | [7610](7610.md) | Invalid index file name |
@@ -709,7 +713,7 @@ _775 entries._
 | [7831](7831.md) | Record length too short |
 | [7832](7832.md) | Output file not empty |
 | [7853](7853.md) | SORT control file not found |
-| [8001](8001.md) | Number too long |
+| [8001](8001.md) | DEPRECATED ERROR in BR 5: Number too long |
 | [8002](8002.md) | Window too small |
 | [9000](9000.md) | Out of memory |
 | [9001](9001.md) | WorkStack is full |
@@ -718,7 +722,7 @@ _775 entries._
 | [9004](9004.md) | FOR/NEXT stack full |
 | [9005](9005.md) | RPN stack empty |
 | [9006](9006.md) | Too many nested structures |
-| [9100](9100.md) | Compiler error |
+| [9100](9100.md) | DEPRECATED ERROR in BR 5: Compiler error |
 | [9111](9111.md) | Save aborted |
 | [9112](9112.md) | REPLACE aborted |
 | [9201](9201.md) | Not valid access for opening a file |
@@ -732,16 +736,20 @@ _775 entries._
 | [9307](9307.md) | Illegal On Error statement |
 | [9308](9308.md) | Internal BR! failure relating to a utility print file handle |
 | [9309](9309.md) | Corrupt program file encountered |
-| [9310](9310.md) | Variable index outside of variable table. |
-| [9400](9400.md) | Output file corrupted |
+| [9310](9310.md) | Variable index outside of variable table |
+| [9400](9400.md) | DEPRECATED ERROR in BR 5: Output file corrupted |
 | [9401](9401.md) | BTREE verification failed |
 | [9500](9500.md) | Incorrect usage in a PCL call |
 | [9501](9501.md) | ? |
 | [9502](9502.md) | List or Grid syntax problem |
+| [9503](9503.md) | br_tree for HELP was not found - see CONFIG HELPTREE |
+| [9504](9504.md) | HELP topic or anchor names more than one place |
+| [9505](9505.md) | HELP$ second parameter does not suit OPTION 85 (a number with it ON, a string with it OFF) |
+| [9506](9506.md) | ENV$ value does not fit work stack |
 | [9985](9985.md) | DEPRECATED ERROR as of 4.3: Work file missing |
 | [9987](9987.md) | No source exists for the given file. |
 | [9988](9988.md) | DEPRECATED ERROR as of 4.3: Source line too large |
-| [9990](9990.md) | Build was made without HTTP support. This version was made without HTTP support |
+| [9990](9990.md) | This version was made without HTTP support |
 | [9992](9992.md) | Def statement compiler error |
 | [9994](9994.md) | Line reference indicates library, but no libraries active |
 | [9995](9995.md) | Deprecated error as of 4.3: RPN stack failure. SysErr and it always seems to want to kick you out of BR! |
@@ -755,14 +763,14 @@ _775 entries._
 | [Chapter_3](Chapter_3.md) | Now that you've learned the basics about running, saving, loading and editing programs, you're ready to learn more about writing programs… |
 | [Chapter_6](Chapter_6.md) | Mistakes! This chapter won’t teach you how to avoid them, but it should help make discovering them a lot easier. |
 | [CONTINUE](CONTINUE.md) | The Continue (CO) statement transfers control to the first executable statement following the one causing the most recent error. |
-| [Couldn't_'lock_in_progress'](Couldn't_'lock_in_progress'.md) | '''Couldn't lock in progress''' |
-| [Couldn't_get_lock_offset](Couldn't_get_lock_offset.md) | When launching Business Rules! a '''Couldn't get lock offset. messagebox with a caption of Error''' is displayed. |
-| [Delayed_write_failed](Delayed_write_failed.md) | [http://www.ehow.com/info_12169268_8-common-causes-delayed-write-failed-errors.html 8 common causes]… |
+| [Couldn't_'lock_in_progress'](Couldn't_'lock_in_progress'.md) | This is a problem accessing the WBServer.dat. This lock is retried several times as other locks are. |
+| [Couldn't_get_lock_offset](Couldn't_get_lock_offset.md) | When launching Business Rules! a Couldn't get lock offset. messagebox with a caption of Error is displayed. |
+| [Delayed_write_failed](Delayed_write_failed.md) | 8 common causes BR Forum thread on the subject |
 | [Error-Cond_Line-Ref](Error-Cond_Line-Ref.md) | The "error-cond line-ref" parameter is replaced with one or more pairs of specifications. |
 | [ERROR](ERROR.md) | Errors happen. They come in many different flavors. |
 | [Error_after](Error_after.md) | Part of the Client Server Reconnect configuration statement which generates a BR error and awaits for reconnection (default is 120 seconds). |
 | [ERROR_CODES](ERROR_CODES.md) | During your execution of your Business Rules! programs, if something goes wrong, you will probably receive an Error Code. |
-| [Error_Handling_Statements](Error_Handling_Statements.md) | ;Continue (CO) Used at the end of an error processing routine to transfer control to the first executable statement following the statement… |
+| [Error_Handling_Statements](Error_Handling_Statements.md) | Used at the end of an error processing routine to transfer control to the first executable statement following the statement causing the… |
 | [EXIT](EXIT.md) | The Exit (EXI) statement provides a short-cut method for coding several repetitions of the "error-cond line-ref" parameter into a single… |
 | [EXIT_Error_Cond](EXIT_Error_Cond.md) | See also Exit(disambiguation) |
 | [FKey_Error_Cond](FKey_Error_Cond.md) | The FKEY error condition is available for use only with the ON error statement. |

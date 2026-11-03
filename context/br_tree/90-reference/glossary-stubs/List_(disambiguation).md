@@ -6,5 +6,5 @@ subcategory: 90-reference/glossary-stubs
 kind: concept
 related: [Grid and List, List]
 ---
-*`Grid and List`
-*`List` Command
+- `Grid and List`
+- `List` Command

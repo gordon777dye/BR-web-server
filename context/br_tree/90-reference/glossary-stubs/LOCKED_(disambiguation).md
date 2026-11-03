@@ -6,8 +6,8 @@ subcategory: 90-reference/glossary-stubs
 kind: concept
 related: [Read, Restore, ReRead, ReWrite]
 ---
-*`Locked_Error_Cond| Locked (Error Condition)`
-*`Read`
-*`Restore`
-*`ReRead`
-*`ReWrite`
+- `Locked_Error_Cond| Locked (Error Condition)`
+- `Read`
+- `Restore`
+- `ReRead`
+- `ReWrite`

@@ -6,7 +6,7 @@ subcategory: 90-reference/glossary-stubs
 kind: concept
 related: [Internal Functions, FnSnap, User Defined Functions, User Defined Function Statements]
 ---
-*`Internal Functions`
-*`FnSnap`
-*`User Defined Functions`
-*`User Defined Function Statements`
+- `Internal Functions`
+- `FnSnap`
+- `User Defined Functions`
+- `User Defined Function Statements`

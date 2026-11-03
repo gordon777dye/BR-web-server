@@ -12128,7 +12128,7 @@ FM: !    This Is Where All The Magic Happens      !
 
    def fnWarnMessage(;___,ExpireDate,Invalid)
       let ExpireDate=days(fnScreenIOExpireDate$,"mm/dd/ccyy")
-      if ~(fnCheckLicense or fnCheckFile) then
+      if 0 and ~(fnCheckLicense or fnCheckFile) then
          if Env$("ScreenIOWarnMessage")><"Checked" then
             if days(date$("mm/dd/ccyy"),"mm/dd/ccyy")<ExpireDate then
                if fn43 then

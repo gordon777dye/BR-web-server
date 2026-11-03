@@ -12,29 +12,33 @@ At the Fall 2008 `Business Rules! Conference`, `Gordon Dye` introduced the capab
 
 This provides for extending Business Rules!, using graphically appealing controls that are unavailable in BR, and possibly overcoming some of its limitations.
 
-== System Requirements ==
+## System Requirements
+
 **BR Version:** BR `4.2` or later.
 
 **Windows components:**
 
-#Windows 2000, or later.
-##For Windows 2000, install Microsoft .NET Framework 2.0. Link: [ftp://ftp.brulescorp.com/Dll_Distr/pem/winstall/dotnetfx20.exe] 
-##For Windows XP or later, install Microsoft .NET Framework 3.5. Link: [ftp://ftp.ads.net/Dll_Distr/pem/winstall/dotnetfx35.exe]
-#**vcredist_x86.exe** - Link: [ftp://ftp.brulescorp.com/Dll_Distr/pem/winstall/vcredist_x86.exe]
+1. Windows 2000, or later.
+   1. For Windows 2000, install Microsoft .NET Framework 2.0. Link: <ftp://ftp.brulescorp.com/Dll_Distr/pem/winstall/dotnetfx20.exe> 
+   1. For Windows XP or later, install Microsoft .NET Framework 3.5. Link: <ftp://ftp.ads.net/Dll_Distr/pem/winstall/dotnetfx35.exe>
+1. **vcredist_x86.exe** - Link: <ftp://ftp.brulescorp.com/Dll_Distr/pem/winstall/vcredist_x86.exe>
 
 **BR Directory:**
 
-#`pemnet.dll` - acts as the main bridge between .NET and BR. Link: [ftp://ftp.brulescorp.com/Dll_Distr/pemnet.dll]
-#`brconvert.dll` - this library converts BR strings and numeric variables to and from .NET data types, such as DateTime. 
+1. `pemnet.dll` - acts as the main bridge between .NET and BR. Link: <ftp://ftp.brulescorp.com/Dll_Distr/pemnet.dll>
+1. `brconvert.dll` - this library converts BR strings and numeric variables to and from .NET data types, such as DateTime. 
 
 This library can be changed to convert BR data to user-defined data types. 
 
-You may get the compiled library here: [ftp://ftp.brulescorp.com/Dll_Distr/pem/br_dir/brconvert.dll] or the source code here: [ftp://ftp.brulescorp.com/Dll_Distr/pem/brconvert]
+You may get the compiled library here: <ftp://ftp.brulescorp.com/Dll_Distr/pem/br_dir/brconvert.dll> or the source code here: <ftp://ftp.brulescorp.com/Dll_Distr/pem/brconvert>
 
-====Independent Controls====
+#### Independent Controls
+
 External controls can now be placed on BR windows. See the following example and parameters:
 
- PRINT FIELDS "row,col,COMP[ONENT] rows/cols [, INDEPENDENT]": control-id$, mat properties$ [, mat events$]
+```
+PRINT FIELDS "row,col,COMP[ONENT] rows/cols [, INDEPENDENT]": control-id$, mat properties$ [, mat events$]
+```
 
 INDEPENDENT signifies that the control is independently enabled and is not 
 subject to the normal enabling restrictions associated with FIELDS operations. 
@@ -51,43 +55,61 @@ Setting events is optional
 
 The above form cannot be used in the same statement as other controls.
 
-====Other Controls====
+#### Other Controls
+
 The following forms can be used in the same FIELDS array as other controls:
  
- PRINT FIELDS "row,col, COMP [rows/cols]": mat properties$
- INPUT FIELDS "row,col,COMP [rows/cols]": mat properties$
+```
+PRINT FIELDS "row,col, COMP [rows/cols]": mat properties$
+INPUT FIELDS "row,col,COMP [rows/cols]": mat properties$
+```
 
 Input Processing:
 Mat properties$ has property names or property assignments. Any assigned values will be ignored. The array will be populated with property assignments for all specified properties.
 
 The syntax for retrieving all of the names:
 
- INPUT FIELDS "row,col,comp[onent] rows/cols,PROPERTY_NAMES,depth": mat properties$
+```
+INPUT FIELDS "row,col,comp[onent] rows/cols,PROPERTY_NAMES,depth": mat properties$
+```
 
- INPUT FIELDS "row,col,comp[onent] rows/cols,EVENT_NAMES",
+```
+INPUT FIELDS "row,col,comp[onent] rows/cols,EVENT_NAMES",
+```
+
 mat events$
 
- INPUT FIELDS "row,col,comp[onent] rows/cols,METHOD_NAMES": mat methods$
+```
+INPUT FIELDS "row,col,comp[onent] rows/cols,METHOD_NAMES": mat methods$
+```
 
 To set or get individual properties:
 
- set$("#fileno,row,col","city=Los Angeles")
- set$("#fileno,row,col","address.city=Los Angeles")
- get$("#fileno,row,col","city")
+```
+set$("#fileno,row,col","city=Los Angeles")
+set$("#fileno,row,col","address.city=Los Angeles")
+get$("#fileno,row,col","city")
+```
 
 To invoke a method:
- INVOKE("#fileno,row,col",method-name$, mat args$)
+
+```
+INVOKE("#fileno,row,col",method-name$, mat args$)
+```
 
 Method_name$ MUST be from the list returned by INPUT ... METHOD_NAMES in its entirety.
 
 Method Name Examples:
- Set_Text(System.String value)
+
+```
+Set_Text(System.String value)
+```
 
 SetBounds(System.Int32 x, System.Int32 y, System.Int32 width, System.Int32 height)
 
 Note- To use Active X controls with PEM, use AXIMP.EXE (from the dot net framework) under XP or later.
 
-== Using Existing .NET controls  ==
+## Using Existing .NET controls
 
 .NET controls are contained in a library called **`System.Windows.Forms.dll`**.
 
@@ -99,28 +121,30 @@ Simply copy
 
 into your BR directory.
 
-== MonthCalendar Example  ==
+## MonthCalendar Example
 
 **To get PEM examples and source code, download ftp://ftp.brulescorp.com/Dll_Distr/pem_demo/pem_demo.zip**
 
 The MonthCalendar control is contained in System.Windows.Forms.dll.
 
- 00100 PRINT NEWPAGE
- 00200 DIM PROPERTIES$(2)*500,ARGUMENTS$(1)*80
- 00300 DIM METHODS$(1)*255
- 00400 OPEN #0: "rows=40,cols=110",DISPLAY,OUTPUT 
- 00500 OPEN #10:  "srow=11,rows=17,scol=20,cols=67,border=S",DISPLAY,OUTPUT 
- 00600 PRINT #10, FIELDS "2,11, component 7/16,independent":"System.Windows.Forms:System.Windows.Forms.MonthCalendar", MAT PROPERTIES$
- 00700 PRINT #10, FIELDS "11,11,C 6,,B1000" : "Exit"
- 00800 DO 
- 00900    INPUT FIELDS "14,30,C 1", WAIT=1: DUMMY$ TIMEOUT IGNORE
- 01000    Print #10, Fields "13,11,C 50" : Get$("#10,2,11","SelectionRange.Start")
- 01100    IF FKEY=1000 THEN EXIT DO 
- 01200 LOOP 
- 01300 STOP 
- 01400 IGNORE: CONTINUE
+```
+00100 PRINT NEWPAGE
+00200 DIM PROPERTIES$(2)*500,ARGUMENTS$(1)*80
+00300 DIM METHODS$(1)*255
+00400 OPEN #0: "rows=40,cols=110",DISPLAY,OUTPUT 
+00500 OPEN #10:  "srow=11,rows=17,scol=20,cols=67,border=S",DISPLAY,OUTPUT 
+00600 PRINT #10, FIELDS "2,11, component 7/16,independent":"System.Windows.Forms:System.Windows.Forms.MonthCalendar", MAT PROPERTIES$
+00700 PRINT #10, FIELDS "11,11,C 6,,B1000" : "Exit"
+00800 DO 
+00900    INPUT FIELDS "14,30,C 1", WAIT=1: DUMMY$ TIMEOUT IGNORE
+01000    Print #10, Fields "13,11,C 50" : Get$("#10,2,11","SelectionRange.Start")
+01100    IF FKEY=1000 THEN EXIT DO 
+01200 LOOP 
+01300 STOP 
+01400 IGNORE: CONTINUE
+```
 
-===PEM Data Conversion===
+### PEM Data Conversion
 
 BR offers only two data types - string and numeric. Many other types are required by various controls available for outside resources. 
 
@@ -129,37 +153,49 @@ Concerning DOT NET and other objects, BR provides conversion routines for the pu
 These conversion routines are in a separate DLL that is automatically invoked based on the field's class type when a property value is sent or received by BR via a properties array, or a GET, SET or INVOKE parameter. The DLL used to perform these conversions is included in the object toolbox DLL group located in the BR directory. 
 
 The first release of the DLL supports the following object types:
- // conversion class for System.Drawing.Color
- // conversion class for System.String
- // conversion class for System.Int32
+
+```
+// conversion class for System.Drawing.Color
+// conversion class for System.String
+// conversion class for System.Int32
+```
 
 If there is a class that you would like to see a conversion routine for that does not exist and you wish to write one, this must implement the interface (DLL data type name) brconvert.BrConversion which has 2 methods: 
 
- int objectToString(System.String string, out System.Object value)
- int stringToObject(System.Object value, out System.String string)
+```
+int objectToString(System.String string, out System.Object value)
+int stringToObject(System.Object value, out System.String string)
+```
 
 You must also prepend the name of the class with brconvert.BR so if you were going to make a conversion class for System.Drawing.Color the conversion class would need to be named:
 
- brconvert.BRSystem.Drawing.Color.
+```
+brconvert.BRSystem.Drawing.Color.
+```
 
-===PEM File Required===
+### PEM File Required
+
 BR Directory-
-*pemnet.dll
-*brconvert.dll
-*vcdlltest.exe - used for testing
+
+- pemnet.dll
+- brconvert.dll
+- vcdlltest.exe - used for testing
 
 Windows Dot Net Framework
 Use the following files to install the necessary system programs-
-*dotnetfx20 (W2K) or dotnetfx35 (XP or Vista) - to install/upgrade dot net
-*vcredist_x86.exe - to install a required dot net support library
+
+- dotnetfx20 (W2K) or dotnetfx35 (XP or Vista) - to install/upgrade dot net
+- vcredist_x86.exe - to install a required dot net support library
 
 There are two main groups of supporting Dll's needed to use Dot Net controls with BR:
-#VC++ shared libraries.  These can be tested with vcdlltest.exe and 
+
+1. VC++ shared libraries.  These can be tested with vcdlltest.exe and 
 installed with vcredist_x86.exe.
-#The .Net framework.  If you are using Windows 2000, you will need to 
+
+1. The .Net framework.  If you are using Windows 2000, you will need to 
 use dotnetfx20.exe.  If you are using windows XP or Vista use dotnetfx35.exe.
 
-== Creating Custom .NET controls with Visual C#  ==
+## Creating Custom .NET controls with Visual C#
 
 **To get PEM examples and source code, download ftp://ftp.brulescorp.com/Dll_Distr/pem_demo/pem_demo.zip**
 
@@ -332,17 +368,19 @@ Copy pem_library.dll to the directory where Business Rules resides.
 
 25) The following BR program uses our control:
 
- 00100 PRINT NEWPAGE
- 00200 DIM PROPERTIES$(2)*500,ARGUMENTS$(1)*80
- 00400 OPEN #0: "rows=40,cols=110",DISPLAY,OUTPUT 
- 00500 OPEN #10: "srow=11,rows=17,scol=20,cols=67,border=S,caption=Custom Calendar",DISPLAY,OUTPUT 
- 00600 PRINT #10, FIELDS "2,11, component 9/35,independent": "pem_library:pem_library.CalendarControl", MAT PROPERTIES$
- 00700 PRINT #10, FIELDS "12,11,C 6,,B1000" : "Exit"
- 00800 DO 
- 00900    INPUT FIELDS "14,30,C 1", WAIT=3: DUMMY$ TIMEOUT IGNORE
- 01100    IF FKEY=1000 THEN EXIT DO 
- 01200 LOOP 
- 01300 STOP 
- 01400 IGNORE: CONTINUE
+```
+00100 PRINT NEWPAGE
+00200 DIM PROPERTIES$(2)*500,ARGUMENTS$(1)*80
+00400 OPEN #0: "rows=40,cols=110",DISPLAY,OUTPUT 
+00500 OPEN #10: "srow=11,rows=17,scol=20,cols=67,border=S,caption=Custom Calendar",DISPLAY,OUTPUT 
+00600 PRINT #10, FIELDS "2,11, component 9/35,independent": "pem_library:pem_library.CalendarControl", MAT PROPERTIES$
+00700 PRINT #10, FIELDS "12,11,C 6,,B1000" : "Exit"
+00800 DO 
+00900    INPUT FIELDS "14,30,C 1", WAIT=3: DUMMY$ TIMEOUT IGNORE
+01100    IF FKEY=1000 THEN EXIT DO 
+01200 LOOP 
+01300 STOP 
+01400 IGNORE: CONTINUE
+```
 
 **To get PEM examples and source code, download ftp://ftp.ads.net/Dll_Distr/pem_demo/pem_demo.zip**

@@ -1,0 +1,43 @@
+
+HTTPS CERTIFICATE CREATION AND MANAGEMENT
+
+Begin by obtaining the program Digicert.exe which is for use on Windows. 
+
+Next you will run Digicert to create a CSR (certificate signing request). Click on SSL (left) and then Create CSR (top). Enter the following data:
+
+* Common Name 	The fully qualified domain name (FQDN) of your server. This must match exactly what you type in your web browser or you will receive a name mismatch error. 	
+e.g. brdemo.brulescorp.com
+
+* Organization 	The legal name of your organization. This should not be abbreviated and should include suffixes such as Inc, Corp, or LLC. 	
+
+* Organizational Unit 	The division of your organization handling the certificate. 	Information Technology
+
+* City/Locality 	The city where your organization is located. 
+
+* State	 	The state where your organization is located - spelled out.
+
+* Country 	The two-letter ISO code for the country where your organization is location. 	US
+
+* Key Size	Generally 2048 is sufficient.
+
+After pressing generate, store the result in a file. Next contact your certificate provider (I suggest K Software who represents Commodo). Send the CSR to the cert provider for processing. Note that this procedure silently stores an encrypted version of your private key on the computer that generates the CSR. This key will later be used by the system to "install" the certificate generated from the CSR (by a certificate issuing authority). This prevents anyone else from using your certificate, which will be sent to you by email. 
+
+The certificate authority will do some checking to make sure of your identity and then issue your certificate. In the case of K Software/Commodo you will receive a zip file with 4 files in it:
+
+for example:
+	AddTrustExternalCARoot.crt
+	USERTrustRSAAddTrustCA.crt
+	KSoftwareCertificateAuthorityDV2.crt
+	brdemo_brulescorp_com.crt
+
+In this case the USERTrustRSAAddTrustCA.crt is not needed. But the other 3 will need to be placed in the Web_Server.BR directory along with the key, and the following statement needs to be in the web_server.ini file:
+
+	cert=cert-base-name
+
+e.g. cert=brdemo_brulescorp_com
+
+The BR web server will find the other 2 cert files, provided they are located in the same directory as the named cert file. The AddTrustExternalCARoot.crt file is associated with the issuing authority, similar to ca-bundle.crt used by the BR HTTP Client facility, and the KSoftware file is a web_server.BR intermediary cert. 
+
+Now the way to access the private key is to use Digicert to install the certificate and then export the installed certificate, whereupon it will ask you for the format of the key to be exported. You have 2 options. You can export the private key separately from the other certificates (key), or you can export the combined certificate (PFX) with the private key to be installed on the server. I prefer to export just the private key so I can password protect it. 
+
+

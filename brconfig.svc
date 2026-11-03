@@ -1,0 +1,3 @@
+logging 2,brlog.txt unattended
+font Lucida Console
+include brconfig.sys

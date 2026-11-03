@@ -1,0 +1,9 @@
+data\logfile.ind, LOG_, 1
+data\logfile.idx, DATE/TIME
+===================================================
+PROGRAM$,       Program,                     V   40
+USERNAME$,      User Name,                   V   65
+SESSION$,       Wsid and Session,            V    6
+DATE,           Date,                        BH   3
+TIME$,          Time,                        V    8
+MESSAGE$,       Log Message,                 V  255

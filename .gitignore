@@ -1,0 +1,13 @@
+# Written by the server at run time.
+brlog.txt
+weblog.txt
+webdebug*.txt
+unattended.txt
+query*.txt
+web_server*.tmp
+web_server*.tmp2
+wbserver.dat
+sessions/*
+!sessions/.gitkeep
+spool/*
+!spool/.gitkeep

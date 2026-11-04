@@ -55,6 +55,8 @@
 !/login.br
 !/login.brs
 !/nssm.exe
+# Builds the dist branch (the public package): make_dist.ps1, manifest.txt, overlay\.
+!/package/
 !/relogin.html
 !/sample.br
 !/sample.brs

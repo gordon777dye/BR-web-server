@@ -1,0 +1,70 @@
+# Files from main that go into the dist package, one path per line, relative to the repo root.
+# A line ending in / takes the whole folder, including files added to it later.
+# Lines starting with # and blank lines are ignored.
+#
+# The files in overlay\ (brconfig.sys, README.md, .gitignore) are always added on top, replacing
+# main's versions, so they are not listed here. make_dist.ps1 stops if a line matches nothing.
+
+# Git
+.gitattributes
+
+# Documentation
+03 BR WEB SERVER.md
+05 DATA STORE LIBRARY.md
+REDIRECT.md
+HTTPS Certificate Creation and Use.txt
+
+# BR runtime (the server and its DLL are a matched pair)
+brserver-x64-Debug.exe
+brclientdll502-x64-Debug-gui.dll
+
+# The web server
+web_server.br
+web_server.br.brs
+web_server.ini
+filetypes.txt
+br_redirect.html
+challenge.bootstrap.html
+challenge.html
+challenge.relogin.html
+relogin.html
+unauthorized.html
+
+# Demo certificate
+self.crt
+self.key
+self.phrase
+
+# Running as a Windows service
+nssm.exe
+brconfig.svc
+BR_service.txt
+
+# Sample application
+login.br
+login.brs
+sample.br
+sample.brs
+cust_inq.br
+cust_inq.br.brs
+webform.br
+webform.br.brs
+www/
+
+# FileIO, its layouts and the sample data (filelay\ is listed by file to leave out ScreenIO's)
+fileio.br
+fileio.br.brs
+fileio.ini
+data/
+filelay/comments
+filelay/customer
+filelay/logfile
+filelay/template/basic.br
+filelay/template/basic.brs
+filelay/version/comments.1
+filelay/version/customer.0
+filelay/version/customer.2
+
+# Empty runtime folders
+sessions/.gitkeep
+spool/.gitkeep

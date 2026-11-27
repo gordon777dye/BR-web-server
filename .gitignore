@@ -2,8 +2,7 @@
 # Not included: .svn/, .claude-primary/, logs, http_client/, tmp/, older 4.32/2.04 files,
 # generated web_server*.tmp* procs, and the other vendor binaries.
 #
-# context/ has its own .gitignore (the kit's). It was added with "git add -f" to include
-# all of it; files added to context/ later need "git add -f" too.
+# context/ (the BR context kit) is not tracked; the /* above ignores it.
 /*
 !/.gitignore
 
@@ -24,7 +23,6 @@
 !/challenge.html
 !/challenge.relogin.html
 !/CLAUDE.md
-!/context/
 !/cust_inq.br
 !/cust_inq.br.brs
 !/data/

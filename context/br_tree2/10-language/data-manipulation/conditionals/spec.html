@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Conditionals (IF) — BR reference</title>
+<meta name="keywords" content="IF, THEN, ELSE, GOTO">
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">conditionals</a></nav>
+<main>
+<a id="if"></a>
+<h1 id="conditionals-if">Conditionals (IF)</h1>
+<p><code>IF</code> / <code>THEN</code> / <code>ELSE</code> / <code>END IF</code> branching. The conditions themselves — relational and logical
+operators, and the two meanings of <code>=</code> — are defined in
+<a href="../expressions/spec.html#relational-operators">expressions</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">IF &lt;condition&gt; THEN &lt;statement-or-line&gt; [ELSE &lt;statement-or-line&gt;]
+
+IF &lt;condition&gt; THEN &lt;statement-or-line&gt;
+   [ELSE IF &lt;condition&gt; THEN &lt;statement-or-line&gt;]* [ELSE &lt;statement-or-line&gt;]
+
+IF &lt;condition&gt; THEN
+    &lt;statements&gt;
+[ELSE IF &lt;condition&gt; THEN
+    &lt;statements&gt;]*
+[ELSE
+    &lt;statements&gt;]
+END IF
+
+&lt;statement-or-line&gt; ::= &lt;statement&gt; [':' &lt;statement&gt;]*   -- one or more statements
+                       | &lt;line-ref&gt;                       -- a bare line number or label: implied GOTO
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<ul>
+<li>Conditions are evaluated <strong>sequentially</strong>; the <strong>first</strong> branch whose condition is true runs,
+and <strong>only one</strong> branch ever executes. <code>ELSE</code> runs when no condition was true.</li>
+<li>The <strong>single-line</strong> form needs no <code>END IF</code>; the <strong>multi-line</strong> form <strong>requires</strong> <code>END IF</code>.</li>
+<li><strong>Truth values</strong>: true = <code>1</code>, false = <code>0</code>; <strong>any non-zero number is true</strong>. A bare string
+cannot be used as a condition (use a relational expression). <code>IF A THEN …</code> is an implied
+<code>IF A&lt;&gt;0</code>, and the same conditional-expression form also drives the <code>SKIP</code> command (true → skip).</li>
+<li><strong>Comparison operators</strong>: <code>=</code>/<code>==</code>, <code>&lt;&gt;</code>/<code>&gt;&lt;</code>/<code>~=</code> (not equal), <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>/<code>=&lt;</code>, <code>&gt;=</code>/<code>=&gt;</code>, with
+<code>AND</code>/<code>OR</code>/<code>NOT</code> (<code>~</code>); full operator/precedence detail in
+<a href="../expressions/spec.html#relational-operators">expressions</a>.</li>
+<li><strong>A bare line number or label after <code>THEN</code>/<code>ELSE</code> is an implied <code>GOTO</code></strong> — <code>IF X THEN 900</code> and
+<code>IF X THEN MyLabel</code> are <code>IF X THEN GOTO 900</code> and <code>IF X THEN GOTO MyLabel</code>. It is only implied
+when the target is <em>all</em> that follows: <code>IF X THEN MyLabel: STOP</code> still reads <code>MyLabel</code> as the
+target (the <code>:</code> starts a new statement), but <code>IF X THEN MyLabel=1</code> is a plain assignment to a
+variable named <code>MyLabel</code>, not a target with <code>=1</code> left over — a real target is never followed by
+anything but end of statement, <code>:</code>, or <code>ELSE</code>.</li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">00070 IF CHOICE = 1 THEN PRINT &quot;Video games cost $17.99 each&quot;
+00090 IF CHOICE = 2 THEN PRINT &quot;DVDs cost $14.00 each&quot; ELSE PRINT &quot;Item not recognized&quot;
+00095 IF ERR_COUNT &gt; 5 THEN AbortRoutine       ! implied GOTO AbortRoutine, not a statement
+
+! Multi-line with ELSE IF — requires END IF
+00100 IF AGE &lt;= 5 THEN
+00110    PRINT &quot;Kids get 50% off&quot;
+00120    LET DISCOUNT = 50
+00130 ELSE IF AGE &gt; 5 AND AGE &lt; 65 THEN
+00150    LET DISCOUNT = 0
+00160 ELSE
+00170    PRINT &quot;Senior discount 20%&quot;
+00180    LET DISCOUNT = 20
+00190 END IF
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../expressions/spec.html">expressions</a> — relational/logical conditions; <code>=</code> vs <code>:=</code></li>
+<li><a href="../../flow-control/other-flow/spec.html">other-flow</a> — <code>DO WHILE</code>/<code>UNTIL</code> loops that test conditions</li>
+<li>(Backing keyword pages verified against this spec and pruned.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/conditionals/spec.md">br_tree/10-language/data-manipulation/conditionals/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

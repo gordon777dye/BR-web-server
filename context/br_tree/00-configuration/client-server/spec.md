@@ -62,8 +62,8 @@ BRclient 192.168.1.100 BR          # client connects to server + label
 BRclient myserver.com:7543 BR      # custom port
 ```
 `BR_Parms.txt` (must sit beside `BRClient.exe`) supplies the connection: `host=<ip|dns|localhost>`,
-`label=<BRLISTENER.CONF label>`. The **`BRSERVER`** (a.k.a. legacy **`WBSERVER`**) BRConfig.sys
-statement names the server data file (`BRServer.dat`/`WBServer.dat`) and needs **no drive letter**.
+`label=<BRLISTENER.CONF label>`. The **`BRSERVER`** BRConfig.sys
+statement names the server data file (`BRServer.dat`) and needs **no drive letter**.
 
 <a id="reconnect"></a>
 ## Reconnect & keepalive
@@ -78,6 +78,56 @@ offers a session-number box so you can **reconnect from another workstation**. O
 disconnect the session does the normal `Exit_After` exit — a BR error then unattended mode (no client
 I/O; exits at the next keyboard wait; default 240 s). Raising the values (e.g. `999`) helps long/slow
 commands, but the workstation appears to "lock up" while waiting.
+
+That is a client that is still running and has lost its link. A client that has *died* is a different
+case: see [Restarting a client whose session is still running](#restart).
+
+<a id="restart"></a>
+### Restarting a client whose session is still running
+
+When a remote client's process dies (a crash, a kill, a power cut at the desk), its server does not end:
+it notices the client has gone and waits for it to reconnect until the reconnect time runs out. A client
+started afresh cannot reconnect to it, because a reconnect resumes a client that kept its screens, windows
+and files, and a new process has none of them. So the new client **ends the old session first** and then
+logs in as usual.
+
+**What the client keeps.** While a remote session runs, the client keeps its reconnect id in the session's
+registry slot (the registry on Windows, a file elsewhere), beside the WSID and the owning process the slot
+already holds:
+
+| Entry | Holds |
+|---|---|
+| `reconnectKey/IDn` | the reconnect id, in hex |
+| `reconnectTarget/IDn` | the listener's address and port and the label, `127.0.0.1:8565/QSMRP` |
+| `reconnectSeen/IDn` | when the client was last known to be alive, written at most every 30 seconds |
+| `reconnectLimit/IDn` | the keep-alive timeout plus the reconnect timeout, in seconds: by then the server has given up |
+
+It is stored once the client has both its reconnect id and its slot. It is cleared when the session ends in
+order: the server says it is exiting, or the user closes the client and the server is told. `SYSTEM LOGOFF`
+clears it with the rest of the slot. A client that dies, or exits while the link is down, leaves it.
+
+**What a new client does.** Before it logs in, the client looks for slots for the same listener and label
+whose client process is no longer running and that still hold a reconnect id. A slot whose client was last
+alive longer ago than its limit is cleared without asking: its server has ended by itself. For each of the
+others:
+
+1. The client connects to the listener and asks it to end that session, giving the reconnect id, the
+   session's `SESSION$` and how long to hold the request. **There is no login**: the reconnect id is the
+   session's own secret.
+2. The listener holds the request. A listener that does not know the request does not answer, and the client
+   goes on after five seconds.
+3. The old server asks to reconnect as soon as it notices its client has gone. The listener matches it to the
+   held request on the reconnect id and, when both are known, on `SESSION$`.
+4. The listener tells the server to abort. The server gives back its WSID and file reservations,
+   acknowledges and ends.
+5. The listener tells the client, and the client logs in. Because the old session gave back its WSID before
+   acknowledging, the new session can have the same WSID and `SESSION$`.
+
+The client holds the request for at most 35 seconds, or less when the slot shows the server will have given
+up sooner. If the server does not come in that time, the client withdraws the request and logs in anyway. A
+server that ends without acknowledging, as one built before the acknowledgement does, is taken as ended when
+its connection to the listener closes. Either way the slot is cleared: **each orphaned session is tried
+once**. An end-session request is never matched as a reconnect, and a reconnect is never handed to it.
 
 <a id="cs-operations"></a>
 ## Client-side operations

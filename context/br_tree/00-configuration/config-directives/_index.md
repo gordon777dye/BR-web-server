@@ -9,6 +9,7 @@ _Backing keyword pages below._
 | File | Kind | Summary |
 |---|---|---|
 | [Attribute_(Config)](Attribute_(Config).md) | config-directive | See also: Attribute (disambiguation) |
+| [BRRESTRICT.SYS](BRRESTRICT.SYS.md) | config-directive | brrestrict.sys is the file list: it names the folders and files BR may work with, and it binds every BR session run from that installation, whether restricted or not. |
 | [Dll](Dll.md) | config-directive | BR functions with a Dll structure. |
 | [Font](Font.md) | config-directive | The Font config specification is supported. See also Font (Config). |
 | [LOGGING](LOGGING.md) | config-directive | As of 4.3, the debug versions of BR now expect you to use a LOGGING configuration statement. |

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program editing commands — BR reference</title>
+<meta name="keywords" content="EDIT, LIST, AUTO, RENUM, DEL, SOURCE, CLAUSES, NOEJECT">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">editing</a></nav>
+<main>
+<h1 id="program-editing-commands">Program editing commands</h1>
+<p>Entering and editing program source in memory: auto line numbering, renumbering, deleting and
+listing lines. Loading/saving the program is in
+<a href="../program-management/spec.html">program-management</a>. Each command has a short abbreviation (shown
+below).</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">&lt;line-range&gt; ::= &lt;starting-line&gt; &lt;ending-line&gt;
+AUTO  [&lt;start-line&gt;] [{','|' '} &lt;increment&gt;]      -- AU; default 10, 10
+RENUM [-&lt;from&gt;] [-&lt;to&gt;] [&lt;first&gt;] [&lt;incr&gt;] [LABELS_ONLY]   -- RENU; updates GOTO/GOSUB references
+DEL   { &lt;line&gt; | &lt;start-line&gt; &lt;end-line&gt; } [SOURCE]   -- DE; delete line(s)
+LIST  [&lt;line-range&gt;]                              -- LIS; display/edit; edit a listed line + Enter
+LIST  '&lt;'&lt;program-file&gt; [&lt;line&gt; [&lt;line&gt;]]         -- list a saved program without loading it
+LIST  [&lt;range&gt;] [-P] [CLAUSES] [PRINT [NOEJECT] | '&gt;'['&gt;'] &lt;file&gt;]   -- options, below
+LIST  { -&lt;line&gt; | &lt;line&gt;- }                       -- the screenful ending, or starting, at &lt;line&gt;
+EDIT  [ &lt;program&gt; | - | ~ ]                       -- ED; open the program in a third-party editor
+</code></pre>
+<p>Each of these commands lists its forms and options when given
+<a href="../program-management/spec.html#command-help"><code>-?</code></a> alone (<code>LIST -?</code>, BR 5.0).</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<ul>
+<li><a id="auto"></a><strong>AUTO</strong> supplies line numbers as you type (separate start/increment with a space
+<em>or</em> a comma). It stops when a line is left blank, you change/erase the supplied number, you move
+the cursor off the line, or the number would exceed 99999. <strong>AUTO cannot be used in a procedure
+file.</strong> You can stop and restart <code>AUTO</code> with a new start number to insert lines mid-program;
+regenerating an existing line number <em>replaces</em> that line (terminating <code>AUTO</code> on an existing
+number leaves it intact).</li>
+<li><a id="renum"></a><strong>RENUM</strong> renumbers lines and <strong>rewrites all line references</strong>
+(<code>GOTO</code>/<code>GOSUB</code>/etc.); it can also reorder a <em>segment</em> into place (<code>RENUM -245 -365 250</code>), and errors
+if a target number already exists or would exceed 99999. <strong><code>LABELS_ONLY</code></strong> (4.18a) instead converts
+line <em>references</em> to label references (a ref to line 1220 becomes <code>L01220</code>; the line may then be
+renumbered yet keep that label) — the basis of Lexi's number-free editing.</li>
+<li><a id="del"></a><strong>DEL</strong> removes a line or inclusive range (in memory only until <code>SAVE</code>/<code>REPLACE</code>;
+gaps are fine). <strong><code>DEL … SOURCE</code></strong> deletes only the <em>source</em> text, keeping the compiled object —
+used to hide source for security; the program then <strong>cannot be reloaded from source</strong> (keep a
+separate full copy). Deleted whole lines leave reclaimable space: save to source and reload to recover
+~100 bytes of object per 7 deleted lines.</li>
+<li><a id="list"></a><strong>LIST</strong> shows lines with BR's canonical formatting (5-digit numbers, keywords
+formatted per STYLE configuration statement); edit directly on a listed line and press Enter on
+that line to store it. After a <code>RUN</code> and another ATTN, up and down arrows and PgUp/PgDn resume
+listing. <code>LIST &quot;string&quot;</code> <em>searches</em> for matching lines — see
+<a href="../information/spec.html#list-search">information</a>. Several variants are available.</li>
+<li><a id="list-options"></a><strong>LIST options.</strong> <strong><code>-P</code></strong> pauses after <strong>each line</strong>. Any key lists one
+more, PgUp/PgDn work, and Ctrl-A stops. <strong><code>-&lt;line&gt;</code></strong> and <strong><code>&lt;line&gt;-</code></strong> list the screenful
+ending, or starting, at
+that line — what F5 and F6 type for you. <strong><code>CLAUSES</code></strong> marks where each clause begins, for
+<code>line:clause</code> references in <code>BREAK</code> and <code>GO</code>. <strong><code>PRINT</code></strong> lists to the printer, ending with a
+page eject unless <strong><code>NOEJECT</code></strong> is given (the old wiki called this <code>SKIP</code>); <code>&gt;printer-name</code> lists
+to a named
+printer. <code>LIST PRINT</code> uses the printer's initialization escape sequences.</li>
+<li><a id="list-output"></a><strong>Where <code>LIST</code> writes.</strong> The screen by default. <strong><code>&gt;file</code></strong> writes the
+listing to a file
+(created, as source: <code>LIST 500 1350 &gt;B:\OUTPUT.BRS</code>) and <strong><code>&gt;&gt;file</code></strong> appends to one; <strong><code>PRINT</code></strong> goes to the
+printer. A single line number with <code>&gt;file</code> redirects <strong>only that line</strong> (before, it redirected from that line to the
+end of the program: this can affect an old application). <code>PRINT</code> is different on the screen's one-line rule:
+it prints every line from the start of the program to its end, not just the one named. A listing in a file can
+be <code>LOAD</code>ed from source, which is how a change made while a program runs is kept.</li>
+<li><a id="list-scroll"></a><strong>Scrolling the screen listing.</strong> The up and down arrows and PgUp/PgDn scroll to lines above
+and below those shown. Pressing the period key (<code>.</code>) just before an arrow stops the scroll from going past the
+lines displayed.</li>
+<li><a id="list-forms"></a><strong>The forms, and what each lists.</strong> <code>LIST</code> alone scrolls the whole program; <code>LIST &lt;n&gt;</code> one line;
+<code>LIST &lt;n&gt; &lt;m&gt;</code> lines <code>n</code> to <code>m</code>; <code>LIST -&lt;n&gt;</code> a screenful ending at <code>n</code> and <code>LIST &lt;n&gt;-</code> one starting at it; a line
+number can be a <strong>line label</strong>. With <code>&lt;program</code> (below) the lines come from a program file, and the same
+line limits and search strings work on it: <code>LIST &lt;PROGNAME.BR 5000,6000</code>, <code>LIST &lt;PROGNAME.BR &quot;OPEN&quot;</code> and
+<code>LIST &lt;PROGNAME.BR &gt;TEMP.BRS</code>. Because it reads the source out of the file, <code>LIST &lt;PROGNAME &gt;TEMP.BRS</code> converts a
+program saved by any release of BR to source, which is how programs are moved between major releases.
+<code>-P</code> works with <code>&lt;program</code> as well: <code>LIST &lt;TEMP -P</code>. For searching (<code>&quot;string&quot;</code>, <code>'string'</code>, <code>~</code>, <code>REPLACE</code>) see
+<a href="../information/spec.html#list-search">LIST &quot;str&quot;</a>.</li>
+<li><a id="list-input"></a><strong><code>LIST &lt;program</code></strong> lists the program saved in a file instead of the one in
+memory, which is left as it is. The <code>&lt;</code> is written against the name (<code>LIST &lt;menu</code>, or quoted
+<code>LIST &lt;&quot;my prog&quot;</code>); a name with no extension is tried with <code>.br</code> and then <code>.wb</code>. The file must be a BR
+program file, else error <strong>4122</strong>; a second <code>&lt;</code> is error <strong>2220</strong>. Line numbers separated by a
+blank may limit it, but a <code>-</code> range or a label with <code>&lt;</code> is a syntax error. At the <code>READY</code> prompt,
+Tab completes the name after the <code>&lt;</code> — see
+<a href="../file-directory/filename-patterns.html#tab-completion">filename-patterns</a>.</li>
+<li><a id="edit"></a><strong>EDIT</strong> (<code>ED</code>; BR 4.15+) hands the current program to a configured third-party editor
+(the <a href="../../00-configuration/config-directives/spec.html#editor"><code>EDITOR</code></a> statement, in BRConfig.sys or as
+<code>CONFIG EDITOR</code>; without one, error <strong>9307</strong>; <code>STATUS CONFIG</code> shows whether one is set). <code>EDIT &lt;program&gt;</code> loads the
+program first. <code>EDIT -</code> opens the last edit's file again without listing the program afresh, and <code>EDIT ~</code>
+takes that file back in without opening the editor at all. What it does:
+<ol>
+<li><strong>Lists</strong> the program to a source file named <code>&lt;program&gt;.brs</code>, in the folder the program was loaded from
+(a program with no name gets <code>MySpace.brs</code>). With <code>OPTION 73</code> on the name is <code>&lt;program&gt;-&lt;WSID&gt;.brs</code>, so that
+two workstations editing one program do not share a file.</li>
+<li><strong>Starts the editor</strong> and gives it focus.</li>
+<li>After you save in the editor, press <strong>Enter</strong> in the BR window, or type <code>EDIT ~</code>, and BR <strong>merges the changed
+lines</strong> into the program. With <code>EDITOR ... NOWAIT</code> BR does not wait for Enter, only for the editor to return
+(which suits simple editors such as Notepad; many good editors return at once, so <code>NOWAIT</code> does not apply to
+them). With <code>EDITOR ... REMOVE</code> the <code>.brs</code> file is deleted once the merge succeeds, and <code>EDIT -</code> cannot then
+recover it.
+The merged text is sorted and checked: <strong>duplicate line numbers are error 1156</strong>. If a merge stops on an error,
+correct the line and type <code>GO</code>: the merge carries on. If <code>EDIT</code> is issued after an unsuccessful merge instead of
+<code>GO</code>, the editor is given the most recent edited work file. <strong>Do not use the Tab key</strong> in the editor: BR gives an
+error on a line that holds one. Editors that handle <code>.brs</code> source are listed at
+<a href="../../00-configuration/config-directives/spec.html#editor"><code>EDITOR</code></a>.</li>
+</ol>
+</li>
+<li><a id="builtin-keys"></a><strong>Built-in editor keys</strong>: BR's own line editor is active at startup (just
+type). <strong>F7</strong> marks then copies the marked span to a scratch buffer (&quot;<em>x</em> Bytes Saved&quot;); <strong>F8</strong>
+marks/moves (cut), or pastes the buffer at the cursor when no mark is active (re-pasteable). A line
+edit isn't stored until <strong>Enter</strong>; removing a line still requires <code>DEL</code> (typing over it or erasing
+characters does not). <strong>INS</strong> toggles insert mode (reverts on arrow/Enter). <strong>Ctrl-A</strong> interrupts a
+running program into ATTN mode (where <code>LIST</code>, edits, <code>STEP</code>/<code>TRACE</code>, and value changes work; <code>GO</code>
+resumes). Most lines can be edited mid-run during ATTN/ERROR/STEP. <em>(Configure the external editor
+and <code>LIST</code>/indent style via <a href="../../00-configuration/config-directives/spec.html#config">00-configuration/config-directives</a>:
+<code>EDITOR</code>, <code>STYLE</code>.)</em></li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-text">AUTO 1000 50          ! number from 1000 by 50
+RENUM -330 -480 500   ! renumber lines 330-480 starting at 500
+DEL 20 60             ! delete lines 20 through 60
+DEL 100 200 SOURCE    ! strip source for 100-200, keep object (security)
+LIST 100-200
+LIST &lt;menu 100 500    ! lines 100-500 of menu.br on disk; memory untouched
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../program-management/spec.html">program-management</a> — <code>LOAD</code>/<code>SAVE</code>/<code>REPLACE</code>/<code>RUN</code>, <code>MERGE</code></li>
+<li><a href="../information/spec.html#list-search">information</a> — <code>LIST &quot;search&quot;</code>/REPLACE, STEP/TRACE debugging</li>
+<li><a href="../../10-language/syntax/spec.html">10-language/syntax</a> — line numbers &amp; labels being edited</li>
+<li><a href="../file-directory/filename-patterns.html#tab-completion">file-directory/filename-patterns</a> — Tab completion of file names at <code>READY</code>, <code>LIST &lt;</code> and <code>LIST &gt;</code> included</li>
+</ul>
+<p><em>(Backing keyword pages <code>Editing_Commands</code>, <code>AUTO</code>, and the misfiled <code>Delete_(command)</code> were folded
+into this spec and pruned.)</em></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/editing/spec.md">br_tree/70-commands/editing/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

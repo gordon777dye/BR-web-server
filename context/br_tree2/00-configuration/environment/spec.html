@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Environment variables &amp; paths — BR reference</title>
+<meta name="keywords" content="ENV, SETENV, DATADIR, BR_DATA, LOGIN_NAME, WORKPATH">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">environment</a></nav>
+<main>
+<h1 id="environment-variables--paths">Environment variables &amp; paths</h1>
+<p>How OS/session environment values feed BR and how filenames resolve to OS paths. The
+configuration <em>directives</em> that consume these are in
+<a href="../config-directives/spec.html">config-directives</a>; reading them at runtime is via
+<a href="../../10-language/data-manipulation/system-functions/spec.html#system-info"><code>ENV$</code></a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">-- OS environment-variable substitution (any BRConfig.sys specification)
+%NAME%                                            -- e.g. %USERNAME%, %USERPROFILE%, %COMPUTERNAME%
+
+-- per-user conditional config line
+@&lt;login-name&gt; &lt;any BRConfig.sys specification&gt;    -- quote login if it has spaces/periods: @&quot;Joe Tester&quot; ...
+[LOGIN_NAME$]                                      -- login-name substitution inside a path
+LOGIN_NAME$ &lt;default-login&gt;                        -- BRConfig.sys: default when OS gives none
+
+-- session environment values (runtime)
+SETENV(&lt;name$&gt;, &lt;value$&gt;)                          -- write a session variable / special key
+LET v$ = ENV$(&lt;name$&gt;)                             -- read OS var, session var, or system setting
+
+-- client working directory (client-server)
+CLIENT_CURRENT_DIR { &lt;full-client-path&gt; | SYNC | OFF }
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<a id="env-substitution"></a>
+<ul>
+<li><strong><code>%NAME%</code> substitution</strong> — any BRConfig.sys specification may embed an OS environment variable,
+e.g. <code>DRIVE C:,%USERPROFILE%\data,,</code> or <code>%USERNAME%</code>. Resolved at start-up.</li>
+<li><strong><code>@login_name</code> prefix</strong> — gate a BRConfig.sys line on the OS (Windows/Linux) login, so one shared
+BRConfig.sys can carry per-user lines instead of one file per client. Quote the name if it
+contains spaces or periods: <code>@&quot;Joe Tester&quot; WSID 11</code>.</li>
+</ul>
+<a id="path-resolution"></a>
+<ul>
+<li><strong>Path translation &amp; the colon escape</strong> — pathnames in BRConfig.sys statements (and program
+filenames) are translated through preceding <code>DRIVE</code> definitions. To use a <em>literal OS pathname</em>
+and bypass translation, begin it with a colon <code>:</code> (the colon is stripped when BR uses the path).
+Backslashes separate directories even on Linux; on Linux/Mac program filenames are forced
+lowercase to simulate case-insensitivity (override with <code>FILENAMES</code>). A drive-letter reference is
+<strong>drive-relative unless it has a leading backslash</strong>: <code>X:path</code> resolves against the drive's current
+directory (base + the 4th-param startup <code>&lt;subdir&gt;</code>, moved by <code>CD</code>), while <code>X:\path</code> is absolute from
+the drive's base — so the two differ when a <code>&lt;subdir&gt;</code>/<code>CD</code> is in effect (see
+<a href="../config-directives/spec.html#paths">config-directives</a>).</li>
+<li><a id="login_name"></a><strong><code>[LOGIN_NAME$]</code></strong> substitutes the current login into a path, e.g.
+<code>DRIVE G:,G:\HOME\[LOGIN_NAME$],,</code>; <code>LOGIN_NAME$ &lt;default&gt;</code> sets the fallback when the OS supplies
+none. (Full <code>DRIVE</code> grammar and file-search order live in
+<a href="../config-directives/spec.html#paths">config-directives</a>.)</li>
+</ul>
+<a id="setenv"></a>
+<ul>
+<li><strong>Session environment variables (<code>SETENV</code>)</strong> — set a value in one program and read it from
+another for as long as BR stays open (lost when BR closes). <code>SETENV(&quot;startform$&quot;,&quot;5,5,C 30&quot;)</code>
+then <code>ENV$(&quot;startform&quot;)</code> returns it. Special keys: <code>SETENV(&quot;clipboard&quot;, v$)</code> writes the Windows
+clipboard (4.17+); <code>SETENV(&quot;SCRN_SIZE_POSN&quot;)</code> saves the current size/position of both consoles
+(unless minimized). A config-statement form (<code>SETENV (config)</code>) also exists.</li>
+</ul>
+<a id="env-read"></a>
+<ul>
+<li><strong>Reading with <code>ENV$</code></strong> covers three kinds of value: <strong>OS</strong> variables (<code>ENV$(&quot;temp&quot;)</code>,
+<code>ENV$(&quot;USERNAME&quot;)</code>), <strong>session</strong> variables set via <code>SETENV</code>, and <strong>system settings</strong> —
+<code>ENV$(&quot;clipboard&quot;)</code>, <code>ENV$(&quot;color.&lt;component&gt;&quot;)</code> → <code>#RRGGBB</code>, <code>ENV$(&quot;font.&lt;component&gt;&quot;)</code>,
+<code>ENV$(&quot;OPEN#&lt;n&gt;.FONT.LABELS&quot;)</code>, and the status-interrogation form
+<code>ENV$(status-string [, MAT config$ [, search-arg]])</code> (4.30+). <code>STATUS ENV</code> lists all available
+values.</li>
+</ul>
+<a id="client-current-dir"></a>
+<ul>
+<li><strong><code>CLIENT_CURRENT_DIR</code></strong> (client-server; settable in BRConfig.sys or via the <code>CONFIG</code> command):
+<ul>
+<li>a <strong>path</strong> → passed to Windows as the <em>Starting Directory</em> for subsequent client <code>shell</code> calls;
+also stops any prior SYNC.</li>
+<li><strong><code>SYNC</code></strong> → mirror every server <code>CD</code> onto the client. Requires that each <code>DRIVE</code> statement's
+<em>2nd parameter</em> match the server OS drive mapping (e.g. Samba root), so a <code>CD DATA</code> lands at the
+same place on both sides. Useful for <code>COPY file @:file2</code> client transfers, ODBC, SPOOLCMD.</li>
+<li><strong><code>OFF</code></strong> → revert to the startup directory.</li>
+<li>See <a href="../client-server/spec.html#cs-operations">client-server</a> for <code>@:</code> client-path addressing.</li>
+</ul>
+</li>
+</ul>
+<a id="tables"></a>
+<h2>Tables</h2>
+<table>
+<thead>
+<tr>
+<th><code>ENV$</code> argument</th>
+<th>Returns</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;temp&quot;</code>, <code>&quot;USERNAME&quot;</code>, …</td>
+<td>OS environment variable</td>
+</tr>
+<tr>
+<td><em>(name set by <code>SETENV</code>)</em></td>
+<td>session variable (e.g. <code>&quot;startform&quot;</code>)</td>
+</tr>
+<tr>
+<td><code>&quot;clipboard&quot;</code></td>
+<td>Windows clipboard text (4.17+)</td>
+</tr>
+<tr>
+<td><code>&quot;color.&lt;component&gt;&quot;</code></td>
+<td>color as <code>#RRGGBB</code></td>
+</tr>
+<tr>
+<td><code>&quot;font.&lt;component&gt;&quot;</code> / <code>&quot;OPEN#&lt;n&gt;.FONT.LABELS&quot;</code></td>
+<td>font name</td>
+</tr>
+<tr>
+<td><code>status-string [, MAT config$ [, arg]]</code></td>
+<td>environment/status interrogation</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><code>CLIENT_CURRENT_DIR</code> value</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;full-client-path&gt;</code></td>
+<td>set client Starting Directory; cancels SYNC</td>
+</tr>
+<tr>
+<td><code>SYNC</code></td>
+<td>mirror server <code>CD</code>s onto client (needs DRIVE 2nd-param ↔ OS mapping)</td>
+</tr>
+<tr>
+<td><code>OFF</code></td>
+<td>use the startup directory</td>
+</tr>
+</tbody>
+</table>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-text">DRIVE E:,%USERPROFILE%\BR_DATA,,                 ! OS env-var substitution
+DRIVE G:,G:\HOME\[LOGIN_NAME$],,                 ! per-login path
+@&quot;Joe Tester&quot; WSID 11                            ! per-user config line (quoted login)
+@admin LOGLEVEL DEBUG
+CLIENT_CURRENT_DIR SYNC                          ! keep client CD in step with server
+</code></pre>
+<pre><code class="language-business-rules">00100 PRINT &quot;User: &quot;; LOGIN_NAME$
+00110 LET DATADIR$ = ENV$(&quot;BR_DATA&quot;)             ! read OS / session var
+00120 SETENV(&quot;startform$&quot;,&quot;5,5,C 30&quot;)            ! session var, readable elsewhere
+00130 LET SF$ = ENV$(&quot;startform&quot;)
+00140 SETENV(&quot;clipboard&quot;, &quot;Data to copy&quot;)        ! Windows clipboard (4.17+)
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../config-directives/spec.html#paths">config-directives</a> — full <code>DRIVE</code>/<code>WORKDIR</code>/<code>PRINTDIR</code>/<code>FILENAMES</code> grammar + file-search order</li>
+<li><a href="../client-server/spec.html#cs-operations">client-server</a> — <code>@:</code> client paths, <code>Client_Current_Dir</code> transport</li>
+<li><a href="../../10-language/data-manipulation/system-functions/spec.html#system-info">system-functions</a> — <code>ENV$</code>, <code>SETENV</code>, <code>LOGIN_NAME$</code>, <code>USERID$</code></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/environment/spec.md">br_tree/00-configuration/environment/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

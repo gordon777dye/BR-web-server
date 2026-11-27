@@ -16,6 +16,9 @@ interactive program, a screen, a form that is waiting for input. The difference 
 facility called the **harness**: a side channel a session opens on its own account, which an
 assistant reads and types through while the program runs.
 
+To *test* a changed program, rather than watch it, start with [`BR_testing.md`](BR_testing.md),
+which picks the way and gives a repeatable screen test.
+
 > **Everything below marked *measured* was run on this machine against BR 5.0 and the output
 > kept.** Everything else is cited to the authority that states it. Nothing here is inferred
 > from how it ought to work — see [AI Model Rules](../README.md) on guessing.
@@ -118,6 +121,10 @@ Two things to do about it:
 The harness has a single event queue per connection, and `wait_for_event` *takes* an event
 rather than copying it. A second assistant is told `another assistant is already attached`.
 
+An assistant with a shell and no MCP connection reaches the same session one command at a time,
+with `read screen` and `send keys` ([`BR_testing.md` §5](BR_testing.md#live-shell)); those are
+refused while an MCP assistant is attached, for the same reason.
+
 ---
 
 <a id="starting"></a>
@@ -125,7 +132,8 @@ rather than copying it. A second assistant is told `another assistant is already
 
 Moved to [`BR_launch.md` — Starting the session](BR_launch.md#harness-launch):
 `"$BR_MCP_DRIVER" start`, what `start` and `start --user` each give you
-(`DEVELOP` mode or user mode, and no grant or an hour's), and how to end it.
+(`DEVELOP` mode with the keyboard and no expiry, or user mode with the keyboard for an hour),
+and how to end it.
 
 ---
 
@@ -155,7 +163,7 @@ session and which you can neither raise nor extend.
 
 | Tool | Grant | What it answers |
 |---|---|---|
-| `read_view` | no | what is on the glass, row by row, each marked `LIVE` or `HISTORY`. Reports where the view sits **without moving it** when called with no offset |
+| `read_view` | no | what is on the glass, row by row, each marked `LIVE` or `HISTORY`, then BR's status line as a `STATUSLINE` record: an error that stopped the program is shown there and on no row. Reports where the view sits **without moving it** when called with no offset |
 | `controls` | no | every field, button and control: index, type, position, size, protected, which has input, and the scancode that presses it — **the index every other control tool uses** |
 | `grid` | no | the cells of a `GRID` (type 11), 200 rows a page |
 | `list` | no | the rows of a `LIST` (type 13) — a list box, or a dropped combo |
@@ -309,9 +317,10 @@ watching one run.
 <a id="typing"></a>
 ## 7. Typing into a screen
 
-Typing needs a grant. **A grant is permission, not delivery**: keys go in only while a program
-is waiting for input, and queue until one is — except in `DEVELOP` mode, where the console takes
-them at `READY` too. `pending` says how many of yours are still waiting, and a non-zero count is
+Typing needs a grant. **A grant is permission, not delivery**: keys go in only while a program is
+waiting for input, and queue until one is. At BR's command prompt - `READY`, an ATTN halt or an
+error - they queue too, unless the session opened its channel in `DEVELOP` mode, where a line typed
+there runs as a command, as the person's own would. `pending` says how many of yours are still waiting, and a non-zero count is
 the normal resting state, not a fault.
 
 - **`keys`** for printable text.
@@ -358,10 +367,12 @@ running program unless that program consented by setting `AI_TURN_OK` to `"Y"`; 
 set that flag nor ask for it. Inside a turn, `CLEAR PROC` **ends your turn** and comes back
 as `-1`.
 
-**In a `GUI OFF` session, a question put to the person goes into a modal message box, and a
-modal box stops BR's event loop and the harness channel with it.** Nothing you send will be
-read until somebody answers it. If the channel goes silent in a `GUI OFF` session, that is the
-first thing to suspect — not a crash.
+**A modal message box stops BR's event loop and the harness channel with it**, in `GUI OFF` and
+in `GUI ON`. In a `GUI OFF` session, a question BR puts to the person is such a box, and so is
+a program's own `MSGBOX` in either mode. Nothing you send will be read until somebody answers
+it. If the channel goes silent, a message box is the first thing to suspect, not a crash.
+*Measured under `GUI ON`*: a library's `MSGBOX` at startup left a request unanswered for its
+whole 10-second timeout.
 
 The 14 harness error numbers are in `guide`. The ones you will actually meet:
 
@@ -421,13 +432,14 @@ In the order you should reach for them:
 | what the facility is, for a reader who is not implementing it | [`ai_access/AI-Access-Summary.md`](ai_access/AI-Access-Summary.md) |
 | what a restricted session may and may not do | [`ai_access/AI-Restricted-Operations.md`](ai_access/AI-Restricted-Operations.md) |
 | compiling, running a program headlessly, and launching a harness session | [`BR_launch.md`](BR_launch.md), [Live sessions](BR_launch.md#harness-launch) |
+| testing a changed program, including a repeatable screen test with `uitest` | [`BR_testing.md`](BR_testing.md) |
 | BR's two GUI modes | [`br_tree`](../br_tree/20-io-screen/windows-cursor/spec.md#gui-console) |
 | ScreenIO: building, compiling, dispatching | [`screenio-guide.md`](screenio-guide.md), [`br_tree/50-libraries/screenio/`](../br_tree/50-libraries/screenio/) |
 
-**The copies under [`ai_access/`](ai_access/) are copies.** The authority is `br/docs/` and
-`br/mcpdriver/` in the BR source tree, and a copy here can fall behind one — if something in
-them contradicts what a tool actually does, the tool is right and the copy is stale. Say so in
-[`ERRORS.md`](../ERRORS.md).
+**The three `AI-Access-*.md` files in [`ai_access/`](ai_access/) are copies** of `br/docs/` in
+the BR source tree, and can fall behind it. [`ai_access/README.md`](ai_access/README.md) is this
+kit's own, written for testing BR programs. If anything in them contradicts what a tool actually
+does, the tool is right. Say so in [`ERRORS.md`](../ERRORS.md).
 
 Found anything in this file that is wrong, or ambiguous? Put it in
 [`ERRORS.md`](../ERRORS.md) and tell the user, so it can be forwarded to ADS.

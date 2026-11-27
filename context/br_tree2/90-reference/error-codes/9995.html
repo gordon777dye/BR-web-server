@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>9995 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>9995</h1>
+<p><strong>Error:</strong> 9995</p>
+<p><strong>Description:</strong> Deprecated error as of 4.3: RPN stack failure. <code>SysErr</code> and it always seems to want to kick you out of BR!</p>
+<p><strong>BR 5 message:</strong> RPN stack failure</p>
+<p><strong>Details:</strong> - One thing that will cause it is doing an exists(x$) when x$ has a length of 199.</p>
+<ul>
+<li><code>CURFLD</code>(14) where there are less than 14 available fields.</li>
+<li>in BR <code>4.0</code> an <code>exists</code> of apx 70 characters or more would cause this error. #<code>Trim</code> it or copy it to a location with a shorter path name.  You can probably cause the error with any path with a length more than the <code>maximum</code> length path that BR! allows!</li>
+<li>Reduce the 14 to an appropriate number</li>
+<li>reduce the path to 66 (?) or less characters.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/9995.md">br_tree/90-reference/error-codes/9995.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IGNORE — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>IGNORE</h1>
+<p>The <strong>IGNORE</strong> parameter causes the system to continue as if the error never happened. It is important to understand that the error-causing statement is terminated (not executed) and normal processing continues with the next statement. This means that if an error occurs while ZDIV IGNORE is used for a WRITE statement, the record would not be written. The one exception to this no-execution rule for IGNORE is with the SOFLOW error condition; in this case the assigned string is truncated to its maximum and the statement is executed.</p>
+<p>Used in the following statements:</p>
+<ul>
+<li><code>On Error</code></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/IGNORE.md">br_tree/90-reference/error-codes/IGNORE.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

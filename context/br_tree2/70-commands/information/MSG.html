@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MSG — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">information</a></nav>
+<main>
+<h1>MSG</h1>
+<p>MSG(&quot;send&quot;,&lt;<code>string</code>&gt;) ! type a string into this session</p>
+<p>The <strong>MSG</strong> <code>internal function</code> (without the dollar sign) is only available for Windows &amp; CS
+versions. This should not be confused with <code>Msg$</code>. The first parameter is the <strong>action</strong>, and it is
+case insensitive. MSG has no effect on Unix or Linux <strong>terminal</strong> sessions, but works under
+Client / Server with Unix the same as WINDOWS.</p>
+<blockquote>
+<p><strong><code>MSG(&quot;kb&quot;)</code> was removed in BR 5.0 and now raises <code>0412</code>. Use <code>MSG(&quot;send&quot;)</code>,</strong> which takes the
+same arguments and behaves the same way. <code>kb</code> was only ever <code>send</code> behind a check that BR's
+window was in front; once <code>send</code> stopped being able to leave BR there was nothing for that check
+to do.</p>
+</blockquote>
+<h2 id="the-actions">The actions</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>send</code></td>
+<td>type a string into this session — the rest of this page</td>
+</tr>
+<tr>
+<td><code>sleeptime</code></td>
+<td>milliseconds between the keys <code>send</code> types; default 200</td>
+</tr>
+<tr>
+<td><code>state</code></td>
+<td>the session's state</td>
+</tr>
+<tr>
+<td><code>getpos</code> <code>getwpos</code> <code>getcpos</code></td>
+<td>read the pointer, window and caret positions</td>
+</tr>
+<tr>
+<td><code>setpos</code> <code>setwpos</code> <code>setcpos</code></td>
+<td>move them — <strong>refused in a restricted session, 4154</strong></td>
+</tr>
+<tr>
+<td><code>lclick</code> <code>mclick</code> <code>rclick</code></td>
+<td>click — <strong>refused in a restricted session, 4154</strong></td>
+</tr>
+<tr>
+<td><code>getcb</code> <code>putcb</code></td>
+<td>read and write the clipboard</td>
+</tr>
+<tr>
+<td><code>dump</code></td>
+<td>write the screen to a file</td>
+</tr>
+<tr>
+<td><code>shot</code></td>
+<td>write a PNG of the screen to a file</td>
+</tr>
+<tr>
+<td><code>restore</code></td>
+<td>restore the screen</td>
+</tr>
+<tr>
+<td><code>loop</code></td>
+<td>the loop check</td>
+</tr>
+<tr>
+<td><code>menu</code></td>
+<td>choose an item of BR's own menu by name, as a click on it would — see <a href="#choosing-a-menu-item">below</a>; <strong>refused in a restricted session, 4154</strong></td>
+</tr>
+<tr>
+<td><code>harness</code></td>
+<td>open or close this session's assistant channel; <strong>4173</strong> while another session's channel is still waiting for its assistant</td>
+</tr>
+<tr>
+<td><code>grant</code></td>
+<td>lend the keyboard to an assistant, or take it back</td>
+</tr>
+<tr>
+<td><code>notify</code></td>
+<td>post a message an assistant can read</td>
+</tr>
+<tr>
+<td><code>agentask</code> <code>agenttext</code> <code>agentline</code></td>
+<td>open a question for an assistant, and read what it delivered</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>restricted session</strong> permits eighteen of these: <code>state</code>, <code>getpos</code>, <code>getwpos</code>, <code>getcpos</code>,
+<code>getcb</code>, <code>putcb</code>, <code>loop</code>, <code>sleeptime</code>, <code>harness</code>, <code>grant</code>, <code>dump</code>, <code>shot</code>, <code>send</code>, <code>restore</code>,
+<code>notify</code>, <code>agentask</code>, <code>agenttext</code>, <code>agentline</code>. The pointer actions, <code>menu</code>, and anything not in
+the table are refused with <strong>4154</strong>, and each refusal is logged as a security event naming the
+action.</p>
+<h2 id="where-the-keys-go">Where the keys go</h2>
+<p><strong><code>send</code> types into BR's own key buffer, and nowhere else.</strong> The keys go into the same ring a key
+pressed in BR's window lands in, so they reach <strong>this session only</strong>, whatever window has the
+focus, and no focus is needed at all.</p>
+<p>This changed in BR 5.0. <code>send</code> used to emit operating-system keyboard input, which went to whichever
+window had the focus — so a program could type into another application, a command prompt, or
+another BR session. That is also why error <code>0413</code> existed, and why it is now retired.</p>
+<p><strong>MSG returns before the keys arrive.</strong> They are queued and fed to BR one at a time, <code>sleeptime</code>
+apart, while the program runs and reads them. So <code>sleeptime</code> paces what a person sees being typed,
+a string is no longer limited by the size of BR's key buffer, and <strong>a program must not expect every
+key to be there when the call returns.</strong></p>
+<a id="choosing-a-menu-item"></a>
+<h2>Choosing a menu item</h2>
+<pre><code>X = MSG(&quot;menu&quot;, &quot;File|Open&quot;)               ! an item on the File menu
+X = MSG(&quot;menu&quot;, &quot;File|Recent|first.br&quot;)    ! an item on a submenu
+</code></pre>
+<p><strong><code>MSG(&quot;menu&quot;, &lt;path$&gt;)</code> chooses an item of the menu BR shows on its main window</strong> (<code>DISPLAY MENU</code>) as a click on it would: the program gets <code>FKEY</code> 98, and <code>MENU$</code> returns the item's data,
+exactly as if the user had chosen it.</p>
+<ul>
+<li><strong>The path is the menu's labels</strong>, from the menu bar title down to the item, separated by <code>|</code>.
+Case is ignored, and so are the <code>&amp;</code> accelerator marks and the shortcut text after a tab, so
+<code>&quot;File|Open&quot;</code> matches <code>&amp;File</code> and <code>&amp;Open	Ctrl-O</code>. A bar title alone chooses nothing.</li>
+<li><strong>It is queued with the keys</strong> from <code>send</code> and the clicks, and delivered in that order while the
+program waits for input, <code>sleeptime</code> apart. MSG returns before it arrives.</li>
+<li><strong>It needs no mouse, no focus and no visible window.</strong> It works with BR's window covered,
+unfocused or off the screen.</li>
+<li><strong>A path that names no item is error 0415</strong>, and BR's log lists the paths the menu has.</li>
+<li><strong>Every choice is logged</strong> at the security level: <code>MSG chose menu item &lt;id&gt;</code>.</li>
+</ul>
+<p><strong>Why by name and not by position.</strong> <code>lclick</code> and the other clicks are refused over the menu: a
+drop-down menu is run by Windows itself, which only real mouse input on a visible window can drive.
+A program knows a menu by its labels anyway.</p>
+<h2 id="error-codes">Error codes</h2>
+<p>*<code>0412</code> Invalid Action Code — the first parameter is not an action. <strong><code>MSG(&quot;kb&quot;)</code> raises this.</strong></p>
+<ul>
+<li><code>0414</code> Wrong number of arguments passed</li>
+<li><code>0415</code> Some error that has err message</li>
+<li><code>0416</code> Not enough elements in dimensioned array</li>
+<li><code>0417</code> Dimensioned string length is not big enough</li>
+<li><code>0418</code> Unknown</li>
+<li><code>0419</code> Error in special char spec</li>
+<li><code>0440</code> MSG answer is not a number and the result variable is numeric</li>
+<li><code>4154</code> restricted session: this operation is not permitted</li>
+<li><a href="../../90-reference/error-codes/4173.html"><code>4173</code></a> <code>harness</code>: another session's assistant channel is waiting for its assistant. Every session in an account publishes its token to one file, locked until an assistant claims it; try again once that channel is claimed or closes</li>
+</ul>
+<p>*<code>0413</code> Window Not On Top is <strong>retired</strong>. It was <code>kb</code>'s refusal when BR was not the foreground
+window; nothing raises it now. The number stays reserved and is never reused.</p>
+<h4 id="special-keystroke-values">Special Keystroke Values</h4>
+<p>Special characters are enclosed in pipes <strong>|</strong>, and are translated to BR's own key values the way
+<code>key_scan.cpp</code> translates a physical key. <code>|CTRL+|</code> and <code>|SHIFT+|</code> are tracked across the keys that
+follow them: <code>|CTRL+|</code> with a letter gives that control character, <code>|SHIFT+|</code> with a character gives
+its shifted form on the current keyboard layout (<code>a</code> to <code>A</code>, <code>1</code> to <code>!</code>), and either with a
+function, arrow or editing key gives that key's control or shifted variant.</p>
+<p><strong>A key that means nothing inside BR is dropped</strong> rather than sent anywhere: Alt, the Windows and
+Apps keys, and PrintScreen. They are accepted in the string and discarded, so <code>LWIN</code>, <code>RWIN</code>,
+<code>APPS</code> and <code>SNAP</code> in the table below do nothing on BR 5.0.</p>
+<h5 id="examples">Examples</h5>
+<p>If you want to send ctrl+c, you must send the following string:</p>
+<pre><code>00010 MSG(&quot;send&quot;,&quot;|CTRL+|c|CTRL-|&quot;)
+</code></pre>
+<p>This says that you want depress the &quot;CTRL&quot; key, type &quot;c&quot;, and then release &quot;CTRL&quot;.</p>
+<p>Example:</p>
+<pre><code>MSG(&quot;send&quot;,&quot;|CTRL+|p|CTRL-|&quot;)
+</code></pre>
+<p>Will input the CTRL-P character, which causes BR to perform a printscreen operation.</p>
+<h5 id="special-character-list">Special Character List</h5>
+<p><strong>Each char must be enclosed in pipes</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ALT+</td>
+<td>press ALT - see note below</td>
+</tr>
+<tr>
+<td>ALT-</td>
+<td>release ALT</td>
+</tr>
+<tr>
+<td>CTRL+</td>
+<td>press CTRL</td>
+</tr>
+<tr>
+<td>CTRL-</td>
+<td>release CTRL</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SHIFT+</td>
+<td>press SHIFT</td>
+</tr>
+<tr>
+<td>SHIFT-</td>
+<td>release SHIFT</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ALTL+ ALTL-</td>
+<td>press / release ALT — the same key event as ALT+ / ALT-</td>
+</tr>
+<tr>
+<td>ALTR+ ALTR-</td>
+<td>press / release ALT with the Windows extended-key flag set</td>
+</tr>
+<tr>
+<td>CTRLL+ CTRLL-</td>
+<td>press / release CTRL — the same key event as CTRL+ / CTRL-</td>
+</tr>
+<tr>
+<td>CTRLR+ CTRLR-</td>
+<td>press / release CTRL with the Windows extended-key flag set</td>
+</tr>
+<tr>
+<td>SHIFTL+ SHIFTL-</td>
+<td>press / release SHIFT — the same key event as SHIFT+ / SHIFT-</td>
+</tr>
+<tr>
+<td>SHIFTR+ SHIFTR-</td>
+<td>press / release SHIFT with the Windows extended-key flag set</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>TAB</td>
+<td>press the tabulation key</td>
+</tr>
+<tr>
+<td>RET</td>
+<td>press the return key</td>
+</tr>
+<tr>
+<td>ESC</td>
+<td>press the escape key</td>
+</tr>
+<tr>
+<td>SPACE</td>
+<td>press the space bar</td>
+</tr>
+<tr>
+<td>CLR</td>
+<td>press the Clear key (VK_CLEAR)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>BACK</td>
+<td>press the backward key</td>
+</tr>
+<tr>
+<td>DEL</td>
+<td>press the delete key</td>
+</tr>
+<tr>
+<td>INS</td>
+<td>press the insert key</td>
+</tr>
+<tr>
+<td>HELP</td>
+<td>press the help key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>LEFT</td>
+<td>send the cursor to the left (left arrow)</td>
+</tr>
+<tr>
+<td>RIGHT</td>
+<td>send the cursor to the right (right arrow)</td>
+</tr>
+<tr>
+<td>UP</td>
+<td>send the cursor up (up arrow)</td>
+</tr>
+<tr>
+<td>DOWN</td>
+<td>send the cursor down (down arrow)</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>PGUP</td>
+<td>press the page up key</td>
+</tr>
+<tr>
+<td>PGDN</td>
+<td>press the page down key</td>
+</tr>
+<tr>
+<td>HOME</td>
+<td>press the home key</td>
+</tr>
+<tr>
+<td>END</td>
+<td>press the end key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>SNAP</td>
+<td>press the Print Screen key (VK_SNAPSHOT)</td>
+</tr>
+<tr>
+<td>PRINT</td>
+<td>press the Print key (VK_PRINT — not Print Screen)</td>
+</tr>
+<tr>
+<td>SEL</td>
+<td>press the Select key (VK_SELECT)</td>
+</tr>
+<tr>
+<td>EXEC</td>
+<td>press the Execute key (VK_EXECUTE)</td>
+</tr>
+<tr>
+<td>LWIN</td>
+<td>press the left Windows key</td>
+</tr>
+<tr>
+<td>RWIN</td>
+<td>press the right Windows key</td>
+</tr>
+<tr>
+<td>APPS</td>
+<td>press the Applications (context menu) key</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>F1</td>
+<td>press the function key F1</td>
+</tr>
+<tr>
+<td>F2</td>
+<td>press the function key F2</td>
+</tr>
+<tr>
+<td>F3</td>
+<td>press the function key F3</td>
+</tr>
+<tr>
+<td>F4</td>
+<td>press the function key F4</td>
+</tr>
+<tr>
+<td>F5</td>
+<td>press the function key F5</td>
+</tr>
+<tr>
+<td>F6</td>
+<td>press the function key F6</td>
+</tr>
+<tr>
+<td>F7</td>
+<td>press the function key F7</td>
+</tr>
+<tr>
+<td>F8</td>
+<td>press the function key F8</td>
+</tr>
+<tr>
+<td>F9</td>
+<td>press the function key F9</td>
+</tr>
+<tr>
+<td>F10</td>
+<td>press the function key F10</td>
+</tr>
+<tr>
+<td>F11</td>
+<td>press the function key F11</td>
+</tr>
+<tr>
+<td>F12</td>
+<td>press the function key F12</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>NUM0</td>
+<td>press the 0 on the key pad</td>
+</tr>
+<tr>
+<td>NUM1</td>
+<td>press the 1 on the key pad</td>
+</tr>
+<tr>
+<td>NUM2</td>
+<td>press the 2 on the key pad</td>
+</tr>
+<tr>
+<td>NUM3</td>
+<td>press the 3 on the key pad</td>
+</tr>
+<tr>
+<td>NUM4</td>
+<td>press the 4 on the key pad</td>
+</tr>
+<tr>
+<td>NUM5</td>
+<td>press the 5 on the key pad</td>
+</tr>
+<tr>
+<td>NUM6</td>
+<td>press the 6 on the key pad</td>
+</tr>
+<tr>
+<td>NUM7</td>
+<td>press the 7 on the key pad</td>
+</tr>
+<tr>
+<td>NUM8</td>
+<td>press the 8 on the key pad</td>
+</tr>
+<tr>
+<td>NUM9</td>
+<td>press the 9 on the key pad</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>NUM*</td>
+<td>press the * on the key pad</td>
+</tr>
+<tr>
+<td>NUM+</td>
+<td>press the + on the key pad</td>
+</tr>
+<tr>
+<td>NUM-</td>
+<td>press the - on the key pad</td>
+</tr>
+<tr>
+<td>NUM,</td>
+<td>press the key pad separator key (VK_SEPARATOR)</td>
+</tr>
+<tr>
+<td>NUM#</td>
+<td>press the key pad decimal point (VK_DECIMAL)</td>
+</tr>
+<tr>
+<td>NUM/</td>
+<td>press the / on the key pad</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>To send the pipe character specify |||.</p>
+<p>MSG(&quot;sleeptime&quot;,milliseconds) specifies the number of milliseconds to wait before issuing each string and each control character (<code>1000</code> = one second). The default is 200 (0.2 seconds).</p>
+<p><strong>The Alt advice that used to close this page no longer applies.</strong> It described how Windows
+interpreted Alt combinations when <code>send</code> went through the operating system, and read:</p>
+<blockquote>
+<p>the ALT key needs to be depressed and released (ALT+ and ALT-) for every Alt-character
+specified - <code>|alt+|m|alt-||alt+|b|alt-|</code> works, <code>|alt+|mb|alt-|</code> fails.</p>
+</blockquote>
+<p>BR 5.0 drops Alt rather than sending it, so neither form does anything now. Nothing replaces it:
+there is no Alt combination to send, because there is no longer an operating system in the path to
+interpret one.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/information/MSG.md">br_tree/70-commands/information/MSG.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

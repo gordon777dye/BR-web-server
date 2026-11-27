@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">glossary-stubs</a></nav>
+<main>
+<h1>C</h1>
+<p>The <strong>C (character) format specification</strong> identifies string data. It can be used with both types of <code>FORM</code> statements (for internal/external files and for display files), and it can be used with the full screen processing statements.</p>
+<p><strong>Input characteristics</strong>:</p>
+<p>For string input, C format specification retains all trailing spaces when reading in a value with a specified field length. If the field length is not specified, the field length defaults to the maximum dimensioned length of the variable.</p>
+<p><strong>Output characteristics</strong>:</p>
+<p>When C is used for output, the string value is printed with blanks padded on the right (leading spaces are retained), as in the following example:</p>
+<pre><code>00010 PRINT USING 20:&quot;ABC&quot;,&quot;DEF&quot;
+00020 FORM C 8,C 3
+</code></pre>
+<p>Output from the above example prints to the screen as:</p>
+<pre><code>ABC   DEF
+</code></pre>
+<p>If the field length is not specified, the field length defaults to the current string length (the value from the LEN function) of the variable, as in the following example:</p>
+<pre><code>00010 PRINT USING 20:&quot;ABCDE&quot;,&quot;fgh&quot;
+00020 FORM C,C
+</code></pre>
+<p>Output from the above example prints to the screen as:</p>
+<pre><code>ABCDEfgh
+</code></pre>
+<p><strong>Technical Considerations</strong>:</p>
+<p>1.) When used for string output, the C, V and G specifications behave identically. On string input, V and G differ from C in that they remove all trailing spaces.</p>
+<p>The following example illustrates reading the same string three different ways:</p>
+<pre><code>00010 READ #1,USING 20: A$
+00020 FORM C 18
+00030 REREAD #1,USING 40: B$
+00040 FORM V 18
+00050 REREAD #1,USING 60: C$
+00060 FORM G 18
+00070 PRINT USING 80: A$, LEN(A$),LEN(B$),LEN(C$)
+00080 FORM C 20,3*N 5
+</code></pre>
+<p>This example outputs the following:</p>
+<pre><code>12345         18  5  5
+</code></pre>
+<p>The output indicates that the string length (determined by the LEN function) is shorter for the strings read with the V and G specification. Input is the same for all three.</p>
+<p>2.) See the <code>CC</code> Format Specification, <code>CR</code> Format Specification, <code>CL</code> Format Specification and <code>CU</code> Format Specification format specifications for information on the variations of C.</p>
+<h3 id="see-also">See Also</h3>
+<p>The letter C can also be used as a <code>Attribute (Screen)#Control Attributes|control attribute</code> to control cursor position upon entering the screen.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/glossary-stubs/C.md">br_tree/90-reference/glossary-stubs/C.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

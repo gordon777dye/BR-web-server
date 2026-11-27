@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program management &amp; procedures — BR reference</title>
+<meta name="keywords" content="AI, RUN, LOAD, SAVE, REPLACE, MERGE, CLEAR, GO, EXECUTE, CHAIN, PROC, SYSTEM, LOGOFF, ALL, SUBPROC, PROCERR, ALERT, FILES, ECHO, NOECHO, SOURCE, OBJECT, ONLY, NOSTEP, NOTRACE">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">program-management</a></nav>
+<main>
+<h1 id="program-management--procedures">Program management &amp; procedures</h1>
+<p>Loading, saving, running, and chaining programs, plus <strong>procedure files</strong> (command scripts).
+Commands run immediately (no line number) and — crucially — from program code via
+<a href="#execute"><code>EXECUTE</code></a>. Line-editing commands are in <a href="../editing/spec.html">editing</a>; file/dir
+commands in <a href="../file-directory/spec.html">file-directory</a>.</p>
+<a id="command-vs-statement"></a>
+<h2>Command vs statement</h2>
+<p>A <strong>command</strong> executes immediately when typed (no line number) and manages the environment
+(<code>LOAD</code>, <code>SAVE</code>, <code>RUN</code>, <code>LIST</code>, <code>DIR</code>). A <strong>statement</strong> has a line number and runs at <code>RUN</code>.
+Any statement can be run immediately as a command; a bare expression is an implied <code>PRINT</code>
+(<code>6+4</code>→<code>10</code>). Commands can't appear in a program <strong>except</strong> via <code>EXECUTE</code> or inside a <code>PROC</code>.</p>
+<p><a id="print-redirect"></a>
+A <code>PRINT</code> typed at the command line can send its console output to a file or string array with <code>| &gt;</code> and <code>| &gt;&gt;</code>:
+see <a href="../../40-io-printing/statements/spec.html#print-redirect"><code>PRINT ... | &gt; file</code></a> in the printing statements.</p>
+<a id="command-help"></a>
+<h2 id="---what-a-command-takes-br-50"><code>-?</code> — what a command takes (BR 5.0)</h2>
+<p>Any command given <code>-?</code> as the <strong>whole</strong> of its arguments lists the forms and options it accepts and
+does nothing else: <code>COPY -?</code>, <code>LIST -?</code>, <code>STATUS -?</code>. Nothing runs, so <code>RUN -?</code> loads nothing and
+<code>SYSTEM -?</code> does not leave BR. <code>-?</code> alongside other arguments is not the help: <code>COPY a.txt -?</code> is a
+<code>COPY</code> with an unknown option, a syntax error, and a <code>LIST</code> search string containing <code>-?</code> is a
+search. A long list pauses after each screenful (any key goes on, Ctrl-A stops). <code>DIR -?</code> lists the
+options of the listing in use — the 5.0 ones, or the 4.x ones under <code>OPTION 8</code>. Every command in
+BR's command table has it except <code>HELP</code> (and the internal <code>LINK</code>). The lists are written from each
+command's parser, so where this tree and <code>-?</code> differ, <code>-?</code> is the one that matches the code.</p>
+<a id="entry-exit"></a>
+<h2 id="entry--exit">Entry &amp; exit</h2>
+<pre><code class="language-bnf">BR [&lt;instructions&gt;] [-&lt;id&gt;] [-&lt;config&gt;] [-&lt;ref&gt;]   -- start BR (optionally run a command / set WSID / config)
+SYSTEM | SY                                         -- exit BR to the OS (closes files)
+SYSTEM &lt;integer&gt;                                    -- exit to the OS, returning &lt;integer&gt; as the process exit code
+SYSTEM LOGOFF [ALL]                                  -- exit BR and log the client off (ALL: every session slot)
+SYSTEM [&lt;flags&gt;] &quot;&lt;os-command&gt;&quot;                      -- run an OS shell command, then return to BR
+</code></pre>
+<a id="system"></a>
+<h3 id="system--exit-br--call-the-os-shell">SYSTEM — exit BR / call the OS shell</h3>
+<p><code>SYSTEM</code> is a <strong>command</strong> (not a primary-op statement); a program reaches it via
+<a href="#execute"><code>EXECUTE</code></a> or a <code>PROC</code>. Three forms:</p>
+<ul>
+<li><strong>Exit</strong> — bare <code>SYSTEM</code> (<code>SY</code>) closes files and returns to the OS; <code>SYSTEM &lt;n&gt;</code> returns <code>&lt;n&gt;</code> as the
+process <strong>exit code</strong> (readable by a calling shell/script: <code>ERRORLEVEL</code> in a DOS batch file, <code>$?</code> in a Linux shell). <code>SYSTEM LOGOFF [ALL]</code> exits and also
+logs the client off — see <a href="#system-logoff">logoff</a>.</li>
+<li><strong>Shell call</strong> — <code>SYSTEM &quot;&lt;os-command&gt;&quot;</code> runs an operating-system command (launch another program,
+run a script), then returns to BR — <strong>the program's main way to invoke other applications through the
+OS.</strong> This is consequential for app development and for security review (it executes arbitrary OS
+commands with the caller's privileges).</li>
+</ul>
+<p><strong>Shell-call flags</strong> precede the command string and are <strong>case-sensitive</strong> (an unknown flag → error
+<strong>4501</strong>; conflicting flags → <em>flag-conflict</em> error):</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-@</code></td>
+<td>run the command on the BR <strong>client</strong> side</td>
+</tr>
+<tr>
+<td><code>-S</code> / <code>-s</code></td>
+<td>run on the BR <strong>server</strong> side (default follows the <code>SHELL DEFAULT CLIENT</code>/<code>SERVER</code> config)</td>
+</tr>
+<tr>
+<td><code>-R</code> / <code>-r</code> (or leading <code>*</code>)</td>
+<td><strong>restore</strong> the BR screen after the call</td>
+</tr>
+<tr>
+<td><code>-C</code> / <code>-c</code></td>
+<td><strong>continue asynchronously</strong> — don't wait for the command to finish (conflicts with <code>-R</code>). Windows launches the task and BR carries on; on Unix the command is framed with <code>NOHUP</code> and <code>&amp;</code>. Without it the call waits for the process, up to the <code>SHELL LIMIT</code> seconds</td>
+</tr>
+<tr>
+<td><code>-M</code> / <code>-m</code></td>
+<td><strong>hide</strong> / <strong>minimize</strong> the launched program's window</td>
+</tr>
+<tr>
+<td><code>-H</code> / <code>-h</code></td>
+<td><strong>hide</strong> / <strong>minimize</strong> BR's own window during the call</td>
+</tr>
+<tr>
+<td><code>-W</code> / <code>-w</code></td>
+<td>accepted and <strong>ignored</strong> in BR 5.0 (it marked a Windows program in 4.x, and no longer conflicts with <code>-R</code>)</td>
+</tr>
+<tr>
+<td><code>-E</code> / <code>-e</code></td>
+<td>permit a shell-call <strong>error</strong> to be reported/trapped</td>
+</tr>
+<tr>
+<td><code>-P</code> / <code>-p</code></td>
+<td>page</td>
+</tr>
+<tr>
+<td><code>-T</code>/<code>-t&lt;secs&gt;</code></td>
+<td>override the shell-call <strong>timeout</strong></td>
+</tr>
+<tr>
+<td><code>+&lt;n&gt;</code></td>
+<td>accepted and <strong>ignored</strong> (it once requested <code>&lt;n&gt;</code> of memory for the child)</td>
+</tr>
+</tbody>
+</table>
+<p>(<code>SYSTEM ONQ …</code> is an ordinary shell command in BR 5.0: the built-in ONQ interface was removed.)</p>
+<a id="system-logoff"></a>
+<h4 id="system-logoff--system-logoff-all">SYSTEM LOGOFF / SYSTEM LOGOFF ALL</h4>
+<p><code>SYSTEM LOGOFF</code> is an <strong>exit</strong> form: it ends BR exactly as bare <code>SYSTEM</code> does (files closed, exit
+code <strong>0</strong>). It is subject to the same rule as the other exit forms: keyed at the console while a
+program is active, it fails with error <strong>2108</strong> (&quot;program is active&quot;). Before exiting, it flags the
+client to log off. The logoff then runs when the client shuts down, and it removes what a logon
+leaves on the workstation:</p>
+<table>
+<thead>
+<tr>
+<th>Cleared</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The persistent-login session id (registry <code>ClientServer\sessionId_&lt;listener port&gt;</code>)</td>
+<td>machine</td>
+</tr>
+<tr>
+<td>The login dialog's <strong>AutoLogin</strong> and <strong>Remember me</strong> settings</td>
+<td>machine</td>
+</tr>
+<tr>
+<td>The saved Windows credentials</td>
+<td>machine</td>
+</tr>
+<tr>
+<td>The session table entry — WSID, window handle, window class name, process time</td>
+<td><strong>this session's slot only</strong> (<code>SYSTEM LOGOFF</code>) or <strong>all nine slots</strong> (<code>SYSTEM LOGOFF ALL</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>In client-server mode the client also tells the listener to drop this session's multisession
+login, so the next connection must log on again.</p>
+<p>The machine-wide items are cleared by both forms. <strong><code>ALL</code> only changes the session table.</strong></p>
+<ul>
+<li>Plain <code>SYSTEM LOGOFF</code> frees only this session's slot and leaves the other eight as they were.</li>
+<li><code>SYSTEM LOGOFF ALL</code> zeroes every slot. That includes the WSIDs of sessions that are still
+running, which is why it is not the default. It is the recovery for a slot left unusable — for
+example when Windows reports another session's window as still live, so that session's WSID is
+never freed and WSIDs get assigned wrongly.</li>
+</ul>
+<p>Parsing:</p>
+<ul>
+<li><code>LOGOFF</code> and <code>ALL</code> are case-insensitive. <code>ALL</code> must be spelled in full and be a whole word
+(followed by a space, a tab or the end of the line). <code>SYSTEM LOGOFF ALLOCATE</code> is therefore plain
+<code>SYSTEM LOGOFF</code>.</li>
+<li>Nothing else after <code>LOGOFF</code> is read. A number there is <strong>not</strong> an exit code: <code>SYSTEM LOGOFF 5</code>
+still exits with 0.</li>
+</ul>
+<a id="program-commands"></a>
+<h2 id="program-lifecycle-commands">Program lifecycle commands</h2>
+<table>
+<thead>
+<tr>
+<th>Command (abbrev)</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LOAD f [SOURCE|OBJECT]</code> (LO)</td>
+<td>clear memory, load <code>f</code>; see <a href="#loading">loading</a> for modes &amp; extensions</td>
+</tr>
+<tr>
+<td><code>SAVE f [SOURCE]</code> (SA)</td>
+<td>save to a <strong>new</strong> file (error 4150 if exists)</td>
+</tr>
+<tr>
+<td><code>REPLACE [f]</code> (REP)</td>
+<td>overwrite an existing file (keeps a <code>.bak</code>)</td>
+</tr>
+<tr>
+<td><code>RUN [&lt;program&gt;] [PROC] [STEP|TRACE]</code> (RU)</td>
+<td>execute from the lowest line (resets vars); with <code>&lt;program&gt;</code>, load it first. <code>PROC</code> takes input from the running procedure (see <a href="#run-proc">run-proc</a>); STEP/TRACE → <a href="../information/spec.html">information</a></td>
+</tr>
+<tr>
+<td><code>MERGE f [-&lt;from&gt;] [-&lt;to&gt;] [&lt;first&gt;|ADD]</code> (ME)</td>
+<td>merge program lines from a file (see <a href="#merge">merge</a>)</td>
+</tr>
+<tr>
+<td><code>CLEAR [PROC|RESIDENT|ALL]</code> (CL)</td>
+<td>clear program/vars/procedures/libraries (see <a href="#clear">clear</a>)</td>
+</tr>
+<tr>
+<td><code>GO [RUN][STEP][TRACE][.&lt;line&gt;]</code></td>
+<td>resume / step a halted program (see <a href="#go">go</a>); <code>GO END</code> terminates it</td>
+</tr>
+<tr>
+<td><code>STOP</code></td>
+<td>halt execution (also a statement)</td>
+</tr>
+</tbody>
+</table>
+<a id="loading"></a>
+<h3 id="loading--the-default-extension">Loading &amp; the default extension</h3>
+<p><code>LOAD</code> (<code>LO</code>) clears memory, then loads. <strong><code>SOURCE</code></strong> loads an ASCII <code>.brs</code> program line-by-line as
+if typed (syntax-checked per line; on a syntax error BR halts for a fix — unless <code>PROCERR RETURN</code> is
+active in a procedure, which instead returns the code in <code>ERR</code> and the failing line in <code>LINE</code> so a
+<code>SKIP</code> can test it). <strong><code>OBJECT</code></strong> loads the <code>.bro</code> object; <strong><code>RESIDENT</code></strong> loads the file as a
+resident library. <strong>The mode is set by the keyword, not inferred from the extension:</strong> <code>LOAD</code> defaults
+to object, so loading a source program <strong>requires an explicit <code>SOURCE</code></strong> — <code>LOAD &quot;prog.brs&quot; SOURCE</code>.
+Naming the <code>.brs</code> file alone (<code>LOAD &quot;prog.brs&quot;</code>) does <em>not</em> trigger source mode; BR tries to read it
+as an object file and fails. Extension search: a bare name tries <code>.BR</code> then <code>.BRO</code> (<code>.BRS</code> for
+<code>SOURCE</code>), overridable via <code>CHAINDFLT</code> in
+<a href="../../00-configuration/config-directives/spec.html">BRConfig.sys</a>; a <strong>trailing period</strong>
+(<code>LOAD NAME.</code>) suppresses the search and loads the name as-is. A failed <code>LOAD</code> leaves memory intact.</p>
+<a id="merge"></a>
+<h3>MERGE</h3>
+<p><code>MERGE f [-&lt;from&gt;] [-&lt;to&gt;] [{&lt;first&gt;|ADD}]</code> (syntax mirrors <code>RENUM</code>) pulls lines from another <code>.br</code>
+into memory. With no <code>first</code>/<code>ADD</code>, merged lines keep their numbers and <strong>replace</strong> any existing
+lines that share them. <code>ADD</code> appends all lines after the current program's last line; <code>&lt;first&gt;</code>
+renumbers the first merged line (others follow the source increments). A single line number merges
+only that line.</p>
+<ul>
+<li><strong>Defaults:</strong> the whole program is merged; a <code>-&lt;from&gt;</code> alone merges from that line to the end of the program;
+the merged lines keep their numbers. <strong>Caution:</strong> a merged line replaces any line in memory that has
+the same number.</li>
+<li><code>f</code> is the name of the program (a <code>.br</code> file) to merge.</li>
+<li><code>&lt;first&gt;</code> is the number given to the first merged line; the others follow the increments the source file had.</li>
+<li><code>ADD</code> puts every merged line after the end of the program in memory: the first is numbered <strong>ten greater than
+the current last line</strong>, and the rest keep the source's increments.</li>
+<li>Examples: <code>MERGE MERGETST -100 -300</code> merges lines 100 to 300 of MERGETST.BR, keeping their numbers (and
+replacing any lines of those numbers in memory); <code>MERGE MERGETST ADD</code> adds all of MERGETST.BR to the end.</li>
+<li><strong>Behaviour change:</strong> <code>MERGE f &lt;line&gt;</code> with a line number alone merges only that line. Before it merged from that
+line to the end of the program, which may matter to an old application.</li>
+<li>To <em>look at</em> lines of another program without merging them, use <code>LIST &lt;name</code> (see <a href="../editing/spec.html#list">LIST</a>).</li>
+</ul>
+<a id="replace"></a>
+<h3 id="save--replace--source-vs-object">SAVE / REPLACE — source vs object</h3>
+<p><code>SAVE</code> writes a <strong>new</strong> file (error 4150 if it exists); <code>REPLACE</code> overwrites an <strong>existing</strong> one and
+leaves the lines in memory. Saving as source stores the <strong>current <code>STYLE</code></strong> formatting with the file, permanently. Both save <strong>source</strong> only when the name ends <code>.BRS</code> or the <strong><code>SOURCE</code></strong>
+keyword is given; otherwise they save <strong>object</strong> (<code>.BR</code>/<code>.BRO</code>). With no filename, <code>REPLACE</code> reuses the
+file's full original name (a trailing period suppresses the default extension). <strong><code>OBJECT</code></strong> (<code>.BRO</code>)
+omits source — <em>unrecoverable</em>, used to ship protected code. Before overwriting, BR copies the original
+to <strong><code>.BAK</code></strong> (recoverable until the next <code>REPLACE</code>); <strong><code>OPTION 26</code></strong> suppresses <code>.BAK</code> creation. End
+execution before <code>REPLACE</code>; to save without ending, <code>LIST &gt;tmp</code> then <code>LOAD</code> it from source.</p>
+<p><strong>Which object format is written.</strong> BR 5.0 writes <strong>save level 39</strong>, which records for each
+statement the source file line it came from. BR 4.2 and 4.3 wrote <strong>level 38</strong>, which has nowhere
+to keep that. A BR older than 5.0 given a level 39 program <strong>refuses it</strong> with error <strong>2240</strong>
+(<em>release level error</em>) rather than misreading it; BR 5.0 loads either level, and a level 38
+program simply has no source line positions in it.</p>
+<p><strong><code>OPTION 60</code></strong> makes <code>SAVE</code> and <code>REPLACE</code> write level 38, so a program can be read by a 4.2 or
+4.3 BR - at the cost of those positions. It also sets <code>OPTION 74</code>. The 4.18-and-earlier format
+this option used to write is no longer written at all, though programs already in it still load.
+<strong><code>OPTION 60</code> governs saving only</strong>: BR 5.0 loads the pre-4.2 format, level 38 and level 39 alike,
+set or not.</p>
+<a id="clear"></a>
+<h3>CLEAR</h3>
+<p><code>CLEAR</code> (<code>CL</code>) with no argument clears the program for new entry. <code>ALL</code> ends the program, closes all
+procedures and clears memory. <code>PROC</code> closes all procedures but <strong>keeps</strong> memory (variables remain
+for debugging); <code>PROC ONLY</code> additionally keeps the program running. <code>RESIDENT</code> clears all resident
+libraries (<code>&quot;name&quot;</code> clears one, and so does <code>CLEAR name</code> without <code>RESIDENT</code>); adding <code>STATUS</code>
+instead <em>demotes</em> resident → present rather than unloading — but only while a program is halted;
+otherwise <code>STATUS</code> is read as <code>RESIDENT</code>. <code>CHAIN</code> and <code>LOAD</code> perform an implicit <code>CLEAR</code>.</p>
+<a id="go"></a>
+<h3 id="go--resume--step">GO — resume / step</h3>
+<p><code>GO [RUN] [STEP|NOSTEP] [TRACE [PRINT]|NOTRACE] [.&lt;line&gt;]</code> resumes a halted/interrupted program with
+all variables and open files intact. <code>RUN</code> first clears prior STEP/TRACE settings; <code>STEP</code> pauses
+before each action statement, <code>TRACE</code> echoes line numbers (<code>PRINT</code> → printer). <code>GO &lt;line&gt;</code> resumes
+<em>at</em> a line; <strong><code>GO .&lt;line&gt;</code></strong> runs <em>until</em> a line then issues a STEP interrupt (<code>GO .5280:2</code> stops
+before line 5280 clause 2; a bare <code>GO .</code> reuses the last temp breakpoint; <code>GO</code> with no period clears
+it). After an error, <code>GO</code> retries the failing statement. In STEP mode, Shift+F1–F5 step with
+widening scope (into-clause / over-clause / into-line / over-line / to <code>RETURN</code>|<code>FNEND</code>).
+<strong><code>GO END</code></strong> terminates the interrupted program and closes all files.</p>
+<ul>
+<li>A line can be given as a <strong>line label</strong> as well as a number, for both <code>GO &lt;line&gt;</code> and <code>GO .&lt;line&gt;</code>.</li>
+<li>The <code>TRACE</code> output goes to the screen unless <code>PRINT</code> is given; <code>PRINT</code> works only with <code>TRACE</code>. For example
+<code>GO TRACE PRINT 1350</code> resumes at line 1350 and traces to the printer. <code>NOSTEP</code> and <code>NOTRACE</code> turn the two off.</li>
+<li><code>STEP</code> shows the number of the line about to run in the status line; <strong>Enter</strong> runs it and shows the next.
+In STEP mode a typed <code>GO</code> means <code>GO RUN</code> and Enter means <code>GO STEP</code>. <code>RUN STEP NORESTORE</code> stops BR putting the
+application screen back after the first time; <code>RUN STEP RESTORE</code> puts it back before every step (and <code>GO RUN</code>
+does not reset <code>NORESTORE</code>). <code>GO PROC</code> takes the program's input from the active procedure.</li>
+<li><code>TRACE SOURCE</code> shows each line's source text as it runs, in place of only its number.</li>
+<li>Shift+F1 to Shift+F4 step by a wider scope each time: the F-key number rises as the scope does.</li>
+</ul>
+<a id="ai"></a>
+<h2 id="ai-br-50">AI (BR 5.0)</h2>
+<pre><code class="language-bnf">AI NEW
+AI &lt;text&gt;
+</code></pre>
+<p>At the <code>READY</code> prompt, <code>AI</code> followed by what you want opens a conversation with an assistant attached to the
+session's channel. The reply prints in the <code>HILITE</code> colour; the commands the assistant asks to have run are
+marked <code>[AI] &gt;</code>. <code>AI NEW</code> starts a fresh conversation. With no assistant listening the command stops at
+once with error 4158.</p>
+<ul>
+<li><strong>A turn is the person's to open.</strong> It needs an open turn, not the keyboard grant; anything destructive
+stops and asks. The assistant itself may not use <code>AI</code> (error 4171).</li>
+<li><strong>A running program or procedure must consent</strong>: set <code>ENV$(&quot;AI_TURN_OK&quot;)</code> to <code>&quot;Y&quot;</code> first
+(<code>LET X=SETENV(&quot;AI_TURN_OK&quot;,&quot;Y&quot;)</code>), or <code>AI</code> is refused with error 4169. <code>AI NEW</code> needs no flag.</li>
+<li>A break key halts the wait at <code>READY</code> with the turn still open, and <code>GO</code> resumes it; <code>CLEAR PROC</code> and
+<code>CLEAR ALL</code> end a turn.</li>
+<li><code>AI=5</code> still assigns to a variable called <code>AI</code>; only <code>AI</code> followed by a space is the command.</li>
+</ul>
+<a id="execute"></a>
+<h2 id="execute--run-a-command-from-code">EXECUTE — run a command from code</h2>
+<pre><code class="language-bnf">EXECUTE &quot;[*]&lt;command-string&gt;&quot;
+</code></pre>
+<p>Runs any command/statement string at runtime — the bridge that makes commands part of the
+coding surface (build index files, run a SORT, start a PROC, …). A leading <code>*</code> makes BR <strong>save the screen
+and put it back</strong> when the command finishes; without it the screen is <strong>not</strong> restored (<code>EXECUTE &quot;DIR&quot;</code> leaves
+what the command wrote, <code>EXECUTE &quot;*COPY OLDFILE NEWFILE&quot;</code> restores the screen). In GUI mode the screen is
+never saved, so the <code>*</code> has no effect there. Inspect
+<a href="../../10-language/data-manipulation/system-functions/spec.html#system-info"><code>CODE</code></a> afterward for a
+procedure's return value. <strong>Restrictions:</strong> because it is illegal to <em>terminate</em> a program from
+<code>EXECUTE</code>, the program-ending commands <code>LOAD</code>, <code>SAVE</code>, <code>REPLACE</code> and the <code>CHAIN</code> statement may not
+be used inside it. This <code>LOAD</code> restriction applies to a <code>LOAD</code> that replaces the running program;
+<code>LOAD ...,RESIDENT</code> (loading a resident library) does not terminate the current program and is
+allowed. <code>INDEX</code>/<code>SORT</code> <em>can</em> be started from <code>EXECUTE</code> (no prior <code>CLEAR</code>, so less memory
+— may run slowly; out-of-memory → error <code>7607</code>/<code>7811</code>). All errors (including command syntax
+errors) are passed back, trappable with <code>ERROR</code>/<code>IOERR</code>/<code>Exit</code>; an <code>EXECUTE</code> may itself be the
+subject of another <code>EXECUTE</code>.</p>
+<a id="chain"></a>
+<h2 id="chain--end-this-program-start-another">CHAIN — end this program, start another</h2>
+<pre><code class="language-bnf">CHAIN { &quot;&lt;program&gt;&quot; | &quot;PROC=&lt;name&gt;&quot; | &quot;SUBPROC=&lt;name&gt;&quot; } [, { FILES | MAT &lt;array&gt; | &lt;var&gt; }]…
+</code></pre>
+<p><code>CHAIN</code> (a statement) ends the current program and loads/runs another program, or starts a
+procedure. By default it <strong>closes all files</strong> (except procedure files) and resets the new program's
+variables; <strong><code>FILES</code></strong> keeps files open at their current positions (pointers are <em>not</em> moved — use
+<code>RESTORE</code> to reposition), and trailing <code>MAT array</code>/<code>var</code> names carry those values into the chained
+program (dimensions needn't match; the caller's win). <code>FILES</code> may stand at any of those
+comma-separated positions, not only the first — <code>chain A$, XXX, FILES</code> is accepted. The
+program name follows the same default extension rules as <code>LOAD</code> (<code>.BR</code>→<code>.BRO</code>, <code>CHAINDFLT</code>).
+<code>&quot;PROC=…&quot;</code> ends the program and starts a
+procedure (closing the lowest active proc first); <code>&quot;SUBPROC=…&quot;</code> starts a <strong>nested</strong> procedure
+without disturbing the running one — both keep the terminated program in memory so its variables
+stay available to the procedure. <code>CHAIN &quot;PROC=XYZ&quot;</code> is like <code>EXECUTE &quot;PROC XYZ&quot;</code> except <code>CHAIN</code>
+ends the program. (Deep reference, incl. the 11 technical notes:
+<a href="../../10-language/flow-control/other-flow/CHAIN.html">CHAIN</a> — filed alongside the other
+program-termination statements since CHAIN is a statement, not a command.)</p>
+<a id="procedures"></a>
+<h2 id="procedure-files">Procedure files</h2>
+<p>A <strong>procedure</strong> is an ASCII (DISPLAY) text file of commands run in order — one command per line,
+<code>!</code> comments, <code>:label</code> branch targets, no line numbers, up to 800 chars/line. A <code>.$$$</code> extension
+makes it <strong>self-deleting</strong> after execution.</p>
+<p><a id="proc"></a><strong>Starting</strong>: <code>PROC {name|*name|ECHO|NOECHO}</code> (runs it; <code>*</code> suppresses F2 logging;
+NOECHO hides lines). <a id="subproc"></a><code>SUBPROC file</code> runs a <strong>nested</strong> procedure (up to 9 deep) then resumes.
+From code: <code>CHAIN &quot;PROC=…&quot;</code> / <code>CHAIN &quot;SUBPROC=…&quot;</code> (ends program) or <code>EXECUTE &quot;PROC …&quot;</code> (keeps
+program running). <code>RUN PROC</code> feeds procedure lines to a program's <code>INPUT</code>/<code>LINPUT</code>/<code>RINPUT</code>; it has <strong>no effect</strong> on <code>INPUT FIELDS</code> or <code>RINPUT FIELDS</code>.</p>
+<p><a id="run-proc"></a><strong><code>RUN … PROC</code></strong> — <code>PROC</code> is an <strong>option of <code>RUN</code></strong>, not a command. It is not
+followed by a file name: the lines fed to the program are the ones that follow the <code>RUN</code> line in
+the procedure that is <em>already running</em>. Two forms work, both only as lines <strong>inside a procedure</strong>:</p>
+<pre><code>RUN &lt;program&gt; PROC           ! load &lt;program&gt;, then run it with proc-fed input
+LOAD &lt;program&gt;               ! or: load first ...
+RUN PROC                     ! ... then run what is in memory with proc-fed input
+</code></pre>
+<ul>
+<li><strong>Outside a procedure</strong> (typed at READY, or as the startup command-line argument)
+<code>RUN … PROC</code> fails with error <a href="../../90-reference/error-codes/2103.html">2103</a>, &quot;illegal PROC
+parameter&quot;.</li>
+<li><strong><code>RUN PROC &lt;file&gt;</code> does not name a proc file.</strong> <code>RUN</code>'s first word is checked against its
+options before being read as a program name, so <code>PROC</code> is taken as the option and no program is
+loaded. <code>&lt;file&gt;</code> never becomes a program name. With nothing in memory, BR reports error 2104
+(no active lines).</li>
+<li><strong>A plain <code>RUN</code> inside a procedure does not feed it.</strong> <code>PROCIN</code> stays 0 and the program reads
+the keyboard; under <code>UNATTENDED</code> logging it aborts at its first input statement.</li>
+<li><strong>How the lines are used.</strong> Each input statement consumes the next proc line. When the program
+ends, the following proc lines are commands again. Confirmed on 4.33c.</li>
+<li><strong>The <code>RUN … PROC</code> line must not be the proc's last line.</strong> See <a href="#look-ahead">look-ahead</a>.</li>
+</ul>
+<p><strong>Flow &amp; errors</strong>: <code>SKIP n|label [IF &lt;cond&gt;]</code> branches — the label is written <strong>without</strong> its
+colon (<code>SKIP BUSY</code> goes to the line <code>:BUSY</code>; <code>SKIP :BUSY</code> never matches), and a label search that
+reaches the end of the procedure carries on from the top, so a skip may go backward;
+<a id="procerr"></a><code>PROCERR STOP</code> (default) halts on error and <code>PROCERR RETURN</code> continues (sets <code>ERR</code>); <a id="alert"></a><code>ALERT msg</code> pauses for the operator (<code>GO</code> resumes; under
+<code>PROC NOECHO</code> the message shows but the operator must press F2/F3 to see the <em>command</em> — bracket
+<code>ALERT</code> with <code>PROC ECHO</code>…<code>PROC NOECHO</code>); <code>CLEAR PROC</code> / <code>CLEAR ALL</code> close procedures.</p>
+<p><a id="look-ahead"></a><strong>Look-ahead close</strong>: BR closes a procedure <em>before</em> executing its <strong>last
+line</strong>, so that line behaves as an independent one-line command — it <strong>cannot</strong> be a <code>SKIP</code> that
+branches backward or a <code>RUN PROC</code> (the file is already closed), and shouldn't be error-prone; add a
+blank/comment line if you need the proc to stay open. This look-ahead is what lets a <code>.$$$</code> proc (or
+one whose last line is <code>FREE</code>) delete itself, and avoids stacking an extra open file. Each active
+procedure counts as one open file; nesting goes 9 deep (status-line columns 58–59 show <code>P1</code>…<code>P9</code>),
+and <code>RUN PROC</code> feeds procedure lines to a program's <code>INPUT</code>/<code>LINPUT</code>/<code>RINPUT</code> — <strong>one proc line per
+input statement</strong> (too many/few lines causes unpredictable misreads; <code>PROCIN</code> →
+<a href="../information/spec.html#procin-program">information</a> tells the program input is coming from a proc).</p>
+<p><a id="express"></a><strong>Express procedures</strong> run <em>during</em> a program via <code>EXECUTE &quot;PROC …&quot;</code> /
+<code>&quot;SUBPROC …&quot;</code> (or operator-keyed during an interruption): they imply <code>NOECHO</code>, are subordinate to
+the running program, and resume it when done. An error in an executed express proc closes the proc
+and returns to the <code>EXECUTE</code> statement's error trap. <code>EXECUTE &quot;PROC XYZ&quot;</code> cancels the
+last-activated proc (and ends any <code>RUN PROC</code> input mode); <code>EXECUTE &quot;SUBPROC XYZ&quot;</code> preserves the
+hierarchy (and keeps <code>RUN PROC</code> active). A program can shed one procedure layer by running an empty
+express <code>PROC</code>. The full procedure-system reference (start methods, syntax rules, express-vs-standard
+chart) is retained in <a href="Procedure_files.html">Procedure_files</a>.</p>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">04200 EXECUTE &quot;PROC DAILY&quot;            ! start a procedure, program keeps running
+99000 EXECUTE &quot;INDEX ACCT.INT ACCT.KEY 1 4 REPLACE&quot;
+00900 CHAIN &quot;proc=MONTHEND&quot;           ! end program, run procedure
+</code></pre>
+<p>A procedure that runs a program with its input supplied (<code>PROCIN</code> returns 1). Start it with
+<code>PROC nightly.prc</code>. The program's first input statement reads <code>FIRST-ANSWER</code> and its second
+<code>SECOND-ANSWER</code>. When the program ends, <code>SYSTEM</code> runs as an ordinary command:</p>
+<pre><code>RUN myprog PROC
+FIRST-ANSWER
+SECOND-ANSWER
+SYSTEM
+</code></pre>
+<pre><code class="language-text">! procedure: purge deleted records safely (multi-user)
+PROCERR RETURN
+PROTECT CUST.FIL,RESERVE
+SKIP BUSY IF ERR&lt;&gt;0
+COPY CUST.FIL TEMP[WSID].FIL -D
+RENAME TEMP[WSID].FIL CUST.FIL
+PROTECT CUST.FIL,RELEASE
+SKIP DONE
+:BUSY
+ALERT File is busy, try again later -- type GO
+:DONE
+RUN MENU
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../editing/spec.html">editing</a> — <code>AUTO</code>/<code>RENUM</code>/<code>DEL</code>/<code>LIST</code> line editing</li>
+<li><a href="../file-directory/spec.html">file-directory</a> — <code>COPY</code>/<code>RENAME</code>/<code>FREE</code>/<code>CHDIR</code> used in procedures</li>
+<li><a href="../file-directory/filename-patterns.html#tab-completion">filename-patterns</a> — Tab completes the file name of <code>LOAD</code>, <code>RUN</code>, <code>SAVE</code>, <code>REPLACE</code>, <code>MERGE</code>, <code>PROC</code> and <code>SUBPROC</code> at <code>READY</code></li>
+<li><a href="../information/spec.html">information</a> — <code>RUN STEP/TRACE</code>, <code>DISPLAY</code>, <code>BREAK</code> debugging</li>
+<li><a href="../../50-libraries/library-facility/spec.html">50-libraries/library-facility</a> — <code>LIBRARY</code> (vs <code>CHAIN</code>)</li>
+<li><a href="../information/spec.html#break">information</a> — <code>BREAK</code> breakpoints (folded there)</li>
+<li><a href="../../10-language/flow-control/other-flow/spec.html#termination">other-flow</a> — <code>STOP</code>/<code>END</code>/<code>PAUSE</code>,
+<code>CHAIN</code>'s sibling program-termination statements</li>
+<li>Backing keyword pages retained (deep reference):
+<a href="../../10-language/flow-control/other-flow/CHAIN.html">CHAIN</a> (11 technical notes; relocated there
+because CHAIN is a statement, not a command — see that page's <code>corrections:</code> note),
+<a href="Procedure_files.html">Procedure_files</a> (the full procedure-system reference)</li>
+</ul>
+<p><em>(Backing pages <code>LOAD</code>, <code>MERGE</code>, <code>GO</code>, <code>Go_End</code>, <code>CLEAR</code>, <code>EXECUTE</code>, <code>PROC</code>, <code>Procedure_Commands</code>,
+<code>Program_Management_Commands</code>, <code>Alert</code> were folded into this spec and pruned; <code>Break_(Command)</code> was
+folded into <a href="../information/spec.html#break">information</a>.)</em></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/program-management/spec.md">br_tree/70-commands/program-management/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

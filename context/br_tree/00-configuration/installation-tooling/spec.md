@@ -8,8 +8,9 @@ kind: spec
 status: 2b           # reference base + br_tree enrichment
 recovered-fold: AutoIt, BRListenerInstaller.exe, BRSerial.dat (3 redirect-collision pages folded from re-fetched source — AutoIt automation note + EditNN/R99C999, installer service-register, brserial.dat license/UserID$/version-rename; verbatim retained on the BR wiki)
 related: [config-directives, platform]
-keywords: [ODBC, PDF, Lexi, DLL, PEM, AutoIt, DEBUG, PROFILE, CONNECT, CONSOLE, AUTH, LISTEN, OBSERVE, SCREENLOG]
+keywords: [ODBC, PDF, Lexi, DLL, PEM, AutoIt, DEBUG, PROFILE, CONNECT, CONSOLE, AUTH, LISTEN, OBSERVE, SCREENLOG, LOG, DISCONNECT]
 corrections:
+  - "2026-11-24, from BR 5.03's source (debug.cpp processDebugCommand T9_LOG and T9_DISCONNECT, closeDebuggerConnection, debugPretty) and a headless run: `DEBUG LOG` and `DEBUG DISCONNECT` documented, as the `log` and `disconnect` bullets in Diagnostics, and LOG and DISCONNECT added to the keywords. Before this the page named only `DEBUG LOG COMMANDS`, in prose. The `log` anchor is filed as a command section (gen_brtree_index kindOverrides), so LOG the function keeps its own section."
   - "AUTH, LISTEN, OBSERVE and SCREENLOG added to the frontmatter keywords, with the debugger-channel bullet in Diagnostics (BR 5.0: BR50 Release_Notes.md 2.1, 2.2, 3.1, 3.2, 3.7). Nothing here is new beyond what the release notes state."
   - "CONNECT and CONSOLE added to the frontmatter keywords: this page's Diagnostics section now
     names `DEBUG CONNECT` and `DEBUG CONSOLE OFF` (added when Profiler.md and Debugger.md were
@@ -26,7 +27,10 @@ corrections:
     only Lexi's own informal name for the feature. Also added: Lexi is itself a BR **library
     program** (`fnApplyLexi`/`fnUndoLexi` in `lexi.br`/`lexi.brs`), and a second confirmed
     distribution — the \"BR Language Server\" VS Code extension (`crs-dev.vslang-br`) bundles the
-    identical engine and runs it on save. Full detail moved to [Lexi](Lexi.md#mechanism)."
+    identical engine and runs it on save. Full detail moved to [Legacy Lexi](legacy_lexi.md#mechanism)."
+  - "Lexi links redirected (owner, 2026-11-19): Lexi.md was renamed legacy_lexi.md, and LEXI.md
+    added for the Lexi built into brls. The Lexi summary below now points to LEXI.md, and to
+    legacy_lexi.md where it describes the original lexi.brs program."
 ---
 
 # Installation & tooling
@@ -59,7 +63,7 @@ on close.
   command* that searches the BR Wiki for the word at the cursor
   (`http://brwiki.ads.net/index.php?title=Special:Search&search=$(CURRENT_WORD)`). Also hosts Lexi.
 
-<a id="lexi"></a>
+<a id="lexi-preprocessor"></a>
 ## Lexi preprocessor
 
 **Lexi** lets you edit `.BRS` source **without line numbers**, managing numbering automatically on
@@ -72,6 +76,8 @@ append, and preprocessor directives:
   branch, translated to an `IF`/`ELSE IF` chain. **The `#` signs are required** — a bare `SELECT
   CASE ... END SELECT` is not valid syntax in Lexi *or* in base BR (confirmed live: Lexi passes it
   through untouched, and it then fails to `LOAD`).
+
+Full reference: [LEXI](LEXI.md).
 
 Before stripping numbers Lexi runs **`RENUM LABELS_ONLY`** so hard-coded `GOTO`/`GOSUB` line targets
 become `L#####` labels (safe to edit number-free; re-added numbers reuse them as hints). It runs the
@@ -86,7 +92,8 @@ Compile/Extract-Source/Add-or-Strip-Line-Numbers/Run/Debug tools — `DebugBR` n
 `brnative.exe`); and the "BR Language Server" VS Code extension (`crs-dev.vslang-br`), which bundles
 the identical engine and runs it automatically on save. Lexi also integrates with Notepad++, and
 supports [ScreenIO](../../50-libraries/screenio/spec.md) development. Full mechanism, both
-distributions, headless/scripted invocation, and directive examples: [Lexi](Lexi.md).
+distributions, headless/scripted invocation, and directive examples of the original program:
+[Legacy Lexi](legacy_lexi.md).
 
 <a id="catalog"></a>
 ## Tool & DLL catalog
@@ -156,11 +163,28 @@ and `vcdlltest.exe` in its directory.
   `DEBUG AUTH` — `DEBUG AUTH` alone reports the mode; `COOKIE` is the default (a fresh token per session,
   in `%LOCALAPPDATA%\ADS\brdebug.token`); `TOKEN <64 hex>` supplies one for a debugger on another host;
   `OFF` restores the unencrypted, unauthenticated old behaviour and is logged as a security event. A
-  debugger built for an earlier release cannot attach until updated.
+  debugger built for an earlier release cannot attach until updated. The token file is one per
+  Windows account and is **locked from `DEBUG LISTEN` or `DEBUG CONNECT` until a debugger attaches**,
+  then deleted: no other session can delete or overwrite it while the channel waits, and another
+  session's `DEBUG LISTEN` or `DEBUG CONNECT` in that time fails with
+  [4176](../../90-reference/error-codes/4176.md).
   `DEBUG OBSERVE [port | OFF]` (default port 9556, loopback) accepts a read-only observer that receives a
   copy of what the debugger is sent. `DEBUG SCREENLOG <file>` logs every screen write, with the time to
-  the millisecond, until `DEBUG SCREENLOG OFF`. `DEBUG LOG COMMANDS <file>` records every line a debugger
-  submits, statements included.
+  the millisecond, until `DEBUG SCREENLOG OFF`.
+- <a id="log"></a>**`DEBUG LOG [COMMANDS] <file>` / `DEBUG LOG OFF`** — a log of the debugger channel.
+  Each `DEBUG LOG` first closes the log already open, if any; `OFF` stops there. Otherwise it opens
+  `<file>` (a BR file name, resolved through `DRIVE`), replacing any file of that name. Plain
+  `DEBUG LOG <file>` records the messages BR and the debugger exchange (`DEBUGGER - FORCE_BREAK`,
+  `BR - ISSUE_COMMAND_RESPONSE result=0`, …) and every line the debugger submits. **`COMMANDS`**
+  records only the submitted lines, statements included. The log also closes when the debugger
+  connection does. It opens with no debugger attached; only debugger-channel activity is written
+  to it.
+- <a id="disconnect"></a>**`DEBUG DISCONNECT`** closes the debugger connection, telling the debugger
+  first. It also closes the `DEBUG LOG` file, and in `COOKIE` mode discards the token, so the next
+  `DEBUG LISTEN` publishes a fresh one. With no debugger attached it is not an error.
+  *Measured, 5.03 headless:* `DEBUG LOG <file>` then `DEBUG DISCONNECT` with nothing attached ran
+  on without error, and the log held the two lines `BR - message 200 dropped, the channel is already
+  closed` and `BR - TERMINATE_CONNECTION`.
 - **REGCLEAN** (`regclean.exe`) — repairs BR SDK DCOM errors, e.g. an unregistered SQL Mod.
   `regclean -q all` lists registered projects + paths; `regclean -d <project|all>` removes entries;
   re-register by running the project exe (`dcomkey`, `sql`). The `fix.cmd` batch
@@ -190,8 +214,9 @@ Its bundled Window Info utility shows what AutoIt "sees" on screen.
 - [50-libraries/screenio](../../50-libraries/screenio/spec.md) — Lexi also supports ScreenIO development
 - Backing keyword pages (deep detail retained): [MyEdit_(BR_Edition)](MyEdit_(BR_Edition).md),
   [ODBC](ODBC.md), [Profiler](Profiler.md), [Profiler_File_Layout](Profiler_File_Layout.md),
-  [Debugger](Debugger.md), [Lexi](Lexi.md) (preprocessor tool tables + directive examples —
-  relocated here from 50-libraries/screenio)
+  [Debugger](Debugger.md), [LEXI](LEXI.md) (the Lexi built into brls), [Legacy Lexi](legacy_lexi.md)
+  (the original program's tool tables + directive examples — relocated here from
+  50-libraries/screenio)
 
 *(3 redirect-collision pages re-fetched in 2b — `AutoIt`, `BRListenerInstaller.exe`, `BRSerial.dat` —
 were folded into this spec and pruned; verbatim wikitext remains on the BR wiki.)*

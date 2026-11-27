@@ -63,7 +63,7 @@ Client / Server with Unix the same as WINDOWS.
 | `restore` | restore the screen |
 | `loop` | the loop check |
 | `menu` | choose an item of BR's own menu by name, as a click on it would — see [below](#choosing-a-menu-item); **refused in a restricted session, 4154** |
-| `harness` | open or close this session's assistant channel |
+| `harness` | open or close this session's assistant channel; **4173** while another session's channel is still waiting for its assistant |
 | `grant` | lend the keyboard to an assistant, or take it back |
 | `notify` | post a message an assistant can read |
 | `agentask` `agenttext` `agentline` | open a question for an assistant, and read what it delivered |
@@ -127,6 +127,7 @@ A program knows a menu by its labels anyway.
 - `0419` Error in special char spec
 - `0440` MSG answer is not a number and the result variable is numeric
 - `4154` restricted session: this operation is not permitted
+- [`4173`](../../90-reference/error-codes/4173.md) `harness`: another session's assistant channel is waiting for its assistant. Every session in an account publishes its token to one file, locked until an assistant claims it; try again once that channel is claimed or closes
 
 *`0413` Window Not On Top is **retired**. It was `kb`'s refusal when BR was not the foreground
 window; nothing raises it now. The number stays reserved and is never reused.

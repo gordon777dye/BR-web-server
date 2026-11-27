@@ -5,15 +5,15 @@ kept separate from coding specifications.** Each folder has its own `_index.md`.
 
 ## Top-level map
 
-- **[00-configuration/](00-configuration/_index.md)** (21 docs) — Platform, deployment and environment configuration. **Not coding** — nothing here is needed to reason about program logic.
+- **[00-configuration/](00-configuration/_index.md)** (23 docs) — Platform, deployment and environment configuration. **Not coding** — nothing here is needed to reason about program logic.
 - **[10-language/](10-language/_index.md)** (21 docs) — In-memory data operations — the core coding language: syntax, flow control, and data manipulation.
 - **[20-io-screen/](20-io-screen/_index.md)** (17 docs) — Screen input/output authoring: fields, attributes, controls and windows.
 - **[30-io-file/](30-io-file/_index.md)** (18 docs) — File input/output authoring: statements, form specs, keys/indexes and the file model.
 - **[40-io-printing/](40-io-printing/_index.md)** (7 docs) — Printing authoring (coding side only; spool/printer config lives under 00-configuration).
 - **[50-libraries/](50-libraries/_index.md)** (27 docs) — Reusable library facility and the shipped function packs.
 - **[60-integration/](60-integration/_index.md)** (7 docs) — Web & data-exchange integration — JSON/data store and BR as a web server.
-- **[70-commands/](70-commands/_index.md)** (12 docs) — Executive/console commands. Integral to coding because they are runnable from program code via `EXECUTE "<cmd>"`.
-- **[90-reference/](90-reference/_index.md)** (828 docs) — Lookup-only reference material — not authoring specifications.
+- **[70-commands/](70-commands/_index.md)** (14 docs) — Executive/console commands. Integral to coding because they are runnable from program code via `EXECUTE "<cmd>"`.
+- **[90-reference/](90-reference/_index.md)** (868 docs) — Lookup-only reference material — not authoring specifications.
 
 ## Where do I look for…
 
@@ -29,6 +29,7 @@ kept separate from coding specifications.** Each folder has its own `_index.md`.
 | Lay out a screen / field | `20-io-screen/*` |
 | Print a report | `40-io-printing/*` |
 | Run a program from code (EXECUTE) | `70-commands` |
+| Write a regular expression (SEARCH /.../) | `70-commands/file-directory/ECMA_REGEX.md` |
 | Look up an error code | `90-reference/error-codes/_index.md` |
 | Configure BR / deploy | `00-configuration/*` |
 

@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMDKEY — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">20-io-screen</a> <span>/</span> <a href="_index.html">windows-cursor</a></nav>
+<main>
+<p>The <strong>CMDKEY</strong> <code>internal function</code> returns a value to identify the last command key (function key) used to terminate keyboard input, or returns 0 if <ENTER> was the last key pressed. <strong>Note</strong> that it is futile to try to test whether <ENTER>  was pressed, because non-command keys also return 0 when pressed. At the start of the program, CMDKEY is initialized to -1.</p>
+<p>See also <code>FKey</code> - a newer more powerful version of CMDKEY.</p>
+<p>The CMDKEY function now accepts a value. This is useful for <code>KSTAT$</code> processing and for setting expected CMDKEY inputs without operator intervention. In the following sample syntax, CMDKEY is assigned the value of x:</p>
+<pre><code>00010 LET CMDKEY(x)
+</code></pre>
+<p>CMDKEY now returns values of 90 and 91 for the PgUp and PgDn keys during program input. See &quot;PgUp and PgDn&quot; in the Keys section for more information.</p>
+<h3 id="comments-and-examples">Comments and Examples</h3>
+<pre><code>09000 START: PRINT NEWPAGE
+09010 PRINT &quot;The record you tried to read is&quot;
+09020 PRINT &quot;in use at another workstation.&quot;
+09030 PRINT &quot;*** Press F9 to try again, or&quot;
+09040 PRINT &quot;*** &lt;CR&gt; to select another record&quot;
+09050 LINPUT DUMMY$
+09060 IF CMDKEY = 9 THEN RETRY
+09070 GOTO START
+</code></pre>
+<p>Line 9060 tests for the operator pressing the F9 key in response to the locked record message presented in the text above.</p>
+<p>One more example:</p>
+<pre><code>00010 Start: print &quot;Press a CMDKEY to see its value, or press 1 to quit&quot;
+00020 linput a$
+00030 print CMDKEY
+00040 if a$ &lt;&gt; &quot;1&quot; then goto Start
+</code></pre>
+<p>For other examples, see <code>CURFLD</code></p>
+<h3 id="cmdkey-values">CMDKEY Values</h3>
+<table>
+<thead>
+<tr>
+<th>FKey value</th>
+<th>Cause</th>
+<th>Additional</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>F1</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>F2</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>F3</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>F4</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>F5</td>
+<td></td>
+</tr>
+<tr>
+<td>6</td>
+<td>F6</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>F7</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>F8</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>F9</td>
+<td></td>
+</tr>
+<tr>
+<td>10</td>
+<td>F10</td>
+<td></td>
+</tr>
+<tr>
+<td>11</td>
+<td>F11 or Shift+F1</td>
+<td></td>
+</tr>
+<tr>
+<td>12</td>
+<td>F12 or Shift+F2</td>
+<td></td>
+</tr>
+<tr>
+<td>13</td>
+<td>Shift+F3</td>
+<td></td>
+</tr>
+<tr>
+<td>14</td>
+<td>Shift+F4</td>
+<td></td>
+</tr>
+<tr>
+<td>15</td>
+<td>Shift+F5</td>
+<td></td>
+</tr>
+<tr>
+<td>16</td>
+<td>Shift+F6 or Alt+Q</td>
+<td></td>
+</tr>
+<tr>
+<td>17</td>
+<td>Shift+F7 or Alt+W</td>
+<td></td>
+</tr>
+<tr>
+<td>18</td>
+<td>Shift+F8 or Alt+E</td>
+<td></td>
+</tr>
+<tr>
+<td>19</td>
+<td>Shift+F9 or Alt+R</td>
+<td></td>
+</tr>
+<tr>
+<td>20</td>
+<td>Shift+F10 or Alt+T</td>
+<td></td>
+</tr>
+<tr>
+<td>21</td>
+<td>Ctrl+F1 or Alt+Y or SHIFT+F11</td>
+<td></td>
+</tr>
+<tr>
+<td>22</td>
+<td>Ctrl+F2 or Alt+U or SHIFT+F12</td>
+<td></td>
+</tr>
+<tr>
+<td>23</td>
+<td>Ctrl+F3 or Alt+I</td>
+<td></td>
+</tr>
+<tr>
+<td>24</td>
+<td>Ctrl+F4 or Alt+O</td>
+<td></td>
+</tr>
+<tr>
+<td>25</td>
+<td>Ctrl+F5 or Alt+P</td>
+<td></td>
+</tr>
+<tr>
+<td>26</td>
+<td>Ctrl+F6</td>
+<td></td>
+</tr>
+<tr>
+<td>27</td>
+<td>Ctrl+F7</td>
+<td></td>
+</tr>
+<tr>
+<td>28</td>
+<td>Ctrl+F8</td>
+<td></td>
+</tr>
+<tr>
+<td>29</td>
+<td>Ctrl+F9</td>
+<td></td>
+</tr>
+<tr>
+<td>30</td>
+<td>Ctrl+F10 or Alt+A</td>
+<td>*</td>
+</tr>
+<tr>
+<td>31</td>
+<td>Ctrl+F11 or Alt+S</td>
+<td>*</td>
+</tr>
+<tr>
+<td>32</td>
+<td>Ctrl+F12 or Alt+D</td>
+<td>*</td>
+</tr>
+<tr>
+<td>33</td>
+<td>Alt+F</td>
+<td>*</td>
+</tr>
+<tr>
+<td>34</td>
+<td>Alt+G</td>
+<td>*</td>
+</tr>
+<tr>
+<td>35</td>
+<td>Alt+H</td>
+<td>*</td>
+</tr>
+<tr>
+<td>36</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>37</td>
+<td>Alt+K</td>
+<td>*</td>
+</tr>
+<tr>
+<td>38</td>
+<td>Alt+L</td>
+<td>*</td>
+</tr>
+<tr>
+<td>39</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>40</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>41</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>44</td>
+<td>Alt+Z</td>
+<td>*</td>
+</tr>
+<tr>
+<td>45</td>
+<td>Alt+X</td>
+<td>*</td>
+</tr>
+<tr>
+<td>46</td>
+<td>Alt+C</td>
+<td>*</td>
+</tr>
+<tr>
+<td>47</td>
+<td>Alt+V</td>
+<td>*</td>
+</tr>
+<tr>
+<td>48</td>
+<td>Alt+B</td>
+<td>*</td>
+</tr>
+<tr>
+<td>49</td>
+<td>Alt+N</td>
+<td>*</td>
+</tr>
+<tr>
+<td>50</td>
+<td>Alt+M</td>
+<td>*</td>
+</tr>
+<tr>
+<td>90</td>
+<td>page up</td>
+<td></td>
+</tr>
+<tr>
+<td>91</td>
+<td>page down</td>
+<td></td>
+</tr>
+<tr>
+<td>92</td>
+<td>tab change</td>
+<td></td>
+</tr>
+<tr>
+<td>93</td>
+<td>Application Exit, Alt+F4 or Big X</td>
+<td>An <code>Option</code> exist to reassign this to a different value</td>
+</tr>
+<tr>
+<td>98</td>
+<td>Drop Down Menu</td>
+<td>??</td>
+</tr>
+<tr>
+<td>99</td>
+<td>Escape or Alt+J</td>
+<td>*</td>
+</tr>
+</tbody>
+</table>
+<h3 id="technical-considerations">Technical Considerations</h3>
+<h1 id="input-linput-or-rinput-statements-using-the-keyboard-as-input-or-any-input-fields-or-input-select-statement-will-set-the-cmdkey-variable"><code>INPUT</code>, <code>LINPUT</code> or <code>RINPUT</code> statements using the keyboard as input, or any INPUT FIELDS or INPUT SELECT statement will set the CmdKey variable.</h1>
+<h1 id="the-shift-f1-through-shift-f10-key-combinations-set-cmdkey-the-values-from-11-to-20">The Shift-F1 through Shift-F10 key combinations set CmdKey the values from 11 to 20.</h1>
+</main>
+<footer>Generated from <a href="../../../br_tree/20-io-screen/windows-cursor/CMDKEY.md">br_tree/20-io-screen/windows-cursor/CMDKEY.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

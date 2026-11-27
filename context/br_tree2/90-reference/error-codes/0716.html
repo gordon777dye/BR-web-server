@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0716 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0716</h1>
+<p><strong>Error:</strong> 0716</p>
+<p><strong>Description:</strong> <code>PRINT</code> to an HTTP server file before a request was read
+Available as of BR! <code>4.30</code>.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#response">HTTP_SERVER.md §2.5 Writing a response</a></p>
+<blockquote>
+<p>Write <strong>after</strong> a request is current.</p>
+</blockquote>
+<p><strong>Fix:</strong> Read with <code>LINPUT</code> first, and print only in answer to a request.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0716.md">br_tree/90-reference/error-codes/0716.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

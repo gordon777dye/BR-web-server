@@ -15,19 +15,18 @@ or files.)  Anything else is refused with error 4165.
 Session restriction is on top of that. 
 
 ## AI User Mode
-In a normal AI + app setting the user can 
-instruct AI to do anything and the AI service acting on behalf of the user can, at the users request, 
-inadvertently destroy critical application data with the user's authority. Not so with Business Rules. 
+In other program environments with AI, the user can 
+instruct AI to do something and the AI service, acting on behalf of the user, can inadvertently destroy critical application data with the user's authority. Not so with Business Rules. 
 When AI attaches to BR, BR goes into **AI user mode**. From that point on without additional permission, 
 AI cannot type at the console, or issue commands. It can, however, print on the console. It just cannot 
 press enter, etc.
 
 Confining what it may *write* as well makes the list one boundary instead of two overlapping ones.
-It is **not** a seal against a model that has the keyboard: a model holding a grant on an
-*unrestricted* session reaches whatever that session can, and no rule inside a restricted session
-bears on that — confining it is the job of a BR-owned agent, `br/mcpdriver/`. What the list bounds
-is the approved program: the report a model wrote and a person glanced at, running against a
-site's whole disk.
+The list binds every session, so a model holding a grant on an *unrestricted* session reaches no
+further through BR's file operations than the list allows. It is **not** a seal against such a
+model reaching the operating system: an unrestricted session may run a shell command, and what
+the command does is outside the list — confining that is the job of permission mode and of a
+BR-owned agent, `br/mcpdriver/`.
 
 **Every rule here is enforced by a check at the core operation within BR.** How the
 operation was reached makes no difference — `EXECUTE` of a string built at run time, a `PROC` 
@@ -38,8 +37,9 @@ The restriction lasts for the life of the BR session; nothing can clear it but t
 a `RENAME`, a `COPY` over a file, a file `DROP` or `FREE`, an attribute change, a `REPLACE` — 
 gives **error 4153**, *restricted session: may
 not change a file this session did not create*. Anything the file list does not
-permit gives **error 4165**, *restricted session: brrestrict.sys does not permit this file* — which
-also answers a create, a rename, a delete, a `MKDIR` and a listing outside the list. Every other
+permit gives **error 4165**, *brrestrict.sys does not permit this file* — which
+also answers a create, a rename, a delete, a `MKDIR` and a listing outside the list, in every
+session, restricted or not. Every other
 violation gives **error 4154**, 
 *restricted session: this operation is not permitted*. Every refusal is written to the log as 
 a security event, naming the file and the reason, or the command or operation.
@@ -150,7 +150,8 @@ A session started by `SPAWN_RESTRICTED` is refused both, and handed them on its 
 <a id="files-the-rule"></a>
 ## Files: the rule
 
-> A restricted session may change only a file it created itself.
+> A restricted session may change only a file it created itself, or one under a
+> [`WORK` tree](#work-trees) the site's file list names.
 
 **What counts as creating.** Anything that brings a file into being under a name nothing was using:
 an `OPEN` for output of a free name, whatever its disposition — `NEW`, `USE` or `REPLACE`; the index
@@ -195,10 +196,20 @@ open call. That is what makes it hold for every route to a file: an
 <a id="files-what-may-be-read"></a>
 ## Files: where the session may be
 
-> A restricted session may reach what the site's file list permits, less what that list excludes.
-> It governs reading, creating, changing, renaming, deleting and listing alike, and an exclusion
-> is absolute — the session's own files are no exception to it. With no list installed, nothing
-> is restricted by it.
+> **Every BR session**, restricted or not, may reach what the site's file list permits, less what
+> that list excludes. It governs reading, creating, changing, renaming, deleting and listing alike,
+> and an exclusion is absolute — the session's own files are no exception to it. With no list
+> installed, nothing is limited by it.
+
+**One boundary for every kind of session.** A restricted session, an ordinary user's session, a
+`DEVELOP` session with an assistant attached and a user-mode session with the keyboard lent all
+stop at the same place. In a session that is not restricted the list is the only file rule: inside
+it the session may change any file, whoever created it, and outside it the session may do nothing.
+
+**It governs BR's file operations, not the operating system.** A session that is not restricted
+may still run an operating-system command, and what that command does is outside the list. In an
+AI turn, permission mode asks before an assistant reaches the operating system; a restricted
+session cannot reach it at all.
 
 **Where the list lives.** `brrestrict.sys`, in the directory of the BR executable the session is
 running. It is deliberately not a configuration statement and not a command-line argument: a
@@ -210,15 +221,15 @@ file. A session cannot choose which executable it is running, so it cannot choos
 **And it is not read through the gate it installs.** The list is opened with the operating
 system's own `fopen`, not through BR's file layer, because that layer is where this rule lives:
 read the other way, a list could exclude itself, or an entry could decide whether the next entry
-was legible. It is the one file in a restricted session that BR reads outside its own rules, and
-it is read once, before the session can run anything.
+was legible. It is the one file BR reads outside its own rules, and it is read once, before the
+session can run anything.
 
-**Each side reads its own, and a client is unrestricted until one is installed there.** The server's
+**Each side reads its own, and a client is unlimited until one is installed there.** The server's
 list governs the server's files; the client's own list, beside the client's own executable, governs
 the files on the client machine — those a program names for the client, `MSG("dump", …)`,
-`MSG("shot", …)` and a print job written to a named file. Restricting a server does not restrict a
-client. **All folders on a client machine are unrestricted unless a client list is installed
-there.**
+`MSG("shot", …)` and a print job written to a named file. The client reads its list when the
+session starts, whether or not the session is restricted. A server's list does not limit a client.
+**All folders on a client machine are open unless a client list is installed there.**
 
 ### What it looks like
 
@@ -230,6 +241,7 @@ Q:\data\*.rpt                      the .rpt files in data
 Q:\data\**\*.rpt                   and in every directory under it
 !Q:\data\payroll                   an exception inside a permitted tree
 :C:\ADS\shared                     a native path, marked by the leading colon
+WORK Q:\data\test                  what is under it may be changed freely
 ```
 
 One entry a line. A blank line is ignored, and **`#` is the comment character**.
@@ -344,15 +356,17 @@ Everything a session does with a named file, not reading alone:
 | `DIR`, and every other directory listing | 4165 |
 | `EXISTS` | reports nothing — see below |
 
-So a restricted session cannot see out of the folders the list names, and cannot put anything into
-a folder it cannot see. **4153 and 4165 answer different questions**: 4165 is *the site does not
-let this session near that file*, and 4153 is *this session did not create that file*. The list is
-the outer boundary, so it is tested first.
+So no session can see out of the folders the list names, or put anything into a folder it cannot
+see. **4153 and 4165 answer different questions**: 4165 is *the site does not let this session near
+that file*, and 4153 is *this session did not create that file*. The list is the outer boundary, so
+it is tested first, and in an AI turn it is tested before permission mode: a file the list refuses
+is refused, not asked about. 4153 is a restricted session's alone.
 
 **BR's own working files are inside the rule, not exempt from it.** A site that installs a list has
-to name the work, spool and print directories in it as it names its data. Exempting them could not
-be made safe, because `WORKPATH`, `SPOOLPATH` and `PRINTDIR` are configuration statements a
-restricted session is permitted to set, so an exemption would be a hole the session could aim. The
+to name its program and procedure directories, and the work, spool and print directories, in it as
+it names its data. Exempting them could not be made safe, because `WORKPATH`, `SPOOLPATH` and
+`PRINTDIR` are configuration statements any session is permitted to set, so an exemption would be a
+hole a session could aim. The
 work files can be named narrowly rather than by opening their directory — `:C:\ADS\w*.wrk` permits
 the work files in `C:\ADS` and nothing else there.
 
@@ -362,11 +376,53 @@ not reach a folder may not learn what is in it either. A listing of a *permitted
 shows the names of excluded things inside it; the exclusion stops them being opened or listed, not
 named.
 
+<a id="work-trees"></a>
+### `WORK` trees: where changing is free
+
+```
+Q:\data                            the area: the session may be here
+WORK Q:\data\test                  and may change anything under this
+!Q:\data\test\keys                 except this, which it may not reach at all
+```
+
+A restricted session may change only what it created, and that is what keeps it off a site's data.
+It also keeps an assistant off the site's **test** data, which is the one place it ought to be free
+to work. A `WORK` line names such a tree. Under it, a file counts as the session's own: it may be
+rewritten, emptied, renamed or deleted, and a directory under it removed.
+
+**It frees changing, not reaching.** Where the list names any area, a `WORK` tree must be inside
+one: a file is free only where the list also permits it, and a `WORK` tree outside every area frees
+nothing. A list of `WORK` lines and nothing else names no area, so it does not limit where the
+session may be - as with no list at all - and only the `WORK` trees are free to change.
+
+**An exclusion still wins.** `!Q:\data\test\keys` inside a `WORK` tree keeps that part out of reach
+altogether (**4165**).
+
+**The tree, not its root.** If a `WORK` entry names a directory, that directory is not itself free;
+what is under it is. A session cannot remove or rename the test data directory, only what is in it
+(**4153**). A `WORK` entry naming a file frees that file.
+
+**The same grammar and resolution as any other entry.** A BR name or a `:`native one, a pattern, an
+`@` section. Every name is resolved before it is compared, so a junction inside a `WORK` tree frees
+nothing it reaches outside the tree. `WORK` is not case-sensitive, and it cannot be mistaken for an
+entry, since an entry starts with a drive or a colon. `WORK` followed by `!` is not an exclusion of a
+tree; it is ignored and logged. Write the exclusion on a line of its own.
+
+**In a session that is not restricted, it spares a question.** Such a session may already change
+anything the list permits, so a `WORK` tree adds nothing to what it may do. What it changes is
+permission mode: in an AI turn, a change under a `WORK` tree is not asked about. An excluded file
+inside the tree is refused (**4165**), not asked about.
+
+**Only test data belongs in a `WORK` tree.** It lets an assistant overwrite what is in it without
+anybody being asked. Where a site's live data and its test data are the same folders, that folder
+must not be named.
+
 ### The rest of the rule
 
-**No list means no restriction.** Without the file, nothing is restricted by it, and the session's
-log says so once. That is the behaviour a restricted session always had. It is also what makes the
-list unforgeable: a restricted session *may create files*, so a list it did not find is a list it
+**No list means no limit.** Without the file, nothing is limited by it, and a restricted session's
+log says so once; an ordinary session logs nothing about a list that is not there. It is also what
+makes the list unforgeable: a restricted session *may create files*, so a list it did not find is a
+list it
 could write — and there is nothing to gain by writing one, because the widest setting is the one
 such a session already has. A list that **is** installed fails closed: if every line in it is
 unusable it permits nothing.
@@ -411,34 +467,54 @@ states the whole rule in one place, and its counts are the quickest confirmation
 was found and understood:
 
 ```
-Restricted-session file list in force from <path>: N entries from M lines, X of them
-exclusions.  Reading, creating, changing, renaming, deleting and listing are all refused
-with error 4165 outside it, an exclusion overrides every permit, and this session's own
-files stay its own whatever the list says.
+File list in force from <path>: N entries from M lines, X of them exclusions, and W WORK trees
+inside it may be changed freely.  Reading, creating, changing, renaming, deleting and listing
+are all refused with error 4165 outside it, an exclusion overrides every permit and is in force
+even for a path that does not exist yet, and an entry naming an absent path is matched by name
+until it does.
 ```
 
-The second is the one to be sure you do **not** see after installing a list:
+The `WORK` part appears only when the list has `WORK` lines. In a session that is not restricted
+it reads *and W WORK trees inside it permission mode does not ask about*. Each entry follows on
+a line of its own — *Restricted session may use …* or *Session may use …*, and for a `WORK` tree
+*Restricted session may change anything under …* or *Permission mode will not ask about changes
+under …*. A refusal reads *Restricted session refused …* or *Session refused …*, naming the
+operation, the resolved path and the reason.
+
+A list of `WORK` lines and no area says so instead:
 
 ```
-No restricted-session file list at <path>: this session may read and create whatever the
-account can.
+File list in force from <path>: W WORK trees and no area, so where this session may be is not
+limited by it; it may change what it created and anything under a WORK tree.
+```
+
+(In a session that is not restricted, the part after the semicolon reads *permission mode does
+not ask about a change under a WORK tree*.)
+
+The second line is the one to be sure you do **not** see in a restricted session after installing a
+list:
+
+```
+No file list at <path>: this session may read and create whatever the account can.
 ```
 
 That is what a misspelled filename, or a list left beside the wrong executable, looks like —
-and because no list means no restriction, it is a mistake that produces no error anywhere else.
-A site that installs a server list should check for this line on the client too, where one is
-needed as soon as anything is written, dumped, shot or printed to a file on the client machine.
+and because no list means no limit, it is a mistake that produces no error anywhere else. An
+ordinary session does not log this line, so to check a list there, look for the *in force* line
+instead. A site that installs a server list should check the client too, where one is needed as
+soon as anything is written, dumped, shot or printed to a file on the client machine.
 
-**When it comes into force.** After the session has read its configuration file, which is the
-opposite of the latch — the latch must be in force *before* it, because the latch is what filters
-the statements in it.
+**When it comes into force.** In every session, after the session has read its configuration file;
+on the client, when the session starts. In a restricted session that is the opposite of the latch —
+the latch must be in force *before* the configuration file, because the latch is what filters the
+statements in it.
 
 **The window that leaves open is one file and its `INCLUDE`s: the configuration.** Everything
 after it is governed, including the startup command, the procedure it names, the program that
 procedure loads and every `OPEN` from then on. The configuration is exempt because it was named
 by whoever started the session — a parent session at `SPAWN_RESTRICTED`, or whoever launched BR —
-and all of them are outside the restriction and could read those files anyway, so nothing reaches
-the session that its chooser did not already have. Gating it would also fail *quietly*:
+and could be read by them anyway, so nothing reaches the session that its chooser did not already
+have. Gating it would also fail *quietly*:
 configuration reports a statement it cannot use and carries on, so a refused `INCLUDE` of
 `printer.sys` would drop the printers rather than stop the session.
 
@@ -578,7 +654,7 @@ accept.
 |---|---|
 | Appearance and terminal | `3D_FIELDS` `ATTRIBUTE` `COLOR` `CONSOLE` `CURSOR` `DATAHILITE` `FONT` `FONTFAMILY` `GRAPHIC_LINEDRAW` `GRID_CURSOR_MOVE` `GUI` `MIN_FONTSIZE` `PICTURE` `SCREEN` `STATUSLINE` `STYLE` `WINDOWS_THEMES` |
 | Language and behaviour | `APPLICATION_NAME` `BASEYEAR` `BREAK` `BTREE_VERIFY` `CHAINDFLT` `COLLATE` `DATE` `DECIMAL` `DIMONLY` `FIELDBREAK` `FIELDHELP` `FILENAMES` `FILTER_DELIMITERS` `FORCE` `HELPDFLT` `INSERT` `KEYBOARD` `LOAD-OVERLAYS` `OPTION` `PAGEOFLOW` `REM` `SEARCH_CHAR` `SUBSTITUTE` `TYPEAHEAD` `USERLEVEL` |
-| Partly, from the configuration file only | `LOGGING` — the statement runs and **only its `UNATTENDED` keyword is kept**. The file name, the level, `DEBUG_LOG_LEVEL=` and `+CONSOLE` are dropped, because a contained session does not choose where the record of its containment goes; it writes `restricted-<wsid>.log` and the session logs that it did. As a `CONFIG` command at run time, `LOGGING` is refused outright (4154). |
+| Partly, from the configuration file only | `LOGGING` — the statement runs and **only its `UNATTENDED` keyword is kept**. The file name, the level, `DEBUG_LOG_LEVEL=` and `+CONSOLE` are dropped, because a contained session does not choose where the record of its containment goes; it writes `restricted-<session>.log`, named by `SESSION$` (for example `restricted-011.log` for WSID 01, session 1), and the session logs that it did. Its first entry says why the session is restricted and, when `SPAWN_RESTRICTED` was given a `label$`, what it was started for; the program can add `DEBUG_STR` notes, written as `Program note: <text>` on one line at level 5 or above. As a `CONFIG` command at run time, `LOGGING` is refused outright (4154). |
 | Sizes and limits | `FLOWSTACK` `FORSTACK` `MAXRECALL` `MAX_SORT_MEMORY` `MEMORY` `RPNSTACK` `WORKSTACK` |
 | Files and printing | `DRIVE` `PRINTDIR` `PRINTER` `PRINTSCREEN` `SPOOLPATH` `SPOOLCMD` `WORKPATH` `CLIENT_CURRENT_DIR` `RD` |
 | Startup | `EXECUTE` `INCLUDE` |
@@ -645,8 +721,9 @@ either mode. These lists say what each state does and does not do.
 **What it stops**
 
 - The assistant cannot reach the command line. Granted keys are fed only where a **program** is
-  waiting for input, never at the `READY` prompt, so no BR command - `SYSTEM`, `FREE`, `REPLACE`,
-  `LOAD`, `RUN` - can be issued by the assistant at all.
+  waiting for input, never at BR's command prompt - `READY`, an ATTN halt or an error - so no BR
+  command - `SYSTEM`, `FREE`, `REPLACE`, `LOAD`, `RUN` - can be typed by the assistant at all.
+  Keys sent there are held until a program asks for input.
 - The assistant cannot raise or extend its own grant: a `MSG("grant", n)` on a line that came from
   the assistant is refused with **4166** unless `n` is 0.
 - The assistant cannot start a turn, or end one without answering: the `AI` command on a line that
@@ -774,11 +851,12 @@ keys typed through `KEYS` and `SCANCODE` are not, so it still never applies to t
 
 The body of this document is the detail; this is the shape of it.
 
-- **Files it may change:** only ones it created itself (**4153**), and only where the file list
-  permits (**4165**). That covers an open for `OUTPUT` or `OUTIN`, `DELETE`, `RENAME`, `COPY` over a
+- **Files it may change:** only ones it created itself, or ones under a `WORK` tree of the file list
+  (**4153**), and only where the file list permits (**4165**). That covers an open for `OUTPUT` or `OUTIN`, `DELETE`, `RENAME`, `COPY` over a
   file, `DROP`, `FREE`, an attribute change and `REPLACE`.
-- **Files it may read:** what `brrestrict.sys` permits, less what it excludes. Files the session
-  created are not an exception — it created them somewhere the list already permitted.
+- **Files it may read:** what `brrestrict.sys` permits, less what it excludes — as for every
+  session. Files the session created are not an exception — it created them somewhere the list
+  already permitted.
 - **No operating system:** `SYSTEM` with a command, Ctrl-], a shell from any route, and native code
   are refused (**4154**).
 - **No new sessions:** `SPAWN_RESTRICTED` is refused to it - nothing in a child could be less
@@ -805,27 +883,24 @@ ahead, and takes a refusal as error **4167**.
 
 **It is active when both of these hold:**
 
-- **the line running is the assistant's.** A latch is set when the console conversation hands a
-  line to the command processor, and for a line read from a procedure from that block's
-  `assistant` mark. Either way it covers the line the assistant submitted, the program that line
-  runs, and anything either of them calls. It clears when the operator types the next line, or
-  when their own procedure supplies it, because neither carries the mark.
+- **an AI turn, or the work it started, is under way** ("turn+"). A turn opens when a person types
+  `AI <text>` at the console, or a program `EXECUTE`s one, and closes when the assistant answers.
+  Turn+ lasts until the last of what the turn set in motion has finished, so a procedure the
+  assistant `PROC`s, whose lines are read after the turn has ended, is still covered. So is what
+  the person's own program does while the turn stands.
 - **and a harness is attached to this session** - `g_clientState &
-  CLIENT_STATE_HARNESS_ATTACHED`, which the client reports and the server holds. In practice the
-  first condition implies the second; it is tested because the rule is about the session.
+  CLIENT_STATE_HARNESS_ATTACHED`, which the client reports and the server holds.
 
-**The grant is no longer one of them, and was.** `assistantNeedsPermission()` used to be
-`assistantLineRunning() && s_turnGrant == AGENTCHAT_GRANT_NONE`, so a turn with the keyboard lent
-asked nothing. See list 4 for why that reading does not hold. The grant state is still read as a
-turn opens and still logged there, because "was the keyboard lent during this turn" belongs in the
+**The mode and the grant do not enter into it.** It applies in user mode and in `DEVELOP` alike, and
+a turn with the keyboard lent asks exactly as one without - see list 4. The grant state is read as
+a turn opens and logged there, because "was the keyboard lent during this turn" belongs in the
 record; it decides nothing here.
 
 **It is therefore not active:**
 
-- for keys sent with `KEYS` or `SCANCODE`. Those are not assistant-marked lines, so they never reach
-  this gate in either channel mode, with or without a grant.
-- for anything the person types themselves.
-- when no harness is attached - which is also when no line can be the assistant's.
+- outside turn+, for anything: keys sent with `KEYS` or `SCANCODE` at `READY` with no turn open, and
+  what the person types themselves.
+- when no harness is attached.
 
 **What it asks about** - the same gates a restricted session refuses at:
 
@@ -836,10 +911,24 @@ record; it decides nothing here.
 | deleting, renaming, dropping or freeing - each with its own verb in the question | `file_os.cpp`, `wbname.cpp`, `wbserver.cpp` |
 | reaching the operating system - `SYSTEM` with a command, a spool command, the editor `EDIT` launches, the terminal's `Ctrl-]` escape | `brshell.cpp` - inside `shell()`, the one function all of them pass through. Asked for as long as a harness is **attached**, not only during turn+, and the person's own shell calls are asked about too |
 
-**Two things it does not ask about.** A file the assistant created itself in this session is its own
-and passes without a question - asking about an assistant's scratch files is noise, and noise is
-what teaches a person to answer yes without reading. And an operation already settled, by an answer
-that said "always", is not asked again.
+**Three things it does not ask about.** A file the session created itself while an assistant was
+attached is its own for the rest of the BR session and passes without a question - asking about an
+assistant's scratch files is noise, and noise is what teaches a person to answer yes without
+reading. A file under a [`WORK` tree](#work-trees) of `brrestrict.sys` passes the same way. And an
+operation the person has already answered for that file, for as long as the answer lasts:
+
+| Answer | Lasts |
+|---|---|
+| `Y` | the rest of the turn |
+| `H` | this connection - a new assistant, or the same one reconnecting, is asked again |
+| `A` | the rest of the BR session |
+
+`N` is remembered nowhere. Each answer is for the one file the question named, or a shell command's
+first keyword. **Being allowed does not make a file the assistant's**: when the answer runs out,
+the next destructive operation on it is asked about again.
+
+**And one thing it never gets to ask about:** a file `brrestrict.sys` does not permit. The list is
+tested first, in every session, so such a file is refused with **4165** before any question.
 
 **The question goes to the console, not to a dialog**, and deliberately: a message box does not
 exist with `GUI OFF`, it would appear at the client while the operation is at the server, and it is
@@ -847,17 +936,15 @@ not where the person is looking - the turn they typed is printing on the console
 The same `screen()` and key-wait path `READY` itself uses puts the question wherever the person is,
 in either mode, local or over a link.
 
-**Its practical reach.** Because it needs an assistant-marked line, permission mode covers the
-console conversation - a person typing `AI <text>` and the assistant acting inside that turn -
-and it covers it whether or not the keyboard has been lent. It is **not** a protection on the
-harness channel's typing: keys are not lines and carry no mark, which is what the grant governs
-instead. The operating-system routes it used to ask about are now refused before the question
-arises; see list 7.
+**Its practical reach.** Permission mode covers the console conversation - a person typing
+`AI <text>` and the assistant acting inside that turn - whether or not the keyboard has been lent.
+It is **not** a protection on the harness channel's typing outside a turn: what an assistant
+holding the grant types at `READY` with no turn open runs as the person's own, which is what
+lending the keyboard means.
 
-**And it now applies to every command the turn runs**, because the commands run one at a time as
-the assistant asks for them rather than from a work file after the turn - so the question arrives
-while the person is still watching the conversation that caused it, and the assistant is told the
-refusal (4167) as that command's result.
+**It applies to every command the turn runs**, one at a time as the assistant asks for them, so the
+question arrives while the person is still watching the conversation that caused it, and the
+assistant is told the refusal (4167) as that command's result.
 
 ### 7. What an attached harness restricts, in either mode
 

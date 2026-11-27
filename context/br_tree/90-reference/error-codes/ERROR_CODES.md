@@ -1113,9 +1113,17 @@ This contain a list of operating system errors, and operating system error codes
 
 [4172](4172.md)
 
+### 4173
+
+[4173](4173.md)
+
 ### 4175
 
 [4175](4175.md)
+
+### 4176
+
+[4176](4176.md)
 
 ### 4177
 

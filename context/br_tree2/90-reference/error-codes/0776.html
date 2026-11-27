@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0776 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0776</h1>
+<p><strong>Error:</strong> 0776</p>
+<p><strong>Description:</strong> PROXY= must be numeric IP addresses separated by commas</p>
+<p><strong>Name:</strong> <code>BREHTTPCFGPROXY</code></p>
+<p><strong>Details:</strong> <code>PROXY=</code> is compared as text with the address a request came from, so a host name could never match. Raised as for 0770.</p>
+<p><strong>SYSERR$:</strong> The value.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#setup">HTTP_SERVER.md §1 Configuration directives</a></p>
+<blockquote>
+<p>The IP address of a local reverse proxy such as NGINX, or several separated by commas, written as numbers (<code>127.0.0.1</code>).</p>
+</blockquote>
+<p><strong>Fix:</strong> Write the proxy's address as numbers.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0776.md">br_tree/90-reference/error-codes/0776.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

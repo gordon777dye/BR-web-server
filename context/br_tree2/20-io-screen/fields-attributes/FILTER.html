@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FILTER — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">20-io-screen</a> <span>/</span> <a href="_index.html">fields-attributes</a></nav>
+<main>
+<h1>FILTER</h1>
+<p>Grid and list <strong>filter</strong> search fields are available as of BR! <code>4.3</code> for
+<a href="../controls/Grid_and_List.html">grids and lists</a>.</p>
+<p>A new field type is defined (similar to <code>SEARCH</code>):</p>
+<ul>
+<li>(Diagram of the FILTER field — the source's <code>Filter.png</code> image is not available in this tree
+and could not be recovered.)*</li>
+</ul>
+<pre><code>RINPUT FIELDS &quot;nn,nn,15/FILTER 10,leading-attributes,row,col,grid column to search [, filter-type] [, CASE]&quot;: string-value
+</code></pre>
+<p>For example:</p>
+<pre><code>RINPUT FIELDS &quot;4,50,15/FILTER 10,,10,10,2,ALL&quot;: Findfield$
+</code></pre>
+<p>This example combines a filter box (which will search everything in the list) and the rinput fields for a list selection:</p>
+<pre><code>rinput fields &quot;4,8,78/FILTER 30,/w:w,5,6,Fullrow,all;5,6,list 21/80,rowsub,selone&quot;: foundvar$,selection
+</code></pre>
+<h3 id="parameters">Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>nn and nn</strong></td>
+<td>The row and column to position the field on the screen.</td>
+</tr>
+<tr>
+<td><strong>Size/ and Characters</strong></td>
+<td>How large the filter field will be in columns, and how many characters can be entered into it. In the example, <code>15/</code> and <code>10</code> provide a 15 column field where the operator can enter 10 characters.</td>
+</tr>
+<tr>
+<td><strong>Leading attributes</strong></td>
+<td>Any attributes desired (optional).</td>
+</tr>
+<tr>
+<td><strong>Row and col</strong></td>
+<td>The starting row and column of the grid or list you wish to search.</td>
+</tr>
+<tr>
+<td><strong>Grid column to search</strong></td>
+<td>The number of the grid column the filter will test against. <code>FULLROW</code> can be used here to search all the columns in each row.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="filter-types">Filter Types</h4>
+<ul>
+<li><strong>LEADING</strong> — Filter searching is done left justified using only leading characters (default).</li>
+<li><strong>WORD</strong> — Each word is leading matched.</li>
+<li><strong>ALL</strong> — The entire string is searched for a match (similar to <code>POS</code>).</li>
+</ul>
+<p><strong>CASE</strong> may optionally be used to make all searching case sensitive. Case insensitivity is the default.</p>
+<p><strong>String-value</strong> is the variable name which will apply to whatever the operator enters into the field for searching.</p>
+<p>For both FILTER and <code>SEARCH</code>, the up and down arrows now affect only the selection bar in the grid/list being presented.</p>
+<h4 id="note">Note</h4>
+<ul>
+<li>MASK can be used to query the Filter display, with a value of 1.</li>
+</ul>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../../00-configuration/config-directives/spec.html#appearance">Filter_Delimiters</a></li>
+</ul>
+<!-- br_tree-audit -->
+<blockquote>
+<p><strong>br_tree audit:</strong> Folded into br_tree spec → <a href="spec.html">spec.md</a>.</p>
+</blockquote>
+</main>
+<footer>Generated from <a href="../../../br_tree/20-io-screen/fields-attributes/FILTER.md">br_tree/20-io-screen/fields-attributes/FILTER.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

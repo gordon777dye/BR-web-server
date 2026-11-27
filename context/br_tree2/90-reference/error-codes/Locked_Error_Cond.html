@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Locked_Error_Cond — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>Locked_Error_Cond</h1>
+<p>The LOCKED error condition can be used at the end of a program statement, in the Exit statement, and in the ON error statement.</p>
+<h3 id="error-traps">Error Traps:</h3>
+<p>LOCKED traps two types of errors:
+1.) the record is locked at another workstation (error code <code>0061</code>)
+2.) file- sharing rules are violated (error code <code>4148</code>)
+LOCKED should be listed before the IOERR or ERROR error conditions when it appears in a list of error conditions, as IOERR and ERROR will trap all the errors that LOCKED traps plus many more. When error processing is handled at the ON error statement level, however, Business Rules automatically invokes the error action which is most specific to the error which has occurred.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/Locked_Error_Cond.md">br_tree/90-reference/error-codes/Locked_Error_Cond.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

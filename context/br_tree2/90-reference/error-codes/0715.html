@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0715 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0715</h1>
+<p><strong>Error:</strong> 0715</p>
+<p><strong>Description:</strong> Illegal sequence</p>
+<p><strong>BR 5 message:</strong> bad sequence for REREAD, REWRITE, DELETE, READ SAME</p>
+<p><strong>Details:</strong> - Use of an illegal sequence for <code>REREAD</code>, <code>REWRITE</code>, or <code>DELETE</code>.</p>
+<ul>
+<li>A <code>SAME</code> positional parameter is used when no record has previously been referenced. # Make sure that REREAD, REWRITE, or DELETE follows a successful READ or REREAD, or make sure that REC= or KEY= are used.</li>
+<li>Make sure the record has been referenced prior to the use of the SAME positional parameter.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0715.md">br_tree/90-reference/error-codes/0715.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

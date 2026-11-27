@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anchor_Record — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">30-io-file</a> <span>/</span> <a href="_index.html">file-model</a></nav>
+<main>
+<h1>Anchor_Record</h1>
+<p>In <code>Internal Files</code>, the <strong>Anchor Record</strong> is the first record in a linked list, and the basis for accessing linked list data from the master record. The record number of this anchor point should always be written out to the master file after the list is updated. (If an anchor record has been processed, KREC will return the record number of the anchor record for the current linked list, even if the file pointer is positioned at another record in that list.) The previous record pointer (positions 5-8) of an anchor record will always be set to 0.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/30-io-file/file-model/Anchor_Record.md">br_tree/30-io-file/file-model/Anchor_Record.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

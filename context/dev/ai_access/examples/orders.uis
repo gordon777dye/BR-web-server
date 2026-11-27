@@ -1,0 +1,18 @@
+# A GUI ON screen: the same expect steps, plus fields by caption, a grid,
+# a list and a button pressed by its caption.
+expect "ORDER TEST"
+expect "Customer code:"
+field "Customer code:" spec "C 8"
+grid rows 3
+grid cell 1,0 "item 2"
+grid contains "30"
+list rows 3
+list contains "green"
+type ACME
+field "Customer code:" value "ACME"
+press button "Post"
+expect "Posted ACME"
+# the last key lets the program end, so the procedure reaches SYSTEM
+press ENTER
+expect no error
+wait end

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0315 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0315</h1>
+<p><strong>Error:</strong> 0315</p>
+<p><strong>Description:</strong> An attempt was made to re-dimension a sub-array</p>
+<p><strong>BR 5 message:</strong> array is not redimensionable</p>
+<p><strong>Details:</strong> An attempt was made to re-dimension a sub-array. Sub-arrays cannot be re-dimensioned. This error could mean that you passed a singular variable to a <code>user defined function</code> that expected an <code>array</code>.. which then tried to re-dimension the array to 0 i.e.</p>
+<pre><code>0010 mat array(0)
+</code></pre>
+<p>This error may also occur if you try to re-dimension an optional array parameter of function that was not passed.  i.e.</p>
+<pre><code>0010 let fna(mat x)
+0020 def fna(mat y;mat z)
+0030    mat z(1)
+0040 fnend
+&lt;/pre&gt; Check for a missing MAT in your function call. This common typo often causes this error.
+
+</code></pre>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0315.md">br_tree/90-reference/error-codes/0315.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

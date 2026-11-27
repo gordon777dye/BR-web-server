@@ -58,7 +58,7 @@ CLIENT_CURRENT_DIR { <full-client-path> | SYNC | OFF }
   directory (base + the 4th-param startup `<subdir>`, moved by `CD`), while `X:\path` is absolute from
   the drive's base — so the two differ when a `<subdir>`/`CD` is in effect (see
   [config-directives](../config-directives/spec.md#paths)).
-- **`[LOGIN_NAME$]`** substitutes the current login into a path, e.g.
+- <a id="login_name"></a>**`[LOGIN_NAME$]`** substitutes the current login into a path, e.g.
   `DRIVE G:,G:\HOME\[LOGIN_NAME$],,`; `LOGIN_NAME$ <default>` sets the fallback when the OS supplies
   none. (Full `DRIVE` grammar and file-search order live in
   [config-directives](../config-directives/spec.md#paths).)

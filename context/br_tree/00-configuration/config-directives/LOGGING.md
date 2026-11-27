@@ -94,6 +94,31 @@ The following types of messages are written to the LOGGING file:
 
 DEBUG_STR() levels are clamped to 0–10: a level above 10 is logged as 10, and a level below 0 as 0.
 
+<a id="restricted-session"></a>
+#### LOGGING in a restricted session
+
+A **restricted session** does not choose where its log goes: the record of what it was refused is
+BR's. `LOGGING` in its configuration file keeps only `UNATTENDED`; the file name, the level,
+`DEBUG_LOG_LEVEL=` and `+CONSOLE` are dropped, and `CONFIG LOGGING` is refused (4154). BR writes the
+session's **audit log** itself:
+
+- **Named by session:** `restricted-<SESSION$>.log`, the WSID followed by the session number, so
+  `restricted-012.log` is WSID 01, session 2. Each session has its own file; a later session with
+  the same WSID and session number appends to it.
+- **In a folder BR is handed:** a session started by
+  [`SPAWN_RESTRICTED`](../../10-language/data-manipulation/system-functions/SPAWN_RESTRICTED.md)
+  writes it in the folder of its parent's log. Otherwise, and when the parent is not logging, it
+  goes in `%LOCALAPPDATA%\ADS`.
+- **At level 8**, so commands entered are in it. Nothing can lower it.
+- **Its first entry says why the session is restricted**, and what it was started for when
+  `SPAWN_RESTRICTED` was given a `label$`:
+  `Restricted-session audit log for session 012, started for "month-end report": ...`.
+  It also marks where each run begins in a reused file.
+- **`DEBUG_STR()` adds the program's own notes**, marked as the program's: they read
+  `Program note: <text>`, control characters become spaces so a note stays on one line, a note is
+  cut to 200 characters, and a level below 5 is logged at 5. A note therefore cannot pass for one of
+  BR's own entries or errors. Levels above 8 are not in the audit log.
+
 #### LOGGING PDF printing events
 
 Logging was added to PDF creation. Logging of minor events that happen during the printing process are logged at log level 8.  Errors are logged at a lower level. Logging was also improved with respect to loading older versions of pdflib.

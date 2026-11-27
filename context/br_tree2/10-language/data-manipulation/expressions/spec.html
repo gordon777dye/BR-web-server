@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expressions — BR reference</title>
+<meta name="keywords" content="AND, OR, NOT, precedence, &#34;:=&#34;, operators">
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">expressions</a></nav>
+<main>
+<h1 id="expressions">Expressions</h1>
+<p>Operators, precedence, and the numeric / string / relational / logical expressions that BR
+evaluates. Substring <em>mutation</em> and the <code>LET</code> form of assignment live in
+<a href="../assignment/spec.html">assignment</a>; the <code>IF</code> / <code>WHILE</code> / <code>UNTIL</code> constructs that consume
+relational expressions live in <a href="../conditionals/spec.html">conditionals</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">&lt;expression&gt;            ::= &lt;numeric-expression&gt; | &lt;string-expression&gt; | &lt;relational-expression&gt;
+&lt;numeric-expression&gt;    ::= &lt;numeric-term&gt; [ &lt;numeric-operator&gt; &lt;numeric-term&gt; ]*
+&lt;string-expression&gt;     ::= &lt;string-term&gt; [ '&amp;' &lt;string-term&gt; ]* | &lt;substring&gt;
+&lt;substring&gt;             ::= &lt;string-expr&gt; '(' &lt;start-pos&gt; ':' &lt;end-pos&gt; ')'
+&lt;relational-expression&gt; ::= &lt;expression&gt; &lt;relational-operator&gt; &lt;expression&gt;
+</code></pre>
+<p><strong><code>name(...)</code> is ambiguous on its face</strong> — a function call, an array subscript, or a substring —
+and BR resolves it by <strong>arity</strong>, not by consulting a symbol table: whether the mandatory operands
+that name requires are present decides what it is. <code>X(3)</code> subscripts because <code>X</code> requires no
+arguments; <code>SIN(3)</code> calls because <code>SIN</code> requires one. A <code>DIM</code> does <strong>not</strong> shadow an intrinsic.
+Full rule and worked counterexamples:
+<a href="../../syntax/spec.html#name-resolution">syntax — name resolution</a>.</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<h3 id="evaluation-order">Evaluation order</h3>
+<p>Innermost parentheses first, then by operator precedence (see <a href="#precedence">precedence table</a>),
+left to right within the same level. The algebraic core is PEMDAS — <strong>P</strong>arentheses,
+<strong>E</strong>xponents, <strong>M</strong>ultiplication/<strong>D</strong>ivision, <strong>A</strong>ddition/<strong>S</strong>ubtraction.</p>
+<a id="forced-assignment"></a>
+<h3 id="the-two-meanings-of--and-forced-assignment-">The two meanings of <code>=</code>, and forced assignment <code>:=</code></h3>
+<p><code>=</code> is overloaded by context:</p>
+<ul>
+<li>Inside a conditional expression (<code>IF</code>, <code>WHILE</code>, <code>UNTIL</code>), <code>=</code> is <strong>always</strong> the
+&quot;is equal to&quot; comparison operator.</li>
+<li>In a <code>LET</code> statement (or any non-conditional context), <code>=</code> is <strong>always</strong> assignment.</li>
+</ul>
+<p>Use <strong><code>:=</code></strong> to force <em>assignment</em> semantics even inside a conditional; the assignment must be
+parenthesized:</p>
+<pre><code class="language-business-rules">00010 IF (X := 5) &gt; 2 THEN PRINT &quot;assigned X then compared&quot;
+</code></pre>
+<p>The assignment-statement side of <code>:=</code> (and <code>LET</code>) is detailed in
+<a href="../assignment/spec.html#forced-assignment">assignment</a>.</p>
+<a id="relational-operators"></a>
+<h3 id="relational-expressions">Relational expressions</h3>
+<p>Comparisons return <strong>1</strong> (true) or <strong>0</strong> (false), and work on both numeric and string operands.
+String comparisons run <strong>character-by-character, left to right, by ASCII value</strong>, stop at the
+first unequal pair, and are <strong>case-sensitive</strong>. Operators are <em>binary</em> (two operands: <code>+</code>, <code>=</code>,
+<code>&lt;</code>, …); <code>NOT</code> / <code>~</code> is the <em>unary</em> negation operator (<code>NOT</code> preferred for readability).</p>
+<a id="logical-operators"></a>
+<h3>Logical operators</h3>
+<p><code>NOT</code>/<code>~</code>, <code>AND</code>/<code>&amp;&amp;</code>, <code>OR</code>/<code>||</code> combine relational expressions. Precedence within a logical
+expression: parentheses → <code>NOT</code> → <code>AND</code>/<code>OR</code>, which share one level and run <strong>strictly left to
+right</strong> (<a href="#short-circuit">below</a>). <code>~</code> is not a synonym for <code>NOT</code> and does not belong on this list
+— it binds tighter than the comparisons rather than looser (<a href="#not-vs-tilde">above</a>). See the
+<a href="#truth-tables">truth tables</a>.</p>
+<a id="concatenation"></a>
+<h3 id="string-expressions">String expressions</h3>
+<ul>
+<li><strong>Concatenation</strong> joins strings with <code>&amp;</code> (precedence level 6):
+<code>C$ = A$ &amp; &quot; &quot; &amp; B$</code>. As an operator it forms a <code>&lt;string-expression&gt;</code>.</li>
+<li><strong>Substring extraction</strong> reads a slice with 1-based, inclusive positions —
+<code>S$(2:4)</code> yields characters 2–4; <code>INF</code> denotes beyond end-of-string
+(<code>S$(6:INF)</code>). Used on the right-hand side it is a string expression.</li>
+<li><strong>Substring replacement / insertion / deletion</strong> (slice on the <em>left</em> of <code>=</code>) is a data
+<em>change</em>, documented in <a href="../assignment/spec.html#substring">assignment</a>.</li>
+</ul>
+<a id="tables"></a>
+<h2>Tables</h2>
+<a id="precedence"></a>
+<h3 id="operator-precedence-highest-to-lowest">Operator precedence (highest to lowest)</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align:right">Level</th>
+<th>Operators</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right">1</td>
+<td><code>()</code> <code>[]</code></td>
+<td>Grouping, array indexing</td>
+<td><code>(5+3)*2</code>, <code>ARRAY(5)</code></td>
+</tr>
+<tr>
+<td style="text-align:right">2</td>
+<td><code>~</code> unary <code>-</code></td>
+<td><strong>Boolean NOT</strong>, negation — binds tighter than comparison</td>
+<td><code>~0</code> = 1</td>
+</tr>
+<tr>
+<td style="text-align:right">3</td>
+<td><code>**</code></td>
+<td>Exponentiation (<strong>not</strong> <code>^</code> — see below)</td>
+<td><code>2**3</code> = 8</td>
+</tr>
+<tr>
+<td style="text-align:right">4</td>
+<td><code>*</code> <code>/</code></td>
+<td>Multiplication, division</td>
+<td><code>10/2</code>, <code>8/2</code></td>
+</tr>
+<tr>
+<td style="text-align:right">5</td>
+<td><code>+</code> <code>-</code></td>
+<td>Addition, subtraction</td>
+<td><code>5+3</code>, <code>10-7</code></td>
+</tr>
+<tr>
+<td style="text-align:right">6</td>
+<td><code>&amp;</code></td>
+<td>String concatenation</td>
+<td><code>&quot;Hi&quot; &amp; &quot; there&quot;</code></td>
+</tr>
+<tr>
+<td style="text-align:right">7</td>
+<td><code>==</code> <code>~=</code> <code>&lt;&gt;</code> <code>&gt;&lt;</code> <code>&lt;</code> <code>&gt;</code> <code>&lt;=</code> <code>=&lt;</code> <code>&gt;=</code> <code>=&gt;</code></td>
+<td>Comparison / relational</td>
+<td><code>X &gt; 10</code></td>
+</tr>
+<tr>
+<td style="text-align:right">8</td>
+<td><code>=</code></td>
+<td><em>is equal to</em> (comparison; inside <code>IF</code>/<code>WHILE</code>/<code>UNTIL</code>)</td>
+<td><code>IF X = 5 THEN …</code></td>
+</tr>
+<tr>
+<td style="text-align:right">9</td>
+<td><code>NOT</code></td>
+<td><strong>Logical NOT</strong> — binds <em>looser</em> than comparison</td>
+<td><code>NOT FOUND</code></td>
+</tr>
+<tr>
+<td style="text-align:right">10</td>
+<td><code>AND</code> <code>&amp;&amp;</code> <code>OR</code> <code>||</code></td>
+<td>Logical AND/OR — <strong>one level, strictly left to right</strong>, and they short-circuit. See below.</td>
+<td><code>A=1 OR B=1 AND C=2</code></td>
+</tr>
+<tr>
+<td style="text-align:right">11</td>
+<td><code>=</code></td>
+<td>Assignment (<code>LET</code> / non-conditional context)</td>
+<td><code>LET X = 5</code></td>
+</tr>
+<tr>
+<td style="text-align:right">12</td>
+<td><code>:=</code></td>
+<td>Forced assignment (assigns even inside a conditional)</td>
+<td><code>IF (X := 5) &gt; 2 THEN …</code></td>
+</tr>
+</tbody>
+</table>
+<p><a id="associativity"></a>
+<strong>Two groupings where BR differs from nearly every other language</strong>, both of them consequences of
+the table above rather than special cases:</p>
+<pre><code class="language-business-rules">PRINT 2**3**2       ! 64, not 512 — `**` groups LEFT: (2**3)**2
+PRINT -2**2         ! 4,  not -4  — unary binds TIGHTER than `**`: (-2)**2
+</code></pre>
+<p>Both confirmed against a running BR. Operators associate <strong>left to right within a level</strong>, and
+<code>**</code> is not excepted: BR's operator stacker keeps a pending operator stacked only at the unary
+level, so exponentiation chains left like subtraction does. And unary <code>-</code> and <code>~</code> sit <em>above</em> <code>**</code> in the table, not below it, so a sign
+attaches to the base before the exponent applies. Both readings are the opposite of C, Python and
+most calculators. Parenthesise when either could be meant.</p>
+<p><a id="not-vs-tilde"></a>
+<strong><code>~</code> and <code>NOT</code> are not interchangeable.</strong> Both negate, but they sit on opposite sides of the
+comparison operators, so the same expression means different things:</p>
+<pre><code class="language-business-rules">PRINT NOT 0==5      ! 1  — reads as NOT (0==5)
+PRINT ~ 0==5        ! 0  — reads as (~0) == 5, i.e. 1 == 5
+PRINT ~ (0==5)      ! 1  — parenthesised, now the same as NOT
+</code></pre>
+<p>Use <code>NOT</code> for a condition and reserve <code>~</code> for negating a single value, or parenthesise.</p>
+<a id="short-circuit"></a>
+<h3 id="and-and-or-one-level-left-to-right-short-circuiting"><code>AND</code> and <code>OR</code>: one level, left to right, short-circuiting</h3>
+<p><strong><code>AND</code> does not bind tighter than <code>OR</code> in BR.</strong> They share a precedence level and a logical chain
+is evaluated strictly left to right — which is the single most likely thing on this page to catch
+out anyone arriving from C, Python, SQL or Visual Basic, where <code>AND</code> binds tighter.</p>
+<p>Evaluation carries a running value and <strong>stops the moment that value settles the outcome</strong>:</p>
+<ul>
+<li>a running value of <strong>true</strong> meeting <code>OR</code> → stop, the answer is true</li>
+<li>a running value of <strong>false</strong> meeting <code>AND</code> → stop, <strong>unless followed by OR</strong></li>
+<li>This beacause the value has not been settled if an OR is encountered.</li>
+</ul>
+<p>Everything after the stopping point is never looked at.</p>
+<pre><code class="language-business-rules">PRINT 1 OR 0 AND 0      ! 1  — `1 OR` settles it; neither 0 is ever seen
+PRINT (1 OR 0) AND 0    ! 0  — the parentheses force the AND to be reached
+PRINT 0 OR 1 AND 0      ! 0  — 0 OR 1 -&gt; 1, then 1 AND 0 -&gt; 0
+PRINT 1 AND 0 OR 1      ! 1  — 1 AND 0 -&gt; 0, then 0 OR 1 -&gt; 1
+PRINT 0 AND 1 OR 1      ! 1  — 0 AND 1 -&gt; 0, then 0 OR 1 -&gt; 1
+</code></pre>
+<p>Read left to right, each of those is obvious. Read with <code>AND</code> binding tighter, the first and the
+third both come out wrong.</p>
+<p><strong>The rule: when a condition mixes <code>AND</code> and <code>OR</code>, always parenthesise.</strong> Not as a tie-breaker for
+doubtful cases — always. An unparenthesised <code>A OR B AND C</code> is correct BR and is read wrongly by
+almost everyone, including the author six months later, because every other language they know
+groups it the other way. The parentheses cost nothing and remove the question:</p>
+<pre><code class="language-business-rules">IF A OR B AND C THEN …        ! legal, and misread by nearly every reader
+IF (A OR B) AND C THEN …      ! what BR actually does — say so
+IF A OR (B AND C) THEN …      ! if this is what you meant, the parentheses are load-bearing
+</code></pre>
+<p><strong>A second consequence: a function call in the abandoned part of a condition never runs.</strong> If it
+has a side effect, reordering the terms changes what the program <em>does</em>, not just how fast it does
+it.</p>
+<blockquote>
+<p><strong>For anyone re-folding this section.</strong> These rows previously separated <code>AND</code> (tighter) from
+<code>OR</code> (looser), matching most other languages. That was wrong, and BR's own precedence table
+(<code>table5x</code>) had it right all along by giving <code>&amp;&amp;</code>, <code>AND</code>, <code>||</code> and <code>OR</code> the same value.</p>
+</blockquote>
+<p><strong>Modulo is a function, not an operator</strong> — use <code>MOD(a, b)</code>; there is <strong>no</strong> infix <code>a MOD b</code>. See
+<a href="../system-functions/spec.html">system-functions</a>. Note the trap below: <code>%</code> is <em>accepted</em> and returns
+the wrong answer.</p>
+<a id="non-operators"></a>
+<h3 id="spellings-that-look-like-operators-and-are-not">Spellings that look like operators and are not</h3>
+<p>BR's runtime carries opcodes for a set of bitwise and shift operations that the language never
+completed. They divide into two kinds, and <strong>the second kind is dangerous</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Spelling</th>
+<th>What happens</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>^</code></td>
+<td><strong>Error 1026</strong> (illegal expression)</td>
+<td>the expression parser has no case for it; it is <em>not</em> exponentiation — use <code>**</code></td>
+</tr>
+<tr>
+<td><code>&amp;</code> <code>|</code> between numbers</td>
+<td><strong>Error 1026</strong></td>
+<td>the parser reaches <code>NUM_ERR</code>; only the doubled <code>&amp;&amp;</code> / <code>||</code> are operators</td>
+</tr>
+<tr>
+<td><code>%</code></td>
+<td><strong>compiles, always yields <code>0</code></strong></td>
+<td>the compiler emits a <code>MODULO</code> opcode; the runtime evaluator has no case for it</td>
+</tr>
+<tr>
+<td><code>&lt;&lt;</code> <code>&gt;&gt;</code></td>
+<td><strong>compiles, always yield <code>0</code></strong></td>
+<td>same — the evaluator's <code>SHIFT_LEFT</code> / <code>SHIFT_RIGHT</code> cases are commented out</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-business-rules">PRINT 17%5          ! 0, not 2 — no error, no warning
+PRINT 1&lt;&lt;4          ! 0, not 16
+</code></pre>
+<p>The first three rows fail loudly and cost nothing. <code>%</code>, <code>&lt;&lt;</code> and <code>&gt;&gt;</code> fail <strong>silently</strong>: a program
+using them compiles, runs, and computes zero. Nothing in BR reports it. Treat all six as
+non-existent.</p>
+<p>The compound assignment operators <code>+=</code> <code>-=</code> <code>*=</code> <code>/=</code> (and multiple assignment <code>A=B=C=0</code>) are
+assignment-level — see <a href="../assignment/spec.html#let">assignment</a>.</p>
+<h3>Relational operators</h3>
+<table>
+<thead>
+<tr>
+<th>Operator</th>
+<th>Alternatives</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;</code></td>
+<td></td>
+<td>Less than</td>
+</tr>
+<tr>
+<td><code>&gt;</code></td>
+<td></td>
+<td>Greater than</td>
+</tr>
+<tr>
+<td><code>=</code></td>
+<td><code>==</code></td>
+<td>Equal to</td>
+</tr>
+<tr>
+<td><code>&lt;&gt;</code></td>
+<td><code>&gt;&lt;</code>, <code>~=</code></td>
+<td>Not equal to</td>
+</tr>
+<tr>
+<td><code>&lt;=</code></td>
+<td><code>=&lt;</code></td>
+<td>Less than or equal to</td>
+</tr>
+<tr>
+<td><code>&gt;=</code></td>
+<td><code>=&gt;</code></td>
+<td>Greater than or equal to</td>
+</tr>
+</tbody>
+</table>
+<a id="truth-tables"></a>
+<h3 id="logical-truth-tables">Logical truth tables</h3>
+<table>
+<thead>
+<tr>
+<th>A</th>
+<th>B</th>
+<th style="text-align:center"><code>A AND B</code></th>
+<th style="text-align:center"><code>A OR B</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>true</td>
+<td>true</td>
+<td style="text-align:center">true</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td>true</td>
+<td>false</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td>false</td>
+<td>true</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">true</td>
+</tr>
+<tr>
+<td>false</td>
+<td>false</td>
+<td style="text-align:center">false</td>
+<td style="text-align:center">false</td>
+</tr>
+</tbody>
+</table>
+<a id="examples"></a>
+<h2>Examples</h2>
+<p>Worked evaluation (precedence in action):</p>
+<pre><code class="language-business-rules">((5+1)*(1+2))+2**3/4
+  = (6*3)+2**3/4       ! parentheses first
+  = 18+2**3/4          ! more parentheses
+  = 18+8/4             ! exponentiation
+  = 18+2               ! division
+  = 20                 ! addition
+</code></pre>
+<p>Relational and logical conditions:</p>
+<pre><code class="language-business-rules">00100 IF X &gt; 10 AND Y &lt; 5 THEN GOTO 500
+00110 IF NAME$ = &quot;John&quot; OR NAME$ = &quot;JOHN&quot; OR NAME$ = &quot;john&quot; THEN GOTO 200
+00120 IF (A &gt; 0 OR B &gt; 0) AND C = 100 THEN PRINT &quot;Valid&quot;
+00130 IF NOT SCORE &gt;= 0 THEN GOTO SCORE_PROMPT
+</code></pre>
+<p>String comparison (ASCII, case-sensitive):</p>
+<pre><code class="language-business-rules">00010 IF &quot;a&quot; &lt; &quot;b&quot; THEN PRINT &quot;a is less than b&quot;            ! true
+00020 IF &quot;Aaron&quot; &gt; &quot;Aardvark&quot; THEN PRINT &quot;Aaron &gt; Aardvark&quot; ! true (o &gt; d)
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../assignment/spec.html">assignment</a> — <code>LET</code>, the assignment form of <code>:=</code>, substring mutation</li>
+<li><a href="../conditionals/spec.html">conditionals</a> — <code>IF</code>/<code>WHILE</code>/<code>UNTIL</code> that consume these expressions</li>
+<li><a href="../data-types/spec.html">data-types</a> — the numeric and string operands</li>
+<li><a href="../../syntax/spec.html#name-resolution">syntax — name resolution</a> — how <code>name(...)</code> is decided
+between a call, a subscript and a substring</li>
+<li><a href="../system-functions/spec.html">system-functions</a> — the intrinsics whose arity drives that decision</li>
+<li>(Backing keyword pages verified against this spec and pruned.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/expressions/spec.md">br_tree/10-language/data-manipulation/expressions/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

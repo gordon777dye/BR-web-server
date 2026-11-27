@@ -1,0 +1,24 @@
+00010    DIM CODE$*8,A$*1
+00020    DIM H$(2)*20,W(2),F$(2)*20,G$(6)*20
+00030    DIM LH$(1)*20,LW(1),LF$(1)*20,L$(3)*20
+00040    OPEN #1: "srow=2,scol=2,erow=22,ecol=74",DISPLAY,OUTIN
+00050    PRINT #1, FIELDS "1,1,C 20": "ORDER TEST"
+00060    PRINT #1, FIELDS "3,1,C 14": "Customer code:"
+00070    LET H$(1)="Item" : LET H$(2)="Qty"
+00080    LET W(1)=20 : LET W(2)=10
+00090    LET F$(1)="C 20" : LET F$(2)="C 10"
+00100    LET G$(1)="item 1" : LET G$(2)="10" : LET G$(3)="item 2"
+00110    LET G$(4)="20" : LET G$(5)="item 3" : LET G$(6)="30"
+00120    PRINT #1, FIELDS "6,1,GRID 4/40,HEADERS": (MAT H$,MAT W,MAT F$)
+00130    PRINT #1, FIELDS "6,1,GRID 4/40,=": (MAT G$)
+00140    LET LH$(1)="Colour" : LET LW(1)=20 : LET LF$(1)="C 20"
+00150    LET L$(1)="red" : LET L$(2)="green" : LET L$(3)="blue"
+00160    PRINT #1, FIELDS "12,1,LIST 4/30,HEADERS": (MAT LH$,MAT LW,MAT LF$)
+00170    PRINT #1, FIELDS "12,1,LIST 4/30,=": (MAT L$)
+00180    PRINT #1, FIELDS "18,1,CC 12,,B42": "Post"
+00190    RINPUT #1, FIELDS "3,16,C 8,UT": CODE$
+00200    IF FKEY<>42 THEN GOTO 00190
+00210    PRINT #1, FIELDS "20,1,C 30": "Posted "&RTRM$(CODE$)
+00220    RINPUT #1, FIELDS "21,1,C 1,UT": A$
+00230    CLOSE #1:
+00240    STOP

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4261 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4261</h1>
+<p><strong>Error:</strong> 4261</p>
+<p><strong>Description:</strong> <strike><code>Operating System Error</code> 61</strike></p>
+<p><strong>BR 5 message:</strong> printer queue full</p>
+<p><strong>Details:</strong> Too many unprinted reports or Printer Queue Full</p>
+<p>Error 4261 is produced when the system attempts to create a report file and 99 previously created report files are present.</p>
+<p>BR creates report files in the <code>SpoolPath</code> directory. If a program ends abnormally, any open report files will be left in the the directory. BR can accommodate up to 99 spool files per workstation ID. Periodically it is a good idea to remove old files from the spool directory.</p>
+<p>The spool directory is specified in the <code>brconfig.sys</code> file and can be identified by issuing a STATUS SUB command. Find the directory and remove the files it contains.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4261.md">br_tree/90-reference/error-codes/4261.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

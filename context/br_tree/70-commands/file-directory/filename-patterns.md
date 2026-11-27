@@ -8,6 +8,8 @@ kind: concept
 status: 2b
 related: [spec, ../editing/spec, ../program-management/spec, ../../30-io-file/file-model/spec, ../../00-configuration/config-directives/OPTION_(Config)]
 keywords: [DIR, COPY, MOVE, RENAME, FREE, DROP, TYPE, LOAD, RUN, SAVE, REPLACE, MERGE, PROC, SUBPROC, CD, LIST, STATUS, DISPLAY, INDEX, MKDIR, RMDIR, CHDIR, glob, OPTION 84, Tab completion]
+corrections:
+  - "2026-11-24 (owner): `L` and `LI` also `LINK` removed from the abbreviation examples. The kit documents LINK only as linked files."
 ---
 
 # File name patterns and Tab completion
@@ -27,6 +29,7 @@ commands (`LOAD`, `RUN`, `SAVE`, `LIST <` …). The command syntax is in
    4. [When a name is a glob](#glob-when)
    5. [The command line](#glob-command-line)
    6. [What the commands do with the matches](#glob-matches)
+   7. [Several names in one command](#glob-several)
 2. [`/` in a file name](#slash)
 3. [Tab completion at the `READY` prompt](#tab-completion)
    1. [What it does](#tab-what)
@@ -47,6 +50,7 @@ commands (`LOAD`, `RUN`, `SAVE`, `LIST <` …). The command syntax is in
 | `MOVE` | the files to move, and with `-R` the folders (the target as for `COPY`) |
 | `FREE`, `DROP` | the files to delete or empty |
 | `TYPE` | the files to show, one after the other |
+| `SEARCH` | the files to search, one after the other (BR 5.03) |
 
 `MKDIR`, `RMDIR` and `CHDIR` name one directory and take no pattern. A pattern
 may be in any part of the name, in the file part or in a directory part:
@@ -169,8 +173,47 @@ in its first dot matches only names with no dot. A glob is taken as written:
   directories overwrite each other; with `-R` each file keeps its place below the
   folders before the first pattern. `RENAME` and `COPY` to a name with `*` apply
   the `*` to each file's own name (`RENAME a{1,2}.txt *.bak`).
-- A pattern that matches nothing is error **4152**, file not found, as before.
-- Redirection (`> file`, `>> file`, `> A$`) works for the commands that had it.
+- A pattern that matches nothing is error **4152**, file not found, as before. With several names
+  in one command it is not an error unless none of them match; see [1.7](#glob-several).
+- Redirection (`> file`, `>> file`, `> A$`) works for the commands that had it. Into an array,
+  `>` and `>>` alike add elements for more lines. A longer line makes the elements longer, at the
+  console and under `EXECUTE` alike, without `ON SOFLOW GROW` or `SOFLOW-GROW` being needed; the
+  one exception is an `EXECUTE` run under `ON SOFLOW IGNORE`, which cuts the line to the element
+  length instead. Growing stops at `SOFLOW-GROW MAX=`, past which the line is error 58.
+
+<a id="glob-several"></a>
+### 1.7 Several names in one command
+
+`COPY`, `MOVE`, `RENAME`, `TYPE` and `SEARCH` take more than one `<from>` (`TYPE`, `SEARCH`: `<file>`), separated by commas or blanks, as
+any parameters are. Each name may be a pattern. A name with a blank in it is quoted.
+
+```
+COPY a.txt,data\*.dat,notes\ bak
+COPY a.txt data\*.dat notes\ bak
+MOVE old1,old2 archive\
+RENAME a,b *.bak
+TYPE head.txt,body.txt >all.txt
+```
+
+- **The last name is where they go.** `COPY a,b,c` and `COPY a b c` both copy `a` and `b` to `c`, as in `cp`
+  and `mv`; `COPY a b` is as it always was. A blank is a separator, so a missing or extra name changes what
+  the command means: the rule below about the target is what catches most such slips. `TYPE` has no target: every name is a file to show, in the order
+  written, into one redirect.
+- **A folder, unless the target has a wildcard.** With several `<from>` the target must be an
+  existing folder, or error **4203** (path does not exist or is not a directory). A target with `*` or `?`
+  is not required to be one: it makes each file's own name, as for one `<from>`. `-R` makes the folder as
+  it does for one.
+- **Names are taken in the order written**, each one's matches in the order of 1.6. **A file that
+  more than one name matches is handled once, at the first**: the later matches are ignored, by the
+  file's whole name and, on Windows, without regard to case. So `COPY a.txt,*.txt dir` copies `a.txt` once,
+  and `TYPE` shows it once. The overwrite question, or error 4150 where none can be asked, still shows when
+  *different* files would be given one name (a wildcard `<to>`); `-F` and an answer of `all` replace
+  without a word.
+- **A name that matches nothing is skipped**, because another may match. If none match, the
+  command is error **4152**, file not found. A single name that matches nothing is error 4152 as before.
+  A name that is skipped for being misspelt is not reported.
+- **`RENAME -D`** (one folder, renamed whole) takes one name; several are a syntax error.
+- An error, or Esc or Ctrl-A at a question, stops the whole command, not only the name it came in.
 
 <a id="slash"></a>
 ## 2. `/` in a file name
@@ -223,13 +266,14 @@ name from the files that are there:
 | `STATUS` | `ST` | none | yes |
 | `DISPLAY` | `DIS` | none | yes |
 | `INDEX` | `I` | none | yes |
+| `BREAK` | `B` | none | yes |
 
 **The `>` column** is the output redirection. On these commands a word that
 begins with `>` or `>>` is a file name wherever it is on the line, and Tab
-completes the name written straight after the `>` or `>>`, leaving them in
-place: `DIR *.brs >li` becomes `DIR *.brs >list.txt`, `STATUS >>lo` becomes
-`STATUS >>log.txt`. These are the commands that read a redirection
-themselves. `GO` and `BREAK` refuse one, so Tab does not complete it there,
+completes the name written after the `>` or `>>`, straight after them or after
+blanks, leaving them in place: `DIR *.brs >li` becomes `DIR *.brs >list.txt`,
+`STATUS >> lo` becomes `STATUS >> log.txt`. These are the commands that read a redirection
+themselves. `GO` refuses one, so Tab does not complete it there,
 nor on `LOAD`, `SAVE` and the others with no mark in the column. A
 redirection to a string array of the running program (`> A$`) names no file,
 and Tab offers files only.
@@ -276,8 +320,7 @@ the screen less three rows and ends `... and n more`.
   3.1 or anything longer, which is exactly what BR itself accepts. `FREE`,
   `DIR` and `PROC` have no abbreviation: BR refuses `FR` and `FRE`, `DI`
   is also `DISPLAY`, and `PRO` is also `PROCERR` and `PROTECT`. A shorter word
-  is ambiguous to BR (`CO` is also `CONFIG`, `T` also `TIME`, `L` and `LI` also
-  `LINK`, `M` also `MKDIR`, `RE` also `RENUM`, `S` also `SAVE` …), and Tab
+  is ambiguous to BR (`CO` is also `CONFIG`, `T` also `TIME`, `M` also `MKDIR`, `RE` also `RENUM`, `S` also `SAVE` …), and Tab
   after it moves to the next tab stop. `INDEX` is the only command beginning
   with `I`, so `I` alone is enough.
 - **Everywhere else Tab is what it was**: on any other command, and in the

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRINTER_LIST — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">information</a></nav>
+<main>
+<h1>PRINTER_LIST</h1>
+<p>PRINTER_LIST(<Mat array name>)</p>
+<p>The <strong>Printer_List</strong> <code>internal function</code> returns the number of elements in A$ after redimensioning A$ to the number of active Windows printers.  The contents of A$ show the printer names used by Windows, and the default printer is the first element.  These names are also suitable OPEN NAME= values to direct output to the respective devices. For example:</p>
+<pre><code>10 DIM A$(1)*100
+20 LET X=PRINTER_LIST(A$)
+30 PRINT MAT A$
+</code></pre>
+<p>This program will display a list of printer names defined on the local machine in the manner the OS 'sees' them.</p>
+<p>Also, to make easier use of PRINTER_LIST(A$) returned values, any matching substring of an A$ element will suffice after PRN:/ in the following example:</p>
+<pre><code>10 DIM A$(1)*60, SELECTION$*60
+20 LET X=PRINTER_LIST(A$)       ! Get Windows Printer List
+30 FOR LOOP = 1 TO X
+40    A$(LOOP) = A$(LOOP)(1:POS(A$(LOOP),&quot;@&quot;)-1) ! Trim device address
+50 NEXT LOOP
+60 GOSUB USER_SELECT_PRINTER    !  Custom Routine to Select From A$
+                                 --- place result into SELECTION$ ---
+70 OPEN #255: &quot;Name=PRN:/&quot;&amp; SELECTION$, DISPLAY, OUTPUT
+</code></pre>
+<h4 id="troubleshooting-hint-when-printing-under-windows">Troubleshooting hint when printing under Windows</h4>
+<p>From the printers folder, click on the printer that's not working, select properties, details, and spoolsettings.  Then make sure the &quot;spool data format&quot; option is set to &quot;RAW,&quot; not &quot;EMP&quot;.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/information/PRINTER_LIST.md">br_tree/70-commands/information/PRINTER_LIST.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

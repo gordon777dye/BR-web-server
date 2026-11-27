@@ -1345,7 +1345,7 @@ screen-operations/RINPUT_FIELDS.md,20-io-screen/input-output/spec.md,RINPUT_FIEL
 screen-operations/RINPUT_SELECT.md,20-io-screen/input-output/spec.md,RINPUT_SELECT,20-io-screen,20-io-screen/input-output,statement,pruned-2b,high
 screen-operations/Screen_OpenDflt.md,20-io-screen/windows-cursor/spec.md,Screen_OpenDflt,20-io-screen,20-io-screen/windows-cursor,statement,pruned-2b,med
 screen-operations/Screen_Operations.md,20-io-screen/windows-cursor/spec.md,Screen_Operations,20-io-screen,20-io-screen/windows-cursor,statement,pruned-2b,med
-screenio-library/Lexi.md,00-configuration/installation-tooling/Lexi.md,Lexi,50-libraries,00-configuration/installation-tooling,statement,moved-2b,high
+screenio-library/Lexi.md,00-configuration/installation-tooling/legacy_lexi.md,Lexi,50-libraries,00-configuration/installation-tooling,statement,moved-2b,high
 screenio-library/PhpIO.md,60-integration/web/PhpIO.md,PhpIO,60-integration,60-integration/web,statement,ok,high
 screenio-library/ScreenIO.md,50-libraries/screenio/ScreenIO.md,ScreenIO,50-libraries,50-libraries/screenio,statement,pruned-2b,high
 screenio-library/ScreenIO_Library.md,50-libraries/screenio/ScreenIO_Library.md,ScreenIO_Library,50-libraries,50-libraries/screenio,statement,pruned-2b,high

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.91 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<h1>3.91</h1>
+<h2 id="391h-changes---101502">3.91h+ Changes - 10/15/02</h2>
+<p>Enhancements:</p>
+<p>The <code>INDEX</code> command may now specify <code>BADKEYS</code> or <code>LISTBADKEYS</code> to effect the same processing as <code>DUPKEYS</code> and LISTDUPKEYS performs.  If both LISTBADKEYS and LISTDUPKEYS are specified, then all bad keys are listed ahead of dupkeys.  They can be distinguished by whether or not they are duplicate.</p>
+<p>Several changes were made to enhance client server processing, including performance improvements, logon improvements, and a couple of CS bugs fixes.</p>
+<p>Concerning Unix shell calls the following flag combinations are prevented-
+-W and -C
+-R and -C
+-W and -R
+In other words Without Shell, Restore Screen, and Continue are mutually exclusive options.  If more than one is specified at a time error <code>2222</code> is generated.</p>
+<p>A new shell call flag is enabled:</p>
+<ul>
+<li>-E or -e indicates that any os errors returned from the shell should be reported (as error 4500+)  Otherwise shell call operating errors are ignored.</li>
+</ul>
+<p>Occasionally Windows returns error values for fairly nominal exceptions.  So the -e is provided as an error return  sensitivity level flag.</p>
+<p>The -M (minimize) flag has been enhanced.  If a lower case m is specified, the shelled to task is initiated in minimized mode with the task appearing on the Windows Taskbar.  If an upper case M is specified, the same thing happens execept the task does not appear on the taskbar.  Furthermore <code>SPOOLCMD</code> calls use lowercase m.</p>
+<p>The HELP file search now uses the following directory sequence:
+- Current Directory
+- Base Node of First Drive Statement (where second parm points)
+- BR Starting Directory
+Note that the <code>HELPDFLT</code> statement refers to filename not dirname.</p>
+<p>The maximum length of printer initialization strings has been expanded from 32 bytes to 64 bytes.</p>
+<p>As of 01/21/03, OnQ4 always calls Onq with serial number 12345.
+BR verifies licensing issues before calling OnQ4, allieviating the need for further verification. So you will need to replace both ONQ4.EXE and ONQ.EXE when updating OnQ4.  Be sure to remove or rename obsolete copies of ONQ4.EXE or you could get frustrated.</p>
+<p>ONQ4.EXE will now search for ONQ4.BAT before looking for ONQ.EXE.  This optional batch file enables the setting of the IQDD environment variable before calling ONQ.  This may need to be done because variaous releases of Windows operate differently, in that they don't all propagate environment variables the same.</p>
+<p>ONQ4.EXE, ONQ4.BAT and ONQ.EXE should all be present in the same directory WHICH MUST BE IN THE WINDOWS SEARCH PATH.  One way to accomplish that is to put these files into the Windows directory.</p>
+<p>If used, ONQ4.BAT must set environment variable IQDD, and may optionally set other variables before calling ONQ.EXE.  Be sure to include the %1 %2
+%3 %4 %5 parameters on your ONQ.EXE call.  This will pass the necessary parameters from ONQ4.BAT to ONQ.EXE via the batch file.</p>
+<p>If <code>ONQPATH</code> is specified in the configuration file, it becomes the &quot;current&quot; directory during the call to ONQ.</p>
+<h3 id="errors-corrected">Errors Corrected</h3>
+<p>The END key was not setting the <code>FKEY</code> value for FIELDS operations within a window.</p>
+<p>When the <code>WSID</code> was assigned both in the command line (at BR invokation) and in the configuration file, the command line was not properly overriding the <code>BRConfig.sys|config</code> file.  It does now.</p>
+<p>In Unix shell calls, -W (without shell) -C (continue) and -R (restore) are mutually exclusive.</p>
+<p>Deletion of a protected file under Windows was failing.</p>
+<p>The client server model failed to properly display and recognize decimal points.</p>
+<p>When a client server connection is broken, the client and server now go closeout on their own.</p>
+<p>The system would hang if a RESTORE= command was issued to a printer file.</p>
+<p>The configuration printer file was expanded incorrectly.  This has been corrected.</p>
+<p>The color attributes for a field being exited were being applied from row 1 column 1 instead of the field specifications.</p>
+<p>An assertion failure occurred when the operating system reported a zero file time value during a file search.</p>
+<h2 id="391g-changes---62402">3.91g Changes - 6/24/02</h2>
+<h3 id="errors-corrected-1">Errors Corrected</h3>
+<p>Error <code>4270</code> would occur when starting approximately one of fifty sessions.</p>
+<p>Performing a <code>RESTORE</code> to a printer file caused BR to hang.</p>
+<p>Shell call was desensitized to called program return codes.  More is coming in future releases on this topic.</p>
+<p>Field Plus was not working properly on scrolling fields (scrolling fields handle more data than the field space allows for).</p>
+<p><code>Option</code> 24 was being reset when a <code>CONFIG</code> command was run from the command line.</p>
+<p>The <code>VERSION</code> function was limiting version to 16 bits.</p>
+<h2 id="391f-changes---60102">3.91f Changes - 6/01/02</h2>
+<p>A new configuration file FONT parameter is supported:</p>
+<ul>
+<li>FONT 3DFONT=fontname</li>
+</ul>
+<p>This supports two fonts simultaneously, one for background and captions and one font for input fields.</p>
+<p>The OPEN #0: string can contain the keyword MAXIMIZE or NOMAXIMIZE which will override the user's INI settings.  If not specified, the &quot;Save Font Size And Position&quot; settings will govern.</p>
+<p>We have removed restrictions on program size that were in place for compatibility with versions prior to 3.9.  This was causing error <code>2260</code> unnecessarily.</p>
+<p>A new error code has been defined which catches a situation that was causing GPF's:</p>
+<p><code>4120</code> - Invalid Y2K data found in a Y2K index field</p>
+<p>OPTION 27 suppresses the above error code, but also suppresses all other special key processing (e.g. U for uppercase) when invalid Y2K data is encountered in a Y2K sensitive key field.</p>
+<p>ONQ now works in 3.9 Windows.  Windows models require a launch program called onq4.exe.  In client/server mode OnQ runs under the client only.  Consequently
+Unix environments will require an SMB capability such as Vision FS or Samba.
+The following error codes have been added:</p>
+<p><code>4601</code> - Invalid WSID
+<code>4602</code> - Invalid Session
+<code>4603</code> - OnQ not licensed.
+<code>4604</code> - Could not open the WBSERVER.DAT file.
+<code>4605</code> - Could not lock the OnQ &quot;In Process&quot; byte.
+<code>4606</code> - Could not get lock offset (should never happen).
+<code>4607</code> - Specified user is not logged into BR.
+<code>4608</code> - Unable to add Onq user.
+<code>4609</code> - Invalid ONQPATH specified.
+<code>4610</code> - ONQPATH not specified - required by Windows (and CS) models.
+<code>4611</code> - ONQ4.EXE not found.</p>
+<p>ONQPATH is required by Windows and Client Server models.
+Onqpath needs to be a full BR path referencing a non-UNC Drive statement.
+A UNC Drive statement references a UNC drive in the second parameter.
+(UNC drives will be allowed in a future release.)</p>
+<p>New Error Codes generated by a shell call:</p>
+<p>4500 + OS error code = code</p>
+<p>Known examples:
+<code>4502</code>   File not found.
+<code>4513</code>  Insuficient permissions for executable during unix shell call.
+<code>4591</code>  Process killed by timeout.
+<code>4592</code>  Unix fork failed.
+<code>4596</code>  Unix process signalled.
+<code>4597</code>  Unix process stopped.</p>
+<p>This is the first official client/ server release.</p>
+<p>The BR-VB interface has been reworked.</p>
+<p>The significance of certain keyboard characters has been revised:</p>
+<ul>
+<li>
+<p>= changed</p>
+<p>^A - break ( this was ^C )
+^B - page up (back)
+^C - copy to clipboard
+^D - delete
+^E - end field
+^F - page down (forward)
+^G - backtab
+^H - backspace
+^I - tab
+^J - next field
+^K - prior field
+^L - right arrow
+^M - enter
+^N - left arrow
+^O - field minus
+^P - print screen
+^Q - toggle insert mode
+^R - up field (rise)
+^S - toggle hold mode (stop)</p>
+</li>
+<li>
+<p>^T - down field ( this once was ^V )
+^U - field plus
+^V - paste clipboard content
+^W - home
+^X - cut to clipboard</p>
+</li>
+<li>
+<p>^Y - was REPAINT SCREEN in Unix - now HELP  (back where it was)
+unchanged in Windows - still HELP
+^Z - restore field
+^[ - escape
+^\ - toggle translation of numerics to linedraw characters</p>
+</li>
+<li>
+<p>^- - repaint screen ( this once was ^Y )
+use the minus key on the top row of the keyboard
+along with the control key</p>
+</li>
+</ul>
+<p>OPTION 26 suppresses the creation of .BAK files.</p>
+<p><code>RENAME</code> now supports the -F flag to force deletion of files when it is necessary in order to complete the rename process.</p>
+<p>Note- Something that seems to have been overlooked in the documentation is that the GO command now supports the parameters RESTORE and NORESTORE.  This tells BR to either redisplay the screen after each STEP, or not to.</p>
+<h3 id="significant-br-install-shield-changes">Significant BR Install Shield Changes</h3>
+<p>After the License Approval, the installation location is confirmed with a browse option and the automatic creation of any missing directories.<br>
+This much is unchanged.</p>
+<p>If the user selects a new location, it is now properly honored by the installation setup.  However, no changes are made to user provided configuration files.  This means YOU ARE RESPONSIBLE TO PROVIDE THE PROPER DRIVE STATEMENTS IN A WBCONFIG.SYS FILE PLACED ON THE INSTALLATION MEDIA prior to installation.</p>
+<p>To support updating with Install Shield:</p>
+<p>If a WBCONFIG.SYS file HAS BEEN PROVIDED by the programmer:</p>
+<ul>
+<li>
+<p>If a pre-existing WBCONFIG.SYS file is found at the target location, the operator is asked if the new file should replace the existing file.  THE DEFAULT ANSWER IS TO RETAIN THE CURRENT FILE. If the operator requests REPLACE then a backup (.BAK) copy is made before installing the new file.</p>
+</li>
+<li>
+<p>If no pre-existing WBCONFIG.SYS file is found the provided configuration file is installed.</p>
+</li>
+</ul>
+<p>If a WBCONFIG.SYS file IS NOT PROVIDED by the programmer:</p>
+<ul>
+<li>
+<p>If a pre-existing WBCONFIG.SYS file is found, no configuration file changes are made by the installation process.</p>
+</li>
+<li>
+<p>If no pre-existing WBCONFIG.SYS file is found, the installation process creates a WBCONFIG.SYS file consisting of only one drive  statement.</p>
+</li>
+</ul>
+<p>If a pre-existing <code>BR.INI|WB.INI</code> file is found, it is renamed <code>BR.INI</code> after appending
+any existing BR.INI file to it.  So the result is to combine the WB.INI and
+BR.INI data into one BR.INI file, and REMOVAL OF THE WB.INI FILE.</p>
+<h3 id="errors-corrected-2">Errors Corrected</h3>
+<p>Several processing characteristics would cause COMBO BOX buttons to disappear.  These behavior is no longer occurring.</p>
+<p>UNC filenames were not being properly processed in Windows version, yielding erratic filename interpretations.</p>
+<p>RENAME was overwriting target filenames instead of generating error <code>4150</code>.</p>
+<p>DIR -P was not stopping when Ctrl-A was pressed.</p>
+<p>Unix could not handle print queue names longer than 8 characters.</p>
+<p>FILENAMES UPPER_CASE was not finding all files when performing a DIR command.</p>
+<p>FILENAME UPPER_CASE was only being recognized as UPPERCASE.  The underscore was missing from the code.</p>
+<p>DIR <em>. or AA</em>.  was including base matches which had a non-null suffix.
+For example DIR  X*. would find XXX.YYY.</p>
+<p><code>CFORM</code> was not detecting the case when the compiled length exceeded 255.</p>
+<p>BR LINUX security authentication was not accepting valid passwords.</p>
+<p>Errors 6270 (Windows printer not found) and <code>6219</code> (not enough memory for spooling operation) were being reported as error <code>2001</code>.</p>
+<p>Windows error 183 was being reported as BR error <code>4383</code>.  It is now reported as error <code>4150</code>.</p>
+<p>BR was creating zero byte spool files when a spool file was opened, but no printing was done.  This caused WBSPL files to continue to build.</p>
+<p>In version 4, shell call was not executing properly.</p>
+<p>Error <code>2260</code> was being generated by extremely large array sizes.</p>
+<p>Under certain cases data could be entered beyond the end of a field, eventually causing BR to go into an endless loop.</p>
+<p>Multiple concurrent flags were not being recognized properly on DOS style commands, such as COPY and RENAME.</p>
+<p>If a program was in the process of repainting a screen while it was being moved by the operator, it could cause a GPF.</p>
+<p>Attempting to append to an <code>EXTERNAL</code> file generated error <code>4126</code>.</p>
+<p>Error <code>0122|122</code> was being caused by improper rounding of subscripts internal to BR.</p>
+<p>Several window resize GPF problems existed.</p>
+<p>Several BTREE2 corrections were made.  We are now proceeding with BTREE2 verification.</p>
+<p>File VERSION capacity was increased to allow use of dates as version numbers.</p>
+<p>Removed an assertion failure for invalid printer name.  Now generates error <code>4128</code>.</p>
+<p>BRSERIAL.DAT processing now ignores the second decimal position.
+(e.g. 3.90 === 3.99)</p>
+<p>Anonymous client server setup was returning a null LOGIN_NAME$ instead of retrieving it from the server BRLISTENER.CONF specification.</p>
+<p>Added searching of PATH during Windows shell call.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/3.91.md">br_tree/90-reference/limits-constants/3.91.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

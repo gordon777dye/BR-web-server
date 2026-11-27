@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User-defined functions (DEF / FN) — BR reference</title>
+<meta name="keywords" content="DEF, FNEND, FN, LIBRARY, CONV">
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">flow-control</a> <span>/</span> <a href="_index.html">functions-udf</a></nav>
+<main>
+<h1 id="user-defined-functions-def--fn">User-defined functions (DEF / FN)</h1>
+<p>Defining your own <code>FN…</code> functions with <code>DEF … FNEND</code>, their parameters (by value vs. by
+reference), local scope, and return value. The library <em>facility</em> that loads and links functions
+across programs (<code>LIBRARY</code> statement, loading strategies, search order) is in
+<a href="../../../50-libraries/library-facility/spec.html">50-libraries/library-facility</a>. Built-in
+intrinsic functions are in
+<a href="../../data-manipulation/system-functions/spec.html">system-functions</a>.</p>
+<p><strong>These are two separate systems and their rules do not carry over.</strong> What is written here about
+signatures — typed and sized returns, <code>;</code>-optional parameters, <code>&amp;</code> by reference, one exit — applies
+to <code>FN…</code> functions only, and the intrinsics' rules (which names are reserved, the optional <code>MAT</code>
+qualifier, atoms and assignables) apply only to them. Nor do <code>FN…</code> names take part in
+<a href="../../syntax/spec.html#name-resolution">arity-driven name resolution</a>: a variable never starts
+<code>FN</code>, so the prefix alone settles what such a token is. The one rule shared by both: a
+<strong>parameterless</strong> function of either kind is called with no parentheses — <code>FNGET$</code>, never
+<code>FNGET$()</code>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">-- single-line form (the whole function is one expression)
+DEF FN&lt;name&gt;[$ '*' &lt;len&gt;] [ '(' &lt;parameter-list&gt; ')' ] '=' &lt;expression&gt; [ &lt;error-condition&gt; &lt;line-ref&gt; ]*
+
+-- multi-line form
+DEF FN&lt;name&gt;[$ '*' &lt;len&gt;] [ '(' &lt;parameter-list&gt; ')' ]
+    &lt;statements&gt;
+    [LET] FN&lt;name&gt; = &lt;expression&gt;      -- the return value
+{ FNEND | END DEF }                    -- END DEF is an accepted synonym for FNEND
+
+&lt;parameter-list&gt; ::= &lt;params&gt; [ ';' &lt;params&gt; ]   -- ';' : every param after it is OPTIONAL
+                   | ';' &lt;params&gt;                -- an all-optional list (no required params)
+&lt;params&gt;         ::= &lt;parameter&gt; [ ',' &lt;parameter&gt; ]*
+&lt;parameter&gt;      ::= [ MAT | '&amp;' ] &lt;variable&gt; [ '*' &lt;len&gt; ]   -- '&amp;' = by reference; MAT = array
+&lt;def-library&gt;    ::= DEF LIBRARY &lt;function-name&gt;[(&lt;parameter-list&gt;)] … { FNEND | END DEF }
+</code></pre>
+<p>A function name is <code>FN</code> + up to 28 more chars (<strong>30 max, <code>FN</code> included</strong>); a <strong>string</strong> function's
+trailing <code>$</code> is extra (size via <code>$*&lt;len&gt;</code>).
+Parameters <strong>before</strong> the <code>;</code> are required; those <strong>after</strong> it are optional — and any optional the
+caller omits becomes a fresh <strong>local variable</strong> (see <a href="#local-variables">Scope &amp; local variables</a>).
+A <strong>scalar</strong> parameter prefixed with <code>&amp;</code> (e.g. <code>&amp;RATE</code>) is passed <strong>by reference</strong>. <strong>Arrays (<code>MAT</code>)
+are always passed by reference</strong> and must <strong>not</strong> take <code>&amp;</code> — <code>&amp;MAT</code> is illegal.</p>
+<p><strong>Calling.</strong> A call to a function with no parameters takes <strong>no parentheses</strong> — <code>X$ = FNGETNAME$</code>,
+not <code>FNGETNAME$()</code> (empty <code>()</code> is a syntax error). Call a function for its side effects with a bare
+<code>LET FN&lt;name&gt;</code>.</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<a id="def"></a>
+<h3 id="defining-a-function">Defining a function</h3>
+<ul>
+<li><strong>Single-line</strong> functions compute one expression: <code>DEF FNY(X) = (X-INT(X/100)*100)*10000+INT(X/100)</code>.
+The expression may be followed by any of the statement-level
+<a href="../error-handling/spec.html#conditions">error-condition clauses</a> — <code>[&lt;error-condition&gt; &lt;line-ref&gt;]*</code>,
+the same trailing clause list every statement takes, not one specific to DEF. <code>CONV</code> is what shows
+up in practice, guarding a <code>VAL()</code>/<code>CNVRT$()</code> call in the body: <code>DEF FNVAL(PC$*80)=VAL(PC$) CONV Ignore</code> falls through to 0 on a non-numeric string instead of raising an error.</li>
+<li><a id="fnend"></a><strong>Multi-line</strong> functions run between <code>DEF FN&lt;name&gt;</code> and <code>FNEND</code> and <strong>return a value</strong> by assigning
+to their own name: <code>LET FN&lt;name&gt; = &lt;expression&gt;</code> (if never assigned, they return 0 / null). Only
+multi-line functions can do file I/O, change by-reference params, and <strong>recurse</strong> (a fresh local
+copy of each by-value parameter is created per call).</li>
+<li><strong>Return name is write-only - never a &quot;value so far&quot;.</strong> A bare <code>FN&lt;name&gt;</code> in the body of the
+function is always another call. BR keeps no readable slot for the pending return value. So
+<code>IF NOT FNRESOLVE</code> or <code>LET FOUND = FNRESOLVE</code> re-invokes <code>FNRESOLVE</code> (producing runaway
+recursion). It does not test what you last assigned. Assign <code>FN&lt;name&gt;</code> as often as you like
+(last write wins); just never read it back and track state in a scratch variable.</li>
+<li><strong>One exit per function.</strong> A function has exactly one <code>FNEND</code> and no early-return statement
+(<code>RETURN</code> belongs to <code>GOSUB</code>). To leave early, <code>GOTO</code> a label placed just before <code>FNEND</code>.
+<strong><code>END DEF</code> is accepted as a synonym for <code>FNEND</code></strong> — BR's compiler recognizes the word after
+<code>END</code> and rewrites <code>END DEF</code> to behave exactly as <code>FNEND</code>, in the same statement position.</li>
+<li><strong><code>DEF LIBRARY</code></strong> marks a function as callable from other programs through the library facility
+(it must still be linked with a <code>LIBRARY</code> statement before another program can call it — see
+<a href="../../../50-libraries/library-facility/spec.html">library-facility</a>). An entire program can be
+wrapped as one <code>DEF LIBRARY</code> function.</li>
+</ul>
+<a id="parameters"></a>
+<h3 id="parameters--by-value-vs-by-reference">Parameters — by value vs. by reference</h3>
+<ul>
+<li>Plain parameters are passed <strong>by value</strong> (the function gets a copy).</li>
+<li>Prefix with <strong><code>&amp;</code></strong> to pass <strong>by reference</strong> — the function reads/writes the caller's variable.
+For arrays this also <strong>avoids copying</strong>, which is faster:
+<pre><code class="language-business-rules">DEF LIBRARY FNPROCESS(&amp;DATA$, &amp;VALUE)   ! efficient — no copy
+DEF LIBRARY FNPROCESS(DATA$, VALUE)     ! copies the values
+DEF LIBRARY FNPROCESS(MAT ARRAY)        ! always passed by reference
+</code></pre>
+</li>
+<li><strong>No array dimensions in the parameter list.</strong> A parameter is <code>[MAT|&amp;] name [*len]</code>: you may size a
+<em>string</em> parameter (<code>NAME$*20</code>) but <strong>not</strong> dimension an array in the signature (<code>ROW(1)*255</code> is
+illegal). Arrays arrive as <code>MAT name</code>, dimensioned by the caller or a separate <code>DIM</code>; declare array
+<em>locals</em> with their own <code>DIM</code>, never in the parameter list.</li>
+</ul>
+<p><a id="call-matching"></a>
+<strong>Matching a call to its <code>DEF</code>.</strong> BR checks this when the call runs (<code>user_fn</code>), not when the program
+loads:</p>
+<ul>
+<li><strong>Count.</strong> Parameters before the <code>;</code> are required; those after it are optional. Too few required
+arguments, or more arguments than parameters, is error <strong>0301</strong>.</li>
+<li><strong>Type, by position.</strong> Each argument must match its parameter as string or numeric, else error
+<strong>0304</strong>. A plain (by-value) parameter must also match in being a scalar or an array, so an
+array (<code>MAT name</code>) cannot be passed for one.</li>
+<li><strong>A scalar variable may stand for an array parameter.</strong> BR builds a one-element array from it.</li>
+<li><strong>A literal cannot be passed by reference.</strong> <code>&amp;</code> parameters and array parameters, which are always
+by reference, refuse a number or string constant with error <strong>0303</strong>, so the scalar-for-array
+allowance covers a variable and not <code>FNX(5)</code>.</li>
+<li><strong>Spelling.</strong> An array argument is written <code>MAT name</code>; a plain name is the scalar. <code>A$(i)</code> is an
+element of the <em>array</em> <code>A$</code>, never of a scalar parameter <code>&amp;A$</code>.</li>
+</ul>
+<a id="local-variables"></a>
+<h3 id="scope--local-variables">Scope &amp; local variables</h3>
+<ul>
+<li><strong>By-value parameters are local</strong> — a plain parameter is a private copy; assigning it never touches a
+like-named variable outside the function. <code>&amp;</code> (by-reference) and <code>MAT</code> parameters are local <em>names</em>
+too, but writing them updates the caller's variable.</li>
+<li><strong>Declaring locals via the <code>;</code> (optional-parameter) list</strong> — a semicolon in the parameter list marks
+<strong>every parameter after it as optional</strong>. When the caller omits an optional parameter, BR creates a
+<strong>fresh temporary variable</strong> for it, initialised to <code>0</code>/null on <em>each</em> call. This is the standard idiom
+for <strong>local variables</strong>: after the <code>;</code>, list first any optional parameters the caller <em>may</em> pass, then
+the names you want purely as private scratch variables (which no call ever passes). An unpassed
+by-reference optional defaults an array to dimension 1 and a string to length 18. Such an array
+cannot be redimensioned (<code>MAT Z(1)</code> raises <a href="../../../90-reference/error-codes/0315.html">0315</a>), so
+don't list a scratch array as a parameter; use an ordinary array name in the body. A function may be
+all-optional (<code>DEF FNX(;A,B$)</code>); a caller may <strong>not</strong> pass more arguments than are defined, and the
+variable types (numeric/string) must match.</li>
+<li>Each library has its own set of global variables. The rules for clearing these variables are sophisticated and need to be carefully considered.</li>
+<li>When library globals are cleared depends on how the library was loaded (resident vs. release vs.
+<code>OPTION RETAIN</code>) — see the table in
+<a href="../../../50-libraries/library-facility/spec.html">library-facility</a>.</li>
+<li>On an error inside a function, <code>LINE</code> is the call site in the caller, <code>ERR</code> the error number,
+and <code>CNT</code> is set for context.</li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">! Simple library function with a return value
+00240 DEF LIBRARY FNCALC(AMT)
+00250    LET FNCALC = AMT * (1 + TAX_RATE) * (1 - DISCOUNT_PCT)
+00260 FNEND
+
+! Initialization function sets library globals via by-reference params
+00100 DIM TAX_RATE, DISCOUNT_PCT          ! library globals
+00200 DEF LIBRARY FNINIT(&amp;RATE, &amp;DISCOUNT)
+00210    LET TAX_RATE = RATE
+00220    LET DISCOUNT_PCT = DISCOUNT
+00230 FNEND
+
+! Caller
+00100 LIBRARY &quot;CALC&quot;: FNINIT, FNCALC
+00110 LET FNINIT(TAX_RATE, DISCOUNT_PCT)
+00120 LET RESULT = FNCALC(AMOUNT)
+
+! Optional parameter + locals after the ';':
+!   QTY, UNIT are required; DISCOUNT is an optional the caller may pass;
+!   TAX and TOTAL are never passed → fresh locals (0) on each call.
+00300 DEF FNPRICE(QTY, UNIT; DISCOUNT, TAX, TOTAL)
+00310    LET TOTAL = QTY * UNIT
+00320    IF DISCOUNT &gt; 0 THEN LET TOTAL = TOTAL * (1 - DISCOUNT)
+00330    LET TAX = TOTAL * 0.06
+00340    LET FNPRICE = TOTAL + TAX
+00350 FNEND
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../../../50-libraries/library-facility/spec.html">50-libraries/library-facility</a> — <code>LIBRARY</code> statement, loading, search order, clearing rules</li>
+<li><a href="../../data-manipulation/system-functions/spec.html">system-functions</a> — built-in functions</li>
+<li><a href="../other-flow/spec.html">other-flow</a> — <code>GOSUB</code>/<code>RETURN</code> subroutines (the non-function alternative)</li>
+<li><a href="../../syntax/spec.html">syntax</a> — line labels / paragraph labels inside functions</li>
+<li>(Backing keyword pages folded into this spec and pruned. The
+normal-vs-library feature comparison lives in <a href="../../../50-libraries/library-facility/spec.html">library-facility</a>.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/flow-control/functions-udf/spec.md">br_tree/10-language/flow-control/functions-udf/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

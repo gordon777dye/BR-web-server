@@ -74,7 +74,9 @@ their return values discarded.
 
 Either form — assigned or called, `LET` written or implied — may close with a trailing
 [error-condition clause](../../flow-control/error-handling/spec.md#conditions), the same one any
-statement takes: `LET VAL(F$(N)) CONV skipval` and, with `LET` dropped, `X = 5 CONV 900`.
+statement takes: `LET VAL(F$(N)) CONV skipval` and, with `LET` dropped, `X = 5 CONV 900`. The conditions that can be trapped on a `LET` are `CONV`, `ERROR`, `EXIT`, `OFLOW`, `SOFLOW` and
+`ZDIV`. BR types the word `LET` for you: in the console it is added as you press Enter, and with an external editor
+it is added when the program is compiled, so programs are normally written without it.
 - **Multiple assignment** — assign one value to several variables at once:
   `LET SUMA = SUMB = SUMC = SUMD = 0`.
 - **Compound assignment operators** `+=`, `-=`, `*=`, `/=` update a variable in place:

@@ -8,6 +8,7 @@ _Backing keyword pages below._
 
 | File | Kind | Summary |
 |---|---|---|
+| [HELP](HELP.md) | command | The HELP command: show a br_tree topic in the browser or on the console; Tab, Enter and arrow keys on the command line |
 | [MSG](MSG.md) | command | MSG("send",<string>) ! type a string into this session |
 | [PRINTER_LIST](PRINTER_LIST.md) | command | PRINTER_LIST(<Mat array name>) |
 | [PROCIN](PROCIN.md) | command | The ProcIn internal function returns 0 if input is from the screen. Returns 1 if input is from a procedure file. |

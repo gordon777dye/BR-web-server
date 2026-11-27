@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4204 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4204</h1>
+<p><strong>Error:</strong> 4204</p>
+<p><strong>Description:</strong> <code>Operating System Error</code> 4. Too many file handles open on the system level</p>
+<p><strong>Details:</strong> The maximum number of files allowed by the operating system is already open, a system setting must be set higher. Close some of the files that are currently open. For DOS, check to see if the config.sys file's FILES specification is set to 20 or more. Check to see if the system was booted from a diskette without a config.sys file.For Network systems, check the Network parameters for the total number of files that can be opened system wide.  Keep in mind that open procedure, index and HELP files all count as open files. Also note that BR opens a file whenever a shell call is performed while memory is enabled.(DOS through Windows 98) add a line to the config.sys file stating &quot;Files=100&quot;(Windows XP and 2000) add a line to the SYSTEM.INI file in the [386enh] section stating &quot;PERVMFiles=100&quot;</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4204.md">br_tree/90-reference/error-codes/4204.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

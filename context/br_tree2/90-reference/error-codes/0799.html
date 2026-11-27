@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0799 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0799</h1>
+<p><strong>Error:</strong> 0799</p>
+<p><strong>Description:</strong> A client was refused: all HTTP licenses are in use</p>
+<p><strong>Name:</strong> <code>BREHTTPNOSEATS</code></p>
+<p><strong>Details:</strong> <strong>Never raised.</strong> The client gets 503, the server log records it, and <code>FILE$(n,&quot;HTTP-REFUSED&quot;)</code> counts it first, for licence management.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#lifecycle">HTTP_SERVER.md §2.7 Other behaviour</a></p>
+<blockquote>
+<p>Licences are counted per client IP address seen within 30 minutes.</p>
+</blockquote>
+<p><strong>Fix:</strong> Add HTTP licences, or wait for addresses to expire. <code>STATUS LICENSE</code> lists the HTTP licence.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0799.md">br_tree/90-reference/error-codes/0799.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

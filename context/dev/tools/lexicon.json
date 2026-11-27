@@ -232,8 +232,10 @@
       "KEY=",
       "KEY>=",
       "KEYED",
+      "LABELS",
       "LAST",
       "LIBRARY",
+      "LINES",
       "LINK=",
       "LOCKED",
       "MENU",
@@ -276,7 +278,9 @@
       "USING",
       "WAIT=",
       "WHILE",
-      "ZDIV"
+      "ZDIV",
+      ">",
+      ">>"
     ],
     "command": [
       "ALERT",
@@ -313,6 +317,7 @@
       "RMDIR",
       "RUN",
       "SAVE",
+      "SEARCH",
       "SKIP",
       "SORT",
       "STATUS",

@@ -100,7 +100,7 @@ Note that BR retains select (hilite) status while shift or control remain depres
 | left click |  | 200 |  |  |  |  |
 | second left |  | 201 |  |  |  |  |
 | right click |  | 100 |  |  |  |  |
-| second right |  | 101 |  |  |  |  |
+| second right |  | none |  |  |  | A double right-click does nothing in `INPUT FIELDS`. (101 is not a mouse value: it is the timeout.) |
 | wheel up |  | 124 |  |  |  |  |
 | wheel down |  | 125 |  |  |  |  |
 | F1 |  | 1 | 11 | 1 | 21 |  |

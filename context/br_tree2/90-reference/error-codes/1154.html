@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1154 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>1154</h1>
+<p><strong>Error:</strong> 1154</p>
+<p><strong>Description:</strong> Unexpected formatting applied during <code>Edit</code></p>
+<p><strong>BR 5 message:</strong> line number is missing for an editor line</p>
+<p><strong>Details:</strong> - During an edit an extra space was added after a !: (<code>line continuation</code>)</p>
+<ul>
+<li>During an edit a line which was too long was encountered.</li>
+<li>During an edit a line continuation error was encountered, in one such case the preceding line did not have a !: where it should have been.</li>
+<li>During an edit a <code>comment</code> was found on a line with no line number</li>
+<li>During an edit an <code>!</code> (exclamation point for a comment) was immediately following a line number without a space in between.</li>
+<li>use of a 31 character variable name.  (30 is the maximum.) If none of the following apply and you are using EDI, try reloading the editor's source file into BR! as <code>source</code>.</li>
+<li>Repair offending line in Source code and re-import that code into BR!</li>
+<li>Repair offending line in Source code and re-import that code into BR!</li>
+<li>Repair offending line in Source code (by adding a !: in the appropriate place) and re-import that code into BR!</li>
+<li>Add a <code>line number</code> or add a <code>line continuation</code> to the previous line</li>
+<li>Add the missing space between the line number and the !</li>
+<li>To find this error one may
+clear all
+load path\program.br.brs,so
+list -99999
+the line after the last one listed was the problem.  (or at least the first instance of it)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/1154.md">br_tree/90-reference/error-codes/1154.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

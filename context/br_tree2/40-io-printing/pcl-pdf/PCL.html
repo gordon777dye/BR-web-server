@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PCL — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">40-io-printing</a> <span>/</span> <a href="_index.html">pcl-pdf</a></nav>
+<main>
+<h1>PCL</h1>
+<p>The following Substitute codes work in PCL. Those with a * will work only in PCL. Note that some of these are also mentioned in the &quot;Page Setup Options&quot; section of this chapter.</p>
+<p><strong>Initial configuration</strong>:</p>
+<p>(The following must be done before anything is printed to the printer)</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[PORTRAIT]</strong></td>
+<td>Sets the printer to print portrait</td>
+</tr>
+<tr>
+<td><strong>[LANDSCAPE]</strong></td>
+<td>Sets the printer to print landscape</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Logical Page Size</strong>:</p>
+<p>The next six settings change the logical page size for printing on {\ul different sized pages}:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[EXECUTIVE]</strong></td>
+<td>Set the logical page for Executive size paper (7.25 x 10.5)</td>
+</tr>
+<tr>
+<td><strong>[LETTER]</strong></td>
+<td>Set the logical page for Letter size paper (8.5 x 11)</td>
+</tr>
+<tr>
+<td><strong>[LEGAL]</strong></td>
+<td>Set the logical page for Legal size paper (8.5 x 14)</td>
+</tr>
+<tr>
+<td><strong>[LEDGER]</strong></td>
+<td>Set the logical page for Ledger size paper (11 x 17)</td>
+</tr>
+<tr>
+<td><strong>[A4PAPER]</strong></td>
+<td>Set the logical page for A4 size paper (210mm x 297mm)</td>
+</tr>
+<tr>
+<td><strong>[A7PAPER]</strong></td>
+<td>Set the logical page for A7 size paper (297mm x 420mm)</td>
+</tr>
+</tbody>
+</table>
+<p>The next five settings change the logical page size for printing on {\ul envelopes}:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[MONARCH]</strong></td>
+<td>(3 7/8 x 7.5)</td>
+</tr>
+<tr>
+<td><strong>[COM-10]</strong></td>
+<td>(4 1/8 x 9.5)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL DL]</strong></td>
+<td>(110mm x 220mm)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL C5]</strong></td>
+<td>(162mm x 229mm)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL B5]</strong></td>
+<td>(176mm x 250mm)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Paper Source</strong>:</p>
+<p>The following six options set the paper source. By default it is set to Auto, and can be changed in printer preferences:
+[PAPERSOURCEAUTO]|Feed from Printer Default<br>
+[PAPERSOURCEMANUAL]|Feed from manual feeder<br>
+[PAPERSOURCEMANUALENVELOPE]|Feed Envelope from manual feeder<br>
+[PAPERSOURCETRAY2]|Feed from Lower Tray<br>
+[PAPERSOURCEOPTIONAL]|Feed from Optional Input<br>
+[PAPERSOURCEOPTIONALENVELOPE]|Feed from Optional Envelope Feeder                                                                       .............(Must set to Envelope size first)</p>
+<p><strong>Multiple Copies</strong>:</p>
+<p>The following options will set the printer to print multiple copies. I have supported 1 - 10 copies. See a note at the end for more, or else do the PCL yourself. J</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[COPIES01]</strong></td>
+<td>I</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES02]</strong></td>
+<td>wont</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES03]</strong></td>
+<td>patronize</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES04]</strong></td>
+<td>you</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES05]</strong></td>
+<td>to</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES06]</strong></td>
+<td>pretend</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES07]</strong></td>
+<td>you</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES08]</strong></td>
+<td>can't</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES09]</strong></td>
+<td>understand</td>
+</tr>
+<tr>
+<td>*<strong>[COPIES10]</strong></td>
+<td>this</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Duplex/NonDuplex modes</strong>:</p>
+<p>These three options set the printer to print in Duplex mode:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[SIMPLEX]</strong></td>
+<td>Standard one sided printing</td>
+</tr>
+<tr>
+<td>*<strong>[DUPLEX]</strong></td>
+<td>Long edge binding double sided environmental printing</td>
+</tr>
+<tr>
+<td>*<strong>[DUPLEXSHORTEDGE]</strong></td>
+<td>Short edge binding double sided printing</td>
+</tr>
+</tbody>
+</table>
+<p>Long edge binding is like your standard book. Short edge binding would be used for a calendar or one of those funky long picture books.<br></p>
+<p><strong>Top Margin</strong>:</p>
+<p>The following six options set the top margin: how many rows at the top of the logical page to reserve for blank space:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[TOP0]</strong></td>
+<td>Begin printing at the top of the logical page</td>
+</tr>
+<tr>
+<td>*<strong>[TOP1]</strong></td>
+<td>Skip one line, then begin printing</td>
+</tr>
+<tr>
+<td>*<strong>[TOP2]</strong></td>
+<td>Skip two lines, then begin printing</td>
+</tr>
+<tr>
+<td>*<strong>[TOP3]</strong></td>
+<td>Skip three lines, then begin printing</td>
+</tr>
+<tr>
+<td>*<strong>[TOP4]</strong></td>
+<td>Skip seventeen lines, then begin printing</td>
+</tr>
+<tr>
+<td>*<strong>[TOP5]</strong></td>
+<td>Skip five lines, then begin printing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="printdir">PrintDir</h3>
+<h3 id="new-print-preview-features-">New Print PREVIEW Features-</h3>
+<p><strong>Page movement</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>&lt;&lt; and &gt;&gt;</strong></td>
+<td>go 10% of the document</td>
+</tr>
+<tr>
+<td><strong>&lt; and &gt;</strong></td>
+<td>go a single page</td>
+</tr>
+</tbody>
+</table>
+<p>Select Printer Button - Reselects the printer for subsequent PREVIEW printing. Note- this will not alter the escape sequences embedded in the printer output.  But under NWP this should be printer generic.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/40-io-printing/pcl-pdf/PCL.md">br_tree/40-io-printing/pcl-pdf/PCL.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

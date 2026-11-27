@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DATE_(Internal_Function) — BR reference</title>
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">system-functions</a></nav>
+<main>
+<h1>DATE_(Internal_Function)</h1>
+<p>See also <code>Date (disambiguation)</code></p>
+<pre><code>DATE([&lt;DAYS&gt;], [*&lt;order_of_components$&gt;])
+</code></pre>
+<p>The <strong>Date</strong> <code>internal function</code> calculates and returns dates in <em>numeric format</em>, using no dashes or slashes as separators. Date numeric variables can now represent time of day in the fractional space (to the right of the decimal point), as of 4.3.</p>
+<p>The optional &quot;days&quot; parameter represents the desired date as a sequential value in relation to a base date of January 1, 1900. Thus January 1, 1900 would have a days value of 1; January 1, 1901 would have a days value of 366 (1900 was not a leap year).</p>
+<p>When <strong>order_of_components$</strong> is specified, the date is printed accordingly. order_of_components$ may be any combination of the four letter M (month, D (day), C (century), Y (year). Including each of these components results in a two-digit corresponding month, day, century, or year. When any of these 4 components is omitted, it is not returned by the function or printed.</p>
+<p>If the order_of_components$ parameter begins with an asterisk (*), then the default format is changed. The default format affects results of the Date, Date$ and Days functions. This change applies only to the current computer and stays in effect until you exit BR.</p>
+<p>DATE can also be used as an <code>INPUT FIELDS</code> specification as of 4.3.</p>
+<h4 id="examples">Examples</h4>
+<p>Executing the following statement on July 10, 1992</p>
+<pre><code>PRINT DATE(&quot;MDCY&quot;)
+</code></pre>
+<p>results in the following output:</p>
+<pre><code>7101992
+</code></pre>
+<p><strong>Note</strong> that BR does not print the zero in front of the month July (07), as this is not necessary for numeric calculations. If you do not need the numeric value of the date, use the <code>Date$</code> function instead.</p>
+<p>Consider another example, in which 33794 is the number of days which passed between January 1, 1900 and July 10, 1992:</p>
+<pre><code>PRINT DATE(33794,&quot;MDY&quot;)
+</code></pre>
+<p>with the following output:</p>
+<pre><code>71092
+</code></pre>
+<p>The DATE function should not be confused with the DATE command, which may be used to reset or display the current system date.</p>
+<h4 id="comments-and-examples">Comments and Examples</h4>
+<pre><code>00010 PRINT FIELDS &quot;10,10,CR 20&quot;: &quot;Enter Posting Date:&quot;
+00020 PRINT FIELDS &quot;10,43,N 6,r&quot;: DATE(&quot;mdy&quot;)
+00030 INPUT FIELDS &quot;10,43,N 6,r3&quot;: POSTDATE
+</code></pre>
+<p>Line 20 displays the current system date as a number in the format month, day and year. Line 30 positions the cursor to the third digit and allows the operator the option to change the displayed date by typing over all or part of it.</p>
+<h4 id="technical-considerations">Technical Considerations</h4>
+<p>The DATE function cannot be used in READY mode unless it includes parameters. If you type in &quot;DATE&quot; and press <ENTER>, you will be using the DATE command, which uses a different default format than the DATE function does.</p>
+<h4 id="use-with-input-fields">Use with Input Fields</h4>
+<p>DATE(mask) can be used as an <code>INPUT FIELDS</code> specification as of 4.3.</p>
+<pre><code>10 INPUT FIELDS “row, col, DATE(mask),UH” : date-variable
+</code></pre>
+<p>Special keyboard processing:</p>
+<ul>
+<li>Punctuation (commas, colons, slashes, semicolons, and dashes) is skipped during entry, similar to PIC.</li>
+<li>Insert and delete are supported within subfields that are delineated by punctuation.</li>
+<li>Copy includes punctuation.</li>
+<li>Cut is Copy with redisplay of zero date.</li>
+<li>Paste causes BR to translate the date to <code>DAYS</code> format and then display the date. Excel and OpenOffice Calc application formats are supported.</li>
+<li>If a string is pasted, it is first converted to DAYS using the provided mask.</li>
+<li>If a zero DAYS value is displayed then Month, M3, Day and D3 mask positions contain dashes.</li>
+</ul>
+<h4 id="date-picker">Date Picker</h4>
+<h4 id="sample-program">Sample Program</h4>
+<p>A sample program to demonstrate date entry is:</p>
+<pre><code>01000 ! Rep Date_Input
+01020 ! Demonstrate The New Date() Input Format
+01040 ! Skip Punctuation (Commas, Colons, Slashes, Semicolons, And Dashes)
+01060 ! Insert And Delete Within Subfields That Are Delineated By Punctuation
+01080 ! Continue To Support Cut And Paste Including Punctuation
+01100 ! 
+01120    rinput fields &quot;5,10,DATE(mm/dd/yy) ;6,10,c&quot;: DATE_VAR
+01140    print fields &quot;8,10,date(Month DD, CCYY)&quot;: DATE_VAR
+01160 ! 
+01180    rinput fields &quot;12,10,date(month dd, ccyy)&quot;: DATE_VAR
+01200    if NOT DATE_VAR then goto 1180
+01220    print fields &quot;15,10,date(yy/mm/dd)&quot;: DATE_VAR 
+01240    print fields &quot;18,10,N 6&quot;: DATE_VAR  !Show days format
+</code></pre>
+<h4 id="related-functions">Related Functions</h4>
+<p>See also <code>Date$</code> and <code>Days</code> for other date processing functions. To set the system date, use the <code>Date (Command)|Date command</code>. For features especially useful in markets outside the United States, see the <code>INVP</code> parameter of the <code>Option</code> statement and the <code>PIC$</code> function in the <code>Format Specifications</code>.</p>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/system-functions/DATE_%28Internal_Function%29.md">br_tree/10-language/data-manipulation/system-functions/DATE_(Internal_Function).md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

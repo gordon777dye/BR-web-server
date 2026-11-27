@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1009 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>1009</h1>
+<p><strong>Error:</strong> 1009</p>
+<p><strong>Description:</strong> Invalid regular expression</p>
+<p><strong>Details:</strong> The <code>/.../</code> pattern of a <a href="../../70-commands/file-directory/spec.html#search"><code>SEARCH</code></a> command is not a valid regular expression (<a href="../../70-commands/file-directory/ECMA_REGEX.html">ECMAScript syntax</a>, or <code>HELP COMMANDS REGEX</code>; its <a href="../../70-commands/file-directory/ECMA_REGEX.html#unsupported">Not supported</a> list has the constructs from other regex languages that give this error), for example <code>/(/</code>, which opens a group and never closes it. Correct the expression, or search for the text as a literal by quoting it: <code>SEARCH &quot;(&quot; file</code>. At the console the cursor returns to the fault where it can be found - an
+unmatched <code>(</code> or <code>)</code>, an unclosed <code>[</code>, a bad <code>{</code>, a <code>*</code>, <code>+</code> or <code>?</code> with nothing to repeat, a range such
+as <code>[z-a]</code> - and otherwise to the start of the pattern. New in BR 5.03.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/1009.md">br_tree/90-reference/error-codes/1009.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

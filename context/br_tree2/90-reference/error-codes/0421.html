@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0421 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0421</h1>
+<p><strong>Error:</strong> 0421</p>
+<p><strong>Description:</strong> Debugger authentication failed</p>
+<p><strong>Details:</strong> Every failure of the debugger's authentication handshake, which BR 5.0 requires before a debugger may attach. The nine refusals in <code>debug.cpp</code> cover a cookie-mode check, a send or receive failure on the TLS connection, a malformed response packet, an HMAC that does not match (compared in constant time), and the operator pressing the break key while the handshake is in progress. The handshake is <strong>mutual</strong> - <code>DEBUG CONNECT</code> dials out to a host the operator names and then streams source, values and the whole log to it, so BR proves itself to the peer as well.</p>
+<p><strong>Raised by:</strong> <code>debug.cpp</code></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0421.md">br_tree/90-reference/error-codes/0421.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0605 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0605</h1>
+<p><strong>Error:</strong> 0605</p>
+<p><strong>Description:</strong> Syntax error in an <code>Open</code> <code>statement</code></p>
+<p><strong>Details:</strong> - A syntax error exists in an OPEN string.  The <code>RECL</code> parameter for an <code>external</code> file may be missing.</p>
+<ul>
+<li>An <code>OPEN WINDOW OPEN DISPLAY</code> Window statement with illogical <code>SROW</code>, <code>SCOL</code>, <code>EROW</code>, <code>ECOL</code>, <code>ROWS</code>, or <code>COLS</code> specification.</li>
+<li>Misspelling</li>
+<li>CAPTION&lt;= was specified.</li>
+<li>Attempt to open a file with <code>file handle</code> 0</li>
+<li>missing &quot;name=&quot; or &quot;,Use&quot;</li>
+<li>you tried to put 7 or more parts into a multipart index</li>
+<li>Open statement has &quot;,,Shr&quot;</li>
+<li>Cannot have both RECL and INPUT in same statement #Correct the OPEN string; provide the missing parameter.</li>
+<li>Make sure SROW and SCOL are not less than 2, also make sure that EROW is not greater than your screen height -1 and that ECOL is not greater than your Screen Width -1.</li>
+<li>Make sure you spelled &quot;BORDER=&quot; and/or &quot;CAPTION=&quot; and/or &quot;TAB=&quot; correctly</li>
+<li>Correct the type-o to CAPTION=&lt;</li>
+<li>File handle 0 is not valid, use a valid, unused file handle</li>
+<li>i.e.  open #998: &quot;Name=Ledger.Int,RecL=256,Use&quot;,internal,outin without the ,Use or Name= would return this error.</li>
+<li>The <code>system limit</code> is 6</li>
+<li>Correct it to &quot;,Shr&quot;</li>
+<li>Remove either RECL or change INPUT to OUTIN</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0605.md">br_tree/90-reference/error-codes/0605.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

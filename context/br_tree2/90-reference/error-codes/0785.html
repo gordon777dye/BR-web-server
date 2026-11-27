@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0785 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0785</h1>
+<p><strong>Error:</strong> 0785</p>
+<p><strong>Description:</strong> HTTPS certificate file is not a PEM certificate</p>
+<p><strong>Name:</strong> <code>BREHTTPSCRTFORMAT</code></p>
+<p><strong>Details:</strong> The file is text, or empty, with no <code>-----BEGIN CERTIFICATE-----</code>.</p>
+<p><strong>SYSERR$:</strong> The path.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#tls">HTTP_SERVER.md §3.1 Prerequisites</a></p>
+<blockquote>
+<p>PEM. The <strong>server certificate first, then its intermediate certificate(s)</strong>, in one file - what certificate authorities call the <em>full chain</em> (certbot's <code>fullchain.pem</code>).</p>
+</blockquote>
+<p><strong>Fix:</strong> Put the PEM certificate in the file.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0785.md">br_tree/90-reference/error-codes/0785.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4151 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4151</h1>
+<p><strong>Error:</strong> 4151</p>
+<p><strong>Description:</strong> CLOSE DROP or FREE requires the file to be opened for output</p>
+<p><strong>Details:</strong> <code>CLOSE ,FREE</code> deletes the file and <code>CLOSE ,DROP</code> empties it, so BR 5.0 requires it to have been opened for output: a file opened for input is not yours to destroy. Only the cases that would really destroy something are refused - window-display files, asynchronous communications files and printer files are exempt.</p>
+<p><strong>Raised by:</strong> <code>bopen.cpp</code></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4151.md">br_tree/90-reference/error-codes/4151.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

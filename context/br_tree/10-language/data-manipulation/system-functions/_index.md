@@ -15,4 +15,4 @@ _Backing keyword pages below._
 | [Encryption](Encryption.md) | function | Encryption encompasses a number of different operations. These operations can be used independently or in combination to meet different… |
 | [ENV$](ENV$.md) | function | ENV$(<variable>) |
 | [NXTFLD](NXTFLD.md) | function | The NxtFld internal function is similar to Curfld except that it returns the relative position of the next control to be occupied during an… |
-| [SPAWN_RESTRICTED](SPAWN_RESTRICTED.md) | function | SPAWN_RESTRICTED(command$ [, config$ [, wait]]) — Starts a new BR session on this workstation ID — the next free session number — restricted… |
+| [SPAWN_RESTRICTED](SPAWN_RESTRICTED.md) | function | SPAWN_RESTRICTED(command$ [, config$ [, wait [, label$]]]) — Starts a new BR session on this workstation ID — the next free session number — restricted… |

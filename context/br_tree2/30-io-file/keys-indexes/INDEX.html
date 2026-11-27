@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>INDEX — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">30-io-file</a> <span>/</span> <a href="_index.html">keys-indexes</a></nav>
+<main>
+<p>The <strong>Index</strong> <code>command</code> creates or recreates an index file. See the <code>Index Facility</code> for additional information. You may also find it useful to familiarize yourself with the concept of a <a href="https://en.wikipedia.org/wiki/Index_(database)">Database Index</a></p>
+<p>For a simple tutorial, see <code>Index_and_Sort_facilities_Tutorial|Index Tutorial</code>.</p>
+<h2 id="syntax">Syntax</h2>
+<pre><code>INDEX &lt;data file&gt; &lt;`index file`&gt; &lt;key start position&gt;[/...] &lt;key length&gt;[/...] [-&lt;work path&gt;] [{`DUPKEYS`|NATIVE|`REORG`|REPLACE|VERIFY|`LISTDUPKEYS`[&gt;[&gt;]&lt;output file&gt;]}][...] [-N] 
+</code></pre>
+<p><code>Image:Index.png|1000px</code></p>
+<h2 id="comments-and-examples">Comments and Examples</h2>
+<p>Index works both in <code>procedure files</code> and as a separate <code>:Category:Commands|command</code>. It performs a <code>CLEAR</code> operation, except when a program is active, and creates or recreates the index file as specified.</p>
+<p>The following command replaces INDEX.FIL, if it already exists, with a new index file for the master file MASTER.FIL. The key is a field that starts at position 10 and consists of 5 characters:</p>
+<pre><code>INDEX MASTER.FIL INDEX.FIL 10 5 REPLACE
+</code></pre>
+<p>The next command creates a new index file HIST.KEY for the master file HISTORY. The first key is a field that starts at position 1 and consists of 4 characters. The second key starts at position 10 and has 2 characters, and the third field starts at position 20 and has 2 characters:</p>
+<pre><code>INDEX HISTORY HIST.KEY 1/10/20 4/2/2
+</code></pre>
+<p>In the following example, INDEX reorganizes the existing CUST.KEY index file. However, if CUST.KEY does not exist, a new index file by the same name is built. The REORG parameter greatly speeds up the INDEX command because it takes advantage of the part of the key file that is already in sorted order. The first key field starts at position 1 and consists of 6 characters. The second key field starts at position 4 and consists of 3 characters. <strong>Note</strong> that the key fields overlap.</p>
+<pre><code>INDEX CUSTOMER CUST.KEY 1/4 6/3 REORG
+</code></pre>
+<p>The next example builds a new index file called PAY.KEY for the PAYROLL master file. The key field starts at position 1 and consists of 6 characters. This command allows duplicate keys, and it sends a listing of duplicate keys to the file DUP. No warning error will occur if duplicate keys are encountered. <strong>Note</strong> that the parameters in this Index command are separated by commas rather than by spaces:</p>
+<pre><code>INDEX PAYROLL,PAY.KEY,1,6,DUPKEYS,LISTDUPKEYS &gt;DUP
+</code></pre>
+<p>Also note that the creation of indexes can be interrupted with Ctrl-A, and can then be resumed with GO.</p>
+<h2 id="defaults">Defaults</h2>
+<h1 id="use-space-on-the-current-default-drive-and-directory-as-temporary-work-space">Use space on the current default drive and directory as temporary work space.</h1>
+<h1 id="display-a-record-of-duplicate-keys-on-the-screen">Display a record of duplicate keys on the screen.</h1>
+<h1 id="send-an-error-if-duplicate-keys-are-found-use-the-collating-sequence-specified-in-the-brconfigsys-file-or-by-the-most-recent-config-command-completely-build-or-rebuild-the-specified-index-send-an-error-message-and-abort-the-index-procedure-if-the-specified-index-file-already-exists">Send an error if duplicate keys are found; use the collating sequence specified in the BRConfig.sys file (or by the most recent CONFIG command); completely build (or rebuild) the specified index; send an error message and abort the index procedure if the specified index file already exists.</h1>
+<h2 id="parameters">Parameters</h2>
+<p>The <strong>data file name</strong> parameter specifies the name of the data file for the index you wish to create.</p>
+<p><strong>Index file name</strong> specifies the name of the index file for the desired index.</p>
+<p><strong>1st key start position</strong> and <strong>next key start position</strong> specify the starting record positions of each key field. Up to <strong>six</strong> starting positions may be specified.</p>
+<p><strong>1st key length</strong> and <strong>next key length</strong> parameters indicate the number of characters contained in each key field. Each <strong>key length</strong> specification must correlate to a <strong>key starting position</strong> specification. The specifications match up according to ordinal position. The first key starting pos correlates to the first key length specification.</p>
+<p>The indexing process requires availability of a temporary work space. The optional <strong>work path</strong> parameter specifies a location somewhere other than the default drive and directory for this work space.</p>
+<p>If you decide to allow duplicate keys in the index, you can use <strong>DUPKEYS</strong> to prevent the corresponding error message 7603 from appearing on the screen.</p>
+<p>As the index is being created, <strong>LISTDUPKEYS</strong> lists all duplicate keys on the screen.</p>
+<p><strong>&gt;Redirected output File</strong> saves LISTDUPKEYS information that would normally be displayed on the screen to a text file.
+<strong>&gt;&gt;Redirected output File</strong> appends LISTDUPKEYS information to an existing text file.
+Programs can use input from this file to report on or delete the duplicate keys.</p>
+<p><strong>NATIVE</strong> causes the Index command to use native collating sequence. This parameter should be used when the following two conditions are true: an index is being performed on a packed decimal field, and COLLATE ALTERNATE has been specified for the rest of the program.</p>
+<p><strong>REORG</strong> can be used to reorganize index files directly, without reading the master file. This can greatly speed up the re-indexing process, especially on network systems, because the already sorted portion of the index file will not be sorted again. If the index file has already been fully sorted, BR will read only the header record and then quit the re-indexing process immediately.</p>
+<p>It is important to note that the REORG parameter will generally not cause new records to be added to the index file. It is the responsibility of the programmer to be sure that index file's overflow area is updated with added records before REORG performs its operation. This can be done by always opening the index file when writing to the master file.</p>
+<p>There are three cases in which INDEX with the REORG parameter will completely build an index file:</p>
+<h1 id="when-the-index-file-does-not-exist">When the index file does not exist.</h1>
+<h1 id="when-the-specified-file-is-not-an-index-file">When the specified file is not an index file.</h1>
+<h1 id="when-any-of-the-key-starting-pos-or-key-length-parameters-stored-in-the-header-record-are-different-from-those-specified-in-the-index-reorg-command">When any of the key starting pos or key length parameters stored in the header record are different from those specified in the INDEX REORG command.</h1>
+<p><strong>VERIFY and REORG on a Btree2 index</strong> (the default kind for new indexes; <code>OPTION 22</code> makes new indexes Btree). <strong>VERIFY</strong> checks the index while programs go on using it: key order, that no index record is reached twice, that every live master record's key is in the index, and that no update was left unfinished. Anything that looks wrong is checked again under the index's lock, so a key being changed at that moment is not reported. If nothing is wrong, VERIFY ends without an error and deletes any <code>.flaws</code> file an earlier VERIFY left. Otherwise it ends with error 9401, writes what it found to <em>index file</em><code>.flaws</code> (for example <code>CUST.KEY.flaws</code>): a first line <code>VERIFIED</code>, then one flaw per line with its kind first (<code>OUT_OF_RANGE</code>, <code>STALE_REF</code>, <code>SEPARATOR</code>, <code>MISSING</code>, <code>INTERRUPTED</code>, <code>EXTRA</code>, <code>DISORDER</code>, <code>DAMAGED</code>, <code>DEPTH</code>, <code>TWICE</code> or <code>STRUCTURE</code>), and marks the index as needing repair. Until it is repaired, the index adds records at the end of the file instead of reusing freed ones.</p>
+<p><strong>REORG</strong> on a Btree2 index also runs while programs go on using the index. It repairs the index in place: it checks the parts a <code>.flaws</code> file VERIFY wrote names (or, without one - or with one only reads wrote - the whole index and the whole master file; a new index, or one REPLACE rebuilds, starts without one), puts keys back where they belong, rewrites an index record whose keys are out of order or repeated (<code>DISORDER</code>) with the keys that belong in it, in order and once each, keeping only those its master records still have, removes the link to an index record that is unusable (<code>DAMAGED</code>) or a level too deep (<code>DEPTH</code>) and frees everything below it, removes a second link to an index record reached twice (<code>TWICE</code>), removes keys whose master record is deleted or has another key (<code>EXTRA</code>), adds the keys missing for live master records (after removing such a link it checks the whole master file, <code>.flaws</code> file or not), and puts the index records set aside while it needed repair on the free list. It then clears the repair mark and deletes the <code>.flaws</code> file. It does not shorten the file; REPLACE rebuilds an index at its smallest. Each repair locks only the index records it changes, and a missing key is added under its master record's lock. If records a repair needs stay locked by programs, REORG ends with error 0061, and the index stays marked for a later REORG. Removing a <code>DAMAGED</code> or <code>DEPTH</code> record needs the master file to put its keys back; if REORG cannot open it, it ends with that file's error, and the index stays marked for repair. An index it cannot repair in place - one whose first index record cannot be used (<code>STRUCTURE</code>) - is rebuilt from the master file as REPLACE would; a rebuild needs the index to itself, so while programs have it open REORG ends with a file-sharing error instead. The rebuild takes duplicate keys as DUPKEYS does, since a WRITE can already have given the index duplicates. A read through a Btree2 index passes over a key whose record is deleted or has another key, or that points at the record just read, and writes it to the <code>.flaws</code> file (<code>EXTRA</code>, or <code>REPEATED</code>) for REORG, without marking the index as needing repair.</p>
+<pre><code>INDEX CUSTOMER CUST.KEY 1 6 VERIFY
+INDEX CUSTOMER CUST.KEY 1 6 REORG
+</code></pre>
+<p><strong>REPLACE</strong> specifies that the current index should replace an index of the same name if it exists on the disk. BR expects to create a new file when this parameter is not specified.</p>
+<p>The <strong>-N</strong> option suppresses all information that would normally be output (except LISTDUPKEYS information).</p>
+<h2 id="badkeys">BADKEYS</h2>
+<h2 id="special-considerations">Special Considerations</h2>
+<p>The Index command may be executed in a program as part of the <code>EXECUTE</code> statement. If a program is active, this method of running the INDEX command does not CLEAR memory.</p>
+<p><em>When the starting key position and key length parameters are both specified as 0, INDEX will now use the key parameters as they exist in the key file.</em> The REPLACE parameter is assumed.</p>
+<p>The INDEX command may now include a SHR parameter. This allows another workstation to access the master file while indexing. For example:</p>
+<pre><code>INDEX master.fil index.fil 1 4 REPLACE SHR
+</code></pre>
+<p><strong>Note</strong> that SHR should be used only for making temporary indexes because master files normally should not be modified when rebuilding indexes. When INDEX is used with the SHR parameter, all records in the master file can be accessed by the INDEX command, even if a record is locked by another user.</p>
+<p>For <em>case insensitive key file access</em> place a U after the key length or key starting position parameters. This causes the program to keep that key field as uppercase. Whenever a record is written, the key field is converted to uppercase before it is written to the key file (master record is unchanged) and whenever the file is read with KEY=, the parts of the key that need to be converted to uppercase are converted before the key look up.</p>
+<p>This is useful for looking up names, where the capitalization of the data on file and the key entered by the operator may be inconsistent. This also permits sequential processing of a keyed file in alpha order without regard to the case of the data. <strong>Note</strong> that even though BR stores the key as uppercase, the resulting processing occurs as if the case is ignored. In other words, 'A' and 'a' are considered equal.</p>
+<p>The following code writes data as is to the master file, but writes all uppercase characters to the key file.</p>
+<pre><code>00010 OPEN #1:&quot;name=XXX,kfname=XXX.key,replace,recl=63,kps=1,kln=4u&quot;,INTERNAL,OUTIN,KEYED
+00020 WRITE #1,USING 30: &quot;aaAA&quot;
+00030 FORM C 4
+00040 READ #1,USING 30,KEY=&quot;AAaa&quot;: X$
+00050 PRINT X$
+</code></pre>
+<pre><code>INDEX MASTER.FIL KEY.FIL 1/3 2/2U REPLACE
+</code></pre>
+<p>If a key field is a two digit year it should be flagged as such so BR will use <code>BaseYear</code> when comparing values for sorting purposes. Place the letter Y after either the field position or its length.</p>
+<pre><code>INDEX MASTER.FIL KEY.FIL 1/3 2/2Y REPLACE
+</code></pre>
+<p>If a two digit year is stored in binary or packed decimal form, the INDEX command needs to indicate that by following the Y with either P or D as in:</p>
+<pre><code>INDEX MASTER.FIL KEY.FIL 1/3 2/2YB REPLACE
+</code></pre>
+<p>The INDEX command defaults to B-tree indexing unless OPTION 5 is used in the BRConfig.sys file to set the universal default to ISAM or the ISAM parameter is used within the syntax of the INDEX command to override the B-tree default on an individual basis. If OPTION 5 is specified in BRConfig.sys, the INDEX command's BTREE parameter can be used to override the ISAM default on an individual basis.</p>
+<p><strong>INDEX will completely rebuild the <code>B-tree</code> index when any of the following three conditions is true</strong>:</p>
+<ol>
+<li>When the REPLACE parameter is specified in the INDEX command,</li>
+<li>When INDEX REORG is specified and the key starting positions and/or lengths in the existing index file are different than those specified on the INDEX command, or</li>
+<li>When INDEX REORG is specified and the key file does not exist.</li>
+</ol>
+<p>The syntax of the INDEX command allows the BTREE or ISAM parameters, as follows:</p>
+<pre><code>INDEX file.dat,file.idx,1,2,REPLACE,ISAM
+INDEX file.dat,file.idx,1,2,REPLACE,BTREE
+</code></pre>
+</main>
+<footer>Generated from <a href="../../../br_tree/30-io-file/keys-indexes/INDEX.md">br_tree/30-io-file/keys-indexes/INDEX.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

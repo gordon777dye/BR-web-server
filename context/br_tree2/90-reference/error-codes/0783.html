@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0783 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0783</h1>
+<p><strong>Error:</strong> 0783</p>
+<p><strong>Description:</strong> HTTPS certificate file not found - CERT= is the name without .crt</p>
+<p><strong>Name:</strong> <code>BREHTTPSCRTMISSING</code></p>
+<p><strong>Details:</strong> BR adds <code>.crt</code> to <code>CERT=</code>, so <code>CERT=server.crt</code> looks for <code>server.crt.crt</code>. The name is tried as an operating-system path and then as a BR path.</p>
+<p><strong>SYSERR$:</strong> The path as tried.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#setup">HTTP_SERVER.md §1 Configuration directives</a></p>
+<blockquote>
+<p>Base name of the certificate pair, without an extension: <code>&lt;basename&gt;.crt</code> and <code>&lt;basename&gt;.key</code> (§3).</p>
+</blockquote>
+<p><strong>Fix:</strong> Correct <code>CERT=</code>, or put the file there.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0783.md">br_tree/90-reference/error-codes/0783.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

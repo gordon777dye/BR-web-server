@@ -42,18 +42,22 @@ tooling at whatever BR codebase you're on. There are three published parts:
 
 - Don't be in a hurry to deliver. Look at the context documentation before you code. 
 
-- The master copies of programs are stored in **source (`.brs`)** form. 
+- The master copies of programs are stored in ___________ form. (completed later) 
   If the program masters are stored in source format decompiling (REPLACE SOURCE) 
-  is prohibited. (A one-time exception was authorized and used on 2026-10-23 to create or
-  refresh all sources; see `app/STALE_SOURCE.md`. It does not carry forward.)
+  is prohibited. 
 
-- BR starts in **`C:\ADS_test\gabriel\brweb` (the app root)**, so kit paths handed to BR take 
-  the prefix **(none)** (none when BR starts in the app root). (completed in ONBOARDING STEP 1; see
+- BR starts in ___________, so kit paths handed to BR take the prefix ___________ 
+  (none when BR starts in the app root). (completed in ONBOARDING STEP 1; see
   `dev/BR_launch.md#start-folder`)
 
-- BR environment variables are **not saved** (this machine also has the kit at `C:\ADS\qsmrp`), so
-  prefix BR commands with `cmd /c "context\app\env.cmd && …"`. (completed in ONBOARDING STEP 1;
-  see `dev/BR_launch.md#br-launch-environment`)
+- The BR environment variables are ___________ (saved in the Windows user profile, or not
+  saved, because the kit is used in more than one repo on this machine). When they are not
+  saved, run every command that needs them as `cmd /c "context\app\env.cmd && <command>"`.
+  (completed in ONBOARDING STEP 1; see `dev/BR_launch.md#br-launch-environment`)
+
+- Test data is `context/app/test/` (`context/app/test/`, or the main data when STEP 9 was skipped, which
+  a customer site must not do). (completed in ONBOARDING STEP 9; tests are in `context/app/tests/`,
+  STEP 10)
 
 ## Installation
 
@@ -71,13 +75,13 @@ The rest is done by AI.
 - delete br_tree/ and dev/ from your context/ folder
 - **move the br_tree/ and dev/ folders from the update into context/**
 - restore your config files into dev/tools/
+- copy `dev/ai_access/prc/BR_dev.prc` and `BR_user.prc` into BR's start folder again, over the old
+  ones (`dev/BR_launch.md#the-procedure-has-to-sit-in-brs-start-folder`); BR runs those copies
+- run the screen tests, and write any baseline that fails on its borders again with
+  `--update-baselines`
 
 
 ## Start here
-
-**Onboarding has been completed through STEP 8 (2026-10-23).** STEP 9 (test data environment)
-and STEP 10 (brls vs real BR survey) are still to do. Until STEP 9 is done, **no `subs.txt`
-redirect exists, so every BR run uses the live `data\` files.**
 
 **→ [`app/ONBOARDING.md`](app/ONBOARDING.md)** - Onboarding instructions - do this first. 
 All of this should be done by AI at your direction. Just tell your AI agent (one step at a time)
@@ -85,7 +89,13 @@ All of this should be done by AI at your direction. Just tell your AI agent (one
 
 **→ [`dev/BR_harness.md`](dev/BR_harness.md)** — How to run **BR 5.0 with an assistant attached**
 and watch a program while it runs: its screen, its fields, its listviews, a picture of its
-window. This is the only way to see an interactive program or a ScreenIO screen.
+window. This is the way to see an interactive program or a ScreenIO screen; from a shell with no
+MCP connection, `read screen` and `send keys` do the looking and typing one command at a time
+([`dev/BR_testing.md` §5](dev/BR_testing.md#live-shell)).
+
+**→ [`dev/BR_testing.md`](dev/BR_testing.md)** — How to **test a changed program**: which way
+to use (a check, a headless run, a repeatable screen script, a live session or a restricted
+run), and the commands for each.
 
 **→ [`dev/APP-DEV-GUIDE.md`](dev/APP-DEV-GUIDE.md)** — After completing the onboarding, this
 becomes your AI task entry point. Its *"Start here — by task type"* preamble routes your 

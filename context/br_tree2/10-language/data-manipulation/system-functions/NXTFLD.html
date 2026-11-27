@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NXTFLD — BR reference</title>
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">system-functions</a></nav>
+<main>
+<h1>NXTFLD</h1>
+<p>The <strong>NxtFld</strong> <code>internal function</code> is similar to <code>Curfld</code> except that it returns the relative position of the next control to be occupied during an INPUT operation (the one the user clicked on or attempted to move to).</p>
+<p><strong>NXTFLD takes no arguments and is not assignable.</strong> It is written bare, like <code>ERR</code> or <code>CNT</code>. To <em>set</em> the next input field — or its attributes, or an FKEY value to be applied before the next INPUT — use <a href="spec.html#screen-query"><code>CURFLD</code></a>, which takes those three parameters; see also <a href="../../../20-io-screen/windows-cursor/spec.html#semantics">20-io-screen/windows-cursor</a>.</p>
+<p>Two methods are used to identify clicked controls: Fkey numbers and NXTFLD. This will keep track of which control was clicked when a user clicks on a hot control (a control that has an Fkey assigned). If the control is a GRID or LIST then it keeps track of where the user clicked within the control.</p>
+<p>If a control that is part of an active Input Fields operation is double clicked, then NXTFLD will identify the relative position of the control within the Fields operation. However, for hot field identification it is necessary to use Fkey values to identify the respective controls.</p>
+<h3 id="interrogating-the-next-control">Interrogating the Next Control</h3>
+<p>It is desirable to know which control was clicked when a user clicks on a hot control (a control that has an Fkey assigned). Furthermore, if the control is a GRID or LIST then it can be useful to know where the user clicked within the control. Two methods are used to identify clicked controls: Fkey numbers and NXTFLD.</p>
+<p>The <strong>NxtFld</strong> function returns the number of the field containing the <code>cursor</code> from the last <code>INPUT FIELDS</code>, <code>RINPUT FIELDS</code>, <code>INPUT SELECT</code>, or <code>RINPUT SELECT</code> operation.</p>
+<h3 id="comments-and-examples">Comments and Examples</h3>
+<pre><code>00100 DIM SF$(3)
+00110 LET SF$(1)=&quot;10,30,c 10,r&quot;
+00120 LET SF$(2)=&quot;12,30,c 10,r&quot;
+00130 LET SF$(3)=&quot;14,30,c 10,r&quot;
+00140 INPUT FIELDS MAT SF$: A$, B$, C$
+00150 PRINT &quot;Cursor ended on FIELD&quot;; NXTFLD
+00160 PRINT &quot;Cursor ended on ROW&quot;; NXTROW
+00170 PRINT &quot;Cursor ended on COLUMN&quot;; NXTCOL
+</code></pre>
+<p>In the sample program above, the there are three fields available for input. The operator can move the cursor in any direction, but only within these three fields. After the operator hits the <ENTER> key, line 150 will print the number 1, 2 or 3 depending on which field the operator left the cursor on. In addition, line 160 will print the row number (10, 12, or 14) containing the cursor when input was ended. Also, line 130 will print the column number (30 through 39).</p>
+<p>NXTFLD provides valuable information when several fields are entered in one statement through an array, specifically, when <code>INPUT FIELDS</code>, <code>RINPUT FIELDS</code>, <code>INPUT SELECT</code>, or <code>RINPUT SELECT</code> is used with an <code>Array</code>.</p>
+<p>As NXTFLD returns the subscript in the field definition array of the field containing the cursor from the last <code>INPUT FIELDS</code>, <code>RINPUT FIELDS</code>, <code>INPUT SELECT</code>, or <code>RINPUT SELECT</code>, NXTFLD can be especially useful with the on-line help facility. By using NXTFLD in the HELP$ function in line 990 for the value of the &quot;mark&quot;, the operator can be directed to the most relevant portion of the text under the topic HOURS.ENTRY in the help file that explains the valid entries for that field. For example:</p>
+<pre><code>00810 INPUT FIELDS MAT FLD$: HRS,OT,DT,SICK HELP 90
+00820 STOP
+00990 HELP$(&quot;HOURS.ENTRY&quot;, NXTFLD) : RETRY
+</code></pre>
+<p><code>Option</code> 43 Use old style Input Select with respect to setting CURFLD to the <code>NXTFLD</code> value when a selection is made.</p>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/system-functions/NXTFLD.md">br_tree/10-language/data-manipulation/system-functions/NXTFLD.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

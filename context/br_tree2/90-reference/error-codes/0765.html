@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0765 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0765</h1>
+<p><strong>Error:</strong> 0765</p>
+<p><strong>Description:</strong> HTTP=SERVER must be opened OUTIN</p>
+<p><strong>Name:</strong> <code>BREHTTPNOTOUTIN</code></p>
+<p><strong>Details:</strong> <code>HTTP=SERVER</code> was opened <code>INPUT</code> or <code>OUTPUT</code>. The channel has to read requests and write responses.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#interface">HTTP_SERVER.md §2.1 Statements</a></p>
+<blockquote>
+<p>The file must be <code>DISPLAY</code>, opened <code>OUTIN</code>: it reads requests and writes their responses.</p>
+</blockquote>
+<p><strong>Fix:</strong> Open it <code>DISPLAY, OUTIN</code>.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0765.md">br_tree/90-reference/error-codes/0765.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

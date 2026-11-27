@@ -14,7 +14,7 @@
 !
 !  Special Thanks to all our Supporters
 !
-   def fnVersion=2.95
+   def fnVersion=3.0
 !
 !  #Autonumber# 2100,10
    library : fnDesignScreen
@@ -113,7 +113,6 @@ DESIGNSCREEN: !  Preforms Environment Testing And Launches The Screen Designer
 LOADANDEDITSCREEN: !  Load Files And Launch Main Screen Designer
    def Fnloadandeditscreen(;Screenname$,___,Window,Turnguibackoff, Fscreenio,Fscreenfld,Saveonexit,Oldrows,Oldcols,ForceVisibility)
 !
-      if fnWarnMessage then execute "system" ! #Autonumber# 13040,10
       let fnSettings ! Also includes library linkage to FileIO
 !
       let Fnopenscreenfiles(Mat Screenio$,Mat Screenio)
@@ -1804,7 +1803,6 @@ POPULATEALLLISTVIEWS: ! This Function Populates All The Listviews On The Screen
                                  let Color$:=Fnpassfilter$(Mat Populateread$,Mat Populateread,Function$(Index),Index)
                               end if
                               if Ignorefilters Or (Len(Trim$(Color$)) And Trim$(Color$)<>"0" And Uprc$(Trim$(Color$))<>"STOP") then
-                                 if mod(Every10:=Every10+1,7)=0 then let fnCheckSerialSlowdown ! #Autonumber# 25500,5
                                  let Rowcount+=1
                                  let Populatecolorudim+=1
                                  if Populatecolorudim>25000 then
@@ -9533,7 +9531,6 @@ READSCREENSIZE: ! Return The Screen Size Of Window 0 In Terms Of Rows And Column
 
    def library fnMakeScreen(;layout$,LaunchScreen,___,NoLaunch,ExternalLaunch)
       if LaunchScreen then ExternalLaunch=1 else NoLaunch=1
-      if fnWarnMessage then execute "system"
       let fnSettings ! Also includes library linkage to FileIO
       let Fndefineinputmodes
       let Fnopenscreenfiles(Mat Screenio$,Mat Screenio)
@@ -12061,7 +12058,6 @@ FM: !    This Is Where All The Magic Happens      !
    fnend
    !
    def Fnmasterfm$*255(Screenname$;&Keyval$,Srow,Scol,&Parent_Key$,Parent_Window,Display_Only,Dontredolistview,Recordval,&Path_$,Selecting,Active,ForceThisIndex,Editing,Mat Passeddata$,Usemyf,Mat My_f$,Mat My_f,&SaveDontAsk,___,Exitmode,Lastrow,OutOfMemory)
-      let fnCheckSerialMessage
       if Screenname$<>"" then
          let fnSettings
          let fnDefineExitModes
@@ -12122,117 +12118,6 @@ FM: !    This Is Where All The Magic Happens      !
          end if
       else
          let Msgbox("No routine name was given.")
-      end if
-      let fnCheckSerialSlowdown(12)
-   fnend
-
-   def fnWarnMessage(;___,ExpireDate,Invalid)
-      let ExpireDate=days(fnScreenIOExpireDate$,"mm/dd/ccyy")
-      if 0 and ~(fnCheckLicense or fnCheckFile) then
-         if Env$("ScreenIOWarnMessage")><"Checked" then
-            if days(date$("mm/dd/ccyy"),"mm/dd/ccyy")<ExpireDate then
-               if fn43 then
-                  let msgbox(`A ScreenIO License could not be found. You may play around with it freely until {{Date$(ExpireDate,"Month, DD CCYY")}}. After that, you will no longer be able to use the ScreenIO Designer, and the ScreenIO programs you have created will start to run more slowly.
-
-                              Please contact Business Rules Corp for support, and obtain a valid license file before that time. Make sure to distribute your license file to all of your customers as well.
-
-                              Gordon Dye of Business Rules Corp: (248)619-0400 or gordon.dye@brulescorp.com
-                              Gabriel Bakker of Sage AX: (469) 223 5476 or gabriel.bakker@gmail.com`,"License File not Found")
-               else
-                  let msgbox("ScreenIO License not found. This copy expires on "&Date$(ExpireDate,"Month, DD CCYY"))
-               end if
-               SetEnv("ScreenIOWarnMessage","Checked")
-            else
-               if fn43 then
-                  let msgbox(`A ScreenIO License could not be found. This copy expired on {{Date$(ExpireDate,"Month, DD CCYY")}}. You are no longer able to use the ScreenIO Designer, and the ScreenIO programs you have written will start to slow down.
-
-                              Please contact Business Rules Corp for support and obtain a valid license file. Make sure to distribute your license file to all of your customers as well.
-
-                              Gordon Dye of Business Rules Corp: (248)619-0400 or gordon.dye@brulescorp.com
-                              Gabriel Bakker of Sage AX: (469) 223 5476 or gabriel.bakker@gmail.com`,"License File not Found")
-               else
-                  let msgbox("ScreenIO License not found. This copy expired on "&Date$(ExpireDate,"Month, DD CCYY"))
-               end if
-               let Invalid=1
-            end if
-         end if
-      end if
-      let fnWarnMessage=Invalid
-   fnend
-
-   def fnCheckSerialMessage ! Check that the Serial File is valid. If its not valid, print a warning message.
-      if ~fnCheckSerial then
-         if Env$("ScreenIOSerialMessage")><"Checked" then
-            ! let msgbox("Your free trial period is over, and we were not able to detect a valid Business Rules ScreenIO License. Please contact Business Rules Corp or Sage AX to purchase a license.")
-            let msgbox("This copy of ScreenIO is unlicensed. It expired on "&Date$(days(fnScreenIOExpireDate$,"mm/dd/ccyy"),"Month DD, CCYY")&"."&hex$("0D0A0D0A")&"Please make sure you have a valid license file. Contact your Software Vendor or contact Business Rules Corp for support."&hex$("0D0A0D0A")&"Gordon Dye of Business Rules Corp: (248) 619-0400 or gordon.dye@brulescorp.com"&hex$("0D0A")&"Gabriel Bakker of Sage AX: (469) 223 5476 or gabriel.bakker@gmail.com","License File not Found")
-            SetEnv("ScreenIOSerialMessage","Checked")
-         end if
-      end if
-   fnend
-
-   def fnCheckSerialSlowdown(;SlowdownMultiply) ! Check that the Serial File is valid. If its not valid, slow things down.
-      if ~SlowDownMultiply then let SlowDownMultiply=1
-
-      if ~fnCheckSerial(SlowDownFactor) then
-         Sleep(SlowDownFactor * SlowDownMultiply)
-      end if
-   fnend
-
-   def fnScreenIOExpireDate$="12/31/2023"
-
-   def fnCheckSerial(;&SlowDownFactor,___,ExpireDate$)
-      ! Check the BR Serial, check if ScreenIO is active?
-      ! Check inactive date?
-      ! Calculate Slowdown factor?
-      if fnCheckLicense or fnCheckFile then
-         let fnCheckSerial=1
-      else
-         ! Demo Mode
-         let ExpireDate$=fnScreenIOExpireDate$
-         if days(date$("mm/dd/ccyy"),"mm/dd/ccyy")<days(ExpireDate$,"mm/dd/ccyy") then
-            let fnCheckSerial=1
-         else
-            let fnCheckSerial=0
-            let SlowDownFactor=min((0.002*(days(date$("mm/dd/ccyy"),"mm/dd/ccyy")-days(ExpireDate$,"mm/dd/ccyy"))),.8)
-         end if
-      end if
-   fnend
-
-   def fnCheckLicense
-      if fn432c and trim$(env$("license.screenio"))>="2.0" then
-         let fnCheckLicense=1
-      else if trim$(env$("license.screenio"))="" and ~fn433 and fnCheckLicenseWorkAround>=2 then
-         let fnCheckLicense=1
-      end if
-   fnend
-
-   def fnCheckLicenseWorkAround(;___,FileNumber,String$*255,P,V)
-      let fnSettings
-      execute "st env 'license.screenio""' >check[session].out" error Check2Failed
-      open #(FileNumber:=fnGetFileNumber) : "name=check[session].out, recl=255", display, input error Ignore
-      do until file(FileNumber)
-         linput #FileNumber: String$ error Ignore
-         if File(FileNumber)=0 and ~pos(lwrc$(String$),"""clipboard""") and pos(lwrc$(String$),"license.screenio""") then
-            let p=pos(lwrc$(String$)," is ")
-            if p>0 then
-               let String$=String$(p+4:len(String$))
-               let String$=trim$(String$,"""")
-               let V=val(String$)
-               let fnCheckLicenseWorkAround=V
-            end if
-         end if
-      loop until V
-      close #FileNumber:
-      execute "*free check[session].out" error Ignore
-      Check2Failed: ! We come here if Check License 2 fails.
-   fnend
-
-   def fnCheckFile
-      if ~fn433 and exists("sio.lic") then
-         library "sio.lic" : fnCSXYCWQLSKJAFLANL error Ignore
-         if fnCSXYCWQLSKJAFLANL(12073) then
-            let fnCheckFile=1
-         end if
       end if
    fnend
 

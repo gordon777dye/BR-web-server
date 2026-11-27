@@ -23,7 +23,7 @@ never hand-edited.
 | **App root** | `$APP_ROOT` | The folder holding `context/`, absolute |
 
 **Onboarding sets all eight for you.** STEP 1 of
-[`app/ONBOARDING.md`](../app/ONBOARDING.md) writes two scripts:
+[`app/ONBOARDING.md`](../app/ONBOARDING.md) writes three scripts:
 
 - **`context\app\env.cmd`** sets the variables with absolute paths, built from the script's own
   location. In cmd, `call` it once. From PowerShell or Bash, run it in the **same command** as the
@@ -34,6 +34,16 @@ never hand-edited.
   This works because the program reads the variables itself. Don't write `%BR_EXE%` in that line:
   cmd expands it when it reads the line, before `env.cmd` has run, so it comes out empty. Use
   `cmd /v:on /c "context\app\env.cmd && !BR_EXE! …"` instead.
+- **`context\app\env.ps1`** sets the same variables for PowerShell. Dot-source it in the same
+  command as the program, which is simpler than going through cmd and needs no `!…!`:
+  ```
+  . context\app\env.ps1; & $env:BR_MCP_DRIVER uitest --suite
+  ```
+  From the Bash tool, pass that whole line to `powershell -NoProfile -Command`. *Measured: an
+  agent's `cmd /v:on /c "context\app\env.cmd && !BR_MCP_DRIVER! …"` from the Bash tool printed only
+  cmd's banner.*
+- **`br_mcp_driver` finds BR without `$BR_EXE`**: the kit's `dev\tools\brserver-x64-Release.exe`,
+  through `$BR_CONTEXT_KIT` or from the driver's own folder. `$BR_EXE` still decides when it is set.
 - **`context\app\onboarding\setx.cmd`** saves the same values in the user's Windows profile with
   `setx`, so every program started afterwards has them. Onboarding runs it once, unless the user
   says the kit will be used in more than one repo on this machine: the values apply to every
@@ -267,6 +277,12 @@ copy context\dev\ai_access\prc\BR_dev.prc   <BR's start folder>
 copy context\dev\ai_access\prc\BR_user.prc  <BR's start folder>
 ```
 
+**Copy them again whenever the kit is updated.** The copy in BR's start folder is what runs, not
+the one in `prc/`, and nothing tells you when it is out of date. An old `BR_dev.prc` gives the
+assistant no keyboard: `send keys` and the `type` and `press` tools are refused with `no grant is
+held`. Compare them (`fc` in cmd, `diff` elsewhere) if a session behaves as the documents say it
+should not.
+
 *Measured both ways.* Without it:
 
 ```
@@ -281,8 +297,9 @@ harness claimed on port 8720, protocol 5
 serving \\.\pipe\br_mcp_driver.Gordon.requests and .replies, holding the harness on port 8720
 ```
 
-`BR_report.prc` is different and needs no copying: the `run_report` tool writes it and its
-loader into the directory it is told to run in.
+`BR_report.prc` goes in the folder `run_report` runs in: its `dir` argument, or the folder the
+driver runs in when `dir` is not given. The tool writes only `loader.prc` there, and refuses to
+run if `BR_report.prc` is missing.
 
 ### The configuration file
 
@@ -360,23 +377,23 @@ It launches BR on a standard procedure, claims the channel that procedure opens,
 
 | Command | Procedure | Session | Grant |
 |---|---|---|---|
-| `start` | `BR_dev.prc` | **`DEVELOP` mode** | none given |
+| `start` | `BR_dev.prc` | **`DEVELOP` mode** | the keyboard, with no expiry (`MSG("grant",-1)`) |
 | `start --user` | `BR_user.prc` | user mode | the keyboard, for an hour |
 
 **`DEVELOP` mode is what you want for development work**, and it is chosen by the procedure's
 third argument to `MSG("harness", <port>, "DEVELOP")`. **Nothing outside BR can set it**, not
-a flag here and not a tool. It buys two things:
+a flag here and not a tool. Typing at the `READY` prompt works in either mode; what
+`DEVELOP` buys is that
 
-- **you may type at the `READY` prompt.** In user mode keys go in only while a program is
-  waiting for input, so a command typed at `READY` sits in the queue instead of running.
-  In a development session the `READY` prompt is where the work is.
 - **it does not raise the AI-user-mode flag**, so a BR session started from this one comes up
   unrestricted and can write the application's own files. A user-mode session raises it, and
   every session started while it is up is restricted to files it created itself.
 
-What `start` does **not** do: set `DEVELOP` mode (above), and give a grant. `BR_dev.prc`
-deliberately gives none, because a development session usually wants an assistant that reads.
-To let it type, somebody at the session types `LET X=MSG("grant",600)`.
+What `start` does **not** do: set `DEVELOP` mode (above), and give a grant. The procedures
+give the grant. `BR_dev.prc` gives the keyboard with no expiry, because in a development
+session the assistant is meant to type. To take it back, somebody at the session types
+`LET X=MSG("grant",0)`; to lend it for ten minutes instead, take it back and then type
+`LET X=MSG("grant",600)`.
 
 `--config` names the configuration **file** in full: BR reads the text after the dash as that
 name, so `--config mine` asks for a file called `mine`.
@@ -420,7 +437,7 @@ text before real BR ever compiles it.
 - **Lexi's syntax** (what each construct does): [`essentials.md`](essentials.md#1-core-language-rules).
 - **The full reference** — what Lexi is, both known distributions, how the VS Code extension
   invokes it, and every directive in detail:
-  [`br_tree` — Lexi](../br_tree/00-configuration/installation-tooling/Lexi.md).
+  [`br_tree` — Legacy Lexi](../br_tree/00-configuration/installation-tooling/legacy_lexi.md).
 - **How this fits into the actual coding loop**:
   [`APP-DEV-GUIDE.md`](APP-DEV-GUIDE.md#lexi-aware-coding-loop).
 

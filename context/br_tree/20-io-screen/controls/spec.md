@@ -8,7 +8,7 @@ kind: spec
 status: 2b           # reference base + br_tree enrichment
 recovered-fold: 2D_Controls, CELL_RANGE, COLCNT, Combo_Boxes, Display_Buttons, RANGE folded+pruned; Grid_and_List retained (deep grid/list reference). 7 redirect-collision pages re-fetched; verbatim retained on the BR wiki
 related: [input-output, fields-attributes, windows-cursor]
-keywords: [GRID, LIST, TEXT, COMBO, RADIO, CHECK, MENU, FIELDS, BUTTON, BUTTONS, BUTTONROWS, MENU$]
+keywords: [GRID, LIST, TEXT, COMBO, RADIO, CHECK, MENU, FIELDS, BUTTON, BUTTONS, BUTTONROWS, MENU$, DISPLAY]
 corrections:
   - "BUTTONS added to the frontmatter keywords. The list held `BUTTON`, singular, which is not a spelling any of BR's keyword tables carries: table4k's entry is `BUTTONS`, and this page documents it as `DISPLAY BUTTONS MAT X$: MAT Y$`. Routing is an exact match, so the declaration missed by one letter and the keyword reached nothing. `BUTTON` is kept — it is the control's name in the page's own prose. Found in brls phase 13."
   - "MENU$ added to the frontmatter keywords — a distinct spelling from the already-declared `MENU`
@@ -17,6 +17,12 @@ corrections:
     page's body and in the retained Display_Menu.md backing page, and was routing nowhere. Found
     2026-09-11 auditing `go run ./cmd/gendata`'s unrouted-function list against actual br_tree
     content."
+  - "DISPLAY added to the frontmatter keywords, with an `<a id=\"display\">` section for the
+    DISPLAY statement (DISPLAY BUTTONS, DISPLAY MENU). This page was the statement's only home but
+    did not declare it, so the index filed DISPLAY as the READY command alone and `HELP STATEMENTS
+    DISPLAY` showed the command. The generator files `controls#display` as a statement
+    (kindOverrides). The other two DISPLAYs are the command (70-commands/information#display) and
+    the display file of `OPEN ... DISPLAY` (30-io-file/statements#display). Found 2026-11-10."
 ---
 
 # GUI controls
@@ -71,6 +77,12 @@ its checked state as a leading `^`. The three verbs differ: `PRINT FIELDS` shows
 selection; `INPUT FIELDS` shows the box (no label — pair with a separate `PRINT FIELDS` label);
 `RINPUT FIELDS` shows both and allows selection. Each may carry its own `fkey` (fires on/off);
 `NOWAIT` = the `G` attribute (return control immediately). Commonly looped until a Done button.
+
+<a id="display"></a>**The DISPLAY statement** shows a control that is not a field: `DISPLAY BUTTONS`
+(the button panel, [below](#buttons)) and `DISPLAY MENU` (a native menu, [below](#menu)). It is not
+the `DISPLAY` command, which watches variables at READY
+([information](../../70-commands/information/spec.md#display)), nor an `OPEN ... DISPLAY` file
+([file statements](../../30-io-file/statements/spec.md#display)).
 
 <a id="buttons"></a>**Buttons** — two kinds: **Display Buttons** print into the button panel at the
 **bottom** of the window that `BUTTONROWS=<n>` reserves (see

@@ -8,8 +8,11 @@ kind: spec
 status: 2b           # reference base + br_tree fold (LOAD modes, CHAIN passing, CLEAR variants, GO form, MERGE, express procs); CHAIN/Procedure_files retained; no conflicts
 recovered-fold: REPLACE (folded+pruned — source-vs-object/.BRS/.BRO rules, .BAK + OPTION 26, default-extension; verbatim retained on the BR wiki)
 related: [file-directory, information, editing]
-keywords: [AI, RUN, LOAD, SAVE, REPLACE, MERGE, CLEAR, GO, EXECUTE, CHAIN, PROC, SYSTEM, LOGOFF, ALL, SUBPROC, PROCERR, ALERT, FILES, ECHO, NOECHO, SOURCE, OBJECT, ONLY, NOSTEP, NOTRACE]
+keywords: [AI, RUN, LOAD, SAVE, REPLACE, MERGE, CLEAR, GO, EXECUTE, CHAIN, PROC, SYSTEM, LOGOFF, ALL, SUBPROC, PROCERR, SKIP, ALERT, FILES, ECHO, NOECHO, SOURCE, OBJECT, ONLY, NOSTEP, NOTRACE, LINES, LABELS]
 corrections:
+  - "2026-11-24, from BR 5.03's source (wbos.cpp s_commandHelp, which has no FRE entry) and a headless `FRE -?` (error 1000): the `-?` paragraph now names FRE, beside HELP, as a command without the help."
+  - "LINES and LABELS added to the frontmatter keywords (2026-11-24): the BR 5.03 trace options of
+    RUN and GO, which this page documents and did not declare."
   - "PROCERR REM removed: BR no longer supports it (2026-10-31). In the refreshed BR source, command0.cpp's PROCERR accepts STOP_TYPE and RETURN_TYPE only and answers any other qualifier with BREMISSINGKEYWORD; wbos.cpp's PROCERR help lists STOP and RETURN. REM is still in table2k (REM_TYPE), but no command reads it."
   - "AI added to the frontmatter keywords, with the AI section (BR 5.0: BR50 Release_Notes.md 2.19, 2.13). The command had no page in this tree."
   - "Added the command-help section: `-?` as the whole of a command's arguments lists what the command takes (BR 5.0, wbosCommandHelp() in wbos.cpp, called from cmdproc() in commandc.cpp). In the same pass, from the BR 5.0 parsers (see br50 br/docs/FLAGS.md): SKIP's label is written without its colon - the BNF said `SKIP n|:label`, which never matches, while this page's own example used `SKIP BUSY` - and a label search wraps to the top of the procedure (command0.cpp SKIP_CMD); PROCERR REM documented (command0.cpp PROCERR, command.cpp proc_comment); SYSTEM -W and +n are accepted and ignored, -W setting SHC_WINDOWS only under BR_V4, and SYSTEM ONQ is no longer special (command7.cpp SYSTEM_CMD); CLEAR name clears a resident program without RESIDENT, and CLEAR ... STATUS demotes only while a program is halted (command7.cpp CLEAR). From source reading, not yet confirmed by a run. 2026-10-21."
@@ -35,6 +38,8 @@ corrections:
     the parse got a variable that does not exist. Whether BR accepts `FILES` more than
     once in one CHAIN was not tested, so the alternation neither permits nor forbids it
     deliberately. Found and fixed in brls (internal/parse/walk.go, matchUnit)."
+  - "SKIP added to keywords:, and a `skip` anchor on the procedure-flow paragraph: the SKIP command is
+    documented here and was not declared (2026-11-22). Found when brls stopped linking a sense to another sense's section: the DATE command, the procedure SKIP and the POS= clause had been linked only to the DATE function, FORM's SKIP n and the POS format code."
 ---
 
 # Program management & procedures
@@ -52,6 +57,10 @@ A **command** executes immediately when typed (no line number) and manages the e
 Any statement can be run immediately as a command; a bare expression is an implied `PRINT`
 (`6+4`→`10`). Commands can't appear in a program **except** via `EXECUTE` or inside a `PROC`.
 
+<a id="print-redirect"></a>
+A `PRINT` typed at the command line can send its console output to a file or string array with `| >` and `| >>`:
+see [`PRINT ... | > file`](../../40-io-printing/statements/spec.md#print-redirect) in the printing statements.
+
 <a id="command-help"></a>
 ## `-?` — what a command takes (BR 5.0)
 
@@ -61,7 +70,8 @@ does nothing else: `COPY -?`, `LIST -?`, `STATUS -?`. Nothing runs, so `RUN -?` 
 `COPY` with an unknown option, a syntax error, and a `LIST` search string containing `-?` is a
 search. A long list pauses after each screenful (any key goes on, Ctrl-A stops). `DIR -?` lists the
 options of the listing in use — the 5.0 ones, or the 4.x ones under `OPTION 8`. Every command in
-BR's command table has it except `HELP` (and the internal `LINK`). The lists are written from each
+BR's command table has it except `HELP` and [`FRE`](../file-directory/spec.md#fre) (`FRE -?` is
+error 1000). The lists are written from each
 command's parser, so where this tree and `-?` differ, `-?` is the one that matches the code.
 
 <a id="entry-exit"></a>
@@ -80,7 +90,7 @@ SYSTEM [<flags>] "<os-command>"                      -- run an OS shell command,
 [`EXECUTE`](#execute) or a `PROC`. Three forms:
 
 - **Exit** — bare `SYSTEM` (`SY`) closes files and returns to the OS; `SYSTEM <n>` returns `<n>` as the
-  process **exit code** (readable by a calling shell/script). `SYSTEM LOGOFF [ALL]` exits and also
+  process **exit code** (readable by a calling shell/script: `ERRORLEVEL` in a DOS batch file, `$?` in a Linux shell). `SYSTEM LOGOFF [ALL]` exits and also
   logs the client off — see [logoff](#system-logoff).
 - **Shell call** — `SYSTEM "<os-command>"` runs an operating-system command (launch another program,
   run a script), then returns to BR — **the program's main way to invoke other applications through the
@@ -95,14 +105,17 @@ SYSTEM [<flags>] "<os-command>"                      -- run an OS shell command,
 | `-@` | run the command on the BR **client** side |
 | `-S` / `-s` | run on the BR **server** side (default follows the `SHELL DEFAULT CLIENT`/`SERVER` config) |
 | `-R` / `-r` (or leading `*`) | **restore** the BR screen after the call |
-| `-C` / `-c` | **continue asynchronously** — don't wait for the command to finish (conflicts with `-R`) |
+| `-C` / `-c` | **continue asynchronously** — don't wait for the command to finish (conflicts with `-R`). Windows launches the task and BR carries on; on Unix the command is framed with `NOHUP` and `&`. Without it the call waits for the process, up to the `SHELL LIMIT` seconds |
 | `-M` / `-m` | **hide** / **minimize** the launched program's window |
 | `-H` / `-h` | **hide** / **minimize** BR's own window during the call |
-| `-W` / `-w` | accepted and **ignored** in BR 5.0 (it marked a Windows program in 4.x, and no longer conflicts with `-R`) |
 | `-E` / `-e` | permit a shell-call **error** to be reported/trapped |
 | `-P` / `-p` | page |
-| `-T`/`-t<secs>` | override the shell-call **timeout** |
-| `+<n>` | accepted and **ignored** (it once requested `<n>` of memory for the child) |
+| `-T`/`-t<secs>` | override the shell-call **timeout**, in seconds |
+
+**Removed in BR 5.03, now error 4501:** `-W` / `-w` (it marked a Windows program in 4.x; BR 5.0
+accepted and ignored it) and `+<n>` before the flags (it once requested `<n>` of memory for the
+child; BR 5.0 parsed and discarded it). A program that still gives either stops with 4501; delete
+the flag, which changes nothing else.
 
 (`SYSTEM ONQ …` is an ordinary shell command in BR 5.0: the built-in ONQ interface was removed.)
 
@@ -174,10 +187,23 @@ lines that share them. `ADD` appends all lines after the current program's last 
 renumbers the first merged line (others follow the source increments). A single line number merges
 only that line.
 
+- **Defaults:** the whole program is merged; a `-<from>` alone merges from that line to the end of the program;
+  the merged lines keep their numbers. **Caution:** a merged line replaces any line in memory that has
+  the same number.
+- `f` is the name of the program (a `.br` file) to merge.
+- `<first>` is the number given to the first merged line; the others follow the increments the source file had.
+- `ADD` puts every merged line after the end of the program in memory: the first is numbered **ten greater than
+  the current last line**, and the rest keep the source's increments.
+- Examples: `MERGE MERGETST -100 -300` merges lines 100 to 300 of MERGETST.BR, keeping their numbers (and
+  replacing any lines of those numbers in memory); `MERGE MERGETST ADD` adds all of MERGETST.BR to the end.
+- **Behaviour change:** `MERGE f <line>` with a line number alone merges only that line. Before it merged from that
+  line to the end of the program, which may matter to an old application.
+- To *look at* lines of another program without merging them, use `LIST <name` (see [LIST](../editing/spec.md#list)).
+
 <a id="replace"></a>
 ### SAVE / REPLACE — source vs object
 `SAVE` writes a **new** file (error 4150 if it exists); `REPLACE` overwrites an **existing** one and
-leaves the lines in memory. Both save **source** only when the name ends `.BRS` or the **`SOURCE`**
+leaves the lines in memory. Saving as source stores the **current `STYLE`** formatting with the file, permanently. Both save **source** only when the name ends `.BRS` or the **`SOURCE`**
 keyword is given; otherwise they save **object** (`.BR`/`.BRO`). With no filename, `REPLACE` reuses the
 file's full original name (a trailing period suppresses the default extension). **`OBJECT`** (`.BRO`)
 omits source — *unrecoverable*, used to ship protected code. Before overwriting, BR copies the original
@@ -216,6 +242,26 @@ it). After an error, `GO` retries the failing statement. In STEP mode, Shift+F1�
 widening scope (into-clause / over-clause / into-line / over-line / to `RETURN`|`FNEND`).
 **`GO END`** terminates the interrupted program and closes all files.
 
+- A line can be given as a **line label** as well as a number, for both `GO <line>` and `GO .<line>`.
+- The `TRACE` output goes to the screen unless `PRINT` follows `TRACE`. For example `GO TRACE PRINT 1350`
+  resumes at line 1350 and traces to the printer. A `PRINT` before `TRACE` does nothing. `NOSTEP` and
+  `NOTRACE` turn the two off.
+- **Trace modes** (BR 5.03), as in the `TRACE` statement
+  ([other-flow](../../10-language/flow-control/other-flow/spec.md#trace)): after `TRACE`, `LINES`, `LABELS`
+  and `PRINT` name the modes, in any order, and `ON` or `OFF` may follow; all of them follow `TRACE`. `RUN TRACE LABELS` traces only
+  the labels the run reaches, `RUN TRACE LINES LABELS` both, and `GO TRACE PRINT OFF` brings tracing back
+  from the printer and leaves the other modes on. `LINES`, `LABELS`, `ON` and `OFF` count only after
+  `TRACE` and must be spelled out; anywhere else they are a program name or a line label as before.
+  `NOTRACE` (or `TRACE OFF`) turns every mode off and remembers which were on, and a `TRACE` naming
+  neither `LINES` nor `LABELS` resumes them, or traces line numbers if nothing is remembered. `RUN`
+  forgets the remembered modes.
+- `STEP` shows the number of the line about to run in the status line; **Enter** runs it and shows the next.
+  In STEP mode a typed `GO` means `GO RUN` and Enter means `GO STEP`. `RUN STEP NORESTORE` stops BR putting the
+  application screen back after the first time; `RUN STEP RESTORE` puts it back before every step (and `GO RUN`
+  does not reset `NORESTORE`). `GO PROC` takes the program's input from the active procedure.
+- `TRACE SOURCE` shows each line's source text as it runs, in place of only its number.
+- Shift+F1 to Shift+F4 step by a wider scope each time: the F-key number rises as the scope does.
+
 <a id="ai"></a>
 ## AI (BR 5.0)
 
@@ -243,8 +289,10 @@ once with error 4158.
 EXECUTE "[*]<command-string>"
 ```
 Runs any command/statement string at runtime — the bridge that makes commands part of the
-coding surface (build index files, run a SORT, start a PROC, …). A leading `*` suppresses screen
-restoration (the default does **not** restore the screen). Inspect
+coding surface (build index files, run a SORT, start a PROC, …). A leading `*` makes BR **save the screen
+and put it back** when the command finishes; without it the screen is **not** restored (`EXECUTE "DIR"` leaves
+what the command wrote, `EXECUTE "*COPY OLDFILE NEWFILE"` restores the screen). In GUI mode the screen is
+never saved, so the `*` has no effect there. Inspect
 [`CODE`](../../10-language/data-manipulation/system-functions/spec.md#system-info) afterward for a
 procedure's return value. **Restrictions:** because it is illegal to *terminate* a program from
 `EXECUTE`, the program-ending commands `LOAD`, `SAVE`, `REPLACE` and the `CHAIN` statement may not
@@ -284,7 +332,7 @@ makes it **self-deleting** after execution.
 <a id="proc"></a>**Starting**: `PROC {name|*name|ECHO|NOECHO}` (runs it; `*` suppresses F2 logging;
 NOECHO hides lines). <a id="subproc"></a>`SUBPROC file` runs a **nested** procedure (up to 9 deep) then resumes.
 From code: `CHAIN "PROC=…"` / `CHAIN "SUBPROC=…"` (ends program) or `EXECUTE "PROC …"` (keeps
-program running). `RUN PROC` feeds procedure lines to a program's `INPUT`/`LINPUT`.
+program running). `RUN PROC` feeds procedure lines to a program's `INPUT`/`LINPUT`/`RINPUT`; it has **no effect** on `INPUT FIELDS` or `RINPUT FIELDS`.
 
 <a id="run-proc"></a>**`RUN … PROC`** — `PROC` is an **option of `RUN`**, not a command. It is not
 followed by a file name: the lines fed to the program are the ones that follow the `RUN` line in
@@ -309,7 +357,7 @@ RUN PROC                     ! ... then run what is in memory with proc-fed inpu
   ends, the following proc lines are commands again. Confirmed on 4.33c.
 - **The `RUN … PROC` line must not be the proc's last line.** See [look-ahead](#look-ahead).
 
-**Flow & errors**: `SKIP n|label [IF <cond>]` branches — the label is written **without** its
+<a id="skip"></a>**Flow & errors**: `SKIP n|label [IF <cond>]` branches — the label is written **without** its
 colon (`SKIP BUSY` goes to the line `:BUSY`; `SKIP :BUSY` never matches), and a label search that
 reaches the end of the procedure carries on from the top, so a skip may go backward;
 <a id="procerr"></a>`PROCERR STOP` (default) halts on error and `PROCERR RETURN` continues (sets `ERR`); <a id="alert"></a>`ALERT msg` pauses for the operator (`GO` resumes; under

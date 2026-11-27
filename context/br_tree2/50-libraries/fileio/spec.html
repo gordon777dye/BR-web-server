@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FileIO library — BR reference</title>
+<meta name="keywords" content="FileIO, fnOpen, fnRead, LIBRARY">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">fileio</a></nav>
+<main>
+<h1 id="fileio-library">FileIO library</h1>
+<p><strong>FileIO</strong> is the standard <strong>file-access abstraction</strong> in this codebase: you describe
+each data file once in an ASCII <strong>layout file</strong>, and FileIO OPENs it, builds the <code>FORM</code>, sizes your record
+arrays, and defines <code>FILE_FIELD</code> subscript constants — so programs reference fields <strong>by name</strong> and never
+hard-code positions. Change a layout and FileIO <strong>migrates the data file on the fly</strong>; no program needs
+editing. <a href="../screenio/spec.html">ScreenIO</a> builds on it.</p>
+<a id="syntax"></a>
+<h2 id="the-fnopen-pattern">The fnOpen pattern</h2>
+<pre><code class="language-business-rules">DIM color$(1)*1000, color(1)        ! string + numeric record arrays (one per file)
+DIM form$(1)*255                    ! per-channel FORM cache
+LIBRARY &quot;fileio.br&quot;: fnopenfile, fnclosefile, fngetfilenumber
+LET colorfile = fnOpen(&quot;color&quot;, MAT color$, MAT color, MAT form$ [, inputonly] [, keynum])
+READ #colorfile, USING form$(colorfile): MAT color$, MAT color EOF done
+LET name$ = color$(co_Name)         ! field accessed by FILE_FIELD subscript constant
+LET fnclosefile(colorfile, &quot;color&quot;) : LET colorfile = 0
+</code></pre>
+<p>Programs call a thin local <code>DEF FNOPEN</code> wrapper around the library's <code>FNOPENFILE</code> — it opens the file and
+then <code>EXECUTE</code>s the subscript-constant strings the library returns. The public surface is <strong>80
+<code>DEF LIBRARY</code> exports</strong>; the authoritative grouped list is
+<a href="FileIO_Function_Reference.html">FileIO_Function_Reference</a>.</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<ul>
+<li><strong>Layout files</strong> (<code>filelay\&lt;name&gt;</code>): a header line <code>datafile, PREFIX_, version</code>; one or more key lines
+<code>keyfile, SUBS[/SUBS][-U]</code>; a <code>====</code> separator; then field lines <code>SUBSCRIPT[$], description, formspec</code>
+with an optional 4th-column disk <strong>date format</strong> — <code>DATE(Julian)</code> or <code>DATE(days)</code> for a stored BR day
+number (a <code>DAYS()</code> value), otherwise a <code>DAYS()</code>/<code>DATE$()</code> mask such as <code>DATE(cymd)</code>, <code>DATE(ymd)</code> or
+<code>DATE(mdy)</code> (see <a href="#disk-date-formats">Disk date formats</a>). <code>X</code> specs reserve space;
+<code>!</code> and blank lines are ignored; optional <code>#eof#</code> ends it. Full format:
+<a href="FileIO_Library.html#file-layouts">FileIO_Library</a>.</li>
+<li><strong>Automatic versioning</strong> — bump the layout's version number on <strong>every</strong> change. On open, FileIO
+compares the on-disk version to the layout version and, if higher, backs up and <strong>rebuilds the data file
+record-by-record</strong> (dropped fields lost, rearranged fields repositioned, new fields blank/zero). <strong>Never
+rename an existing subscript</strong> — that reads as drop-old + add-new and loses data.</li>
+<li><strong>Function families</strong> (see the reference): open/close &amp; file numbers, layout interrogation &amp; FORM
+building, keys &amp; key lists, single-field readers, reindex/maintenance, DataCrawler UI, CSV import/export,
+Audit BR, change/error logging, proc files, array/screen utilities, client-server, file/dir, string/time,
+email.</li>
+<li><strong>DataCrawler</strong> — a built-in grid/listview browser <strong>and</strong> editor for any data file that a layout file describes.
+(<code>fnDataCrawler</code>/<code>fnDataEdit</code>/<code>fnShowData</code>); not for end-users on production data (no validation).</li>
+<li><strong>Add-ons that build on FileIO</strong> — <a href="../screenio/spec.html">ScreenIO</a> (RAD screens) and
+<a href="AuditBR.html">AuditBR</a> (<code>fnBeginAudit</code>/<code>fnCompare</code> change auditing).</li>
+</ul>
+<a id="disk-date-formats"></a>
+<h2>Disk date formats</h2>
+<p>A layout's 4th column marks a field as a date only when it is <code>DATE(…)</code> or <code>DATE[…]</code> (case-insensitive);
+the text inside becomes the field's disk date format. Anything else in column 4 is a comment.</p>
+<table>
+<thead>
+<tr>
+<th>Inside <code>DATE(…)</code></th>
+<th>Meaning</th>
+<th>How FileIO converts it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>contains <code>julian</code> or <code>days</code></td>
+<td>the field holds a BR day number (a <code>DAYS()</code> value) — not an astronomical Julian day, not <code>YYDDD</code></td>
+<td>used as is</td>
+</tr>
+<tr>
+<td>anything else</td>
+<td>a <code>DAYS()</code>/<code>DATE$()</code> mask describing the stored form, e.g. <code>cymd</code>, <code>ymd</code>, <code>mdy</code>, <code>ccyymmdd</code></td>
+<td><code>DAYS(value, mask)</code> in, <code>DATE$(days, mask)</code> out</td>
+</tr>
+</tbody>
+</table>
+<p>The match is a case-insensitive substring test (<code>FNFMTSDATE$</code>/<code>FNFMTNDATE$</code>), for string and numeric
+fields alike. Dates are shown in the DataCrawler in the <code>dateformatdisplay</code> setting and exported to CSV
+in <code>dateformatexport</code> (both default <code>m/d/cy</code>).</p>
+<ul>
+<li><strong><code>days</code> is a local change.</strong> The FileIO in this kit (<code>dev/tools/fileio.brs</code>) accepts <code>days</code> where
+the vendor's FileIO accepts <code>serial</code>. With this kit's FileIO, <code>DATE(serial)</code> is no longer a day
+number: it is used as a mask and the date exports as <code>00/00/0000</code>. Confirmed on 2026-09-30 by a
+CSV export before and after the change.</li>
+<li><strong>ScreenIO recognizes only <code>julian</code>.</strong> Its screen generator, not changed, treats <code>DATE(days)</code> as a
+mask and would add a <code>DATE(days)</code> output conversion to the field. Use <code>DATE(Julian)</code> for any field a
+ScreenIO screen displays.</li>
+</ul>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="FileIO_Function_Reference.html">FileIO_Function_Reference</a> — all 80 <code>DEF LIBRARY</code> exports, grouped (source-derived)</li>
+<li><a href="FileIO_Library.html">FileIO_Library</a> — the full online-doc manual (layout format, <code>fnSettings</code>, DataCrawler, CSV, examples)</li>
+<li><a href="AuditBR.html">AuditBR</a> — the Audit BR add-on</li>
+<li><a href="../library-facility/spec.html">library-facility</a> — the BR <code>LIBRARY</code> statement that links FileIO</li>
+<li><a href="../../30-io-file/statements/spec.html">30-io-file/statements</a> — the underlying file I/O FileIO performs</li>
+<li><a href="../screenio/spec.html">screenio</a> — the ScreenIO RAD library, which builds on FileIO</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/fileio/spec.md">br_tree/50-libraries/fileio/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

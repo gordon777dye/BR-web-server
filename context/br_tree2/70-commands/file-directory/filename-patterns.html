@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File name patterns and Tab completion — BR reference</title>
+<meta name="keywords" content="DIR, COPY, MOVE, RENAME, FREE, DROP, TYPE, LOAD, RUN, SAVE, REPLACE, MERGE, PROC, SUBPROC, CD, LIST, STATUS, DISPLAY, INDEX, MKDIR, RMDIR, CHDIR, glob, OPTION 84, Tab completion">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">file-directory</a></nav>
+<main>
+<h1 id="file-name-patterns-and-tab-completion">File name patterns and Tab completion</h1>
+<p>The file and directory commands share three BR 5.0 behaviours, stated in full
+here: <strong>glob patterns</strong> in file names, <strong><code>/</code> as a folder separator</strong>, and <strong>Tab
+completion</strong> of file names at the <code>READY</code> prompt, which also serves the program
+commands (<code>LOAD</code>, <code>RUN</code>, <code>SAVE</code>, <code>LIST &lt;</code> …). The command syntax is in
+<a href="spec.html">spec.md</a>.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#globs">Glob patterns</a>
+<ol>
+<li><a href="#glob-where">Where a pattern may be used</a></li>
+<li><a href="#glob-syntax">Pattern syntax</a></li>
+<li><a href="#glob-literal">Matching a character that is part of the syntax</a></li>
+<li><a href="#glob-when">When a name is a glob</a></li>
+<li><a href="#glob-command-line">The command line</a></li>
+<li><a href="#glob-matches">What the commands do with the matches</a></li>
+<li><a href="#glob-several">Several names in one command</a></li>
+</ol>
+</li>
+<li><a href="#slash"><code>/</code> in a file name</a></li>
+<li><a href="#tab-completion">Tab completion at the <code>READY</code> prompt</a>
+<ol>
+<li><a href="#tab-what">What it does</a></li>
+<li><a href="#tab-details">Details</a></li>
+<li><a href="#tab-not-taken">Options not taken</a></li>
+</ol>
+</li>
+</ol>
+<a id="globs"></a>
+<h2 id="1-glob-patterns">1. Glob patterns</h2>
+<a id="glob-where"></a>
+<h3 id="11-where-a-pattern-may-be-used">1.1 Where a pattern may be used</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>What a pattern names</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DIR</code></td>
+<td>the entries to list</td>
+</tr>
+<tr>
+<td><code>COPY</code></td>
+<td>the files to copy (the source; the target is a name, a directory, or a name with <code>*</code>)</td>
+</tr>
+<tr>
+<td><code>RENAME</code></td>
+<td>the files to rename</td>
+</tr>
+<tr>
+<td><code>MOVE</code></td>
+<td>the files to move, and with <code>-R</code> the folders (the target as for <code>COPY</code>)</td>
+</tr>
+<tr>
+<td><code>FREE</code>, <code>DROP</code></td>
+<td>the files to delete or empty</td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td>the files to show, one after the other</td>
+</tr>
+<tr>
+<td><code>SEARCH</code></td>
+<td>the files to search, one after the other (BR 5.03)</td>
+</tr>
+</tbody>
+</table>
+<p><code>MKDIR</code>, <code>RMDIR</code> and <code>CHDIR</code> name one directory and take no pattern. A pattern
+may be in any part of the name, in the file part or in a directory part:</p>
+<pre><code>DIR data\*.{brs,prc}
+DIR data\rpt[0-9][0-9].dat
+DIR src\**\*.cpp
+DIR data\20*\*.rpt
+COPY src\**\*.cpp backup\
+FREE tmp\*.{bak,old}
+TYPE notes\[ab]*.txt
+</code></pre>
+<a id="glob-syntax"></a>
+<h3 id="12-pattern-syntax">1.2 Pattern syntax</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>any run of characters, including none; never crosses a separator</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>exactly one character</td>
+</tr>
+<tr>
+<td><code>[abc]</code></td>
+<td>one character that is a, b or c</td>
+</tr>
+<tr>
+<td><code>[a-z]</code></td>
+<td>one character in the range</td>
+</tr>
+<tr>
+<td><code>[^abc]</code> or <code>[!abc]</code></td>
+<td>one character that is not in the set</td>
+</tr>
+<tr>
+<td><code>{a,b,c}</code></td>
+<td>any one of the alternatives</td>
+</tr>
+<tr>
+<td><code>**</code> as a whole part of the name</td>
+<td>any number of directories, or none</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Sets.</strong> A set ends at the first <code>]</code> after its members. A <code>]</code> that comes
+first in the set (after the <code>^</code> or <code>!</code>, if there is one) is a member:
+<code>[]x]</code> is <code>]</code> or <code>x</code>. A <code>-</code> between two characters is a range; a <code>-</code> first
+or last is itself. Case follows <code>FILENAMES SEARCH</code>, so <code>[a-c]</code> also matches
+<code>B</code> where names are not case sensitive.</li>
+<li><strong><code>^</code> and <code>!</code>.</strong> Either as the first character of a set makes it a negation
+(<code>[^abc]</code> and <code>[!abc]</code> are the same). <code>!</code> is the POSIX form; <code>^</code> is the same
+one that most shells and regular expressions use inside brackets, and is the
+one to write in a command line because <code>!</code> begins a comment there unless the
+name is quoted. They mean nothing anywhere else: outside a set, <code>^</code> is an
+ordinary character, and there is no start-of-name anchor, since a pattern
+always has to match the whole name (<code>a*</code> is &quot;starts with a&quot;, <code>*a</code> is &quot;ends
+with a&quot;). To match a caret or an exclamation mark inside a set put it
+anywhere but first: <code>[a^]</code>, <code>[x!]</code>.</li>
+<li><strong>Alternatives.</strong> They may contain any pattern, including other <code>{ }</code> and
+sets: <code>{a,{b,c}}.*</code> is <code>a.*</code>, <code>b.*</code> or <code>c.*</code>. A <code>{ }</code> with no comma at its
+own level is not a list; it stands for itself.</li>
+<li><strong><code>**</code>.</strong> It is a whole part of the name, between separators. <code>src\**\*.cpp</code>
+is every <code>.cpp</code> in <code>src</code> and every directory below it, and <code>src\**</code> is every
+file in <code>src</code> and below. <code>**</code> inside a name (<code>a**b</code>) is the same as <code>*</code>. It
+goes down at most 40 directories; a name may have at most 64 parts.</li>
+<li><strong>A leading dot is not special.</strong> <code>*</code> matches <code>.hidden</code>. The entries <code>.</code> and
+<code>..</code> are never matched by a pattern.</li>
+<li><strong>Case</strong> follows <code>FILENAMES SEARCH</code>, as the old <code>*</code> and <code>?</code> always did.</li>
+</ul>
+<a id="glob-literal"></a>
+<h3 id="13-matching-a-character-that-is-part-of-the-syntax">1.3 Matching a character that is part of the syntax</h3>
+<p>There is no escape character: backslash is the separator on Windows. To match
+<code>[</code>, <code>{</code> or <code>}</code> themselves put them in a set. A <code>]</code> that is not inside a set is
+an ordinary character and needs nothing.</p>
+<table>
+<thead>
+<tr>
+<th>To match</th>
+<th>Write</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[</code></td>
+<td><code>[[]</code></td>
+</tr>
+<tr>
+<td><code>{</code></td>
+<td><code>[{]</code></td>
+</tr>
+<tr>
+<td><code>}</code></td>
+<td><code>[}]</code></td>
+</tr>
+<tr>
+<td><code>]</code></td>
+<td><code>]</code> (outside a set) or <code>[]]</code></td>
+</tr>
+</tbody>
+</table>
+<p>So <code>x[[]1].txt</code> is <code>x</code>, a set holding <code>[</code>, <code>1</code>, a plain <code>]</code>, and <code>.txt</code>: it
+matches the one file named <code>x[1].txt</code>, and <code>x[[]*].txt</code> matches every
+<code>x[…].txt</code>.</p>
+<p>A <code>[</code> or <code>{</code> that has no closing partner is itself. And <strong>a name that is the
+pattern written out is also a match</strong>: the file <code>a[1].txt</code> is found by asking
+for <code>a[1].txt</code>, although <code>[1]</code> as a set would match only <code>a1.txt</code>.</p>
+<a id="glob-when"></a>
+<h3 id="14-when-a-name-is-a-glob">1.4 When a name is a glob</h3>
+<p>A name is treated as a glob only if some part uses a form that <code>*</code> and <code>?</code>
+alone could not:</p>
+<ul>
+<li>a set <code>[ ]</code> or a list <code>{a,b}</code> in any part;</li>
+<li><code>**</code> as a whole part;</li>
+<li><code>*</code> or <code>?</code> in a part that is not the last.</li>
+</ul>
+<p>A name whose last part has only <code>*</code> and <code>?</code> is listed the way it always was,
+including <code>DIR name</code> meaning <code>name.*</code>, and the DOS rule that a pattern ending
+in its first dot matches only names with no dot. A glob is taken as written:
+<code>{a,b}</code> does not have <code>.*</code> added to it.</p>
+<a id="glob-command-line"></a>
+<h3 id="15-the-command-line">1.5 The command line</h3>
+<ul>
+<li><strong>Commas.</strong> A comma separates names, except inside <code>{ }</code>, where it belongs to
+the name. <code>DIR *.{brs,prc}</code> is one name.</li>
+<li><strong><code>!</code>.</strong> <code>!</code> begins a comment in a command line unless it is inside quotes, so
+<code>[!abc]</code> must be quoted: <code>DIR &quot;data\[!ab]*&quot;</code>. <code>[^abc]</code> needs no quotes.</li>
+<li><strong>Quotes.</strong> A name may be quoted with <code>'</code> or <code>&quot;</code>; the quotes are not part of
+it.</li>
+</ul>
+<a id="glob-matches"></a>
+<h3 id="16-what-the-commands-do-with-the-matches">1.6 What the commands do with the matches</h3>
+<ul>
+<li>The matches are taken <strong>directory by directory, in name order</strong>, files in name
+order within each.</li>
+<li><code>DIR</code> prints a <code>Directory of</code> heading for each directory that has a match, a
+blank line between them, and one total at the end. <code>-B</code>, <code>-W</code>, <code>-C</code>, <code>-A</code>
+and <code>&gt;</code> work as for any <code>DIR</code>; <code>-O</code> sorts within each directory.
+<code>DIR</code> lists directories that match as well as files.</li>
+<li><code>COPY</code>, <code>MOVE</code>, <code>RENAME</code>, <code>FREE</code>, <code>DROP</code> and <code>TYPE</code> act on <strong>files only</strong>, never on a
+matching directory. (<code>RENAME -D</code> renames one folder, and takes no pattern; see
+<a href="spec.html#rename-folder">spec.md</a>. With <code>-R</code>, <code>COPY</code>, <code>MOVE</code> and <code>FREE</code> match folders too,
+and take a matching folder whole; see <a href="spec.html#copy-recursive">spec.md</a>.)</li>
+<li>A name that ends with <code>\</code> or <code>/</code> matches <strong>folders only</strong>: <code>DIR src\*\</code> lists the
+folders in <code>src</code>, <code>DIR src\**\</code> every folder below it, and <code>COPY src\*\ bak -R</code>
+copies the folders in <code>src</code> and not its files. <code>DIR src\</code>, with no pattern before
+the separator, lists what is in <code>src</code>; for <code>COPY</code>, <code>MOVE</code> and <code>FREE -R</code> it is the
+folder <code>src</code>.</li>
+<li><code>COPY ... dir\</code> puts every file into the directory, <strong>without its
+sub-directories</strong>, so two files with the same name from different
+directories overwrite each other; with <code>-R</code> each file keeps its place below the
+folders before the first pattern. <code>RENAME</code> and <code>COPY</code> to a name with <code>*</code> apply
+the <code>*</code> to each file's own name (<code>RENAME a{1,2}.txt *.bak</code>).</li>
+<li>A pattern that matches nothing is error <strong>4152</strong>, file not found, as before. With several names
+in one command it is not an error unless none of them match; see <a href="#glob-several">1.7</a>.</li>
+<li>Redirection (<code>&gt; file</code>, <code>&gt;&gt; file</code>, <code>&gt; A$</code>) works for the commands that had it. Into an array,
+<code>&gt;</code> and <code>&gt;&gt;</code> alike add elements for more lines. A longer line makes the elements longer, at the
+console and under <code>EXECUTE</code> alike, without <code>ON SOFLOW GROW</code> or <code>SOFLOW-GROW</code> being needed; the
+one exception is an <code>EXECUTE</code> run under <code>ON SOFLOW IGNORE</code>, which cuts the line to the element
+length instead. Growing stops at <code>SOFLOW-GROW MAX=</code>, past which the line is error 58.</li>
+</ul>
+<a id="glob-several"></a>
+<h3 id="17-several-names-in-one-command">1.7 Several names in one command</h3>
+<p><code>COPY</code>, <code>MOVE</code>, <code>RENAME</code>, <code>TYPE</code> and <code>SEARCH</code> take more than one <code>&lt;from&gt;</code> (<code>TYPE</code>, <code>SEARCH</code>: <code>&lt;file&gt;</code>), separated by commas or blanks, as
+any parameters are. Each name may be a pattern. A name with a blank in it is quoted.</p>
+<pre><code>COPY a.txt,data\*.dat,notes\ bak
+COPY a.txt data\*.dat notes\ bak
+MOVE old1,old2 archive\
+RENAME a,b *.bak
+TYPE head.txt,body.txt &gt;all.txt
+</code></pre>
+<ul>
+<li><strong>The last name is where they go.</strong> <code>COPY a,b,c</code> and <code>COPY a b c</code> both copy <code>a</code> and <code>b</code> to <code>c</code>, as in <code>cp</code>
+and <code>mv</code>; <code>COPY a b</code> is as it always was. A blank is a separator, so a missing or extra name changes what
+the command means: the rule below about the target is what catches most such slips. <code>TYPE</code> has no target: every name is a file to show, in the order
+written, into one redirect.</li>
+<li><strong>A folder, unless the target has a wildcard.</strong> With several <code>&lt;from&gt;</code> the target must be an
+existing folder, or error <strong>4203</strong> (path does not exist or is not a directory). A target with <code>*</code> or <code>?</code>
+is not required to be one: it makes each file's own name, as for one <code>&lt;from&gt;</code>. <code>-R</code> makes the folder as
+it does for one.</li>
+<li><strong>Names are taken in the order written</strong>, each one's matches in the order of 1.6. <strong>A file that
+more than one name matches is handled once, at the first</strong>: the later matches are ignored, by the
+file's whole name and, on Windows, without regard to case. So <code>COPY a.txt,*.txt dir</code> copies <code>a.txt</code> once,
+and <code>TYPE</code> shows it once. The overwrite question, or error 4150 where none can be asked, still shows when
+<em>different</em> files would be given one name (a wildcard <code>&lt;to&gt;</code>); <code>-F</code> and an answer of <code>all</code> replace
+without a word.</li>
+<li><strong>A name that matches nothing is skipped</strong>, because another may match. If none match, the
+command is error <strong>4152</strong>, file not found. A single name that matches nothing is error 4152 as before.
+A name that is skipped for being misspelt is not reported.</li>
+<li><strong><code>RENAME -D</code></strong> (one folder, renamed whole) takes one name; several are a syntax error.</li>
+<li>An error, or Esc or Ctrl-A at a question, stops the whole command, not only the name it came in.</li>
+</ul>
+<a id="slash"></a>
+<h2 id="2--in-a-file-name">2. <code>/</code> in a file name</h2>
+<p>A <code>/</code> has two readings, the System/23 one (<code>file/directory/drive</code>, and
+<code>file//10</code>, <code>file//11</code> for the spooler and AUX) and a folder separator.
+<code>OPTION 84</code> says which is tried first and whether the other is tried if the
+first finds no file or folder. The full rules are in
+<a href="../../30-io-file/file-model/spec.html#slash">file-model</a> and the option is in
+<a href="../../00-configuration/config-directives/OPTION_(Config).html">OPTION (config)</a>. In brief:</p>
+<ul>
+<li>The name is resolved the first way and the operation tried; if it fails as
+file not found (4152) or path not found (4203) it is tried the other way.
+Nothing looks at the disk to decide.</li>
+<li>Level 1, the default: System/23 first if the name has a <code>\</code>, has only one <code>/</code>,
+or has <code>//</code> and a digit (which is never read any other way); otherwise
+folders first. Level 0 is the behaviour of earlier releases; level 5 is
+folders only.</li>
+<li>Patterns work with <code>/</code> as with <code>\</code>: <code>DIR src/**/*.cpp</code>.</li>
+<li><code>CHDIR</code> goes to whichever reading is a directory.</li>
+</ul>
+<a id="tab-completion"></a>
+<h2 id="3-tab-completion-at-the-ready-prompt">3. Tab completion at the <code>READY</code> prompt</h2>
+<a id="tab-what"></a>
+<h3 id="31-what-it-does">3.1 What it does</h3>
+<p>With the cursor in a file name of one of these commands, <strong>Tab</strong> completes the
+name from the files that are there:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Shortest form Tab knows</th>
+<th>Words completed</th>
+<th><code>&gt;</code> file</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>COPY</code></td>
+<td><code>COP</code></td>
+<td>the first and second (source and target)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>RENAME</code></td>
+<td><code>REN</code></td>
+<td>the first and second (from and to)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>MOVE</code></td>
+<td><code>MO</code></td>
+<td>the first and second (from and to)</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>FREE</code></td>
+<td><code>FREE</code></td>
+<td>the first</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>DROP</code></td>
+<td><code>DR</code></td>
+<td>the first</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>TYPE</code></td>
+<td><code>TY</code></td>
+<td>the first</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>DIR</code></td>
+<td><code>DIR</code></td>
+<td>the first</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>LOAD</code></td>
+<td><code>LO</code></td>
+<td>the first</td>
+<td></td>
+</tr>
+<tr>
+<td><code>RUN</code></td>
+<td><code>RU</code></td>
+<td>the first</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>SAVE</code></td>
+<td><code>SA</code></td>
+<td>the first</td>
+<td></td>
+</tr>
+<tr>
+<td><code>REPLACE</code></td>
+<td><code>REP</code></td>
+<td>the first</td>
+<td></td>
+</tr>
+<tr>
+<td><code>MERGE</code></td>
+<td><code>ME</code></td>
+<td>the first</td>
+<td></td>
+</tr>
+<tr>
+<td><code>PROC</code></td>
+<td><code>PROC</code></td>
+<td>the first; in <code>PROC *name</code> the <code>*</code> stays and the name after it is completed</td>
+<td></td>
+</tr>
+<tr>
+<td><code>SUBPROC</code></td>
+<td><code>SU</code></td>
+<td>the first</td>
+<td></td>
+</tr>
+<tr>
+<td><code>RMDIR</code></td>
+<td><code>RM</code></td>
+<td>the first — <strong>directories only</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>CHDIR</code></td>
+<td><code>CH</code>, or <code>CD</code></td>
+<td>the first — <strong>directories only</strong>. <code>CD</code> may have <code>\</code>, <code>/</code> or <code>.</code> straight after it (<code>CD\data</code>, <code>CD..\x</code>), as BR allows</td>
+<td></td>
+</tr>
+<tr>
+<td><code>LIST</code></td>
+<td><code>LIS</code></td>
+<td>only a word that begins with <code>&lt;</code>, wherever it is on the line (<code>LIST &lt;menu</code>, <code>LIST 100 500 &lt;menu</code>); the <code>&lt;</code> stays and the name after it is completed. See <a href="../editing/spec.html#list-input"><code>LIST &lt;program</code></a></td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>STATUS</code></td>
+<td><code>ST</code></td>
+<td>none</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>DISPLAY</code></td>
+<td><code>DIS</code></td>
+<td>none</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>INDEX</code></td>
+<td><code>I</code></td>
+<td>none</td>
+<td>yes</td>
+</tr>
+<tr>
+<td><code>BREAK</code></td>
+<td><code>B</code></td>
+<td>none</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The <code>&gt;</code> column</strong> is the output redirection. On these commands a word that
+begins with <code>&gt;</code> or <code>&gt;&gt;</code> is a file name wherever it is on the line, and Tab
+completes the name written after the <code>&gt;</code> or <code>&gt;&gt;</code>, straight after them or after
+blanks, leaving them in place: <code>DIR *.brs &gt;li</code> becomes <code>DIR *.brs &gt;list.txt</code>,
+<code>STATUS &gt;&gt; lo</code> becomes <code>STATUS &gt;&gt; log.txt</code>. These are the commands that read a redirection
+themselves. <code>GO</code> refuses one, so Tab does not complete it there,
+nor on <code>LOAD</code>, <code>SAVE</code> and the others with no mark in the column. A
+redirection to a string array of the running program (<code>&gt; A$</code>) names no file,
+and Tab offers files only.</p>
+<p>The names are those of BR's own file system, found the way the command itself
+would find them (drive, current directory, <code>DRIVE</code> mappings), and so are the
+<strong>server's</strong> files. Every file is offered, whatever its extension, even where
+the command adds one itself (<code>LOAD</code>, <code>RUN</code>, <code>LIST &lt;</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Names starting with what was typed</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>one</td>
+<td>it is put in. A directory gets a separator after it, so the next Tab goes into it. A file that is the first name of <code>COPY</code> or <code>RENAME</code> gets a blank after it, ready for the second (a <code>&gt;</code> file does not)</td>
+</tr>
+<tr>
+<td>none</td>
+<td>the bell; the line is unchanged</td>
+</tr>
+<tr>
+<td>several</td>
+<td>they are <strong>listed</strong>, sorted, in columns above the command line, and the line comes back below the list with the first of them put in and the cursor after it. No bell</td>
+</tr>
+</tbody>
+</table>
+<p>Tab again, with the line and the cursor exactly as the last Tab left them,
+puts the <strong>next</strong> name in place of the one before, and after the last comes
+round to the first again; the list is shown only once. Enter takes the name
+that is there. Anything typed or moved ends the round and makes the next Tab a
+fresh completion, so a directory is entered by typing <code>\</code> or <code>/</code> after it and
+pressing Tab. A name put in this way gets nothing after it: no separator for a
+directory and no blank before a second name. The list is cut to the height of
+the screen less three rows and ends <code>... and n more</code>.</p>
+<a id="tab-details"></a>
+<h3 id="32-details">3.2 Details</h3>
+<ul>
+<li><strong>The word</strong> is the one the cursor is in, up to the cursor. What follows the
+cursor is kept, so a name in the middle of a line can be completed.</li>
+<li><strong>Separators.</strong> <code>\</code> and <code>/</code> both end a directory part. A completed directory
+keeps the separator the person typed, or <code>\</code> if none was typed.</li>
+<li><strong>Quotes.</strong> A name with a blank or comma in it is put in quotes (<code>&quot;</code> unless
+the name has one, then <code>'</code>), the opening quote going before the whole word. It
+completes inside the quotes once they are open, and a completed file gets its
+closing quote. A directory is left open, to be continued.</li>
+<li><strong>Case.</strong> The completed name takes the case of the file.</li>
+<li><strong>Not completed.</strong> Options (<code>-S</code>, <code>-NPVF</code>) and any word after the file
+names the command takes (a third word of <code>COPY</code> or <code>RENAME</code>, <code>TYPE</code>'s
+<code>PRINT</code>, <code>LOAD</code>'s or <code>SAVE</code>'s <code>SOURCE</code>, <code>RUN</code>'s <code>PROC</code>) are not file names;
+Tab there sounds the bell. On a <code>LIST</code>, <code>STATUS</code>, <code>DISPLAY</code> or <code>INDEX</code> line
+every word but a <code>&lt;</code> (<code>LIST</code> only) or <code>&gt;</code> word is left alone. A word with
+<code>*</code> or <code>?</code> in it is not completed.</li>
+<li><strong>Abbreviations.</strong> The command word may be the shortest form in the table in
+3.1 or anything longer, which is exactly what BR itself accepts. <code>FREE</code>,
+<code>DIR</code> and <code>PROC</code> have no abbreviation: BR refuses <code>FR</code> and <code>FRE</code>, <code>DI</code>
+is also <code>DISPLAY</code>, and <code>PRO</code> is also <code>PROCERR</code> and <code>PROTECT</code>. A shorter word
+is ambiguous to BR (<code>CO</code> is also <code>CONFIG</code>, <code>T</code> also <code>TIME</code>, <code>L</code> and <code>LI</code> also
+<code>LINK</code>, <code>M</code> also <code>MKDIR</code>, <code>RE</code> also <code>RENUM</code>, <code>S</code> also <code>SAVE</code> …), and Tab
+after it moves to the next tab stop. <code>INDEX</code> is the only command beginning
+with <code>I</code>, so <code>I</code> alone is enough.</li>
+<li><strong>Everywhere else Tab is what it was</strong>: on any other command, and in the
+command word itself, it moves the cursor to the next tab stop.</li>
+<li><strong>Length.</strong> A completion that would make the line longer than the command
+line allows (2000 characters) is not made.</li>
+</ul>
+<a id="tab-not-taken"></a>
+<h3 id="33-options-not-taken">3.3 Options not taken</h3>
+<ul>
+<li>Tab does not complete for commands not in the table in 3.1 (<code>MKDIR</code>,
+<code>PROTECT</code>, <code>SORT</code> and the rest), nor <code>INDEX</code>'s own file names (only its <code>&gt;</code>
+file).</li>
+<li>It does not expand a pattern: a word with <code>*</code> is left alone.</li>
+<li>It is not offered to a program's <code>LINPUT</code>, only to the <code>READY</code> prompt.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/file-directory/filename-patterns.md">br_tree/70-commands/file-directory/filename-patterns.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

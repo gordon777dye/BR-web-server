@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4148 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4148</h1>
+<p><strong>Error:</strong> 4148</p>
+<p><strong>Description:</strong> File sharing violation</p>
+<p><strong>Details:</strong> Violation of <code>file sharing rules</code>.  Attempt to access a file that is in use and cannot be shared.<br>
+Most likely one of the following occurred:</p>
+<ul>
+<li>
+<p>Some other computer has the file open without sharing it.</p>
+</li>
+<li>
+<p>You need non-shared access to a file and another computer has it opened.</p>
+</li>
+<li>
+<p>The operating system (or another program) has locked the file.</p>
+</li>
+<li>
+<p>Opening an indexed file where the name and the kfname the same #Check to see that the correct <code>Shr</code> parameters were specified in the <code>Open</code> statement. If so, change the program so that it does not violate the file-sharing rules or wait for release of the file in use.</p>
+</li>
+<li>
+<p>Use <strong><code>Status</code> Locks</strong> to determine which <code>workstation</code> has the file locked.</p>
+</li>
+<li>
+<p>Possibly an anti-virus program, or any number of other programs.</p>
+</li>
+<li>
+<p>correct the mistake</p>
+</li>
+<li>
+<p><a href="http://support.microsoft.com/KB/296264/EN-US">Microsoft - Help and Support - Configuring opportunistic locking in Windows </a></p>
+</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4148.md">br_tree/90-reference/error-codes/4148.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

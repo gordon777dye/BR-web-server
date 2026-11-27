@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Library_Facility — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">library-facility</a></nav>
+<main>
+<h1>Library_Facility</h1>
+<p><code>Business Rules!</code> includes a comprehensive <strong>Library</strong> Facility which enables the main program to access <code>user-defined function</code>s from any other  program (or &quot;library&quot;) that is separate from the main program. This works similarly to <code>DLL</code> (Dynamic Link Libraries). The library may be loaded &quot;resident&quot; (staying loaded regardless of the status of the main program), it may be loaded &quot;present&quot; (remaining active in current memory as long as the main program is active), or it may be loaded &quot;as needed&quot; (loaded when needed to execute a function, then unloaded as soon as the function has been executed).</p>
+<p>A library is any <code>Business Rules! program</code> that contains library functions. A library must be identified to Business Rules! before a program can execute any of its functions. When a library is identified, Business Rules! adds its name to an internal table of library names. This table identifies the names of all the libraries that should be searched whenever a library function is called that is not yet linked to a library.</p>
+<p>Business Rules! places no limits on the number of libraries that may be loaded into memory at one time. Business Rules! provides for maximum memory usage and performance flexibility by allowing libraries to be identified and loaded into memory via three different methods: the resident method, the present method and the as-needed method. See the separate descriptions below for specific information about each type of library linkage.</p>
+<h2 id="advantages">Advantages</h2>
+<p>Some of the significant advantages of placing user-defined functions in a library rather than keeping them in the main program are as follows:</p>
+<ol>
+<li>
+<p>Reduces the size of executables - its no longer necessary to include a standard set of user-defined functions in every program in your application. For some applications (which may include literally hundreds of copies of the exact same code), the potential savings in disk space are tremendous.</p>
+</li>
+<li>
+<p>Saves maintenance time - If you're in the habit of duplicating user-defined functions in every single program that needs them, you know what kind of effort it takes to make (and distribute to your clients) even a one-line change to a function. With Business Rules Library Facility, you make the change only once, and you replace only one program at the client's site.</p>
+</li>
+<li>
+<p>Encourages use of programming standards - The use of library functions for a standard routine is a great way to encourage programming consistency and the setting of standards among your programmers.</p>
+</li>
+</ol>
+<p>This chart provides a Comparison of User-Defined Function Features and the library facility:
+<br><code>Comparison of User-Defined Function Features</code></p>
+<h2 id="library-function">Library Function</h2>
+<p>A <strong>library function</strong> is a specially defined <code>user-defined function</code>; it exists in a program which is frequently separate from the main program, but it may exist in the main program as well.</p>
+<p>To qualify as a library function, a user-defined function must simply utilize the DEF statement's LIBRARY keyword. The following is an example of a library function definition:</p>
+<pre><code class="language-business-rules"> 52400 DEF LIBRARY FNRESLIB2
+ 52500 PRINT &quot;This is a library function&quot;
+ 52600 FNEND
+</code></pre>
+<p>Executing a library function is a two-step process. First, the program executing the library function must name the function in an executed LIBRARY statement, which establishes either named or unnamed linkage. Second, the program must call the library function; this may be accomplished using any of the same methods that is available for calling non-library user-defined functions. In the following example, line 01000 uses the LIBRARY statement to establish named linkage between the function FNPRESLIB2 and the library PRESLIB. Line 01100 causes the library PRESLIB to be loaded into present memory (if the library does not already exist in memory), then executes FNPRESLIB2.</p>
+<pre><code class="language-business-rules"> 01000 LIBRARY &quot;PRESLIB&quot;: FNPRESLIB2
+ 01100 LET FNPRESLIB2
+</code></pre>
+<h3 id="implementation-considerations">Implementation Considerations</h3>
+<p>The Business Rules Library Facility was carefully designed to offer a consistent interface under varying circumstances. Before you begin implementing this capability into your existing applications and ongoing development, BRC recommends that you consider the following:</p>
+<ol>
+<li>
+<p>Should your libraries remain resident?
+Business Rules allows libraries to remain resident in memory (providing maximum performance) or to be loaded and released as needed (providing best utilization of memory). Select the method or combination of methods that's best for your applications.</p>
+</li>
+<li>
+<p>Will you use multiple versions of the same function?
+Since maintaining more than one version of a function is one method of controlling program options, BR rules for library selection have been established with care. You should carefully review these rules and the ways in which multiple libraries can be of use to you as you plan your implementation.
+Until you feel comfortable with the intricacies of the Business Rules Library Facility, it is recommended that you give every library function a unique name (a name that is different from every other library function name).</p>
+</li>
+<li>
+<p>Do your existing functions utilize global program variables?
+Unlike local user-defined functions, library functions that exist in a program separate from the main program cannot access main program variables globally. They have to be specifically passed. You should carefully review your usage of global variables before moving local functions into separate libraries.</p>
+</li>
+</ol>
+<p><strong>Functions work the same irrespective of how a library is loaded. However variables are cleared each time a RELEASE function is called and they are retained across program loads when a library is loaded resident and includes an <code>OPTION</code> RETAIN statement.</strong></p>
+<h3 id="as-needed-library">As needed Library</h3>
+<p>An as-needed library is loaded and unloaded as needed for execution of specific functions. Loading a library only when it is needed allows the program to conserve memory usage.</p>
+<p>Each library has its own global variables that are separate from the main program's variables. Global Variables in an as-needed library are cleared each time a function call to the library is completed and the library is subsequently unloaded from memory.</p>
+<p>Programs can indicate that a library is to be loaded as needed by specifying the LIBRARY statement with the RELEASE keyword. This causes Business Rules to establish named linkage between the specified function(s) and the specified library, but it does not actually load the library. (The library is loaded only when one of the as-needed library's functions is actually called.) In the following example, line 00280 establishes linkage between the library ASNLIB and the function FNASNLIB1. Line 00290 causes the following to occur:</p>
+<ol>
+<li>
+<p>Load ASNLIB into memory,</p>
+</li>
+<li>
+<p>Execute the function FNASNLIB1,</p>
+</li>
+<li>
+<p>Remove ASNLIB from memory.</p>
+</li>
+</ol>
+<pre><code class="language-business-rules"> 00280 LIBRARY RELEASE,&quot;ASNLIB&quot;: FNASNLIB1
+ 00290 LET FNASNLIB1
+</code></pre>
+<h3 id="linkage-reassignment-and-detachment">Linkage Reassignment and Detachment</h3>
+<p>Once Business Rules has established linkage between a specific function and a library, the <em>linkage</em> remains active until a specific event causes it to become reassigned or detached.</p>
+<p>REASSIGNMENT</p>
+<p>As noted previously, the LIBRARY statement may be used to establish linkage between a function and the library from which it is to be called. When a named LIBRARY statement is used, linkage is directly established between the named library and the named function(s).</p>
+<p>When an unnamed LIBRARY statement is used, Business Rules searches for the function in a particular search order and assigns linkage to the first library found where the first library statement function is defined. If a library function is defined in the main program an unnamed library statement should be used to establish linkage to it. Otherwise the main program will be loaded twice, once to run as the main program and once as a library.</p>
+<p>Once a function has actually been linked to a library, the only way to subsequently establish linkage between the same function name and a different library is to execute another LIBRARY statement that names the same function and a different library. When all of a present library's linked functions are reassigned; the library is automatically removed from memory. When all of a resident library's linked functions are reassigned; the library may be removed from memory with the CLEAR command.</p>
+<p>In the following example, line 01300 uses a named library statement to establish linkage between PRESLIB1 and the function FNASSIGN, and line 01400 actually executes FNASSIGN from the PRESLIB1 library. Line 1500 then re-assigns linkage of FNASSIGN to the library PRESLIB2, and line 1600 executes FNASSIGN from the PRESLIB2 library.</p>
+<pre><code class="language-business-rules"> 01300 LIBRARY &quot;PRESLIB1&quot;: FNASSIGN
+ 01400 LET FNASSIGN
+ 01500 LIBRARY &quot;PRESLIB2&quot;: FNASSIGN
+ 01600 LET FNASSIGN
+</code></pre>
+<p>DETACHMENT</p>
+<p>Regardless of how a library is loaded (resident, present or as needed), all linkages are detached at the time that the main program ends.</p>
+<p>There is no other way to completely detach a linkage other than ending the main program.</p>
+<h3 id="present-library">Present Library</h3>
+<p>A present library is a library that is loaded to remain in memory as long as the main program is active or until all linkages that have been established for the library are reassigned.</p>
+<p>Each library has its own global variables that are separate from the main program's variables. Global Variables in a present library are cleared when the main program ends.</p>
+<p>A library can be loaded present through three different methods:</p>
+<p>1.The first method is to specify a LIBRARY statement that identifies a library name but no function names. When this method is used, the library is loaded at the time that the LIBRARY statement is executed. For example, when the following statement is executed, the CURLIB library is immediately loaded into memory:</p>
+<pre><code>00210 LIBRARY &quot;CURLIB&quot;:
+</code></pre>
+<p>2.The second method of loading a library present is to specify the LIBRARY statement with both a library name and function names. When this method is used, the library is loaded the first time one of the specified functions is called. In the following example, line 00210 establishes linkage between the function FNCURLIB1 and the library CURLIB.</p>
+<p>Line 00220 causes the following to occur:</p>
+<ol>
+<li>
+<p>The library CURLIB is loaded as a present library,</p>
+</li>
+<li>
+<p>The function FNCURLIB is executed.</p>
+</li>
+</ol>
+<pre><code class="language-business-rules"> 00210 LIBRARY &quot;CURLIB&quot;: FNCURLIB1
+ 00220 LET FNCURLIB1
+</code></pre>
+<ol start="3">
+<li>The third way to end up with a library loaded present is to execute a CLEAR STATUS command on a library that has already been loaded resident and has attached functions, thus turning it into a present library.</li>
+</ol>
+<h3 id="resident-library">Resident Library</h3>
+<p>A resident library is a library program that is loaded to remain in memory, regardless of the status of the main program. It does not get removed from memory until it is explicitly cleared or until the Business Rules session is terminated. Loading a library resident saves the overhead associated with loading a library each time it is needed.</p>
+<p>Each library has its own global variables that are separate from the main program's variables. Business Rules allows resident libraries to handle their own global variables in any of three different ways:</p>
+<ol>
+<li>
+<p>Globals may be cleared when the main program ends,</p>
+</li>
+<li>
+<p>Globals may be retained irrespective of the status of the main program, or</p>
+</li>
+<li>
+<p>Globals may be cleared after each function call to the resident library.</p>
+</li>
+</ol>
+<p>The resident status of a resident library can be removed (thus changing the library into a present library) through the use of the CLEAR STATUS command.</p>
+<p>A library can be made resident through use of the enhanced LOAD command. However, it is important to understand that functions cannot be executed from any library -even a library that has been loaded into resident memory -until a LIBRARY statement names the functions to be executed and establishes linkage to either a named or unnamed library program - between the function call and the library function definition.</p>
+<p>In the following example, line 00130 causes RESLIB to be loaded into memory as a resident library. Line 00140 establishes named linkage between the function FNRESLIB1 and the RESLIB library. Line 00150 executes the function FNRESLIB1.</p>
+<pre><code class="language-business-rules"> 00130 EXECUTE &quot;LOAD RESLIB,RESIDENT&quot;
+ 00140 LIBRARY &quot;RESLIB&quot;: FNRESLIB1
+ 00150 LET FNRESLIB1
+</code></pre>
+<h2 id="variable-usage">Variable Usage</h2>
+<p>Before you start placing all your existing user-defined functions into separate libraries, you should fully understand how library functions deal with global variables.</p>
+<p>This section will focus on three main points:</p>
+<ol>
+<li>
+<p>How a main program and a library function can communicate,</p>
+</li>
+<li>
+<p>How functions within a library communicate, and,</p>
+</li>
+<li>
+<p>When global variables are cleared for a library program.</p>
+</li>
+</ol>
+<h3 id="how-main-programs-and-library-functions-communicate">How main programs and library functions communicate</h3>
+<p>Business Rules programs communicate with regular user-defined functions via passed parameters, the returned function value, and global variables (variables not passed in the parameter list). All of these same communication options are available for library functions that are defined within the main program. However, only the first two options are available to library functions that are separate from the main program. These functions cannot access the main program's global variables because global variables are only available to routines and functions which are defined within the same program. As a result, user-defined functions that are held within a main program may need to be reviewed for their global variable usage before they are changed to library functions and placed into a separate library program.</p>
+<p>If a program needs to communicate a large number of standard values to a library function, consider using an initialization function to pass the values to the library program. Use the initialization function to assign the passed values to global variables in the library so they will be available to all functions in the library.</p>
+<h3 id="how-functions-within-a-library-communicate">How functions within a library communicate</h3>
+<p>Within each library, all functions share variables which are global to that library, and library global variables retain their values between function calls unless the RELEASE keyword is used on the LIBRARY statement, which is allowed both for resident and as-needed libraries. When RELEASE is used global variables are cleared after each function call.</p>
+<h3 id="when-global-variables-are-cleared">When Global Variables are Cleared</h3>
+<p>This section restates the previous paragraph in a more structured style.</p>
+<p><strong>Main program library functions</strong> - For library functions that are defined within the main program, globals are cleared when a the main program ends.</p>
+<p><strong>Resident library</strong> - When a library is loaded resident, global variables may be cleared in any of three ways:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>By default, Business Rules clears a resident library's global variables when the main program ends.</td>
+</tr>
+<tr>
+<td><strong>Retain</strong></td>
+<td>When the OPTION RETAIN statement is used in a resident library program, the library retains its global variables irrespective of when the main program ends. The only way to clear globals when this statement is used is to CLEAR the library from memory or to reload it with the LOAD RESIDENT command. Remember that the library must be loaded resident for the OPTION RETAIN statement to have any affect.</td>
+</tr>
+<tr>
+<td><strong>Release</strong></td>
+<td>When a resident library is named on a LIBRARY statement with the RELEASE keyword, the library's global variables are cleared after each function call to the library. This functionality is provided so the decision to load a library resident or as-needed can be made on a customer-by-customer basis; the program code remains the same (because Business Rules handles the variables the same) regardless of whether the library is loaded resident or as-needed.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>As-Needed Library</strong> - When a non-resident library program is linked by a Library statement with the RELEASE keyword, variables (and the library code space) are cleared when each call to the library ends, provided another function call to that library is not active.
+The following table summarizes the information presented above. The keywords used in the &quot;When globals are cleared&quot; column are the same keywords used in the STATUS LIBRARY display (second column from right) to identify when variables for the listed library will be cleared. (See the &quot;STATUS&quot; command in the Commands chapter for complete information about this display.) The keywords are defined as follows:</p>
+<table>
+<thead>
+<tr>
+<th>Keyword</th>
+<th>When globals are cleared</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RUN</strong></td>
+<td>Globals are cleared when new main program is run.</td>
+</tr>
+<tr>
+<td><strong>END</strong></td>
+<td>Globals are cleared when main program ends.</td>
+</tr>
+<tr>
+<td><strong>EXIT</strong></td>
+<td>Globals are cleared after each function call to the library.</td>
+</tr>
+<tr>
+<td><strong>RETAIN</strong></td>
+<td>Globals are retained, irrespective of main program status.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Library description</th>
+<th>When globals are cleared</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main program</td>
+<td>RUN</td>
+</tr>
+<tr>
+<td>Resident library — Default</td>
+<td>END</td>
+</tr>
+<tr>
+<td>Resident library — RELEASE is specified on LIBRARY statement</td>
+<td>EXIT</td>
+</tr>
+<tr>
+<td>Resident library — OPTION RETAIN statement is in library program</td>
+<td>RETAIN</td>
+</tr>
+<tr>
+<td>Present library</td>
+<td>END</td>
+</tr>
+<tr>
+<td>As-needed library</td>
+<td>EXIT</td>
+</tr>
+</tbody>
+</table>
+<h2 id="additional-processing-considerations">Additional Processing Considerations</h2>
+<p>Alternate libraries can be interrogated with function key 9 during a program pause.</p>
+<p>Active procedures (scripts) and opened files are not affected by library function calls, unless the library issues commands that specifically affect them. This includes <code>PROCERR</code> settings.</p>
+<p>A nice aspect of library functions is the capability of a program to call a library function, which, in turn, calls a function in the main program. This supports the concept of manager functions that provide overall functionality while the main program fills in the details that may vary from program to program.</p>
+<p>Main program functions can be called by libraries. These can even displace functions of the same name within the libraries.  The way to permit library routines to be overridden (functionally replaced) by corresponding functions in the main program is to have the library include those functions in a LIBRARY statement that doesn't specify a library name. The library will then attach the library function in the main program instead of its own, even if a copy of the function exists in the library, because the main program is always regarded as having been loaded last for purposes of resolving unnamed library searches.</p>
+<p>Note that if a LIBRARY statement within a resident library creates linkage and then the main program ends, the linkage is broken and that LIBRARY statement must be re-executed before the function can be called again by the resident library.</p>
+<p>With respect to speed, parameters should be passed by reference (using the &amp; in front of the variable name in the DEF statement) wherever possible. This avoids needless allocation of memory and copying of data, which is a significant part of function call processing.</p>
+<p>If you want to avoid the processing time required to load a library until a function within it is called, simply name the library and function on the same LIBRARY statement. However, if you want to be sure that the named functions exist within the library, first load the library with a statement that contains no function names. This will cause the library to be loaded at the time the LIBRARY statement is executed. Then when the LIBRARY statement containing the function list is encountered, the library (which is now in memory) will be checked for the presence of each function.</p>
+<p>It should be emphasized that executing a LOAD command does not establish function linkage. A subsequent LIBRARY statement must be processed to establish such linkage.</p>
+<p>When replacing a resident library with a different library, the first library should be cleared with a CLEAR command to free its memory before loading the second library.</p>
+<p>Updating a library (with the REPLACE command) has no effect on active application environments until the library is (re)loaded.<br>
+If a LIBRARY statement contains the name of a local function that is defined as non-library, a &quot;duplicate function definition&quot; error is generated when the program is run or saved.</p>
+<p>If a LIBRARY statement refers to a library without RELEASE and another statement refers to the same program with RELEASE, an error is generated. Also RELEASE cannot be specified for any library with the OPTION RETAIN statement.</p>
+<p>If a function in the main program, defined with the LIBRARY keyword, is called from within a library (a condition referred to as library loopback), the main program uses fresh stack space. Therefore, pre-existing for-next processes are not recognized until the library returns normally to the main program.</p>
+<p>Loopback: A library function can call back into the <strong>main program</strong> — link it with an
+<strong>unnamed</strong> <code>LIBRARY</code> statement (the main program is always treated as &quot;loaded last&quot;, so it will
+find the function quickly). A loopback call uses  <strong>fresh stack space</strong> (the caller's
+original pending loops aren't seen until the library returns).  CAUTION: If you name the main (current)
+program  in a LIBRARY statement a second copy of the main program will be initiated with all variables
+cleared  and it's variables will remain separate from the calling instance. This could be very confusing.</p>
+<p>Memory fragmentation can occur if a library is loaded resident while other programs are in memory. To avoid this problem, load your resident libraries before running application programs.</p>
+<h3 id="editing-active-libraries">Editing Active Libraries</h3>
+<p>The LIST command displays the currently active program. This means if a program is interrupted while a library call is being processed, the LIST command will show the library program statements. If desired, use F9 to select another loaded program such as the main program, and then issue another LIST command or inspect variables in that module.</p>
+<p>It is important to note that the only way to <em>save changes</em> made to a running library program is to list the library to a file and reload it from source later on. Because of this, it can be desirable to develop a new library function first within the main program. Then once you've completed the testing and debugging process, you can move it to a separate library and test it there.</p>
+<p>There is, however, another approach that can work. If you load the library program in a separate session, solely for the purpose of changing the stored program, and then test your changes by saving them in the extra session and restarting the main program, this can be a convenient way to change libraries. It only takes a few seconds to CLEAR PROC and rerun the main program. And the DEBUG breakpoints set in the library remain in effect until specifically cleared.</p>
+<h3 id="linkage">Linkage</h3>
+<p>When used to its full potential, the Business Rules Library Facility enables multiple versions of the same function (with the same name) to exist in different libraries, all of which may be loaded into memory. The actual library that is used for a specific function call is determined by the most recently executed LIBRARY statement establishing linkage to the function.</p>
+<p>The LIBRARY statement may be used to establish linkage in one of two ways: the named method, or the unnamed method. These methods are defined as follows:</p>
+<p><strong>Named</strong></p>
+<p>The LIBRARY statement explicitly links one or more specific functions to a specific library. This is the most efficient and foolproof method for assuring that the library function you wish to use gets executed.</p>
+<p>In the following example, the functions FNRESLIB1 through FNRESLIB5 are explicitly linked to the library MAIN. When any of these functions are called, Business Rules will automatically execute them from the MAIN library. (Regardless of whether or not any other library currently in memory also contains functions by the same name.)</p>
+<pre><code>50300 LIBRARY &quot;MAIN&quot;:FNRESLIB1, FNRESLIB2, FNRESLIB3, FNRESLIB4, FNRESLIB5
+</code></pre>
+<p>UNNAMED LIBRARY FUNCTIONS</p>
+<p>The LIBRARY statement names the desired library functions and leaves it to Business Rules to determine which of the currently identified libraries they should be linked to. This determination is made according to the pre-set guidelines described below. The unnamed method of linkage is useful when you have several libraries loaded and are not concerned with which library contains the desired function. An unnamed library statement <strong>must</strong> be used to establish linkage to perform callbacks to the main program for accessing or changing data in the main program.</p>
+<p>When the unnamed method is used, Business Rules first searches the main program, then each library that is currently loaded (in last loaded, first searched order) for each function listed on the LIBRARY statement. Once Business Rules finds the function, the linkage is established, and future calls to the same function will continue to utilize the same linkage until it is changed. Note that Business Rules does not search as-needed (RELEASE) libraries when using the unnamed method of establishing linkage. Also, it is important to understand that it can take significantly longer to establish linkage using the unnamed method of linkage than with the named method of linkage.</p>
+<p>In the following example, line 01000 loads RESLIB as a resident library. Lines 01100 and 01200 load PRESLIB1 and PRESLIB2 as present libraries, and line 01300 names ASNLIB as an as-needed library. The LIBRARY statement on line 01400 establishes unnamed linkage for the function FNALIBI. When line 01500 is executed, Business Rules searches the currently loaded programs in the following order for FNALIBI: Main program, PRESLI2, PRESLIB1, RESLIB. Note that ASNLIB is not considered for this search because it is not currently loaded in memory.</p>
+<pre><code class="language-business-rules"> 01000 EXECUTE &quot;LOAD RESLIB,RESIDENT&quot;
+ 01100 LIBRARY &quot;PRESLIB1&quot;:
+ 01200 LIBRARY &quot;PRESLIB2&quot;:
+ 01300 LIBRARY RELEASE,&quot;ASNLIB&quot;: FNASNLIB1
+ 01400 LIBRARY : FNALIBI
+ 01500 LET FNALIBI
+</code></pre>
+<h3 id="status-library">Status Library</h3>
+<p>Business Rules STATUS LIBRARY command may be used to display a table that identifies all the linkages that are currently active for each library. See the <code>STATUS</code> command for more information. For information about releasing and/or changing library linkages, see the term <code>#Linkage Reassignment and Detachment</code> earlier on this page.</p>
+<h2 id="sample-program">Sample Program</h2>
+<p>The following two sample sections of code are, for convenience purposes, labeled &quot;Main Program&quot; and &quot;Library&quot;. The Main Program references two functions (FNSEND and FNRECEIVE), which are located in the Library. Line 50 of the Main Program establishes the function linkage; line 70 prompts for a message; and line 110 calls the FNSEND function, which is defined on line 30 of the Library.</p>
+<p>FNSEND opens a serial communications port and sends the operator-specified message to the terminal connected to the port. The Main Program then calls the FNRECEIVE function, which is defined on line 80 of the Library. This function waits up to 15 seconds for a response (by default), returns the response in the parameter, and returns its length as a function value. Finally, the Main Program prints the response or the message &quot;No Response&quot;.</p>
+<p>MAIN PROGRAM</p>
+<pre><code class="language-business-rules"> 00010 ! MAIN PROGRAM
+ 00020 !
+ 00030 DIM MESG$*60, RESPONSE$*120
+ 00040 !
+ 00050 LIBRARY &quot;TOOLS\LIB1&quot;: FNSEND, FNRECEIVE
+ 00060 !
+ 00070 PRINT &quot;Specify Message&quot;
+ 00080 LINPUT MESG$
+ 00090 IF LEN(MESG$) = 0 THEN STOP
+ 00100 !
+ 00110 LET FNSEND(MESG$)
+ 00120 !
+ 00130 IF FNRECEIVE(RESPONSE$) THEN !:PRINT RESPONSE$ !:ELSE !:PRINT &quot;No Response&quot;
+ 00140 GOTO 70
+
+ Library:
+ 00010 ! LIB1
+ 00020 !
+ 00030 DEF LIBRARY, FNSEND(MESSAGE$*60)
+ 00040  IF NOT COMM_OPENED THEN !:OPEN #40: &quot;NAME=COM2:, FORMAT=ASYNC,BAUD=2400&quot;,DISPLAY, OUTIN !:COMM_OPENED = 1
+ 00050  PRINT #40: MESSAGE$
+ 00060 FNEND
+ 00070 !
+ 00080 DEF LIBRARY FNRECEIVE(&amp;RESP$)
+ 00090  LINPUT #40: RESP$ IOERR 100
+ 00100  FNRECEIVE = LEN(RESP$)
+ 00110 FNEND
+</code></pre>
+<h3 id="turning-an-existing-program-into-a-callable-library-function">Turning an Existing Program into a Callable Library Function</h3>
+<p>Business Rules Library Facility makes it easy to turn an entire program into a library function that a user can invoke at will from within another program. For example, consider a standard application that includes both a client maintenance (MNTCUST) program and an order entry program (ORDERS). You would like to give users the ability to invoke the client maintenance program from within the order entry program whenever they press F4. The steps required to do this are as follows:</p>
+<p><strong>1. Modify MNTCUST</strong> by placing the entire original program into a user-defined library function and adding a few lines that cause the program to call itself as a library function whenever it is executed as the main program.</p>
+<p>a. Move any user-defined functions that exist within the main body of the program to the end of the program (or to a separate library).</p>
+<p>b. Add lines such as the following to the top of the program. Line 00030 should be replaced with the normal MNTCUST CHAIN statement to the menu.</p>
+<pre><code class="language-business-rules"> 00010 LIBRARY &quot;MNTCUST&quot; : FNMNTCUST
+ 00020 LET FNMNTCUST
+ 00030 CHAIN -menu-
+ 00040 DEF LIBRARY FNMNTCUST
+</code></pre>
+<p>c. Add the following line to the end of the main body of the program (prior to any user-defined function definitions):</p>
+<pre><code class="language-business-rules"> 80000 FNEND
+</code></pre>
+<p>d. Change the normal main body CHAIN statement to GOTO the FNEND statement added in step c.</p>
+<p><strong>2. Modify ORDERS</strong> as follows:</p>
+<p>a. Change the screen to include a label that identifies the operation of the F4 key.</p>
+<p>b. Change the program to check for pressing of the F4 key.</p>
+<p>c. Change the program to execute the following whenever F4 is pressed. Note that the LIBRARY statement in line 50000 utilizes the &quot;RELEASE&quot; keyword: this causes the MNTCUST library to be loaded into memory on an as-needed basis only. Thus the only time that the on-the-fly client maintenance feature uses system resources is when the user actually requests the capability by pressing F4.</p>
+<pre><code class="language-business-rules"> 50000 LIBRARY RELEASE, NOFILES, &quot;MNTCUST&quot; :FNMNTCUST
+ 50010 LET FNMNTCUST
+</code></pre>
+<p>The NOFILES specification (BR release 4.3 and later) lets the library have its own independent file system. That way there is no concern for file number conflicts. The MNTCUST program will perform file IO with the same file sharing rules it would have, had it been executed on a separate workstation.</p>
+<p>Files opened NOCLOSE by NOFILES libraries are opened as normal files. In such cases the NOCLOSE parameter is ignored.</p>
+<h4 id="other">Other</h4>
+<p>See <code>FNsnap tips</code> for accessing Fnsnap functions as libraries.</p>
+<h2 id="error-processing">Error Processing</h2>
+<p>If an error is not trapped in a library function, the error is reported back to the calling program. When that happens the following system variables are set:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LINE</strong></td>
+<td>The line number of the erroneous statement.</td>
+</tr>
+<tr>
+<td><strong>ERR</strong></td>
+<td>The error number that occurred in the library function.</td>
+</tr>
+<tr>
+<td><strong>CNT</strong></td>
+<td>The appropriate value as if the error occurred in the calling program.</td>
+</tr>
+</tbody>
+</table>
+<p>If an error occurs while attempting to match parameters between a function call and the function definition, CNT is set to the number of parameters successfully matched.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/library-facility/Library_Facility.md">br_tree/50-libraries/library-facility/Library_Facility.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

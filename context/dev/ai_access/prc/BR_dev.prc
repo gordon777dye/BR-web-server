@@ -45,11 +45,15 @@ LET X=MSG("harness",8720,"DEVELOP")
 !     br_mcp_driver connect
 !
 ! The assistant can READ this session - screen, fields, cursor - with no
-! grant at all.  NO GRANT IS GIVEN HERE, because a development session
-! usually wants an assistant that reads:
+! grant at all.  It is ALSO GIVEN THE KEYBOARD, with no time limit: a
+! negative number means exclusive, no expiry, which is deliberate here
+! because a development session is one where the assistant is meant to
+! type.
+LET X=MSG("grant",-1)
 !
-!   To let it TYPE, for ten minutes:  LET X=MSG("grant",600)
-!   To take that back:                LET X=MSG("grant",0)
+!   To take the keyboard back:         LET X=MSG("grant",0)
+!   To lend it for ten minutes only:   take it back first, then
+!                                      LET X=MSG("grant",600)
+!   To send the assistant away:        LET X=MSG("harness",0)
 !
 ! No SYSTEM at the end: this hands you a session to work in.
-LET X=MSG("grant",-1) ! grants unlimited AI access

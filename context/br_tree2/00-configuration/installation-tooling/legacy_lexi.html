@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Legacy Lexi — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">installation-tooling</a></nav>
+<main>
+<h1>Legacy Lexi</h1>
+<p><strong>Lexi</strong>, the <strong>BR! Lexical Preprocessor</strong>, rewrites a handful of extra constructs — plus, in its
+best-known feature, an entire program's <strong>line numbers</strong> — into plain, correctly line-numbered BR
+text before real BR ever compiles it. It was originally built to integrate <code>BR</code> with a <code>third party editor</code> (<code>MyEdit</code> first, then <code>Notepad++</code>, and it will work with any editor that supports
+customizable user tools), and that editor-integration story is still how most people meet it — but
+Lexi itself is not an editor plugin. It's a <strong>BR program</strong>, runnable headlessly with no editor
+involved at all (see <a href="#headless">Headless / scripted invocation</a>).</p>
+<p><em>This page is the original Lexi: the <code>lexi.brs</code> library and the tools built on it. The Lexi
+built into brls is described in <a href="LEXI.html">LEXI</a>.</em></p>
+<p>If you use Lexi, you can edit your <code>BR Programs</code> <strong>without line numbers</strong>. This frees you up to
+copy and paste code, rearrange code, and add and edit code without having to worry about or
+manually change any line numbers — Lexi adds and changes and manages your <code>line numbers</code> for you
+automatically when you &quot;compile&quot; your program. By preprocessing your <code>source code|code</code> before
+it's passed to BR, Lexi also gives you access to a handful of extra constructs BR doesn't have on
+its own: the <code>#Select#</code>/<code>#Case#</code> construct (informally called &quot;Select Case&quot;) and the <code>#Define#</code>
+substitution directive documented under <a href="#directives">Directive reference</a> below, plus <code>/* ... */</code>
+comments and the <code>X$&amp;=</code> compound-append shorthand.</p>
+<a id="mechanism"></a>
+<h2 id="what-lexi-actually-is">What Lexi actually is</h2>
+<p>Lexi is a <strong>BR library program</strong>, not a separate compiler binary:</p>
+<ul>
+<li><strong><code>lexi.br</code>/<code>lexi.brs</code></strong> is the library itself, exposing two functions:
+<ul>
+<li><strong><code>fnApplyLexi(InFile$, OutFile$, Mode, SourceMapFile$)</code></strong> — translates Lexi-only syntax to
+plain BR and writes the result to <code>OutFile$</code>. The <code>Mode</code> argument controls line numbering:
+<code>1</code> translates syntax only, keeping whatever line numbers <code>InFile$</code> already has; <code>0</code> assigns
+line numbers <strong>and</strong> translates syntax in one pass — the mode a file written with
+<code>#AutoNumber#</code> (no baked-in numbers of its own — the normal shape of hand-authored,
+number-free source) needs.</li>
+<li><strong><code>fnUndoLexi(InFile$, OutFile$)</code></strong> — the reverse: strips line numbers back out of a numbered
+program, restoring the number-free editing shape (see <a href="#no-line-numbers">No Line Numbers</a>).</li>
+</ul>
+</li>
+<li>Every distribution of Lexi — the classic SageAX zip and the VS Code extension bundle described
+next — ships the same <code>fnApplyLexi</code>/<code>fnUndoLexi</code> engine; only the surrounding driver scripts and
+packaging differ.</li>
+</ul>
+<a id="distributions"></a>
+<h2 id="where-lexi-comes-from">Where Lexi comes from</h2>
+<p>Two confirmed real distributions (there may be others):</p>
+<h3 id="classic-distribution--the-sageax-zip">Classic distribution — the SageAX zip</h3>
+<p>The traditional path: download <code>Lexi.zip</code> from SageAX, unzip to a fixed local folder, and wire it
+into an editor's user-tools menu. This is the distribution <a href="#installation">Installing the classic
+distribution</a> below walks through, and the one the rest of BR's ecosystem has
+historically meant by &quot;Lexi.&quot;</p>
+<h3 id="bundled-distribution--the-br-language-server-vs-code-extension">Bundled distribution — the &quot;BR Language Server&quot; VS Code extension</h3>
+<p>The VS Code extension <strong><code>crs-dev.vslang-br</code></strong> (&quot;BR Language Server&quot;) bundles the identical Lexi
+engine under <code>&lt;extension-install-dir&gt;/Lexi/</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lexi.br</code> / <code>lexi.brs</code></td>
+<td>The Lexi library itself (see <a href="#mechanism">above</a>)</td>
+</tr>
+<tr>
+<td><code>lexionly.brs</code></td>
+<td>Thin driver: <code>fnApplyLexi(InFile$, OutFile$, 1, SourceMapFile$)</code> — translate only, numbers already present</td>
+</tr>
+<tr>
+<td><code>linenum.brs</code></td>
+<td>Thin driver: <code>fnApplyLexi(InFile$, OutFile$, 0, SourceMapFile$)</code> — assign numbers and translate</td>
+</tr>
+<tr>
+<td><code>strip.brs</code></td>
+<td>Thin driver: <code>fnUndoLexi(InFile$, OutFile$)</code></td>
+</tr>
+<tr>
+<td><code>brnative.exe</code> / <code>brnative.42.exe</code> / <code>brlinux</code></td>
+<td>Bundled BR runtimes (4.3 / 4.2 / Linux 4.3) used to actually run the above</td>
+</tr>
+<tr>
+<td><code>wbconfig.sys</code></td>
+<td>A config used only for this compile step — separate from any app's own <code>brconfig.sys</code></td>
+</tr>
+</tbody>
+</table>
+<p>The extension's own README states its user-facing behavior plainly: <strong>&quot;Compile <code>.brs</code>/<code>.wbs</code> to
+<code>.br</code>/<code>.wb</code> via the Lexi preprocessor&quot;</strong>, triggerable by <code>Ctrl+Shift+B</code> or automatically <strong>on
+save</strong> (a per-file status-bar toggle). &quot;Saving a <code>.brs</code> file in VS Code produces the matching
+<code>.br</code>&quot; is not the editor compiling anything itself — it's the extension shelling out to run this
+same Lexi library through its bundled BR runtime. Some apps also keep their own root-level copy of
+<code>lexi.brs</code> (e.g. because a screen-compile step invokes it directly) — check that app's own
+conventions doc if so; a byte-for-byte diff against one such app-root copy, done during a prior
+onboarding, found it identical to the extension's bundled copy aside from CRLF-vs-LF line endings,
+but confirm byte-identity again rather than assuming it for a given app.</p>
+<a id="vscode-mechanism"></a>
+<h3 id="how-the-vs-code-extension-invokes-lexi">How the VS Code extension invokes Lexi</h3>
+<p>Reverse-engineered by reading the extension's own bundled <code>dist/extension.js</code> (not officially
+documented) — the <em>translation</em> step has since been verified independently by actually running it
+outside VS Code; the surrounding copy-in/compile-to-<code>.br</code>/copy-out steps are still as-read from the
+code, not personally re-run end-to-end:</p>
+<ol>
+<li>Copy the current source into a temp file the extension manages (under a <code>tmp/</code> folder next to
+the source).</li>
+<li>Generate a small BR <strong>proc</strong> that:
+<ul>
+<li><code>subproc lexionly.brs</code> or <code>subproc linenum.brs</code>, picked by whether the source already has
+line numbers;</li>
+<li><strong>types two more numbered lines directly into the proc</strong> — <code>Infile$=&quot;tmp\...&quot;</code> /
+<code>Outfile$=&quot;tmp\...&quot;</code> (and <code>SourceMapFile$=...</code>, if a source map was requested) — which BR
+inserts into the <code>lexionly.brs</code>/<code>linenum.brs</code> program now sitting in memory, between its
+existing <code>dim</code> and <code>library</code>/<code>fnApplyLexi</code> lines, exactly as if a human had typed new lines
+at the keyboard. This is how <code>Infile$</code>/<code>Outfile$</code> actually get set — not a command-line
+argument or an environment variable;</li>
+<li><code>run</code> (executes the now-patched Lexi driver against those files);</li>
+<li><code>clear</code>;</li>
+<li><code>subproc &lt;the-now-translated-temp-file&gt;</code> (loads the plain-BR result as the program to
+compile);</li>
+<li><code>skip PROGRAM_REPLACE if exists(...)</code> / <code>save &quot;&lt;target&gt;.br&quot;</code> <strong>or</strong> <code>replace &quot;&lt;target&gt;.br&quot;</code>
+(fresh compile vs. recompile over an existing object);</li>
+<li><code>system</code> (exit).</li>
+</ul>
+</li>
+<li>Run that proc through the bundled runtime with the bundled <code>wbconfig.sys</code> (a
+<code>&quot;&lt;brnative.exe&gt;&quot; &quot;PROC &lt;path&gt;&quot; -&lt;wbconfig&gt;</code> invocation — the same shape as any BR
+<a href="../platform/spec.html">startup command line</a>), and watch stdout for BR's own error patterns to
+report a compile failure back in the editor.</li>
+</ol>
+<a id="headless"></a>
+<h3 id="headless--scripted-invocation">Headless / scripted invocation</h3>
+<p>The mechanism above can be reproduced directly, with no editor involved. Verified live against
+the VS Code extension's bundled <code>Lexi/brnative.exe</code> + <code>Lexi/wbconfig.sys</code>, run under <code>UNATTENDED</code>
+logging so a bad input aborts fast instead of hanging:</p>
+<pre><code>proc noecho
+subproc linenum.brs
+00025 Infile$=&quot;:C:\full\path\to\source.brs&quot;
+00026 Outfile$=&quot;:C:\full\path\to\translated-output.brs&quot;
+run
+clear
+system
+</code></pre>
+<p>Run from inside the <code>Lexi/</code> folder (so the bare <code>subproc linenum.brs</code> resolves), e.g.
+<code>Lexi\brnative.exe &quot;proc :C:\full\path\to\this.prc&quot; -Lexi\wbconfig.sys</code>. The leading <code>:</code> on each
+absolute path is required — without it BR applies its own <code>DRIVE</code>-letter substitution to <code>C:</code> and
+resolves the path wrong; a bare <code>:</code> marks a literal OS path (see <a href="../platform/spec.html">platform — startup command
+line</a>).</p>
+<p>This kit ships a maintained wrapper around exactly this proc —
+<strong><a href="../../../dev/tools/lexi-compile.ps1"><code>dev/tools/lexi-compile.ps1</code></a></strong> (PowerShell) — that
+auto-detects the VS Code extension's bundled Lexi install, builds the proc, and runs it under
+unattended logging with proper quoting/timeout handling:</p>
+<pre><code class="language-powershell"># Translate only — produces &lt;source&gt;.lexiout.brs next to the source
+dev\tools\lexi-compile.ps1 -Source path\to\file.brs
+
+# Translate AND compile to a real .br object
+dev\tools\lexi-compile.ps1 -Source path\to\file.brs -Compile
+</code></pre>
+<p>See <a href="../../../dev/BR_launch.md#the-lexi-preprocessor"><code>dev/BR_launch.md</code></a> for the full parameter
+list, and <a href="../../../dev/APP-DEV-GUIDE.md#lexi-aware-coding-loop"><code>dev/APP-DEV-GUIDE.md</code></a> for the
+&quot;Lexi-aware coding loop&quot; this feeds into (translate → <code>brls -check</code>/<code>-sema</code> the translated file →
+fix the original → recompile).</p>
+<a id="installation"></a>
+<h2 id="installing-the-classic-distribution">Installing the classic distribution</h2>
+<p>Lexi can be used to automatically convert between BRS and BR files from within MyEdit. This can
+make your editing life much easier. Lexi works with <strong>all versions of BR</strong>; the classic
+zip-and-user-tools installation below requires a version of MyEdit dated <code>October 20</code>, <code>2006</code> or
+later. (If you're onboarding an app that's built around the VS Code extension instead, see
+<a href="#distributions">Bundled distribution</a> and <a href="#headless">Headless / scripted invocation</a> — none of
+the MyEdit-specific steps below apply to that path.)</p>
+<p>The latest version of Lexi can be found at <code>http://www.sageax.com/downloads/Lexi.zip</code> (SageAX).</p>
+<h3 id="automatic-installation-myedit">Automatic installation (MyEdit)</h3>
+<p>Requires a version of MyEdit dated <code>March 5</code>, <code>2010</code> or later.</p>
+<ol>
+<li>Unzip <code>Lexi.zip</code> into <code>C:\Lexi</code>. You must use this directory for the automatic installation to
+work.</li>
+<li>Copy your personal <code>brserial.dat</code> file into this directory (<code>C:\Lexi</code>).</li>
+<li>Launch MyEdit.</li>
+<li>Select <em>Tools → Configure User Tools → Import Tools</em>. Select the <code>Lexi.mut</code> file that came in
+<code>Lexi.zip</code>.</li>
+</ol>
+<h3 id="manual-installation-myedit">Manual installation (MyEdit)</h3>
+<ol>
+<li>
+<p>Unzip <code>Lexi.zip</code> into its own directory.</p>
+</li>
+<li>
+<p>Copy your personal <code>BRSerial.dat</code> file into this directory.</p>
+</li>
+<li>
+<p>Launch MyEdit.</p>
+</li>
+<li>
+<p>Go to the Tools menu, then select <em>Configure User Tools</em>.</p>
+</li>
+<li>
+<p>Select <em>Add</em>.</p>
+</li>
+<li>
+<p>Enter the following (replacing <code>C:\Lexi\</code> with the appropriate folder) and click OK to add the
+&quot;Compile&quot; tool:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Menu Item Name</td>
+<td>Compile BR Program</td>
+</tr>
+<tr>
+<td>Application/Command</td>
+<td><code>C:\Lexi\ConvStoO.cmd</code></td>
+</tr>
+<tr>
+<td>Working Folder</td>
+<td><code>C:\Lexi\</code></td>
+</tr>
+<tr>
+<td>Command Line Parameters</td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+</tbody>
+</table>
+<p>There are six other tools you can add the same way, substituting from the table below.</p>
+</li>
+</ol>
+<p>Once installed: loading a <code>.BR</code> file in MyEdit and selecting &quot;Extract Source&quot; converts it to
+<code>.BRS</code> and reloads it; loading a <code>.BRS</code> file and selecting &quot;Compile&quot; automatically compiles it back
+into a <code>.BR</code> file. This works with all versions of BR.</p>
+<h4 id="available-functions-myedit-user-tools">Available functions (MyEdit user tools)</h4>
+<table>
+<thead>
+<tr>
+<th>Menu Item</th>
+<th>Application</th>
+<th>Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compile BR Program</td>
+<td><code>ConvStoO.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Extract Source Code</td>
+<td><code>ConvOtoS.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Debug BR Program*</td>
+<td><code>DebugBR.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Extract Source Code and Strip Line Numbers</td>
+<td><code>ConvOSNL.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Add Line Numbers</td>
+<td><code>AddLN.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Strip Line Numbers</td>
+<td><code>StripLN.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+<tr>
+<td>Run BR Program</td>
+<td><code>RunBR.cmd</code></td>
+<td><code>%%np_name %%npne_name &quot;%%name&quot; &quot;%%folder&quot;</code></td>
+</tr>
+</tbody>
+</table>
+<p>* Debug BR Program requires a copy of <code>brnative.exe</code> (the matching version) sitting in the
+application folder — not always possible. Use Compile BR Program where Debug BR Program can't be
+used.</p>
+<h3 id="notepad">Notepad++</h3>
+<p>Lexi can also be driven from Notepad++ by adding user commands to <code>shortcuts.xml</code> (typically
+<code>%appdata%\Roaming\Notepad++</code>) or via <em>Run → Run...</em> saved as user commands, e.g.:</p>
+<pre><code>BR!s - Compile
+C:\Lexi\ConvStoO.cmd &quot;$(FULL_CURRENT_PATH)&quot;
+
+BRS - Line numbers - Add
+C:\Lexi\AddLN.cmd &quot;$(FULL_CURRENT_PATH)&quot;
+Alt+Shift+8
+
+BRS - Line numbers - Remove
+C:\Lexi\StripLN.cmd &quot;$(FULL_CURRENT_PATH)&quot;
+Alt+8
+</code></pre>
+<p>Only these three functions (compile, add line numbers, strip line numbers) are documented for
+Notepad++ — the other MyEdit tools (debug, extract-source) have not been ported to a Notepad++
+command by any documented setup.</p>
+<h3 id="sublime-text">Sublime Text</h3>
+<p>No documented setup exists for Sublime Text specifically; the general &quot;any editor with
+customizable user tools&quot; approach (wire a command to <code>ConvStoO.cmd</code>/<code>StripLN.cmd</code>/<code>AddLN.cmd</code>, same
+parameter shape as the Notepad++ commands above) is the only known path.</p>
+<h3 id="tips-all-third-party-editors">Tips (all third-party editors)</h3>
+<ul>
+<li>Inside the <code>\Lexi\</code> folder is a copy of BR renamed to <code>brnative.exe</code>. It works better if this is
+the same BR version you use in your programs — copy your BR over it if not.</li>
+<li>If &quot;Extract Source&quot; fails and MyEdit was installed to a custom location, edit <code>ConvOtoS.cmd</code> to
+point at the correct <code>MyEdit.exe</code> path.</li>
+<li><code>DebugBR.cmd</code> only works if a working <code>brnative.exe</code> sits in the same folder as your program
+files.</li>
+</ul>
+<a id="directives"></a>
+<h2 id="directive-reference">Directive reference</h2>
+<p>Lexi preprocesses source code before passing it to BR, adding line numbers and interpreting the
+following directives/constructs. (The first two below — multi-line comments and compound append —
+were confirmed by running the real <code>fnApplyLexi</code> engine against test input; they were never
+documented in this reference before.)</p>
+<h3 id="----multi-line-comments"><code>/* ... */</code> — multi-line comments</h3>
+<p>A C-style block comment, rewritten to ordinary <code>!</code> comments. A comment spanning multiple source
+lines collapses on translation — the closing fragment attaches to the <em>next</em> line as a trailing
+<code>!</code> comment rather than getting its own numbered line, so don't expect a strict
+1:1 source-line-to-output-line mapping.</p>
+<p><strong>Open and close it on different lines.</strong> On the line where <code>/*</code> is found, Lexi does not look for
+<code>*/</code>. A one-line <code>/* note */</code> therefore starts a comment that runs on, every following line
+commented out with <code>!</code>, until a later line contains <code>*/</code>.</p>
+<p><strong>A line ending in <code>*/</code> is joined to the next line.</strong> It ends in <code>/</code>, and Lexi joins a line ending
+in an operator (<code>/</code> among them) to the next line before it handles block comments. After a one-line
+<code>/* note */</code>, the next line is joined into the comment and lost:</p>
+<pre><code>/* one-line block comment */      00031 ! one-line block comment */ let A=1
+let A=1                    →      00032  ! print A
+print A
+</code></pre>
+<p>At the end of a multi-line comment the join does no harm: the joined line follows the <code>*/</code>, and
+Lexi moves it in front as code, so <code>over two lines */</code> followed by <code>let B=2</code> becomes
+<code>00026  let B=2 ! over two lines</code>.</p>
+<h3 id="x--compound-append"><code>X$&amp;=&quot;...&quot;</code> — compound append</h3>
+<p>Shorthand for appending to a string variable. Lexi does <strong>not</strong> rewrite this to naive
+self-concatenation (<code>X$=X$&amp;&quot;...&quot;</code>, which silently corrupts past ~120,000 cumulative bytes — see
+<a href="../../../dev/essentials.md"><code>dev/essentials.md</code></a>, §4's self-concatenation gotcha).
+It emits the corruption-safe append idiom directly: <code>X$(INF:0)=&quot;...&quot;</code>.</p>
+<a id="no-line-numbers"></a>
+<h3>No line numbers</h3>
+<p>Working without <code>Line Numbers</code> is the feature Lexi is best known for. Load a file in MyEdit as
+source code; if it has line numbers, select &quot;Strip Line Numbers&quot; to launch BR, strip them, and
+reload the number-free program. Edit freely, then choose &quot;Compile&quot; or &quot;Add Line Numbers&quot; to put
+numbers back — &quot;Compile&quot; also saves the result as a <code>.BR</code> file.</p>
+<pre><code>43900  ! #Autonumber# 43900,10
+43910  DoesLayoutExist: ! Return true if layout exists in the layouts folder
+43920        def library FnDoesLayoutExist(layout$;LayoutPath$*255)
+43930           let Fnsettings(Layoutpath$) !:
+                fnDoesLayoutExist = exists(LayoutPath$&amp;Filename$)
+43940        fnend
+</code></pre>
+<p>becomes, with line numbers stripped (and back again, identically, when re-added):</p>
+<pre><code>! #Autonumber# 43900,10
+DoesLayoutExist: ! Return true if layout exists in the layouts folder
+      def library FnDoesLayoutExist(layout$;LayoutPath$*255)
+         let Fnsettings(Layoutpath$) !:
+         fnDoesLayoutExist = exists(LayoutPath$&amp;Filename$)
+      fnend
+</code></pre>
+<h3 id="autonumber-lineincrement"><code>#Autonumber# &lt;line&gt;,&lt;increment&gt;</code></h3>
+<p>Directs the line-number-add routine to use specific numbers from this point on. Without it, Lexi
+starts at <code>00001</code> and counts by 1. Placed as a comment:</p>
+<pre><code>! #Autonumber# 16000,10
+DefineModes: ! Define the input spec modes
+def fnDefineInputModes
+   dim InputAttributesMode
+   ...
+</code></pre>
+<p>becomes:</p>
+<pre><code>16000 ! #Autonumber# 16000,10
+16010 DefineModes: ! Define the input spec modes
+16020 def fnDefineInputModes
+16030    dim InputAttributesMode
+...
+</code></pre>
+<p>Numbers between successive <code>#Autonumber#</code> directives must stay ascending with enough room for the
+intervening lines — if it detects the directives out of order, or not enough room, Lexi raises an
+error and stops; <code>clear</code> then <code>system</code> returns to the editor to fix the directives before saving
+and recompiling again. Placing <code>#Autonumber#</code> comments before stripping line numbers preserves the
+original numbering structure as closely as possible when numbers are re-added.</p>
+<p><strong>Write both numbers, and nothing after them.</strong> From <code>lexi.brs</code> (read, not yet run): the line
+number is read up to the comma, and the increment from after it to the end of the line.</p>
+<ul>
+<li><strong>No comma</strong> — no number is read, and the whole directive is ignored without a message.</li>
+<li><strong>Anything after the increment</strong> (<code>#Autonumber# 3000,5 resume here</code>) — the increment does not
+convert. Lexi still moves to the new number but keeps the increment already in force, and the
+directive's own line takes 3000 plus that increment, not 3000.</li>
+</ul>
+<h3 id="define-name--text"><code>#Define# [[name]] = text</code></h3>
+<p>A precompiler text-substitution constant. Wherever <code>[[name]]</code> appears on a later line, Lexi
+substitutes the defined text at preprocess time; a leading <code>.</code> on the <code>#Define#</code> comment line
+stops BR from re-casing it:</p>
+<pre><code>!. #Define# [[ScreenControls]] = mat ControlName$, mat FieldName$, mat Description$, mat VPosition, mat HPosition, mat FieldType$
+</code></pre>
+<p>lets a function signature reference <code>[[ScreenControls]]</code> and have Lexi expand it to the full
+argument list every time the program is compiled. When line numbers are stripped back out, the
+substitution reverts to <code>[[name]]</code> — the expansion is a preprocess-time artifact, not a
+permanent rewrite of the source.</p>
+<p>How <code>fnApplyLexi</code> reads it (<code>lexi.brs</code>, confirmed by running it):</p>
+<ul>
+<li><strong>The directive must not be inside quotes.</strong> Lexi looks for <code>#Define#</code> outside string
+literals only, so <code>!. &quot;#Define# [[Name]] = …&quot;</code> defines nothing and <code>[[Name]]</code> is left in the
+program as written.</li>
+<li><strong>The name is everything from <code>[[</code> to <code>]]</code></strong>, brackets included, matched without regard to case.</li>
+<li><strong>The text is the rest of the line</strong>, trimmed. A leading <code>=</code> is dropped, and so are quotes
+around the whole text: <code>! #Define# [[Q]]=&quot;quoted&quot;</code> substitutes <code>quoted</code>, not <code>&quot;quoted&quot;</code>.</li>
+<li><strong>Only the first <code>[[name]]</code> on each line is replaced</strong>, once per name: <code>let X=[[Max]]+[[Max]]</code>
+becomes <code>let X=10+[[Max]]</code>.</li>
+<li><strong>A reference inside a string literal is replaced too</strong>: <code>print &quot;[[Max]] items&quot;</code> becomes
+<code>print &quot;10 items&quot;</code>.</li>
+<li>A name never defined is left as written, and BR then reports it.</li>
+</ul>
+<a id="select-case"></a>
+<h3 id="select-expr-case-value--end-select-informally-select-case"><code>#Select# expr #Case# value ... #End Select#</code> (informally &quot;Select Case&quot;)</h3>
+<p>Lexi's case/switch-style branch. <strong>The <code>#</code> signs are required</strong> — this is the actual spelling, not
+the bare <code>SELECT CASE ... END SELECT</code> its informal name might suggest (see the correction note in
+this page's frontmatter). It translates line-for-line into an <code>IF</code>/<code>ELSE IF</code> chain, with each
+original directive line kept as a trailing <code>!</code> comment on its replacement:</p>
+<pre><code>#SELECT# Mode #CASE# InputAttributesMode
+   let Window=fnGetAttributesWindow
+   ...
+#CASE# InputFieldlistMode
+   let Window=fnGetFieldsWindow
+   ...
+#End Select#
+</code></pre>
+<p>becomes:</p>
+<pre><code>   IF  Mode  =  InputAttributesMode THEN  ! #SELECT# Mode #CASE# InputAttributesMode
+      let Window=fnGetAttributesWindow
+      ...
+   ELSE IF  Mode  =  InputFieldlistMode THEN  ! #CASE# InputFieldlistMode
+      let Window=fnGetFieldsWindow
+      ...
+   END IF  ! #End Select#
+</code></pre>
+<p><strong>The first <code>#Case#</code> must be on the same line as <code>#Select#</code>.</strong> Lexi only recognizes the
+<code>#Select# expr #Case# value</code> pair as one line. Split them (<code>#Select# Type$</code> on one line,
+<code>#Case# &quot;caption&quot;</code> on the next) and Lexi leaves the <code>#Select#</code> and <code>#Case#</code> lines untouched but
+still turns <code>#End Select#</code> into <code>END IF</code>. The result has an unopened <code>END IF</code>, which <code>brls -check -sema</code> reports and real BR refuses to LOAD (confirmed 2026-10-09). One <code>#Case#</code> can match several
+values separated by <code>#</code>, as ScreenIO's own source does:
+<code>#Select# Lwrc$(Trim$(Fieldtype$(Index))) #Case# &quot;c&quot; # &quot;search&quot; # &quot;combo&quot; # &quot;filter&quot;</code>.</p>
+<p>The trailing comments are what let &quot;Strip Line Numbers&quot; turn the <code>IF</code>/<code>ELSE IF</code> chain back into
+<code>#Select#</code>/<code>#Case#</code> form on the editor/number-free side. <strong>A bare <code>SELECT CASE ... END SELECT</code>
+(no <code>#</code> signs) is not valid syntax at all</strong> — confirmed live: Lexi leaves it completely untouched
+in both <code>Mode 0</code> and <code>Mode 1</code>, and the untouched result then fails to <code>LOAD</code> in real BR. It was
+never valid Lexi syntax, and it isn't valid base BR either (BR's <code>SELECT CASE</code>/<code>END SELECT</code> support
+requires the Lexi preprocessing step or an equivalent one — there is no built-in runtime construct
+by that bare name).</p>
+<h3 id="spacing">Spacing</h3>
+<p>Blank lines in the number-free source are turned into blank comment lines when numbers are added,
+preserving the program's visual spacing and layout.</p>
+<a id="considerations"></a>
+<h2>Considerations</h2>
+<h3 id="l-labels"><code>L#####</code> labels</h3>
+<p>Because Lexi strips line numbers before you edit, a hard-coded <code>GOTO</code>/<code>GOSUB</code> line-number
+reference would break the moment numbers change. So before stripping numbers from any program,
+Lexi loads it in BR and runs <strong><code>RENUM LABELS_ONLY</code></strong>, which replaces every hard-coded line-number
+reference with a label of the form <code>L#####</code> (<code>#####</code> = the original line number). You're then free
+to edit without line numbers, and the program still works once numbers are re-added.</p>
+<p><code>L#####</code> labels don't harm your code — it runs exactly as before. If you need them removed (e.g.
+because they read as clutter), that's a separate cleanup step, not something Lexi does
+automatically. When line numbers are re-added, any <code>L#####</code> labels present are used as hints to
+match the new numbers back to the original numbering as closely as possible.</p>
+<p>A hint is taken only when its number is still ahead. A label <code>Lnnnn:</code> whose number numbering has
+already reached or passed is numbered on, and Lexi halves the increment (never below 2) to catch
+up with the labels after it. In a test fixture, <code>L2003:</code> came out as line <code>02017</code>. A label that is
+taken, and whose number is a multiple of 10, also sets the increment to 10 from there on.</p>
+<h3 id="save-source-code-before-running-a-tool">Save source code before running a tool</h3>
+<p>Any Lexi user tool operates on the on-disk copy of the file, not what's currently in the editor
+buffer. Save before invoking a Lexi tool, or the tool compiles/strips/adds numbers to stale
+content — and because the tool reloads its <em>output</em> into the editor afterward, there's no undo:
+the editor now believes the reloaded file is what you had, and unsaved changes are simply gone.</p>
+<h3 id="proc-noecho"><code>PROC NOECHO</code></h3>
+<p>Older Lexi versions scrolled through the program's contents on screen while adding/removing line
+numbers, which could be slow for large programs. Current versions compile under <code>PROC NOECHO</code> to
+suppress that scroll and speed up compilation. The tradeoff: if a compile-time error occurs, you
+won't see the offending line printed — press <strong>F2</strong> to see it.</p>
+<h2 id="disclaimer">Disclaimer</h2>
+<p>Gabriel Bakker and Sage AX are not responsible for anything that happens to your BR programs or
+data as a result of using this or any other tool they create.</p>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="spec.html#lexi-preprocessor">Installation &amp; tooling — Lexi preprocessor</a> — the folded category summary this
+page backs.</li>
+<li><a href="LEXI.html">LEXI</a> — the Lexi built into brls.</li>
+<li><a href="../../../dev/BR_launch.md#the-lexi-preprocessor"><code>dev/BR_launch.md</code> — The Lexi preprocessor</a> —
+invoking <code>lexi-compile.ps1</code> headlessly, with its full parameter list.</li>
+<li><a href="../../../dev/APP-DEV-GUIDE.md#lexi-aware-coding-loop"><code>dev/APP-DEV-GUIDE.md</code> — Lexi-aware coding loop</a> —
+the detection check and the full translate/check/fix/compile loop this feeds into.</li>
+<li><a href="../../../dev/essentials.md#1-core-language-rules"><code>dev/essentials.md</code> §1</a> — Lexi's syntax
+summarized alongside BR's other core-language gotchas.</li>
+<li><a href="../../../dev/tools/lexi-compile.ps1"><code>dev/tools/lexi-compile.ps1</code></a> — the maintained headless
+wrapper around <a href="#headless">Headless / scripted invocation</a>.</li>
+<li><a href="MyEdit_(BR_Edition).html">MyEdit_(BR_Edition)</a> — the editor Lexi's classic distribution targets
+first.</li>
+<li><a href="../../50-libraries/screenio/spec.html">50-libraries/screenio</a> — Lexi also supports ScreenIO
+development (a screen's compiled Helper Library can be built from Lexi-preprocessed pieces).</li>
+<li><a href="../platform/spec.html">platform — startup command line</a> — the <code>&quot;&lt;exe&gt;&quot; &quot;PROC &lt;path&gt;&quot; -&lt;config&gt;</code>
+invocation shape Lexi's own headless proc runs through.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/installation-tooling/legacy_lexi.md">br_tree/00-configuration/installation-tooling/legacy_lexi.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

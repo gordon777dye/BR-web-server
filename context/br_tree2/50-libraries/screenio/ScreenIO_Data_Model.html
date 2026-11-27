@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScreenIO Data Model (screen &amp; control definitions) — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">screenio</a></nav>
+<main>
+<h1 id="screenio-data-model">ScreenIO Data Model</h1>
+<p>A ScreenIO &quot;Screen Function&quot; is <strong>data, not code</strong>: the designer stores each screen as one record in
+<code>screen/screenio.dat</code> plus one record per control in <code>screen/screenfld.dat</code>. The engine
+(<code>screenio.brs</code>) reads these at run time and drives the <a href="../../20-io-screen/input-output/spec.html">screen FIELDS</a>
+and <a href="../../30-io-file/statements/spec.html">file I/O</a> for you. Knowing this schema is what makes the
+<a href="ScreenIO_Function_Reference.html#events">event-callback contract</a> legible — events and validations are just
+string fields here that the engine <code>EXECUTE</code>s.</p>
+<p>Because these are ordinary <strong>keyed BR data files</strong> (schema below), a BR program can read or rewrite them
+directly using the documented layout, and BR's own ScreenIO designer maintains them interactively — so
+screens can be inspected and edited without leaving BR. Do not hand-edit the binaries outside BR.</p>
+<a id="screen"></a>
+<h2 id="screen-header--screeniodat-prefix-si_-key-screencode">Screen header — <code>screenio.dat</code> (prefix <code>SI_</code>, key <code>SCREENCODE</code>)</h2>
+<p>Addressed in event code as <code>Screenio$(SI_…)</code> / <code>Screenio(SI_…)</code>.</p>
+<h3 id="identity--appearance">Identity &amp; appearance</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SCREENCODE$</code></td>
+<td>V 18</td>
+<td>Screen code (primary key).</td>
+</tr>
+<tr>
+<td><code>CAPTION$</code></td>
+<td>V 60</td>
+<td>Screen caption.</td>
+</tr>
+<tr>
+<td><code>VSIZE</code> / <code>HSIZE</code></td>
+<td>B 1 / BH 2</td>
+<td>Window size (rows / cols).</td>
+</tr>
+<tr>
+<td><code>ATTRIBUTES$</code></td>
+<td>V 255</td>
+<td>Screen-level display attributes.</td>
+</tr>
+<tr>
+<td><code>PICTURE$</code></td>
+<td>V 60</td>
+<td>Background picture file.</td>
+</tr>
+<tr>
+<td><code>FGCOLOR$</code> / <code>BGCOLOR$</code></td>
+<td>C 6</td>
+<td>Foreground / background colour.</td>
+</tr>
+<tr>
+<td><code>BORDER</code></td>
+<td>B 1</td>
+<td>Window border style.</td>
+</tr>
+<tr>
+<td><code>WINDCAP$</code></td>
+<td>V 80</td>
+<td>Window caption (title bar).</td>
+</tr>
+<tr>
+<td><code>FILELAY$</code></td>
+<td>V 18</td>
+<td>File layout the screen binds to.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="event-functions-each-holds-a-br-call-string-the-engine-executes">Event functions (each holds a BR call string the engine <code>EXECUTE</code>s)</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Event</th>
+<th>Field</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ENTERFN$</code></td>
+<td>Enter</td>
+<td><code>LOOPFN$</code></td>
+<td>Main Loop</td>
+</tr>
+<tr>
+<td><code>INITFN$</code></td>
+<td>Initialize</td>
+<td><code>NOKEYFN$</code></td>
+<td>Nokey</td>
+</tr>
+<tr>
+<td><code>READFN$</code></td>
+<td>Read</td>
+<td><code>PRELISTVIEWFN$</code></td>
+<td>Listview Prepopulate</td>
+</tr>
+<tr>
+<td><code>LOADFN$</code></td>
+<td>Load</td>
+<td><code>POSTLISTVIEWFN$</code></td>
+<td>Listview Postpopulate</td>
+</tr>
+<tr>
+<td><code>WRITEFN$</code></td>
+<td>Write</td>
+<td><code>MERGEFN$</code></td>
+<td>Merge</td>
+</tr>
+<tr>
+<td><code>WAITFN$</code></td>
+<td>Wait</td>
+<td><code>EXITFN$</code></td>
+<td>Exit</td>
+</tr>
+<tr>
+<td><code>LOCKEDFN$</code></td>
+<td>Record Locked</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="behaviour-locking--merge">Behaviour, locking &amp; merge</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WAITTIME</code></td>
+<td>BH 2</td>
+<td>Input wait time; <code>-1</code> disables.</td>
+</tr>
+<tr>
+<td><code>INPUTATTR$</code></td>
+<td>V 255</td>
+<td>Default input-field attributes.</td>
+</tr>
+<tr>
+<td><code>READINDEX</code> / <code>RETURNINDEX</code></td>
+<td>B 1</td>
+<td>Key index used when reading / when returning a selection.</td>
+</tr>
+<tr>
+<td><code>SCREENIOLOCKING</code></td>
+<td>B 1</td>
+<td>Use ScreenIO record locking.</td>
+</tr>
+<tr>
+<td><code>SCREENIOMERGE</code></td>
+<td>B 1</td>
+<td>Use ScreenIO AutoMerge (multi-user concurrent-edit reconcile).</td>
+</tr>
+<tr>
+<td><code>PROTECTEDTEXT$</code> / <code>PROTECTEDCHECK$</code> / <code>PROTECTEDBUTTON$</code></td>
+<td>V 255</td>
+<td>Attributes for protected text / checkboxes / buttons.</td>
+</tr>
+<tr>
+<td><code>OTHERCHANGES$</code> / <code>MYCHANGES$</code></td>
+<td>V 255</td>
+<td>Attributes highlighting others' vs my changes (merge).</td>
+</tr>
+<tr>
+<td><code>LOCKWINDOW$</code> / <code>ACTIVECOLOR$</code></td>
+<td>V 255</td>
+<td>Lock-window colour / active-window colour.</td>
+</tr>
+<tr>
+<td><code>USERDATA$</code></td>
+<td>V 255</td>
+<td>Free user-data array available to the screen's functions.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="audit-test-harness--versioning">Audit, test harness &amp; versioning</h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CREATEDATE</code> / <code>MODIFYDATE</code></td>
+<td>BH 3</td>
+<td>Created / last-modified dates.</td>
+</tr>
+<tr>
+<td><code>CREATEUSER$</code> / <code>MODIFYUSER$</code></td>
+<td>V 30</td>
+<td>Created-by / last-modified-by user.</td>
+</tr>
+<tr>
+<td><code>PROJECT$</code>, <code>NOTES$</code></td>
+<td>V 255</td>
+<td>Designer project grouping &amp; notes.</td>
+</tr>
+<tr>
+<td><code>DEBUGSCREEN$</code>, <code>DEBUGKEY$</code>, <code>DEBUGPARENTKEY$</code>, <code>DEBUGRECORD</code>, <code>DEBUGPATH$</code>, <code>DEBUGPASSED$</code></td>
+<td>V/BH</td>
+<td>&quot;Test call your screen&quot; harness inputs (key, parent key, record #, path, passed data).</td>
+</tr>
+<tr>
+<td><code>VERSION</code></td>
+<td>BH 4</td>
+<td>Screen definition version.</td>
+</tr>
+</tbody>
+</table>
+<a id="control"></a>
+<h2 id="controls--screenflddat-prefix-sf_-keys-screencode-screencodecontrolname-recl-2500">Controls — <code>screenfld.dat</code> (prefix <code>SF_</code>, keys <code>SCREENCODE</code>, <code>SCREENCODE/CONTROLNAME</code>, recl 2500)</h2>
+<p>One record per control on a screen.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SCREENCODE$</code></td>
+<td>V 18</td>
+<td>Owning screen.</td>
+</tr>
+<tr>
+<td><code>CONTROLNAME$</code></td>
+<td>V 50</td>
+<td>Control name (unique within the screen).</td>
+</tr>
+<tr>
+<td><code>FIELDNAME$</code></td>
+<td>V 50</td>
+<td>Bound field from the file layout.</td>
+</tr>
+<tr>
+<td><code>DESCRIPTION$</code></td>
+<td>V 255</td>
+<td>Caption text, or caption field.</td>
+</tr>
+<tr>
+<td><code>VPOSITION</code> / <code>HPOSITION</code></td>
+<td>B 1 / BH 2</td>
+<td>Row / column.</td>
+</tr>
+<tr>
+<td><code>FIELDTYPE$</code></td>
+<td>V 8</td>
+<td>Control type code — input: <code>c</code>, <code>search</code>, <code>check</code>, <code>combo</code>, <code>filter</code>; output/static: <code>caption</code>, <code>button</code>, <code>p</code> (picture), <code>frame</code>, <code>screen</code> (see <a href="ScreenIO_Function_Reference.html#helpers"><code>fnIsInputSpec</code>/<code>fnIsOutputSpec</code></a>); also listviews &amp; list-children.</td>
+</tr>
+<tr>
+<td><code>SPECWIDTH</code> / <code>WIDTH</code> / <code>HEIGHT</code></td>
+<td>BH 2 / BH 2 / B 1</td>
+<td>Format-spec width, display width, height.</td>
+</tr>
+<tr>
+<td><code>TRUEVALUE$</code> / <code>FALSEVALUE$</code></td>
+<td>V 60</td>
+<td>Stored values for a checkbox's checked / unchecked states.</td>
+</tr>
+<tr>
+<td><code>FUNCTION$</code></td>
+<td>V 255</td>
+<td><strong>Control event</strong> — Validation (input controls) or Click/action (buttons, captions, pictures); a BR call string the engine <code>EXECUTE</code>s.</td>
+</tr>
+<tr>
+<td><code>PICTURE$</code></td>
+<td>V 255</td>
+<td>Picture file for picture controls.</td>
+</tr>
+<tr>
+<td><code>PARENT$</code></td>
+<td>V 20</td>
+<td>Parent control (for a list child — <code>listchld</code>).</td>
+</tr>
+<tr>
+<td><code>FGCOLOR$</code> / <code>BGCOLOR$</code></td>
+<td>C 6</td>
+<td>Colours.</td>
+</tr>
+<tr>
+<td><code>JUSTIFY$</code></td>
+<td>C 1</td>
+<td><code>L</code> / <code>R</code> / <code>C</code> / <code>U</code> or blank.</td>
+</tr>
+<tr>
+<td><code>ATTR$</code></td>
+<td>V 128</td>
+<td>Field attributes.</td>
+</tr>
+<tr>
+<td><code>PROTECTED</code> / <code>INVISIBLE</code></td>
+<td>B 1</td>
+<td>Protected (read-only) / hidden flags.</td>
+</tr>
+<tr>
+<td><code>TOOLTIP$</code></td>
+<td>V 255</td>
+<td>Tooltip text.</td>
+</tr>
+<tr>
+<td><code>CNVRTIN$</code> / <code>CNVRTOUT$</code></td>
+<td>V 255</td>
+<td>Incoming / outgoing value conversion (a BR expression).</td>
+</tr>
+<tr>
+<td><code>MULTISELECT</code></td>
+<td>B 1</td>
+<td>Listview allows multiple selection.</td>
+</tr>
+<tr>
+<td><code>GRIDLINES</code></td>
+<td>B 1</td>
+<td>Show gridlines (listviews).</td>
+</tr>
+<tr>
+<td><code>USERDATA$</code></td>
+<td>V 255</td>
+<td>Free custom data.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="ScreenIO_Function_Reference.html">ScreenIO_Function_Reference.md</a> — the 21 exports (v2.95) and the event contract these fields feed</li>
+<li><a href="spec.html">spec.md</a> — concepts and screen-function types</li>
+<li><a href="../../../dev/screenio-guide.md#authoring">ScreenIO internals guide</a> — <em>(dev kit)</em> writing these two files directly to author a screen without the Designer, then compiling it</li>
+<li><a href="../../20-io-screen/controls/spec.html">20-io-screen/controls</a> — the underlying BR controls ScreenIO renders (grid/list, picture, combo…)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/screenio/ScreenIO_Data_Model.md">br_tree/50-libraries/screenio/ScreenIO_Data_Model.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

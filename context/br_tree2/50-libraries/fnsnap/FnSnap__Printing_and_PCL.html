@@ -1,0 +1,912 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FnSnap__Printing_and_PCL — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">fnsnap</a></nav>
+<main>
+<h1>FnSnap__Printing_and_PCL</h1>
+<h2 id="font-management">Font Management</h2>
+<h3 id="fnfont30---create-a-pcl-font-string">FNFONT$*30 - Create a PCL font string</h3>
+<pre><code>FNFONT$*30(SYMBOL_SET$,PROPORTIONAL,CHR_PER_INCH,STYLE$,WEIGHT$,TYPEFACE$)
+</code></pre>
+<p>Description|<br>
+Creates an HP 5 PCL font string from certain parameters</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnloadfont50---loads-a-pcl-font-to-printer">FNLOADFONT$*50 - Loads a PCL font to printer</h3>
+<pre><code>FNLOADFONT$*50(NUMBER$,FONTCALL$*50;FONT$*100,OUTFILE)
+</code></pre>
+<p>Description|<br>
+Moves a downloadable font into an open display file for printing and returns the font calling string to the program.  If the font file does not exist or is invalid the font string is still returned to the program.</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<p>GENERAL</p>
+<h2 id="reprinting-reports">Reprinting Reports</h2>
+<h3 id="fncleanlog---part-of-fnreprint-used-to-remove-out-of-date-reports">FNCLEANLOG - part of FNREPRINT used to remove out of date reports</h3>
+<p>Reviews a log file of reports available for reprinting.  If no destroy date has been entered a default of 30 days is entered.  If a report delete date has expired FNCLEANLOG will delete the report and update the log to indicate the date of deletion. If a report is marked as deleted and the deletion occurred  more than 7 days ago then the report log entry will be removed.</p>
+<pre><code>FNCLEANLOG(;REPORTLOG)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**REPORTLOG **</td>
+<td>Optional file number for a report log to be processed.  Generally omitted</td>
+</tr>
+<tr>
+<td>**LOGNAME$ **</td>
+<td>Not entered her, LOGNAME$ has previously been stored as a variable in the library by another function.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>This function is generally run by pressing F4 in the reprint reports list box.</p>
+<h3 id="fnopen---create-a-log-file-for-saved-reports">FNOPEN - create a log file for saved reports</h3>
+<p>Opens a display file in a specified directory.  The file name is determined as a sequence number with the leading characters specified in FLNM$.  The name of the open file and the number of the open file are returned to the calling program, ready for creating a RAW print file.</p>
+<pre><code>FNOPEN(&amp;FLNM$,&amp;FLPATH$;PRINTDESC$*80,LLEN,PRINTTYPE$,SAVE_DAYS)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**FLNM$ **</td>
+<td>The leading few characters of the file name to be opened.  The function will complete the file name with a sequence number for that type file in the specified path.</td>
+</tr>
+<tr>
+<td>**FLPATH$ **</td>
+<td>The path, either absolute or relative, where the print file should be created</td>
+</tr>
+<tr>
+<td>**PRINTDESC$ **</td>
+<td>A description of the file to appear in the REPORTLOG reprint dialog listing</td>
+</tr>
+<tr>
+<td>**LLEN **</td>
+<td>The length of each line in the display file or zero (0) if EOL=NONE should be used in the open statement</td>
+</tr>
+<tr>
+<td>**PRINTTYPE$ **</td>
+<td>If omitted &quot;ALL&quot; will be entered meaning the report can be printed to an NWP printer using preview.  Other options are &quot;DIRECT&quot; and &quot;MATRIX&quot; if a specific printer type is required due to character string that are not compatible with NWP.</td>
+</tr>
+<tr>
+<td>**SAVE_DAYS **</td>
+<td>The number of days a report should be retained for reprinting. If zero (0) is entered no destruction date will be entered, but the first time that FNCLEANLOG is run after the report creation a destroy date of 30 days will be substituted.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>To save a report for a long time enter a destroy date number of days significantly in the future such as 365 or 500</p>
+<h3 id="fnmenuaccess---used-in-connection-with-fnreprint-to-determine-user-permission-to-reprint-a-report">FNMENUACCESS - used in connection with FNREPRINT to determine user permission to reprint a report</h3>
+<p>If WORKMENU is being used then FNMENUACCESS checks the permission files to determine if the user has permission to create the report.  If no permission exists to create the report then it cannot be reprinted and is excluded from the detail list of reports available for reprint.</p>
+<pre><code>FNMENUACCESS(MNAME$*10,MSEQ$*3,MPGM$*50)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**MNAME$ **</td>
+<td>NAme of the menu from which a report was created</td>
+</tr>
+<tr>
+<td>**MSEQ$ **</td>
+<td>Sequence number of the menu from which the report was created</td>
+</tr>
+<tr>
+<td>**MPGM$ **</td>
+<td>The program call in WORKMENU that allowed the report to be created</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>This function is used by FNREPRINT to determine user rights for reprinting a report.  The variables are all obtained from REPROTLOG.fil and passed to this function to determine whether access should be granted for reprinting.</p>
+<h3 id="fnprint---prints-a-saved-report-opened-using-fnopen">FNPRINT - prints a saved report opened using FNOPEN</h3>
+<p>Issued immediately after the CLOSE statement of a file opened using FNOPEN to send the stored print file to a specified printer.  Print specification substitutions for the specified printer are performed during this print process for the RAW print file.</p>
+<pre><code>FNPRINT(FILNM$*100,PRINTER$*50)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**FILNM$ **</td>
+<td>The name and path of the stored RAW file to be printed.</td>
+</tr>
+<tr>
+<td>**PRINTER$ **</td>
+<td>A normal BR printer designation.  Can be a substitutable printer type such as \\10 or a specific printer such as \\server01\hplaser</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>FILNM$ is generally shown as filpath$&amp;filnm$, the two variables returned to the calling program by the FNOPEN function</p>
+<h3 id="fnreprint---displays-a-list-of-available-saved-reports-and-prints-selected-report">FNREPRINT - displays a list of available saved reports and prints selected report</h3>
+<p>Displays a list of report quantity by month created and allows selection of a month.  The user is then presented with a list of the reports created that month for which permission exists for reprinting.</p>
+<p>[PICT(PICS\SNAP0003.ptf)]</p>
+<p>[PICT(PICS\SNAP0004.ptf)]</p>
+<pre><code>FNREPRINT(;ALL,LOGNAME$*100,LOGKEY$*100)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**ALL **</td>
+<td>If true shows all entries regardless of security rights</td>
+</tr>
+<tr>
+<td>**LOGNAME$ **</td>
+<td>Name of the log file if other than REPORTLOG.fil</td>
+</tr>
+<tr>
+<td>**LOGKEY$ **</td>
+<td>Name of the index file if other than REPORTLOG.idx</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>A program can be created that includes only this function to allow menu access to reprinting</p>
+<h2 id="pcl-and-nwp-formatting">PCL and NWP formatting</h2>
+<h3 id="bar-codes-and-addresses">Bar Codes and addresses</h3>
+<p><strong>FNBARCODEM - Prints postal bar code to a MATRIX printer</strong></p>
+<pre><code>FNBARCODEM(ODEV,ZIP$;INDENT)
+</code></pre>
+<p>Prints a postal bar code on a matrix printer</p>
+<p><strong>Functions used:<br></strong></p>
+<p>NONE</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ODEV</strong></td>
+<td>File number of open print job</td>
+</tr>
+<tr>
+<td><strong>ZIP$</strong></td>
+<td>Zip Code to be translated to Postal Net</td>
+</tr>
+<tr>
+<td><strong>INDENT</strong></td>
+<td>Default is 10 characters. If other than the default is desired enter the character position of the start of the bar code.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNCODE3OF9 - Creates 3 of 9 Bar code in PCL</strong></p>
+<p>Prints a bar code in 3 of 9 format</p>
+<pre><code>FNCODE3OF9(PRINTFILE,V,H,TEXT$*30,PRNTXT$;HEIGHT,CHECKD) !:
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNPRINTBOX</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PRINTFILE</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>V</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>TEXT$</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>PRNTXT$</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>HEIGHT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>CHECKED</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNCODEUPC - Creates UPC bar code in PCL</strong></p>
+<pre><code>FNCODEUPC(PRINTFILE,V,H,TEXT$*30;HEIGHT) !:
+</code></pre>
+<p>Description|<br>
+Prints a bar code in UPC format</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNENVELOPE - Prints an envelope with return address and Postal Bar Code</strong></p>
+<p>Prints an envelope on a laser printer with postal bar code and a return address if a specific overlay file exists (this will be changed in the future to make the return address an option</p>
+<pre><code>FNENVELOPE(PRTFILE,DATAFILE,SIZE$;SUPRET,MAT INNAMES$,NOLBLS,NOCLOSE)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<ul>
+<li>FNPOSTNET</li>
+<li>FNPRINTBOX</li>
+<li>FNTYPE</li>
+</ul>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PRTFILE</strong></td>
+<td>Number of open print file to which envelope will be printed</td>
+</tr>
+<tr>
+<td><strong>DATAFILE</strong></td>
+<td>Number of the file that contains the graphic for the return address</td>
+</tr>
+<tr>
+<td><strong>SIZE$</strong></td>
+<td>Code indicating the envelope size to be printed</td>
+</tr>
+<tr>
+<td><strong>SUPRET</strong></td>
+<td>Return address is suppressed if this is TRUE, if FALSE return address and graphic are printed</td>
+</tr>
+<tr>
+<td><strong>MAT INNAMES$</strong></td>
+<td>Matrix containing the name and address to be printed</td>
+</tr>
+<tr>
+<td><strong>NOLBLS</strong></td>
+<td>Number of copies of the printed envelope to be printed</td>
+</tr>
+<tr>
+<td><strong>NOCLOSE</strong></td>
+<td>If this is TRUE then the print file is to be left open.  If false the default is to close the print file after printing the envelope.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNGETZIP - extracts a zip code from an address line</strong></p>
+<p>Searches then end of the passed string to obtain a valid zip code.  If one is found then the zip code excluding any dash is returned as the value of the function</p>
+<pre><code>FNGETZIP$(ADD$*50)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**ADD$ **</td>
+<td>A right trimmed string that carries a zip code at the right hand end.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNLABEL - prints a 3 1/3 x 4 laser label on 3 x 2 stock</strong></p>
+<p>Prints a mailing label including postal zip bar code on a 3x4 6 to a sheet laser printed label</p>
+<pre><code>FNLABEL(FILNUM,MAT FADD$,MAT TADD$;START,NUMBER)
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNPRINTBOX<br>
+FNDRAWBOX<br>
+FNGETZIP<br>
+FNPOSTNET</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**FILENUM **</td>
+<td>File number of already open display or print file</td>
+</tr>
+<tr>
+<td>**MAT FADD$ **</td>
+<td>From Address matrix. Array of three elements</td>
+</tr>
+<tr>
+<td>**MAT TADD$ **</td>
+<td>To address matrix. Array of 3 or 4 elements</td>
+</tr>
+<tr>
+<td>**START **</td>
+<td>Starting number on the label sheet containing 6 3 x 4 labels</td>
+</tr>
+<tr>
+<td>**NUMBER **</td>
+<td>Quantity of labels to prepare</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNPOSTNET - Prints the Postal Bar Code created by FNPOSTNET$</strong></p>
+<pre><code>FNPOSTNET(PRINTFILE,V,H,TEXT$*20) !:
+</code></pre>
+<p>Description|<br>
+Print postal bar code to a laser printer in PCL format</p>
+<p><strong>Functions used</strong>:</p>
+<ul>
+<li>FNPOSTNET</li>
+</ul>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PRINTFILE</strong></td>
+<td>Number of open print file to which the bar code will be printed</td>
+</tr>
+<tr>
+<td><strong>V</strong></td>
+<td>Vertical position of the upper left corner of the bar code in inches</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td>Horizontal position of the upper left corner of the bar code in inches</td>
+</tr>
+<tr>
+<td><strong>TEXT$</strong></td>
+<td>Postal zip code to be translated to a bar code</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Works in PCL and NWP modes</p>
+<p>*<em>FNPOSTNET$<em>4000 - Creates a postal bar code in PCL</em></em></p>
+<pre><code>FNPOSTNET$*4000(TEXT$*20) !:
+</code></pre>
+<p>Description|<br>
+Creates a postal bar code in PCL format</p>
+<p><strong>Functions used:<br></strong></p>
+<p>FNPRINTBOX</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>TEXT$</strong></td>
+<td>The postal bar code in a string variable.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>If the string variable cannot be converted into a valid postal zip code FNPOSTNET will return a blank.</p>
+<h3 id="forms-and-formatting">Forms and formatting</h3>
+<p><strong>FNDRAWBOX - Prints a four sided shaded box on PCL</strong></p>
+<pre><code>FNDRAWBOX(PRINTFILE,VP,HP,VL,HL,WEIGHT;FILL)
+</code></pre>
+<p>Description|<br>
+PCL5 code to print a box with outline and shading to an HP compatible laser printer</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNGREYBAR - Creates the overlay used in FNGREYBAR$</strong></p>
+<pre><code>FNGREYBAR(PRINTFILE,V,H,BV,BH,SHADE,HEAD,BAR)
+</code></pre>
+<p>Description|<br>
+Creates the gray bar PCL code used by FNGREYBAR$</p>
+<p>Functions used |FNPRINTBOX</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNGREYBAR$ - Overlays a printout with gray bar effect</strong></p>
+<pre><code>FNGREYBAR$(MACRO,PRINTFILE,V,H,BV,BH,SHADE,HEAD,BAR)
+</code></pre>
+<p>Description|<br>
+Creates a PCL5 macro that simulates green bar paper and returns the macro call</p>
+<p>Functions used |FNGREYBAR</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MACRO</strong></td>
+<td>Macro number to assign</td>
+</tr>
+<tr>
+<td><strong>PRINTFILE</strong></td>
+<td>Number of open print file</td>
+</tr>
+<tr>
+<td><strong>V</strong></td>
+<td>Upper left corner of paper in inches (usually 0)</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td>Upper left corner of the paper in inches (usually 0 but could be 0.5 to allow for notebook holes).</td>
+</tr>
+<tr>
+<td><strong>BV</strong></td>
+<td>Vertical height in inches of the area to be covered with gray bars</td>
+</tr>
+<tr>
+<td><strong>BH</strong></td>
+<td>Horizontal width in inches of each the area to be covered by gray bars</td>
+</tr>
+<tr>
+<td><strong>SHADE</strong></td>
+<td>Depth of shade of the bars in multiples of 10 form 0 to 100 (recommend 20 or 30)</td>
+</tr>
+<tr>
+<td><strong>HEAD</strong></td>
+<td>Size in inches of the blank space at the top for title and other header information</td>
+</tr>
+<tr>
+<td><strong>BAR</strong></td>
+<td>height on inches of the gray bars</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNMAKEPCL - converts an HP6l saved file into a file for PCL overlay</strong></p>
+<p>Processes a display file created by print through an HP6L print driver to a file.  FNMAKEPCL removes the characters necessary to prepare the file for being a MACRO overlay or a part of a continuous print job.</p>
+<pre><code>FNMAKEPCL(INFILE$*100,OUTFILE$*100)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**INFILE$ **</td>
+<td>The name of the saved HP6L print file to be converted</td>
+</tr>
+<tr>
+<td>**OUTFILE$ **</td>
+<td>The name of the file to be created as a result of the conversion</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p><strong>FNPRINTBOX - Creates a PCL line and positions formatted text in PCL</strong></p>
+<pre><code>FNPRINTBOX(PRINTFILE,V,H,BV,BH,SHADE;TV,TH,TEXT$*6000,CPI,FONT$*40) !:
+</code></pre>
+<p>Description|<br>
+PCL5 code to print a line and optionally formatted text to an HP compatible lase printer</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>V</strong></td>
+<td>Vertical position of upper left corner of print area in inches</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td>Horizontal position of upper right corner of print area in inches</td>
+</tr>
+<tr>
+<td><strong>BV</strong></td>
+<td>Vertical depth of the print area below V in inches</td>
+</tr>
+<tr>
+<td><strong>BH</strong></td>
+<td>Horizontal width of the print area to the right of H</td>
+</tr>
+<tr>
+<td><strong>SHADE</strong></td>
+<td>Index for gray shading in multiples of 10 from 0 (white) to 100 (black)</td>
+</tr>
+<tr>
+<td><strong>TV</strong></td>
+<td>Vertical position of text to print below V in inches</td>
+</tr>
+<tr>
+<td><strong>TH</strong></td>
+<td>Horizontal position of text to print to the right of H in inches - -1 causes the text to be centered in PCL mode. -1 is not compatible with NWP.</td>
+</tr>
+<tr>
+<td><strong>TEXT$</strong></td>
+<td>Text string to be printed starting at TV TH</td>
+</tr>
+<tr>
+<td><strong>CPI</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>FONT$</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p>*<em>FNPRINTFORM$<em>40</em></em></p>
+<pre><code>FNPRINTFORM$*40(FILNUM,FORMFILE,SHORTNAME$)
+</code></pre>
+<p>Description|<br>
+Extracts a form,page,macro or font from a library file and places it into an existing open display file for printing</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FILNUM</strong></td>
+<td>Number of existing open print file to receive form. The file should be opened with EOL=NONE.</td>
+</tr>
+<tr>
+<td><strong>FORMFILE</strong></td>
+<td>Number of existing open file containing the form to be printed.</td>
+</tr>
+<tr>
+<td><strong>SHORTNAME$</strong></td>
+<td>Eight character name for the storied form.  This is the key-name within the FORMFILE</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>The function reads through the records of the FORMFILE until a match for the SHORTNAME is found.  That record along with subsequent records containing the same SHORTNAME are added to the open print file.  Records are transferred in 32000 bit chunks so the transfer is quite rapid.</p>
+<p><strong>FNSIGNBOX - Prints a signature or small graphic in PCL</strong></p>
+<pre><code>FNSIGNBOX(FILNUM,V,H,SIGFIL,SHORT$,&amp;PASS$)
+</code></pre>
+<p>Description|<br>
+Extract a small graphic such as a signature from a library file and place it at a specified location on a document</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FILNUM</strong></td>
+<td>Number of open print file to which the signature should be added</td>
+</tr>
+<tr>
+<td><strong>V</strong></td>
+<td>Vertical position in inches of the upper left corner of the graphic to print</td>
+</tr>
+<tr>
+<td><strong>H</strong></td>
+<td>Horizontal position in inches of the left hand edge of the graphic to print</td>
+</tr>
+<tr>
+<td><strong>SIGFIL</strong></td>
+<td>The number of the file containing the signature graphic</td>
+</tr>
+<tr>
+<td><strong>SHORT$</strong></td>
+<td>The eight character name of the signature to be used.  If this case sensitive name is not found in the file no signature is printed</td>
+</tr>
+<tr>
+<td><strong>&amp;PASS$</strong></td>
+<td>Password - case sensitive.  Must match the password saved for the signature or no signature will be printed.  The password is passed back to the application so that on a check run or similar application the operator will not have to enter the password for each check.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>The signature file is built using a separate utility program names SIGPRN.br.  The signature is taken from the print file created by printing a Word document containing just the signature to an HP6L laser printer driver in print to file mode.  The utility program print a facsimile of the signature as part of the import process.  The facsimile is overlain with reference lines showing where the upper left corner of the print graphic appears.</p>
+<p>The signature is limited to one 32000 bit record.  Consequently large or complex signatures or graphics may not be compatible and may need to be made smaller or less compiles in order to work with this particular program.</p>
+<h2 id="rtf-printing">RTF Printing</h2>
+<h3 id="fnrtfstart---opens-a-source-file-to-produce-an-rtf-file-using-rtflibdll">FNRTFSTART - opens a source file to produce an RTF file using RTFLIB.dll</h3>
+<p>Opens a file ready to receive data for creating an RTF file using LIBRTF.dll</p>
+<pre><code>FNRTFSTART(HEADER$*100,FOOTER$*100,TITLE$*500,MAT HEADER$;CELLNO)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**HEADER$ **</td>
+<td>Text to be displayed as a header on each page of the report</td>
+</tr>
+<tr>
+<td>**FOOTER$ **</td>
+<td>Text to be displayed as a footer on each page of the report.  To include a page number include &quot;[ PAGE]&quot; as a part of the line.</td>
+</tr>
+<tr>
+<td>**TITLE$ **</td>
+<td>Text to be displayed at the top of the first page only as a report title</td>
+</tr>
+<tr>
+<td>**MAT HEADERS$ **</td>
+<td>The matrix including the bar delimited text that should appear in the header bar at the top of each column</td>
+</tr>
+<tr>
+<td>**CELLNO **</td>
+<td>An optional cell number for the SPC file if a header that repeats automatically on each page is to be used. If omitted the headers will appear on the first page only formatted exactly the same as the rest of the RTF table that is being created.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnrtfend---turns-a-source-file-built-with-fnrtfstart-into-a-finished-document">FNRTFEND - turns a source file built with FNRTFSTART into a finished document</h3>
+<p>Converts</p>
+<pre><code>FNRTFEND$*100(RTFNO,RTFNAME$*100,RTFSPEC$*100;WORD)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**RTFNO **</td>
+<td>The file number of the display file that was opened when FNRTFSTART was called</td>
+</tr>
+<tr>
+<td>**RTFNAME$ **</td>
+<td>The name and path of the source file to be created when RTFNO is processed by FNRTF to RTF.</td>
+</tr>
+<tr>
+<td>**RTFSPEC$ **</td>
+<td>The name of the RF specification file that contains style formats to be used in creating the RTF file</td>
+</tr>
+<tr>
+<td>**WORD **</td>
+<td>A flag to indicate whether WORD should be called at the end of the creation process (True) or the RTF file should not be viewed at the end of the process (false)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>A sample specification file looks like the following</p>
+<pre><code>LET LMARGIN=.75
+LET RMARGIN=1.0
+LET TMARGIN=.50
+LET BMARGIN=.50
+LET ORIENTATION$=&quot;PORTRAIT&quot;
+LET PAPER$=&quot;LETTER&quot;
+LET CHECKLIST=0
+LET LEFTTEXT$=&quot;&quot;
+LET NUME=0
+MAT TYPES$(12)
+LET TYPES$(1)=&quot;H&quot;
+LET TYPES$(2)=&quot;F&quot;
+LET TYPES$(3)=&quot;D&quot;
+LET TYPES$(4)=&quot;S&quot;
+LET TYPES$(5)=&quot;T&quot;
+LET TYPES$(6)=&quot;A&quot;
+LET TYPES$(7)=&quot;B&quot;
+LET TYPES$(8)=&quot;C&quot;
+LET TYPES$(9)=&quot;E&quot;
+LET TYPES$(10)=&quot;G&quot;
+LET TYPES$(11)=&quot;N&quot;
+LET TYPES$(12)=&quot;I&quot;
+MAT STYLES$(12)
+LET STYLES$(1)=&quot;li0ri0fARIALfs14cfBluetc3.25Header&quot;
+LET STYLES$(2)=&quot;li0ri0fARIALfs8cfBlacktc3.25Footer&quot;
+LET STYLES$(3)=&quot;li0.5QJfPALATINOri0fs12tl0.5tl1.0tl1.5td5.4Data&quot;
+LET STYLES$(4)=&quot;li0.5QCsa1ri0Bfs19fARIALtl0.5tc3.25Title Page&quot;
+LET STYLES$(5)=&quot;li0.5QCfARIALsa1ri0Bfs18tl0.5tc3.25Heading 1&quot;
+LET STYLES$(6)=&quot;li0.25ri0fARIALBfs17tl0.5tr5.4Heading 2&quot;
+LET STYLES$(7)=&quot;li0.25ri0fARIALBfs15tl0.5tr5.4Heading 3&quot;
+LET STYLES$(8)=&quot;li0.25ri0fARIALBfs13tl0.5td5.4Heading 4&quot;
+LET STYLES$(9)=&quot;fi-0.5td0.75li1.0ri0fPALATINOfs12tl0.5tl1.0td6.0Detail steps&quot;
+LET STYLES$(10)=&quot;fi-0.4li1.0ri0ft61fs10fCOURIERtl0.5tc4.0td5.4Program lines&quot;
+LET STYLES$(11)=&quot;li0.5ri0BfPALATINOfs12cfDKBLUEtl0.5tl1.0tl1.5td5.4New Items&quot;
+LET STYLES$(12)=&quot;fi-1.25li2.0ri0fPALATINOfs12tl2.0Options&quot;
+</code></pre>
+<pre><code>MAT CELLS$(10)
+rem LET CELLS$(1)=&quot;li0.5tg0.125c1btrlb1vthlc1.5btrlb1vthc&quot;
+rem LET CELLS$(2)=&quot;li0.5tg0.125fPALATINOfs10c3btrlb1vthlc3btrlb1vthl&quot;
+rem LET CELLS$(3)=&quot;li0.5tg0.125fPALATINOfs10c2btrlb1vthlc2btrlb1vthlc2btrlb1vthl&quot;
+</code></pre>
+<pre><code>rem ODD numbers are headers even numbers are the following table
+</code></pre>
+<pre><code>LET CELLS$(1)=&quot;li0.0tg0.100fPALATINOfs10trh&quot;
+LET CELLS$(1)=CELLS$(1)&amp;&quot;c3.0brtlrb1vthcsh15&quot;
+LET CELLS$(1)=CELLS$(1)&amp;&quot;c3.0brtlrb1vthcsh15&quot;
+</code></pre>
+<pre><code>LET CELLS$(2)=&quot;li0.0tg0.100fPALATINOfs10&quot;
+LET CELLS$(2)=CELLS$(2)&amp;&quot;c3.0brtrlb1vthl&quot;
+LET CELLS$(2)=CELLS$(2)&amp;&quot;c3.0brtrb1vthl&quot;
+</code></pre>
+<pre><code>LET CELLS$(3)=&quot;li0.0tg0.100fPALATINOfs10trh&quot;
+LET CELLS$(3)=CELLS$(3)&amp;&quot;c2.0brtrlb1vthcsh15&quot;
+LET CELLS$(3)=CELLS$(3)&amp;&quot;c2.0brtrlb1vthcsh15&quot;
+LET CELLS$(3)=CELLS$(3)&amp;&quot;c2.0brtrlb1vthcsh15&quot;
+</code></pre>
+<pre><code>LET CELLS$(4)=&quot;li0.0tg0.100fPALATINOfs10&quot;
+LET CELLS$(4)=CELLS$(4)&amp;&quot;c2.0btrlb1vthl&quot;
+LET CELLS$(4)=CELLS$(4)&amp;&quot;c2.0btrlb1vthl&quot;
+LET CELLS$(4)=CELLS$(4)&amp;&quot;c2.0btrlb1vthl&quot;
+</code></pre>
+<pre><code>LET CELLS$(5)=&quot;li0.5tg0.100fARIALfs10&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c3.0btrlb1fCOURIERvthl&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c0.5fs8btb1vthc&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c0.5btlb1fPALATINOvthc&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1fs10btrlb1fARIALvthr&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1brtrlb1vthr&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1brtrlb1vthr&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1brtrlb1vthr&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1brtrlb1vthr&quot;
+LET CELLS$(5)=CELLS$(5)&amp;&quot;c1brtrlb1vthr&quot;
+</code></pre>
+<pre><code>LET CELLS$(7)=&quot;li0.0tg0.100fPALATINOfs10trh&quot;
+LET CELLS$(7)=cells$(7)&amp;&quot;c0.5brtrlb1vthcsh15&quot;
+LET CELLS$(7)=cells$(7)&amp;&quot;c0.5brtrlb1vthcsh15&quot;
+LET CELLS$(7)=cells$(7)&amp;&quot;c0.5brtrlb1vthcsh15&quot;
+LET CELLS$(7)=cells$(7)&amp;&quot;c0.5brtrlb1vthcsh15&quot;
+</code></pre>
+<pre><code>LET CELLS$(8)=&quot;li0.0tg0.100fPALATINOfs10&quot;
+LET CELLS$(8)=cells$(8)&amp;&quot;c0.5brtrlb1vthc&quot;
+LET CELLS$(8)=cells$(8)&amp;&quot;c0.5brtrlb1vthc&quot;
+LET CELLS$(8)=cells$(8)&amp;&quot;c0.5brtrlb1vthc&quot;
+LET CELLS$(8)=cells$(8)&amp;&quot;c0.5brtrlb1vthc&quot;
+</code></pre>
+<h2 id="fnreference---prints-a-page-reference-on-bottom-right-corner-in-pcl">FNREFERENCE - Prints a page reference on bottom right corner in PCL</h2>
+<pre><code>FNREFERENCE(PTYPE$,REFERENCE$;PFILE,LGL)
+</code></pre>
+<p>Description|<br>
+Prints a page reference in PCL in the lower right corner of a printed page</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**PTYPE$ **</td>
+<td>Must start with &quot;HP&quot; in order for the reference code to be printed</td>
+</tr>
+<tr>
+<td>**REFERENCE$ **</td>
+<td>Reference code to be printed in lower right corner of page</td>
+</tr>
+<tr>
+<td>**PFILE **</td>
+<td>The number of the currently open print file where the reference should be inserted</td>
+</tr>
+<tr>
+<td>**LGL **</td>
+<td>If True print for a legal sized page otherwise print for letter sized</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h2 id="fnprint_file---prints-a-text-file-on-grey-bar-paper">FNPRINT_FILE - Prints a text file on Grey bar Paper</h2>
+<pre><code>FNPRINT_FILE(FILE_NAME$*100;INDENT)
+</code></pre>
+<p>Description|<br>
+Prints an ASCII file formatted at 100 character lines with a ruler at the top of the page</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**FILE_NAME$ **</td>
+<td>Name of display file to print on greybar paper</td>
+</tr>
+<tr>
+<td>**INDENT **</td>
+<td>Number of spaces that each line of text should be indented from the left margin</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h2 id="fnprinters---creates-a-printed-list-of-printers-and-a-printerssys-file">FNPRINTERS - Creates a printed list of printers and a printers.sys file</h2>
+<pre><code>FNPRINTERS(;DRIVE_LOC$)
+</code></pre>
+<p><strong>Description:<br></strong></p>
+<p>Not to be confused with the PRINTER.SYS PCL/NWP substitution parameters</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/fnsnap/FnSnap__Printing_and_PCL.md">br_tree/50-libraries/fnsnap/FnSnap__Printing_and_PCL.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

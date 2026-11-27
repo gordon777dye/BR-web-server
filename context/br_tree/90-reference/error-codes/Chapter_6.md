@@ -197,6 +197,26 @@ RUN TRACE tells Business Rules! to print a record of the line numbers on the scr
 
 RUN STEP TRACE (or RUN TRACE STEP) performs a combination of the STEP and TRACE functions.  For each statement, Business Rules! prints the line number on the screen, enters STEP mode and waits for Enter before executing the line. 
 
+In release 5.03 and later, TRACE can follow more than line numbers. The words after TRACE choose what it shows, in any order: 
+
+```
+RUN TRACE LABELS 
+RUN TRACE LINES LABELS 
+RUN TRACE PRINT 
+```
+
+**RUN TRACE LABELS** shows each line label the program reaches, such as `CALC_BALANCE:`, instead of every line number. In a long program this is often the quickest way to see which routines ran and in what order. **RUN TRACE LINES LABELS** shows both, each label just before its line's number. **PRINT** sends the trace to the printer instead of the screen. 
+
+A program can also turn tracing on and off for itself with the TRACE statement, so that only the part you suspect is traced: 
+
+```
+02000 TRACE LABELS ON
+02010 GOSUB POST_LEDGER
+02020 TRACE OFF
+```
+
+TRACE OFF remembers what was being traced, so a later TRACE ON picks up where it left off. At a pause, GO NOTRACE and GO TRACE do the same from the keyboard. The full list of TRACE forms is in [Information & debugging commands](../../70-commands/information/spec.md#trace). 
+
 #### Quick Quiz 6.4
 
 1. Which form of the RUN command should you use when you want program execution to pause after every line?  <br>
@@ -567,6 +587,8 @@ Save this program under the name NEWSAL, and you will continue to modify it with
 ### 6.9 Using BREAK and DISPLAY
 
 Two more tools that are useful for debugging (as of 4.1) are the BREAK and DISPLAY commands. 
+
+BREAK stops the program at a point you choose: a line, a label, a function, or when a variable changes. DISPLAY reports a variable each time it changes, without stopping. TRACE (section 6.4) completes the set: it shows the path the program takes, line by line or label by label, also without stopping. A common way to work is to TRACE LABELS to see which routines run, then BREAK at the one that goes wrong and DISPLAY the variables it changes. All three are described in [Information & debugging commands](../../70-commands/information/spec.md#break). 
 
 While a program is loaded, you can always enter STATUS BREAK and all the program's current debug settings will be displayed on the screen.  
 

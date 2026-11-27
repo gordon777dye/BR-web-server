@@ -131,4 +131,4 @@ This specification, by instructing the system to ignore the "+" in all sequences
 3.) If you write a program that specifies custom printer escape sequences, you can later change those escape sequences with the PRINTER specification -as long as the "+" character begins the program sequence and as long as the second character is less than 20h or greater than D0h.
 
 <!-- br_tree-audit -->
-> **br_tree audit:** Represented in br_tree → [40-io-printing/statements/PRINTER.md](<../br_tree/40-io-printing/statements/PRINTER.md>).
+> **br_tree audit:** Represented in br_tree → [40-io-printing/statements/PRINTER.md](../../40-io-printing/statements/PRINTER.md).

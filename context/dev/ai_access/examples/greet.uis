@@ -1,0 +1,11 @@
+# What greet.brs should show, what to type, and what should come back.
+expect row 0 "GREETING TEST"
+expect "Your name:"
+field 0 spec "C 20"
+type ADA
+press ENTER
+expect "Hello ADA"
+# the last key lets the program end, so the procedure reaches SYSTEM
+press ENTER
+expect no error
+wait end

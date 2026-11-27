@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4145 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4145</h1>
+<p><strong>Error:</strong> 4145</p>
+<p><strong>Description:</strong> <code>Wait</code> time out.  Time out while waiting for input from user or ASYNC file I/O</p>
+<p><strong>Details:</strong> Wait time out. The amount of time available for operator input (specified by WAIT = parameter) has expired. Type <code>GO</code> to re-execute the line requesting input. Your program should include logic that handles time-out errors. Any keystrokes (arrow-key, space bar) may be used to reset the time clock</p>
+<p>On an <code>HTTP=SERVER</code> file:</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#interface">HTTP_SERVER.md §2.1 Statements</a></p>
+<blockquote>
+<p><strong>How long a read waits for a request</strong> before it fails with error <strong>4145</strong>, unless the read gives its own.</p>
+</blockquote>
+<p><strong>Fix:</strong> This is normal on a quiet server: loop back to the read. <code>SYSERR$</code> says why the read ended and how many requests were refused meanwhile.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4145.md">br_tree/90-reference/error-codes/4145.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

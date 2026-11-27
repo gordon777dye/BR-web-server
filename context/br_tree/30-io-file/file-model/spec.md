@@ -10,6 +10,7 @@ recovered-fold: Display_Files, File_Handle, File_Ref, Multi-User_Programming, NE
 related: [statements, keys-indexes, form-spec]
 keywords: [OPEN, INTERNAL, EXTERNAL, KEYED, RELATIVE, DISPLAY, SHR, RESERVE, RELEASE, LINKED, WSID, locking, INPUT]
 corrections:
+  - "2026-11-22: a `release` anchor added on the RELEASE clause in the locking section, beside the existing `reserve` one, so the clause links to its own words and not to the top of the page."
   - "RELEASE added to keywords. The spec documents the RELEASE I/O clause alongside RESERVE (§record locking: `RESERVE` keeps existing locks while reading more records; `RELEASE` reads without locking / drops locks) and the `PROTECT name,RELEASE` form, but declared only RESERVE. The keyword index is built from this list, so the table4k RELEASE clause routed to 50-libraries/library-facility — which documents `LIBRARY RELEASE`, an unrelated sense — and not here."
 ---
 
@@ -109,6 +110,7 @@ share restrictions. Code these even in single-user programs (it's far cheaper th
 - **SHRI** — others may open **INPUT only** (good during batch update / SORT).
 - **SHR** — full sharing; records lock individually during OUTIN update. Conflicts raise
   **error 4148**.
+- **SHRU** — the same as `SHR`; kept for System/23 compatibility.
 - **Releases before 5.01** — never have a file open while BR 5.01 has it, whatever the share-spec:
   whichever opens it second gets **error 4149** (an earlier release on Windows with `OPTION 33 31`
   or `32` gets **4175**). 5.01 adds a record past the end of the file and writes it after letting go
@@ -120,7 +122,7 @@ share restrictions. Code these even in single-user programs (it's far cheaper th
 - With `SHR,OUTIN`, a record **locks automatically on READ** and stays locked until another record
   is read, it is rewritten, `RELEASE`/`RESTORE` is used, or the file closes.
 - <a id="reserve"></a>`RESERVE` keeps existing locks while reading more records (multi-record updates; must be repeated
-  on each I/O); `RELEASE` reads without locking / drops locks. `WAIT=<seconds>` (default 15) before
+  on each I/O); <a id="release"></a>`RELEASE` reads without locking / drops locks. `WAIT=<seconds>` (default 15) before
   **error 0061** on a locked record.
 - **Lock zone & file size** — BR locks not the record itself but a byte in a reserved zone keyed to the
   record number (so locking works on growing files and lets `ODBC`/report writers read locked records).

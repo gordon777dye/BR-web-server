@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4171 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4171</h1>
+<p><strong>Error:</strong> 4171</p>
+<p><strong>Description:</strong> A line the assistant sent used the <code>AI</code> command</p>
+<p><strong>Details:</strong> Two causes. A turn is the person's to start, and a reply is how one ends. A line the assistant sent that runs <code>AI</code>, including <code>AI NEW</code>, is refused with this error. Also raised when a turn is already running and two requests are already waiting behind it: a request made during a turn waits (up to two), and the fourth is refused. See <a href="4169.html">4169</a>.</p>
+<p><strong>Name:</strong> <code>BREAITURNNOTYOURS</code></p>
+<p><strong>Source:</strong> BR 5.0 <code>wberrdefs.h</code>, <code>BREAITURNNOTYOURS</code>: &quot;this AI request was not started: a turn is the person's to start, and only two may wait behind the one running&quot;.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4171.md">br_tree/90-reference/error-codes/4171.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

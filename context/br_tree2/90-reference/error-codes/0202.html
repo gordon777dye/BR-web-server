@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0202 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0202</h1>
+<p><strong>Error:</strong> 0202</p>
+<p><strong>Description:</strong> Function not active</p>
+<p><strong>BR 5 message:</strong> FNEND encountered outside of a function</p>
+<p><strong>Details:</strong> - An <code>FNEND</code> statement was encountered when no function was active.</p>
+<ul>
+<li>A Function called a <code>GOSUB</code> and attempted to exit the function (via FNEND) before returning from the gosub #Fix the program so that the FNEND statement is encountered only when a function is active.</li>
+<li>Repair the faulty logic, make sure there is no way out of your gosub except by <code>RETURN</code></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0202.md">br_tree/90-reference/error-codes/0202.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

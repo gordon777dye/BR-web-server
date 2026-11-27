@@ -7,6 +7,7 @@ kind: reference
 related: [HTTP=CLIENT, Open Display, FILE$, web]
 keywords: [HTTP=SERVER, HTTPS, CONFIG HTTP, CONFIG HTTPS, PAGE-URL, POST-VAR, PAGE-FLUSH, REDIRECT-TO, URL_BASE, CERT, PHRASE, "CHUNK=", "PROXY=", "BIND=", "THREADS=", BR_NODE, X-Forwarded-For, reverse proxy, NGINX]
 corrections:
+  - "2026-11-16: what a visitor can reach, from http.cpp and tested with the br/http kit: URL_BASE= must be the working directory or under it (0758); a file reached through a junction or link that leads out of URL_BASE= gives 403; the upload folder is never served; no Server Side Includes; the upload's session suffix keeps only letters and digits; brrestrict.sys does not govern static files."
   - "Rewritten 2026-10-22 against the BR 5.0 source (br/brs/http.cpp, bopen.cpp, config.cpp, strfunct.cpp, primop1b.cpp) and its test runs, replacing a version written from GoAhead-era source. Changed: the read timeout is the LINPUT's WAIT=, or the OPEN's WAIT= (default 15 s) when the LINPUT has none; URL_BASE= and CERT= take an operating-system path or a BR path; OPTION 66 is the passphrase when PHRASE= is not given; a renewed certificate is used without a restart; error 757 is not raised; response framing, HEAD and PAGE-FLUSH streaming added."
   - "2026-11-01: brought current with the HTTP=SERVER error codes 0763-0799. Every setup fault now has its own code, with the details in SYSERR$; the rules those codes enforce are stated in §1, §2.1 and §3.1, and §2.9 lists them. Corrected: another BR on the same port gets 752, not 740; NAME= is not required; the keyword order does not matter; the start-up lines reach LOG= with no LOGGING statement. Added FILE$ HTTP-REFUSED and UPLOAD-ERROR."
   - "2026-10-26: brought current with web_server.br 2.17 (was 2.03), checked against its source. It writes one header block per response (2.03 followed every page with an empty one) and corrects the Content-Length of page files that bring their own headers; its HTTPS redirect drops the request's port and adds the HTTPS port unless 443, none behind a proxy (2.03 kept the plain-HTTP port); sessions, relogin data and the data store are on disk, so a proxy needs no stickiness for logins and a restart loses nothing (2.03 held sessions in memory); a urlencoded body is split before decoding, and a JSON body is passed whole. History: brweb's old\\CHANGE_LOG.md."
@@ -41,7 +42,7 @@ HTTPS <port>[-<last>] (the same keywords)
 | `<port>` | `HTTP` sets the plain port (default **80**). `HTTPS` sets the TLS port (default **443**) **and turns HTTPS on** - without an `HTTPS` line there is no TLS listener. A port is 1 to 65535. |
 | `-<last>` | A range of up to 100 ports, lowest first: the server takes the first one free, so several BR processes can start from one configuration (§4). All taken: **752**. |
 | `LOG=` | Server log file, as a **BR name** (resolved through `DRIVE`). Its folder must already exist, and the name must be a file, not a folder. See [§3.2 step 5](#tls-steps) for what it records. |
-| `URL_BASE=` | Document root for static files: an operating-system path, or a BR path, which is resolved through the `DRIVE` mapping when it is not a directory as written (`web_server.br` passes a BR path). It must exist and be a folder: a wrong `URL_BASE=` fails the OPEN. Default: `web`, in BR's working directory; if that folder is missing the server still starts, and warns in its log. |
+| `URL_BASE=` | Document root for static files: an operating-system path, or a BR path, which is resolved through the `DRIVE` mapping when it is not a directory as written (`web_server.br` passes a BR path). It must exist and be a folder: a wrong `URL_BASE=` fails the OPEN. It must also be BR's working directory or a folder under it, as written (relative parts and `..` resolved; a junction or link on the way is followed), or the OPEN fails **758** ([§2.2](#routing)). Default: `web`, in BR's working directory; if that folder is missing the server still starts, and warns in its log. |
 | `CERT=` | Base name of the certificate pair, without an extension: `<basename>.crt` and `<basename>.key` (§3). An operating-system path or a BR path, as for `URL_BASE=`. Required with `HTTPS`. |
 | `PHRASE=` | Passphrase for an encrypted `.key`. Quote it if it contains spaces (`web_server.br` always quotes it). When there is no `PHRASE=`, the `OPTION 66` value is used. |
 | `URL_BASE=NONE` | No static files at all: every request not meant for the program gets **404**. For a site whose proxy serves the files (§4). |
@@ -77,7 +78,7 @@ Rules:
 
 | Statement | Effect |
 |---|---|
-| `OPEN #n: "NAME=<any>, HTTP=SERVER [, AUTH] [, RECL=<n>] [, EOL=NONE] [, WAIT=<sec>] [, CHUNK=<bytes>]", DISPLAY, OUTIN` | Starts the server the first time it is opened, then attaches channel `#n` to the request queue. `NAME=` names nothing; both programs use `name=http_file`. `HTTP=` is `SERVER` or `CLIENT`. The file must be `DISPLAY`, opened `OUTIN`: it reads requests and writes their responses. |
+| `OPEN #n: "[NAME=<any>,] HTTP=SERVER [, AUTH] [, RECL=<n>] [, EOL=NONE] [, WAIT=<sec>] [, CHUNK=<bytes>]", DISPLAY, OUTIN` | Starts the server the first time it is opened, then attaches channel `#n` to the request queue. `NAME=` is optional and names nothing (`OPEN #1: "http=server", display, outin` opens); both programs use `name=http_file`. `HTTP=` is `SERVER` or `CLIENT`. The file must be `DISPLAY`, opened `OUTIN`: it reads requests and writes their responses. |
 | `LINPUT #n: POST$` (also `INPUT #n:`) | First sends the **previous** request's response, if one is pending. Then it waits for the next queued request, makes it the channel's current request, and returns its body. |
 | `PRINT #n: X$` | Appends to the current request's response. Nothing is sent until the next read, a `PAGE-FLUSH`, or `CLOSE` - or, with `CHUNK=`, until a chunk's worth has been printed. |
 | `FILE$(n, "<keyword>")` | Reads facts about the current request, or acts on it. See §2.3. |
@@ -105,7 +106,14 @@ Only **one** channel may hold `HTTP=SERVER` at a time in one BR: a second OPEN g
     browser revalidates them and an unchanged file answers **304** - a file deployed to
     `URL_BASE=` is seen at once;
   - a directory gives **403**, not a listing; a missing file **404**;
-  - `/../` cannot escape the root;
+  - `/../` cannot escape the root, and neither can a junction or symbolic link inside it: a file
+    whose real location is outside `URL_BASE=` gives **403**;
+  - nothing in the upload folder `tmp` is served (**403**), even when `URL_BASE=` contains it
+    ([§2.6](#uploads));
+  - files are sent as they are: there are no Server Side Includes and no CGI, so an `.shtml`
+    page is plain text;
+  - `brrestrict.sys` does not govern these files: what the server may serve is set by
+    `URL_BASE=` alone;
   - no CORS headers are sent, so another site's scripts cannot read these files from a
     visitor's browser.
 - The program answers **one request at a time**. The others queue behind it, and static files
@@ -213,9 +221,11 @@ A `multipart/form-data` upload is saved by the server before the program sees th
 
 - The file goes in `tmp`, under BR's working directory, which is created if missing.
 - The stored name is the client's file name with any directory part removed, followed by the
-  16-character session id from the request's `session="…"` cookie: `..\..\report.txt` with
-  session `ABCDEFGHIJKLMNOP` is stored as `tmp/report.txtABCDEFGHIJKLMNOP`. Without such a
-  cookie, nothing is appended.
+  session id from the request's `session="…"` cookie: the letters and digits among its first
+  16 characters, anything else dropped. `..\..\report.txt` with session `ABCDEFGHIJKLMNOP` is
+  stored as `tmp/report.txtABCDEFGHIJKLMNOP`. Without such a cookie, nothing is appended.
+- Nothing in `tmp` is ever served as a static file, so one visitor cannot download another's
+  upload.
 - `&uploadfile=<stored path>` is appended to `PAGE-URL`, once per file.
 - The other form fields are `POST-VAR-` values. The body `LINPUT` returns is empty.
 - An existing file of the same name is replaced. A failed upload is recorded in the server log,
@@ -294,6 +304,7 @@ or word concerned (`0763`-`0767` leave `SYSERR$` alone). Both logs record the sa
 | 0779 | `LOG=` names a folder |
 | 0780 | The `URL_BASE=` folder does not exist |
 | 0781 | `URL_BASE=` names a file |
+| 0758 | `URL_BASE=` is not BR's working directory or under it |
 | 0782 | `HTTPS` with no `CERT=` |
 | 0783 | `.crt` file not found |
 | 0784 | `.crt` file cannot be read |

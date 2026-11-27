@@ -1,0 +1,4 @@
+(0) 11/20/2026 13:12:57.583  BRClient: 3 log message(s) could not be sent to the server; the client is exiting
+(0) 11/20/2026 13:12:45.795  Bad action 10104 KEYBOARD_MOUSE_ASYNC before version match established.
+(0) 11/20/2026 13:12:45.795  Dumping core: brassertion (Bad action 10104 KEYBOARD_MOUSE_ASYNC before version match established.) failed in C:\cygwin64\home\gordon\br50\br\brs\remote.cpp line 2904.
+(0) 11/20/2026 13:12:45.795  Fatal error called with message: brassertion (Bad action 10104 KEYBOARD_MOUSE_ASYNC before version match established.) failed in C:\cygwin64\home\gordon\br50\br\brs\remote.cpp line 2904.

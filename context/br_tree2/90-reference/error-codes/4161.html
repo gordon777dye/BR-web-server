@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4161 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4161</h1>
+<p><strong>Error:</strong> 4161</p>
+<p><strong>Description:</strong> The assistant channel was closed after repeated bad handshakes</p>
+<p><strong>Details:</strong> A channel closed itself after too many consecutive failed attempts to attach - the debugger channel counts bad attaches, the assistant channel bad handshakes. The listener is shut and the token deleted, so there is nothing left to connect to and <strong>the command must be given again</strong>. The running program is handed the error so that it can decide what to do about a channel that has just been shut under it.</p>
+<p><strong>Raised by:</strong> <code>debug.cpp</code>, <code>harness.cpp</code>, <code>harness.h</code></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4161.md">br_tree/90-reference/error-codes/4161.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">glossary-stubs</a></nav>
+<main>
+<h1>L</h1>
+<p>The <strong>L (long) format specification</strong> is used for <code>System/23</code> compatibility only. It identifies a double-precision floating-point number that uses 9 characters of storage space. L may be used with <code>Form</code> for internal or external files; it may also be used with full screen processing.</p>
+<p><strong>Input characteristics</strong>:</p>
+<p>When L is used with FORM for internal and external files, it is identical to the <code>D</code> format spec except that L requires nine characters of storage (D requires only eight). When L is used for input with full screen processing, the field length must account for a leading minus sign and decimal point if needed. Fraction length is optional. Numbers are not redisplayed (with the specified number of decimal places) when editing a field. L will retain extra decimal positions if they are entered and if the specified field length allows for them.</p>
+<p><strong>Output characteristics</strong>:</p>
+<p>All significant digits in L-formatted data will be output exactly as they were input.</p>
+<p><strong>Technical Considerations</strong>:</p>
+<p>1.) By definition, L is not portable; it is native to the floating-point format of the machine.</p>
+<h3 id="see-also">See Also</h3>
+<p>The letter L can also be used as a <code>Attribute (Screen)#Control Attributes|Control Attribute</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/glossary-stubs/L.md">br_tree/90-reference/glossary-stubs/L.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

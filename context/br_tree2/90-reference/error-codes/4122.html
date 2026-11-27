@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4122 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4122</h1>
+<p><strong>Error:</strong> 4122</p>
+<p><strong>Description:</strong> Invalid access for file type</p>
+<p><strong>Details:</strong> Mismatch between file type and type of access attempted.</p>
+<ul>
+<li>When opening an table as <code>Internal</code>, this error means that the <code>Header</code> is damaged.</li>
+<li>This error could result from an attempt to direct information to a printer or display file when the file has been opened internal.</li>
+<li>Similarly, a statement could be attempting to call help with a file name that does not represent a help file.</li>
+<li>This error could also result from an attempt to open the same file twice from the same workstation as internal and either external or display. After a file is opened internal at a workstation, only internal is allowed for additional opens on the same file.</li>
+<li>Another cause of this error occurs when an attempt is made to open a program file as a key file.</li>
+<li>You've attempted to List &lt; a <code>Source File</code></li>
+<li>A <code>program</code> file won't load in a br version prior to <code>4.2</code> because you saved it in <code>4.2</code> previously # Correct the OPEN statement.</li>
+<li>(<code>S/23-MODE</code> is ON) An <code>Open</code> statement tried to open a key file as an internal file.</li>
+<li>(S/23-MODE is ON) An OPEN statement tried to open an internal file as a display file.</li>
+<li>(S/23-MODE is ON) An OPEN statement tried to open a key file as an internal file.</li>
+<li>(S/23-MODE is ON) An OPEN statement tried to open a program file as a display file.</li>
+<li>add <code>Option</code> 60 to your 4.2 BR installation and reload and replace the program file, than older versions of BR should be again able to load and run the program.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4122.md">br_tree/90-reference/error-codes/4122.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

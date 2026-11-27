@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OPTION_(Config) — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">config-directives</a></nav>
+<main>
+<h1 id="option-config--numbered-feature-toggles">OPTION (config) — numbered feature toggles</h1>
+<p>The numbered <strong><code>OPTION</code></strong> feature toggles used in the <code>BRConfig.sys</code> file. Most may also be enabled
+at runtime with a <strong><code>CONFIG OPTION &lt;n&gt;</code></strong> statement, and most can be disabled with <strong><code>CONFIG OPTION &lt;n&gt; OFF</code></strong> (the last column notes which support the <code>OFF</code> form and from which release).</p>
+<p>From within a BR program:</p>
+<pre><code class="language-business-rules">00010 EXECUTE &quot;CONFIG OPTION 1&quot;
+</code></pre>
+<p>Or set at <code>BR32.exe</code> launch by a line in <code>BRConfig.sys</code>:</p>
+<pre><code>OPTION 37
+</code></pre>
+<p>See also <code>Option (disambiguation)</code>.</p>
+<a id="option-table"></a>
+<h2>Option table</h2>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th><code>CONFIG OPTION n OFF</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>INVP</code></td>
+<td>Normal input of commas and periods is interchanged in <code>PIC</code>, <code>N</code>, <code>NZ</code>, <code>L</code>, <code>G</code> and <code>GZ</code> format specifications to support European-style numbers. (From <code>INPUT FIELDS</code>)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It made a <code>FORM</code> repeat count below 1 count as 1. A count below 1 skips the item or group.</td>
+<td>Yes (<code>4.18</code>+)</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>keyboard values less than <code>0x20</code> not ignored</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>3</code></td>
+<td>set print flags</td>
+<td></td>
+</tr>
+<tr>
+<td><code>4</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It padded display output to the record length when <code>EOL=NONE</code>. Only what is printed is written.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>5</code></td>
+<td>default to <code>ISAM</code> (index type 4). The normal default is <code>BTREE</code> (index type 7)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>6</code></td>
+<td><strong>BR 5.0.</strong> <code>COPY</code> and <code>RENAME</code> onto a file that exists do not ask: <code>COPY</code> replaces it silently and <code>RENAME</code> refuses it with error <code>4150</code> unless <code>-F</code>, as before 5.0. Off (the default), the operator is asked <code>Overwrite &lt;name&gt;? (y/n/all)</code> - see <a href="../../70-commands/file-directory/spec.html#overwrite">COPY and RENAME</a>. (Before 5.0 this number was keep path on exit, long since withdrawn and accepted as a no-op, so a configuration file still carrying <code>OPTION 6</code> keeps the behaviour it always had.)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>7</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It turned off the hanging <code>THEN</code>/<code>ELSE</code> check (error 1121) in <code>IF</code> statements. The check is always made.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>8</code></td>
+<td><strong>BR 5.0.</strong> <code>DIR</code> lists as it did before 5.0, as if every <code>DIR</code> were given <code>-O</code>: the 8.3 layout with two-digit years, and the pre-5.0 meanings of <code>-A</code>, <code>-L</code>, <code>-N</code>, <code>-O</code> and <code>-U</code>. Off (the default), <code>DIR</code> gives the 5.0 listing: ISO dates, sizes in full, long names only, sorted by name. (Before 5.0 this number was use old style loop counter for keyboard, long since withdrawn; 4.3 refused it as a bad <code>OPTION</code>, so no working configuration file carries it.)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>9</code></td>
+<td>The maximum number of concurrent users. A negative value has 1000 added to it, so <code>CONFIG OPTION 9 -998</code> allows 2 users. It lowers the limit whether or not a license file exists: with no license file BR allows up to 4 concurrent instances on the network (BR 4.33).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>11</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It kept variables no line of the program refers to any more. Once an edit has removed a variable's last reference, the variable is removed when the program is next saved, replaced, run, chained or continued with <code>GO</code>.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>13</code></td>
+<td>sets the number of milliseconds for scancodes wait, e.g. <code>Option 13 200</code> (this number can be incremented by 20 till it reaches 400)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>14</code></td>
+<td><strong>Ignored as of BR 5.01</strong>, and not listed by <code>STATUS</code>. When a program has the same file open on two channels, both channels can lock the same record, always: a read through the second channel of a record the first holds succeeds at once, and the record stays locked against other sessions until the last channel holding it lets go (by moving to another record, <code>RELEASE</code>, <code>REWRITE</code>, <code>DELETE</code> or <code>CLOSE</code>). A configuration that still has <code>OPTION 14</code> loads normally.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>15</code></td>
+<td>suppress indentation of comment continuation</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>16</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It hid the program's name on <code>LOAD</code>, <code>SAVE</code> and <code>REPLACE</code>. The name is shown.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>17</code></td>
+<td>don't consolidate <code>4205</code> error codes</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>18</code></td>
+<td><strong>Ignored as of BR 5.01</strong>, and not listed by <code>STATUS</code>. <code>DAYS</code> of a numeric date with more digits than a format with a year and no century takes (<code>DAYS(20261225,&quot;YMD&quot;)</code>) always reads the extra digits as the century, as <code>CYMD</code>. A configuration that still has <code>OPTION 18</code> loads normally.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>19</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). On SCO before version 5 it subtracted a day from the system date after February 2000.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>21</code></td>
+<td>make <code>date$(0)</code> yield 12/31/1899</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>22</code></td>
+<td><strong>BR 5.01.</strong> Create new indexes in BTREE (not BTREE2) format. Without it (the default, or <code>OPTION 22 OFF</code>), <code>INDEX</code>, <code>INDEX ... REPLACE</code> and an <code>OPEN</code> that creates a key file make BTREE2 indexes; with it on, they make BTREE indexes. A configuration that says <code>OPTION 22</code> therefore gets BTREE indexes. The option decides only what a new index is made as: each index records its kind and is opened as that kind whatever the option says, and one master may have indexes of both kinds open together. <code>INDEX ... REPLACE</code> remakes an index as the kind the option asks for. In releases before 5.01, <code>OPTION 22</code> makes BTREE2 indexes and its absence BTREE ones.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>23</code></td>
+<td>make <code>IOERR</code>s not move file pointer forward to next record. BR will advance the record pointer when a successful read I/O operation occurs, even when a <code>CONV</code> (conversion) error takes place during the read operation. This Option lets the <code>IOERR</code> exit condition occur only when the record pointer is not advanced</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>24</code></td>
+<td>disable <code>X</code> attributes during <code>SELECT</code>. Prior to BR version <code>3.9</code>, this Option had a different meaning. Originally, Option 24 specified that a file should be freed and recreated when opened <code>REPLACE</code> to avoid a NOVELL failure to truncate the file. But BR <em>now</em> automatically truncates. If it can't for some reason, THEN it will remove the file and recreate it. Effective with BR 3.9+, Option 24 suppresses the recognition of the <code>X</code> attribute during <code>INPUT SELECT</code> operations. BR versions prior to 3.9 operated this way by default — without the Option — even though the documentation indicated that <code>X</code> applies to <code>SELECT</code> operations.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>25</code></td>
+<td>make <code>file$(0)</code> be <code>CON:</code> (if in Windows)</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>26</code></td>
+<td>suppresses the creation of <code>.BAK</code> files during <code>Replace</code></td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>27</code></td>
+<td>Ignore Invalid Y2K Key Data (err <code>4120</code>)</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>28</code></td>
+<td><strong>No longer used</strong> (BR 5.01; accepted and ignored). It refused a <code>PRINTER</code> substitution statement that named no printer type. A substitution with no type goes into the default table, which every printer uses for any code its own type does not define.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>29</code></td>
+<td>Save programs as <code>.WB</code> files. (Default is <code>.BR</code>)</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>30</code></td>
+<td>server side printing for client-server.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>31</code></td>
+<td>suppress <code>native windows printing</code>; treat <code>WIN:/</code> as direct printing</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>32</code></td>
+<td>Suppress notification of error <code>6245</code>, which indicates an invalid or unsupported (by BR) escape sequence has been printed during <code>Native Windows Printing</code>.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>33</code></td>
+<td><code>( 30  31  32  64 )</code> (default is 64 as of BR 5.01 on Windows, Linux and macOS, 31 elsewhere) <code>Record locking</code> for large file support. The problem addressed by this Option was that BR doesn't actually lock records, but locks a byte corresponding to each record in a zone way beyond the actual file. The filespace doesn't really have to exist to allow locking. This permits <code>ODBC</code> and other report writers to access locked records. BR also uses this zone to arbitrate the types of Open allowed. With BR 3.9, some file sizes were growing into the zone, and records were being locked inadvertently.<br>• <code>Option 33 30</code> — 1GB maximum bytes in a data file.<br>• <code>Option 33 31</code> — 2GB limit (the default before 5.01).<br>• <code>Option 33 32</code> — 4GB limit.<br>• <code>Option 33 64</code> — turns on 64-bit locking (the default). Every engine that shares files, BR and the ODBC driver alike, must use the same setting: engines that share a <code>wbserver.dat</code> refuse a mismatch (<em>OPTION 33 mismatch using wbserver.dat</em>), but engines that do not share one would lock in different places and not exclude each other.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>34</code></td>
+<td>sends print screen images to <code>PRN:/10</code> instead of <code>PRN:/SELECT</code>.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>35</code></td>
+<td>Honor keepalive timeout (no longer available)</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>36</code></td>
+<td>Enables the cursor during <code>INPUT SELECT</code>. This Option is needed for some hand held scanners that do not have the ability to display in reverse image.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>37</code></td>
+<td>With versions <code>4.14</code>+, BR returns an <code>FKEY</code> value of 116 when exiting a field with right arrow.<br>With OPTION 37 on, BR returns an <code>FKEY</code> value of 104 which is the same as the down arrow. This (104) is how BR worked previously.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>38</code></td>
+<td>This suppresses an error caused by specification of an <code>N</code> in the trailing attribute position. This Option is provided only for legacy purposes.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>39</code></td>
+<td>Suppresses the automatic right alignment of labels ending with a colon.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>40</code></td>
+<td>Show hot text as buttons by default. Normally hot text does not appear as a button unless the fkey value is preceded with a <code>B</code>. This Option can be selectively overridden by preceding the fkey value with an <code>H</code>.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>41</code></td>
+<td>Ignore GUI statements when they are encountered in non-GUI mode.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>42</code></td>
+<td>Suppress automatic drive mapping during Windows shell calls.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>43</code></td>
+<td><code>INPUT SELECT</code> changes fields before returning control; use old style Input Select with respect to setting <code>CURFLD</code> to the <code>NXTFLD</code> value when a selection is made.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>44</code></td>
+<td>Make the mouse wheel produce the same result as the arrow keys when control is returned to a program via the <code>E</code>, <code>L</code> or <code>X</code> field attributes. Without this Option, the mouse wheel returns Fkey results of 124/125 (up arrow/down arrow). With this Option it returns 102/104 during <code>INPUT FIELDS</code> and 105/106 during <code>INPUT SELECT</code> operations (normal arrow key responses). Note: Option 44 is NOT needed to use the mouse wheel. It only pertains to Fkey results with <code>E</code>, <code>X</code> or <code>L</code>.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>45</code></td>
+<td>Allows the old method of extended field specification in addition to the new method.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>46</code></td>
+<td>Normalizes numpad + and − keys. This removes Field Plus / Minus special processing, which is no longer needed with Datahilite field clearing.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>47</code></td>
+<td>Enable the continued use of <code>PRINTER=</code> in <code>OPEN</code> statements.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>48</code></td>
+<td><strong>Note — OPTION 48 functionality was changed in version <code>4.2</code>.</strong> If OPTION 48 is not specified, ENTER will return an <code>FKEY</code> value of zero and a double-click will return any <code>FKEY</code> value assigned to the field. Use OPTION 48 only to have the ENTER key return any <code>FKEY</code> value assigned to the field.</td>
+<td>Yes (4.2+)</td>
+</tr>
+<tr>
+<td><code>49</code></td>
+<td>Omit the spool file's path: <code>[SPOOLFILE]</code> in <code>SPOOLCMD</code> is replaced by the file name only (<code>SPL0001.TXT</code>), not its full path. The command must then find the file without its directory, for example by running in the spool directory.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>50</code></td>
+<td>Suppress theme usage for text controls. This enables the Windows classical look under XP.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>51</code></td>
+<td><strong>BR 5.01.</strong> Do <strong>not</strong> reuse deleted records. Without it (the default, or <code>OPTION 51 OFF</code>), a <code>WRITE</code> of a new record to an internal file takes a deleted record instead of adding one, the last deleted first, and that record's old contents are lost for good; with it on, new records are added at the end. A configuration that says <code>OPTION 51</code> therefore gets no reuse. The file keeps its deleted records in a chain: a file made while records are reused has it from the start, and an existing file gets one, with every deleted record in it, the first time it is opened for <code>OUTPUT</code> or <code>OUTIN</code> while records are reused. An <code>INPUT</code> open changes nothing. <code>VERSION(n, v)</code> with a negative <code>v</code> keeps the version and empties the chain, so the next such open builds it again. <strong>Files that cannot have it</strong> simply grow: records shorter than 4 bytes, and record lengths whose header has no 4 bytes to spare (14 to 17). <strong>Keyed files:</strong> a record deleted while one of its indexes was not open leaves that index's key behind. In a file that reuses records, a keyed read therefore checks the record a key leads to: a deleted record, or one whose own key (built as <code>WRITE</code> builds it) is not that key, is treated as not there, so <code>KEY=</code> answers key not found and a sequential keyed read goes on to the next key. That holds for every engine reading the file, whatever its <code>OPTION 51</code>. A read through a Btree2 index checks the same way in every file, since an update stopped part way can leave a key behind there too; it also writes such a key to the index's <code>.flaws</code> file for <code>INDEX ... REORG</code>. <strong>Sharing:</strong> engines with the option on can use the file at the same time as engines that reuse records. They append, and a record they delete is reused once the file is next opened for output by an engine that reuses records, which links it into the chain. An earlier release can use the file before or after 5.01, but not while 5.01 has it open. Sessions sharing a file never drop a deleted record from its chain, a session closing the file while others write and delete included. <code>COPY -D</code> gives the copy an empty chain.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>52</code></td>
+<td>Enable the second click of a double click operation to produce its own interrupt with <code>FKey</code> value 201.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>53</code></td>
+<td>Allow mouse positioning inside a field other than the current field. Without this Option, clicking anywhere in a non-current active input field will process it as though the field were entered via the arrow keys.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>54</code></td>
+<td>Exit BR! at any console command prompt with a message box showing program name and <code>line number:clause</code>. Waiting for input by a program has no affect.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>55</code></td>
+<td><strong>Retired in BR 5.0</strong>, and refused in <code>BRConfig.sys</code>; <code>STATUS CONFIG</code> reports <code>OPTION 55 - no longer used</code>. Remove it from configuration files. (It used to position each character of a fixed-width font individually, for fonts whose characters are not all exactly the same width.)</td>
+<td>n/a - refused</td>
+</tr>
+<tr>
+<td><code>56</code></td>
+<td><code>Srch</code> return -1 instead of 0 when no match is found.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>57</code></td>
+<td>Clear Fkeys of inactive <code>Q</code> combo box fields.</td>
+<td>Yes (4.18+)</td>
+</tr>
+<tr>
+<td><code>58</code></td>
+<td><code>On FnKey</code> has been disabled in 4.20+ (use <code>On FKey</code> instead), however this option restores recognition of <code>FnKey</code>.</td>
+<td>Yes (<code>4.20</code>+)</td>
+</tr>
+<tr>
+<td><code>59</code></td>
+<td>Make <code>CurCol</code> (not <code>NxtCol</code>) work the old way: use cursor position instead of field start for <code>CURROW</code>/<code>COL</code></td>
+<td>???</td>
+</tr>
+<tr>
+<td><code>60</code></td>
+<td><strong>BR 5.0: a new meaning.</strong> <code>SAVE</code> and <code>REPLACE</code> write the 4.2/4.3 object format (save level 38), so a 4.2 or 4.3 BR can load the program. Without it, 5.0 saves level 39, which an earlier BR refuses with error <code>2240</code>. The cost is that the source line positions are not saved. It affects saving only: 5.0 loads every format either way. It also sets <code>OPTION 74</code>. (Before 5.0 it saved the 4.18-and-earlier format, which 5.0 no longer writes.)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>61</code></td>
+<td>Do not Map a Drive if not explicitly defined by <code>DRIVE</code> statements in <code>BRConfig.sys</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>62</code></td>
+<td>Use Draw Line Border Specification (otherwise report error!).</td>
+<td></td>
+</tr>
+<tr>
+<td><code>63</code></td>
+<td>Allow <code>INPUT SELECT</code> to input data; <code>INPUT SELECT</code> &quot;Reads Data&quot; — we should use <code>INPUT FIELDS</code> with <code>^LABEL</code> instead!</td>
+<td></td>
+</tr>
+<tr>
+<td><code>64</code></td>
+<td><code>15</code> Allows max network delay for passing data to client.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>65</code></td>
+<td>Ignore <code>ON ATTN</code> statements.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>66</code></td>
+<td>The secret key to be used for encryption.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>67</code></td>
+<td>Data Hilite on every <code>INPUT FIELDS</code> statement.</td>
+<td></td>
+</tr>
+<tr>
+<td><code>68</code></td>
+<td>Prevent stretching printed fonts.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>69</code></td>
+<td>ignore file closing errors during end or chain</td>
+<td>Yes?</td>
+</tr>
+<tr>
+<td><code>70</code></td>
+<td>• Same as Option 54 (exits on any command console prompt) but allows a <code>Relaxed</code> parameter to allow for some debugging.<br>• <code>4.32</code>+ <code>ON SOFLOW IGNORE</code> overrides line error handlers as in previous versions</td>
+<td>Yes and Relaxed (<code>4.30</code>+); <code>4.32</code>+ Yes?</td>
+</tr>
+<tr>
+<td><code>71</code></td>
+<td>Prevent <code>auto complete</code> for editable <code>combo boxes</code> (added in 4.32-ish)</td>
+<td>Yes?</td>
+</tr>
+<tr>
+<td><code>72</code></td>
+<td>Prevent auto complete for <code>select</code> combo boxes (added in 4.32-ish)</td>
+<td>Yes?</td>
+</tr>
+<tr>
+<td><code>73</code></td>
+<td>Adds the <code>WSID</code> to the temporary <code>edit</code> file names (added in 4.3)</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>74</code></td>
+<td>Treat <code>IGNORE</code> as a label reference for line level error handlers</td>
+<td>Yes?</td>
+</tr>
+<tr>
+<td><code>75</code></td>
+<td><code>CURFLD()</code> reports the next input field. Normally <code>CURFLD()</code> returns the field the cursor was in when the <code>INPUT FIELDS</code> ended; with this on, the next <code>CURFLD()</code> read returns the field set by a preceding <code>CURFLD(n)</code> directive (the field the next input will start in), and then goes back to normal</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>76</code></td>
+<td><strong>Takes a number, 1-500.</strong> The <em>minimum</em> size of the button bar (its row height, the button height and the space above the buttons) as a percentage of the standard minimum, a floor under what the display's DPI conversion gives. The default is <code>100</code>, the previous behaviour; fixed pixel ceilings still apply, so even <code>OPTION 76 500</code> cannot grow the bar without limit. <code>STATUS CONFIG</code> reports it. Set on the server and sent to the client</td>
+<td>n/a - takes a number</td>
+</tr>
+<tr>
+<td><code>77</code></td>
+<td>In a newly opened print preview, <code>ENTER</code> closes the preview instead of printing it, as before 4.33 (the Close button is made the default and given the focus). Off by default: since 4.33 <code>ENTER</code> starts a print. <code>STATUS CONFIG</code> reports it. Set on the server and sent to the client</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>78</code></td>
+<td><strong>Takes two numbers, 0-127.</strong> How much a grid or list selection lightens a dark background, then how much it darkens a light background, instead of drawing a blue overlay. The default is <code>40</code> for both</td>
+<td>n/a - takes numbers</td>
+</tr>
+<tr>
+<td><code>79</code></td>
+<td><strong>Takes a number, 0-3.</strong> Which font problems are reported to the program as errors: <code>0</code> all three (the default); <code>1</code> not 6253 (internal font resolution error); <code>2</code> also not 6251 (requested font not available); <code>3</code> also not 6249 (invalid font specification). Every condition is still written to the log whatever the level</td>
+<td>n/a - takes a number</td>
+</tr>
+<tr>
+<td><code>80</code></td>
+<td>Characters per inch affects lines per inch for large fonts. Off (the default): the lines-per-inch setting is a ceiling, the type is brought down to fit it and the report keeps its line spacing. On: it is a bar - the type takes the size its pitch implies, and the line spacing opens up to follow it, at the cost of lines per page. Printing</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>81</code></td>
+<td>4.3.3 print compatibility. Off (the default): the type size comes from the pitch and every font is scaled to the cell. On: the type height is used as it stands and only fixed-pitch fonts are scaled, as 4.3.3 did. It implies nothing else; <code>OPTION 68</code> keeps its 4.3.3 meaning inside it and <code>OPTION 80</code> stays a separate choice. PDF printing only</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>82</code></td>
+<td>Work off the display area: this session's windows are placed past the edge of the desktop and stay there, still live (they paint, can be captured and take posted keys, which a hidden window does not). Off unless asked for. Turning it off brings the windows back</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>83</code></td>
+<td>The application may reach the operating system and may start BR sessions that are not restricted: <code>SYSTEM</code> calls are not asked about while an assistant is attached, and sessions started from here are not made restricted. <strong>May be set only in the configuration file</strong> - <code>CONFIG OPTION 83</code> while running is refused with error 4172 (&quot;this OPTION may be set only in the configuration file, never with a CONFIG command&quot;), and a restricted session refuses it</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>84</code></td>
+<td><strong>BR 5.0.</strong> How a <code>/</code> in a file name is read: as a System/23 name (<code>file/directory/drive</code>) or as a folder separator, and which is tried first. <code>OPTION 84 n</code>: <code>0</code> System/23 only; <code>1</code> (default) the name decides which is tried first, then the other if the file or folder is not found; <code>2</code> the same, but no second try; <code>3</code> System/23 first, then the other; <code>4</code> folder separator first, then the other; <code>5</code> folder separator only. See <a href="../../30-io-file/file-model/spec.html#slash">file names</a>.</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>97</code></td>
+<td>set network retries per second (default is 5)</td>
+<td></td>
+</tr>
+<tr>
+<td><code>98</code></td>
+<td>turn OFF check for all NULL in read / writes</td>
+<td></td>
+</tr>
+<tr>
+<td><code>99</code></td>
+<td>turn ON check for all NULL in read / writes</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/config-directives/OPTION_%28Config%29.md">br_tree/00-configuration/config-directives/OPTION_(Config).md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

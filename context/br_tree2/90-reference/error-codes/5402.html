@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>5402 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>5402</h1>
+<p><strong>Error:</strong> 5402</p>
+<p><strong>Description:</strong> &quot;When working on an XP computer with data files on a remote host I build a graph file and then attempt to copy the built file to a printer attached to the XP computer I receive a 5402 error.I can go to a system prompt on the XP and copy the file that was created to the printer just fine, but BR gives me the error consistently.I have done a checkdisk on the XP drivesThe statement that gives the error isEXECUTE &quot;sys &quot;&amp;ENV$(&quot;PD&quot;)&amp;&quot;SPOOLBAT.BAT &quot;&amp;ENV$(&quot;PD&quot;)&amp;&quot;print\tempfil.&quot;&amp;WSID$&amp;&quot; HP&quot;ENV$(&quot;PD&quot;) is &quot;E:\WB&quot; the location of my program filesWSID$ is the workstation session &quot;321&quot;SPOOLBAT.BAT calls a local SPOOLBAT.BAT file with the following statementIF EXISTS C:\WB\SPOOLBAT.BAT C:\WB\SPOOLBAT.BATThe local SPOOLBAT.BAT then executes as follows&quot;COPY /b %1 LPT1:&quot;My understanding is that the 5402 error happens before the first shell call is completed&quot;</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/5402.md">br_tree/90-reference/error-codes/5402.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

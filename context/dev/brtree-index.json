@@ -1,16 +1,25 @@
 {
-  "$comment": "Concept -> spec router over br_tree/. keyword_index maps a BR keyword to the spec path(s) that document it; section_index maps each statement, READY command and system function to the spec section(s) (anchor) that cover it, each with a kind - command, function, statement or reference - saying what that section documents the word as; each spec record carries title, status, anchors, and lead summary. Regenerate with tools/gen_brtree_index.exe.",
-  "generated": "2026-11-01",
+  "$comment": "Concept -> spec router over br_tree/. keyword_index maps a BR keyword to the spec path(s) that document it; section_index maps each statement, READY command and system function to the spec section(s) (anchor) that cover it, each with a kind - command, function, statement, clause, deprecated, config, format, or reference for a section that documents it as none of these - saying what that section documents the word as; config_index maps each configuration statement (BRConfig.sys, CONFIG) to where it is defined: a page of its own (file) or a section (anchor); each spec record carries title, status, anchors, and lead summary. Regenerate with tools/gen_brtree_index.exe.",
+  "generated": "2026-11-24",
   "source": "br_tree/",
-  "source_sha256": "9460af8944898d2a5c47ea80543c91cf316230e5ef21d7e3d5e0a3a85a398a0c",
+  "source_sha256": "348af9cda598fcba4267417061636a4003dba0a50f48ea29b7de50e6d4cbd34e",
   "count": 38,
   "keyword_index": {
     "!:": [
       "10-language/syntax"
     ],
+    "3D_FIELDS": [
+      "00-configuration/config-directives"
+    ],
     ":=": [
       "10-language/data-manipulation/assignment",
       "10-language/data-manipulation/expressions"
+    ],
+    ">": [
+      "10-language/flow-control/other-flow"
+    ],
+    ">>": [
+      "10-language/flow-control/other-flow"
     ],
     "ABS": [
       "10-language/data-manipulation/system-functions"
@@ -207,6 +216,7 @@
       "30-io-file/database"
     ],
     "CONSOLE": [
+      "00-configuration/config-directives",
       "00-configuration/installation-tooling"
     ],
     "CONTINUE": [
@@ -246,6 +256,9 @@
       "10-language/data-manipulation/system-functions",
       "20-io-screen/windows-cursor"
     ],
+    "CURSOR": [
+      "00-configuration/config-directives"
+    ],
     "CURTAB": [
       "10-language/data-manipulation/system-functions"
     ],
@@ -269,9 +282,11 @@
       "00-configuration/environment"
     ],
     "DATE": [
+      "00-configuration/config-directives",
       "10-language/data-manipulation/system-functions",
       "20-io-screen/fields-attributes",
-      "30-io-file/form-spec"
+      "30-io-file/form-spec",
+      "70-commands/information"
     ],
     "DATE$": [
       "10-language/data-manipulation/system-functions"
@@ -314,13 +329,20 @@
     "DIM": [
       "10-language/data-manipulation/declaration"
     ],
+    "DIMONLY": [
+      "00-configuration/config-directives"
+    ],
     "DIMS": [
       "70-commands/information"
     ],
     "DIR": [
       "70-commands/file-directory"
     ],
+    "DISCONNECT": [
+      "00-configuration/installation-tooling"
+    ],
     "DISPLAY": [
+      "20-io-screen/controls",
       "30-io-file/file-model",
       "70-commands/information"
     ],
@@ -408,6 +430,9 @@
     "EXTERNAL": [
       "30-io-file/file-model"
     ],
+    "FIELDHELP": [
+      "00-configuration/config-directives"
+    ],
     "FIELDS": [
       "20-io-screen/controls"
     ],
@@ -449,6 +474,9 @@
       "00-configuration/config-directives",
       "40-io-printing/pcl-pdf"
     ],
+    "FONTFAMILY": [
+      "00-configuration/config-directives"
+    ],
     "FONTS": [
       "70-commands/information"
     ],
@@ -460,6 +488,9 @@
     ],
     "FP": [
       "10-language/data-manipulation/system-functions"
+    ],
+    "FRE": [
+      "70-commands/file-directory"
     ],
     "FREE": [
       "30-io-file/statements",
@@ -496,14 +527,23 @@
       "10-language/data-manipulation/conditionals",
       "10-language/flow-control/other-flow"
     ],
+    "GRAPHIC_LINEDRAW": [
+      "00-configuration/config-directives"
+    ],
     "GRID": [
       "20-io-screen/controls"
+    ],
+    "GRID_CURSOR_MOVE": [
+      "00-configuration/config-directives"
     ],
     "GROW": [
       "10-language/flow-control/error-handling"
     ],
     "GU": [
       "20-io-screen/fields-attributes"
+    ],
+    "GUI": [
+      "00-configuration/config-directives"
     ],
     "GZ": [
       "30-io-file/form-spec"
@@ -514,7 +554,8 @@
     "HELP": [
       "10-language/flow-control/error-handling",
       "20-io-screen/input-output",
-      "20-io-screen/windows-cursor"
+      "20-io-screen/windows-cursor",
+      "70-commands/information"
     ],
     "HELP$": [
       "10-language/data-manipulation/system-functions"
@@ -523,12 +564,14 @@
       "10-language/data-manipulation/system-functions"
     ],
     "HTTP": [
+      "00-configuration/config-directives",
       "60-integration/web"
     ],
     "HTTP=SERVER": [
       "60-integration/web"
     ],
     "HTTPS": [
+      "00-configuration/config-directives",
       "60-integration/web"
     ],
     "IF": [
@@ -577,7 +620,11 @@
     "JSON": [
       "60-integration/json-datastore"
     ],
-    "KEY": [
+    "KEY=": [
+      "30-io-file/keys-indexes",
+      "30-io-file/statements"
+    ],
+    "KEY>=": [
       "30-io-file/keys-indexes",
       "30-io-file/statements"
     ],
@@ -609,6 +656,10 @@
     "L": [
       "30-io-file/form-spec"
     ],
+    "LABELS": [
+      "10-language/flow-control/other-flow",
+      "70-commands/program-management"
+    ],
     "LAST": [
       "30-io-file/statements"
     ],
@@ -630,7 +681,9 @@
       "10-language/flow-control/error-handling"
     ],
     "LINES": [
-      "10-language/data-manipulation/system-functions"
+      "10-language/data-manipulation/system-functions",
+      "10-language/flow-control/other-flow",
+      "70-commands/program-management"
     ],
     "LINESPP": [
       "10-language/data-manipulation/system-functions"
@@ -666,6 +719,7 @@
       "70-commands/information"
     ],
     "LOG": [
+      "00-configuration/installation-tooling",
       "10-language/data-manipulation/system-functions"
     ],
     "LOGGING": [
@@ -876,6 +930,7 @@
       "30-io-file/statements"
     ],
     "PAGEOFLOW": [
+      "00-configuration/config-directives",
       "10-language/flow-control/error-handling",
       "40-io-printing/statements"
     ],
@@ -898,6 +953,9 @@
       "00-configuration/installation-tooling",
       "40-io-printing/pcl-pdf"
     ],
+    "PDF_READER": [
+      "00-configuration/config-directives"
+    ],
     "PEM": [
       "00-configuration/installation-tooling"
     ],
@@ -916,6 +974,9 @@
       "10-language/data-manipulation/system-functions",
       "30-io-file/form-spec"
     ],
+    "POS=": [
+      "30-io-file/statements"
+    ],
     "PRINT": [
       "10-language/flow-control/other-flow",
       "40-io-printing/statements"
@@ -932,6 +993,9 @@
     "PRINTER_LIST": [
       "10-language/data-manipulation/system-functions",
       "40-io-printing/statements"
+    ],
+    "PRINTSCREEN": [
+      "00-configuration/config-directives"
     ],
     "PRIOR": [
       "30-io-file/statements"
@@ -978,7 +1042,9 @@
       "30-io-file/statements"
     ],
     "REC": [
-      "10-language/data-manipulation/system-functions",
+      "10-language/data-manipulation/system-functions"
+    ],
+    "REC=": [
       "30-io-file/statements"
     ],
     "RELATIVE": [
@@ -986,7 +1052,9 @@
     ],
     "RELEASE": [
       "30-io-file/file-model",
-      "50-libraries/library-facility"
+      "30-io-file/statements",
+      "50-libraries/library-facility",
+      "70-commands/file-directory"
     ],
     "REM": [
       "10-language/data-manipulation/system-functions",
@@ -1008,7 +1076,9 @@
       "30-io-file/statements"
     ],
     "RESERVE": [
-      "30-io-file/file-model"
+      "30-io-file/file-model",
+      "30-io-file/statements",
+      "70-commands/file-directory"
     ],
     "RESIDENT": [
       "50-libraries/library-facility"
@@ -1053,6 +1123,9 @@
     "RPAD$": [
       "10-language/data-manipulation/system-functions"
     ],
+    "RPNSTACK": [
+      "00-configuration/config-directives"
+    ],
     "RPT$": [
       "10-language/data-manipulation/system-functions"
     ],
@@ -1084,7 +1157,18 @@
       "10-language/data-manipulation/system-functions"
     ],
     "SEARCH": [
-      "30-io-file/keys-indexes"
+      "70-commands/file-directory"
+    ],
+    "SEARCH=": [
+      "30-io-file/keys-indexes",
+      "30-io-file/statements"
+    ],
+    "SEARCH>=": [
+      "30-io-file/keys-indexes",
+      "30-io-file/statements"
+    ],
+    "SEARCH_CHAR": [
+      "00-configuration/config-directives"
     ],
     "SELECT": [
       "20-io-screen/input-output"
@@ -1115,6 +1199,9 @@
     "SGN": [
       "10-language/data-manipulation/system-functions"
     ],
+    "SHELL": [
+      "00-configuration/config-directives"
+    ],
     "SHIFT": [
       "10-language/data-manipulation/system-functions"
     ],
@@ -1125,13 +1212,17 @@
       "10-language/data-manipulation/system-functions"
     ],
     "SKIP": [
-      "30-io-file/form-spec"
+      "30-io-file/form-spec",
+      "70-commands/program-management"
     ],
     "SLEEP": [
       "10-language/data-manipulation/system-functions"
     ],
     "SOFLOW": [
       "10-language/flow-control/error-handling"
+    ],
+    "SOFLOW-GROW": [
+      "00-configuration/config-directives"
     ],
     "SORT": [
       "70-commands/sort"
@@ -1144,6 +1235,7 @@
       "10-language/data-manipulation/system-functions"
     ],
     "SPOOLCMD": [
+      "00-configuration/config-directives",
       "00-configuration/config-directives"
     ],
     "SQL": [
@@ -1169,6 +1261,9 @@
     ],
     "STATUS.DATABASE": [
       "30-io-file/database"
+    ],
+    "STATUSLINE": [
+      "00-configuration/config-directives"
     ],
     "STEP": [
       "10-language/flow-control/other-flow",
@@ -1251,6 +1346,9 @@
     "TYPE": [
       "70-commands/file-directory"
     ],
+    "TYPEAHEAD": [
+      "00-configuration/config-directives"
+    ],
     "UDIM": [
       "10-language/data-manipulation/system-functions"
     ],
@@ -1265,6 +1363,9 @@
     ],
     "USERID$": [
       "10-language/data-manipulation/system-functions"
+    ],
+    "USERLEVEL": [
+      "00-configuration/config-directives"
     ],
     "USERS": [
       "70-commands/information"
@@ -1294,8 +1395,10 @@
     "VU": [
       "20-io-screen/fields-attributes"
     ],
-    "WAIT": [
-      "30-io-file/statements"
+    "WAIT=": [
+      "20-io-screen/input-output",
+      "30-io-file/statements",
+      "40-io-printing/statements"
     ],
     "WBPLATFORM$": [
       "10-language/data-manipulation/system-functions"
@@ -1312,14 +1415,21 @@
     "WINDOW": [
       "20-io-screen/windows-cursor"
     ],
+    "WINDOWS_THEMES": [
+      "00-configuration/config-directives"
+    ],
     "WORKPATH": [
       "00-configuration/config-directives",
       "00-configuration/environment"
+    ],
+    "WORKSTACK": [
+      "00-configuration/config-directives"
     ],
     "WRITE": [
       "30-io-file/statements"
     ],
     "WSID": [
+      "00-configuration/config-directives",
       "00-configuration/platform",
       "30-io-file/file-model"
     ],
@@ -1334,6 +1444,9 @@
     ],
     "XLATE$": [
       "10-language/data-manipulation/system-functions"
+    ],
+    "XREF": [
+      "70-commands/editing"
     ],
     "ZD": [
       "30-io-file/form-spec"
@@ -1599,12 +1712,12 @@
       {
         "spec": "00-configuration/client-server",
         "anchor": "config",
-        "kind": "reference"
+        "kind": "config"
       },
       {
         "spec": "00-configuration/config-directives",
         "anchor": "config",
-        "kind": "reference"
+        "kind": "command"
       }
     ],
     "CONTINUE": [
@@ -1679,6 +1792,11 @@
     ],
     "DATE": [
       {
+        "spec": "00-configuration/config-directives",
+        "anchor": "date",
+        "kind": "config"
+      },
+      {
         "spec": "10-language/data-manipulation/system-functions",
         "anchor": "date",
         "kind": "function"
@@ -1686,12 +1804,17 @@
       {
         "spec": "20-io-screen/fields-attributes",
         "anchor": "format-codes",
-        "kind": "reference"
+        "kind": "format"
       },
       {
         "spec": "30-io-file/form-spec",
         "anchor": "format-codes",
-        "kind": "reference"
+        "kind": "format"
+      },
+      {
+        "spec": "70-commands/information",
+        "anchor": "date",
+        "kind": "command"
       }
     ],
     "DATE$": [
@@ -1712,7 +1835,7 @@
       {
         "spec": "00-configuration/installation-tooling",
         "anchor": "debug",
-        "kind": "reference"
+        "kind": "command"
       }
     ],
     "DEBUG_STR": [
@@ -1784,6 +1907,11 @@
       }
     ],
     "DISPLAY": [
+      {
+        "spec": "20-io-screen/controls",
+        "anchor": "display",
+        "kind": "statement"
+      },
       {
         "spec": "70-commands/information",
         "anchor": "display",
@@ -1945,7 +2073,7 @@
       {
         "spec": "30-io-file/form-spec",
         "anchor": "when-a-form-is-compiled",
-        "kind": "reference"
+        "kind": "statement"
       }
     ],
     "FP": [
@@ -1953,6 +2081,13 @@
         "spec": "10-language/data-manipulation/system-functions",
         "anchor": "fp",
         "kind": "function"
+      }
+    ],
+    "FRE": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "fre",
+        "kind": "command"
       }
     ],
     "FREE": [
@@ -2014,6 +2149,11 @@
         "spec": "10-language/flow-control/error-handling",
         "anchor": "ignore",
         "kind": "clause"
+      },
+      {
+        "spec": "70-commands/information",
+        "anchor": "help",
+        "kind": "command"
       }
     ],
     "HELP$": [
@@ -2048,7 +2188,7 @@
       {
         "spec": "30-io-file/keys-indexes",
         "anchor": "index",
-        "kind": "reference"
+        "kind": "command"
       }
     ],
     "INF": [
@@ -2191,6 +2331,11 @@
     ],
     "LOG": [
       {
+        "spec": "00-configuration/installation-tooling",
+        "anchor": "log",
+        "kind": "command"
+      },
+      {
         "spec": "10-language/data-manipulation/system-functions",
         "anchor": "log",
         "kind": "function"
@@ -2280,7 +2425,7 @@
       {
         "spec": "20-io-screen/controls",
         "anchor": "menu",
-        "kind": "reference"
+        "kind": "clause"
       }
     ],
     "MENU$": [
@@ -2292,7 +2437,7 @@
       {
         "spec": "20-io-screen/controls",
         "anchor": "menus",
-        "kind": "reference"
+        "kind": "function"
       }
     ],
     "MERGE": [
@@ -2409,12 +2554,12 @@
       {
         "spec": "30-io-file/database",
         "anchor": "open",
-        "kind": "reference"
+        "kind": "statement"
       },
       {
         "spec": "30-io-file/file-model",
         "anchor": "file-ref",
-        "kind": "reference"
+        "kind": "statement"
       },
       {
         "spec": "30-io-file/statements",
@@ -2473,7 +2618,7 @@
       {
         "spec": "30-io-file/form-spec",
         "anchor": "format-codes",
-        "kind": "reference"
+        "kind": "format"
       }
     ],
     "PRINT": [
@@ -2563,18 +2708,28 @@
         "spec": "10-language/data-manipulation/system-functions",
         "anchor": "rec",
         "kind": "function"
-      },
-      {
-        "spec": "30-io-file/statements",
-        "anchor": "rec",
-        "kind": "clause"
       }
     ],
     "RELEASE": [
       {
+        "spec": "30-io-file/file-model",
+        "anchor": "release",
+        "kind": "clause"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "release",
+        "kind": "statement"
+      },
+      {
         "spec": "50-libraries/library-facility",
         "anchor": "clearing",
-        "kind": "statement"
+        "kind": "clause"
+      },
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "release",
+        "kind": "command"
       }
     ],
     "REM": [
@@ -2621,7 +2776,17 @@
       {
         "spec": "30-io-file/file-model",
         "anchor": "reserve",
-        "kind": "reference"
+        "kind": "clause"
+      },
+      {
+        "spec": "30-io-file/statements",
+        "anchor": "reserve",
+        "kind": "statement"
+      },
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "reserve",
+        "kind": "command"
       }
     ],
     "RESTORE": [
@@ -2741,6 +2906,13 @@
         "kind": "function"
       }
     ],
+    "SEARCH": [
+      {
+        "spec": "70-commands/file-directory",
+        "anchor": "search",
+        "kind": "command"
+      }
+    ],
     "SELECT": [
       {
         "spec": "20-io-screen/input-output",
@@ -2771,9 +2943,14 @@
     ],
     "SETENV": [
       {
+        "spec": "00-configuration/config-directives",
+        "anchor": "setenv",
+        "kind": "config"
+      },
+      {
         "spec": "00-configuration/environment",
         "anchor": "setenv",
-        "kind": "reference"
+        "kind": "function"
       },
       {
         "spec": "10-language/data-manipulation/system-functions",
@@ -2806,7 +2983,12 @@
       {
         "spec": "30-io-file/form-spec",
         "anchor": "skip",
-        "kind": "reference"
+        "kind": "format"
+      },
+      {
+        "spec": "70-commands/program-management",
+        "anchor": "skip",
+        "kind": "command"
       }
     ],
     "SLEEP": [
@@ -2959,6 +3141,11 @@
         "spec": "10-language/flow-control/other-flow",
         "anchor": "trace",
         "kind": "statement"
+      },
+      {
+        "spec": "70-commands/information",
+        "anchor": "trace",
+        "kind": "command"
       }
     ],
     "TRIM$": [
@@ -3028,7 +3215,7 @@
       {
         "spec": "30-io-file/keys-indexes",
         "anchor": "verify",
-        "kind": "reference"
+        "kind": "command"
       }
     ],
     "VERSION": [
@@ -3080,7 +3267,7 @@
       "FILES"
     ],
     "CLOSE": [
-      "WAITEQ",
+      "WAIT=",
       "FREE",
       "DROP",
       "RELEASE"
@@ -3135,7 +3322,7 @@
       "THEN"
     ],
     "INPUT": [
-      "WAITEQ",
+      "WAIT=",
       "FIELDS",
       "ATTR",
       "HELP",
@@ -3151,7 +3338,7 @@
       "RELEASE"
     ],
     "LINPUT": [
-      "WAITEQ"
+      "WAIT="
     ],
     "LOOP": [
       "WHILE",
@@ -3192,14 +3379,14 @@
       "FIELDS",
       "HELP",
       "USING",
-      "WAITEQ",
+      "WAIT=",
       "BORDER"
     ],
     "RANDOMIZE": [],
     "READ": [
       "USING",
       "POS=",
-      "WAITEQ",
+      "WAIT=",
       "RESERVE",
       "RELEASE",
       "KEY=",
@@ -3257,7 +3444,7 @@
       "RELEASE"
     ],
     "RINPUT": [
-      "WAITEQ",
+      "WAIT=",
       "FIELDS",
       "ATTR",
       "HELP",
@@ -3266,18 +3453,886 @@
     "SELECT": [],
     "STOP": [],
     "TRACE": [
+      "LINES",
+      "LABELS",
       "PRINT",
       "OFF",
-      "ON"
+      "ON",
+      ">>",
+      ">"
     ],
     "USE": [],
     "WRITE": [
       "USING",
       "REC=",
       "POS=",
-      "WAITEQ",
+      "WAIT=",
       "RESERVE",
       "RELEASE"
+    ]
+  },
+  "config_index": {
+    "3D_FIELDS": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "3d_fields"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "ANONYMOUS": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      }
+    ],
+    "APPLICATION_NAME": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "application_name"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "ATTRIBUTE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "Attribute_(Config).md"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "attribute"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "BACKWARD_COMPATIBILITY": [
+      {
+        "spec": "00-configuration/platform",
+        "file": "Backward_Compatibility.md"
+      }
+    ],
+    "BASEYEAR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "baseyear"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "BR": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      }
+    ],
+    "BREAK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "break"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "BRSERVER": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "brserver"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      }
+    ],
+    "CAPTION": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      }
+    ],
+    "CHAINDFLT": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "chaindflt"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "CLIENT_CURRENT_DIR": [
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "client-current-dir"
+      },
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "syntax"
+      }
+    ],
+    "CLIENT_SERVER": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "reconnect"
+      }
+    ],
+    "COLLATE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "collate"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "COLOR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "color"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "CONFIG": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "config"
+      }
+    ],
+    "CONSOLE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "console"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "CORNERS": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "corners"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "CURSOR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "cursor"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "DATABASE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "database"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "DATAHILITE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "datahilite"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "DATE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "date"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "DEBUGGER": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "Debugger.md"
+      }
+    ],
+    "DECIMAL": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "decimal"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "DIMONLY": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "dimonly"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "DLL": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "Dll.md"
+      }
+    ],
+    "DRIVE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "drive"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      }
+    ],
+    "EDITOR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "editor"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      },
+      {
+        "spec": "00-configuration/installation-tooling",
+        "anchor": "editors"
+      }
+    ],
+    "EXECUTE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "execute"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "config"
+      }
+    ],
+    "FIELDBREAK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "fieldbreak"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "FIELDHELP": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "fieldhelp"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "FILENAMES": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "filenames"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      }
+    ],
+    "FILTER_DELIMITERS": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "filter_delimiters"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "FLOWSTACK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "flowstack"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "FONT": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "Font.md"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "FONTFAMILY": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "fontfamily"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "FORCE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "force"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "FORSTACK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "forstack"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "GRAPHIC_LINEDRAW": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "graphic_linedraw"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "GRID_CURSOR_MOVE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "grid_cursor_move"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "GUI": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "gui"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "HELPDFLT": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "helpdflt"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "HELPTREE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "helptree"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "HELPTREE2": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "helptree2"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "HTTP": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "http"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "webserver-config"
+      }
+    ],
+    "HTTPS": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "https"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "webserver-config"
+      }
+    ],
+    "INCLUDE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "include"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "INSERT": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "insert"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "INVP": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "KEYBOARD": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "keyboard"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "LEGACY_LEXI": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "legacy_lexi.md"
+      }
+    ],
+    "LET": [
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "syntax"
+      }
+    ],
+    "LEXI": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "LEXI.md"
+      }
+    ],
+    "LOGGING": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "LOGGING.md"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "LOGIN_NAME": [
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "login_name"
+      },
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "syntax"
+      }
+    ],
+    "MAXRECALL": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "maxrecall"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "MAX_SORT_MEMORY": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "max_sort_memory"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "MIN_FONTSIZE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "min_fontsize"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "MULTISESSION": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      }
+    ],
+    "ODBC": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "ODBC.md"
+      },
+      {
+        "spec": "00-configuration/installation-tooling",
+        "anchor": "odbc"
+      }
+    ],
+    "OPTION": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "OPTION_(Config).md"
+      }
+    ],
+    "PAGEOFLOW": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "pageoflow"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "PDF_READER": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "pdf_reader"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "PICTURE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "picture"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "PRINTDIR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printdir"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      }
+    ],
+    "PRINTER": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "PRINTER.md"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "PRINTSCREEN": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printscreen"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "PROFILER": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "Profiler.md"
+      }
+    ],
+    "PROFILER_FILE_LAYOUT": [
+      {
+        "spec": "00-configuration/installation-tooling",
+        "file": "Profiler_File_Layout.md"
+      }
+    ],
+    "RD": [
+      {
+        "spec": "00-configuration/config-directives",
+        "file": "RD.md"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "rd"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "RPNSTACK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "rpnstack"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "S/36-MODE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "s36-mode"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "SCREEN": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "screen"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "SEARCH_CHAR": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "search_char"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "SETENV": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "setenv"
+      },
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "setenv"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      },
+      {
+        "spec": "00-configuration/environment",
+        "anchor": "syntax"
+      }
+    ],
+    "SHELL": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "shell"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "SOFLOW-GROW": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "soflow-grow"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "SPOOLCMD": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "spoolcmd"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "SPOOLPATH": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "spoolpath"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printer"
+      }
+    ],
+    "STATUSLINE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "statusline"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "STDERR": [
+      {
+        "spec": "00-configuration/client-server",
+        "anchor": "config"
+      }
+    ],
+    "STYLE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "style"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "SUBSTITUTE": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "substitute"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "printscreen"
+      }
+    ],
+    "TYPEAHEAD": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "typeahead"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "USERLEVEL": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "userlevel"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "WINDOWS_THEMES": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "windows_themes"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "appearance"
+      }
+    ],
+    "WORKPATH": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "workpath"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "paths"
+      }
+    ],
+    "WORKSTACK": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "workstack"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
+    ],
+    "WSID": [
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "wsid"
+      },
+      {
+        "spec": "00-configuration/config-directives",
+        "anchor": "behavior"
+      }
     ]
   },
   "specs": [
@@ -3303,6 +4358,7 @@
         "architecture",
         "config",
         "reconnect",
+        "restart",
         "cs-operations",
         "examples",
         "service-install",
@@ -3338,7 +4394,33 @@
         "KEYBOARD",
         "SCREEN",
         "RD",
-        "STACKS"
+        "STACKS",
+        "CURSOR",
+        "DATE",
+        "DIMONLY",
+        "FIELDHELP",
+        "FONTFAMILY",
+        "GRID_CURSOR_MOVE",
+        "PAGEOFLOW",
+        "PDF_READER",
+        "PRINTSCREEN",
+        "RPNSTACK",
+        "WORKSTACK",
+        "SEARCH_CHAR",
+        "SHELL",
+        "SOFLOW-GROW",
+        "STATUSLINE",
+        "TYPEAHEAD",
+        "USERLEVEL",
+        "WINDOWS_THEMES",
+        "WSID",
+        "HTTP",
+        "HTTPS",
+        "3D_FIELDS",
+        "GRAPHIC_LINEDRAW",
+        "CONSOLE",
+        "GUI",
+        "SPOOLCMD"
       ],
       "related": [
         "environment",
@@ -3349,13 +4431,78 @@
       "anchors": [
         "semantics",
         "paths",
+        "drive",
+        "filenames",
+        "include",
         "printdir",
         "substitute",
         "substitute-matching",
+        "spoolpath",
         "spool-work",
+        "workpath",
+        "brserver",
         "appearance",
+        "screen",
+        "3d_fields",
+        "application_name",
+        "attribute",
+        "color",
+        "corners",
+        "datahilite",
+        "filter_delimiters",
+        "force",
+        "gui",
+        "console",
+        "graphic_linedraw",
+        "min_fontsize",
+        "cursor",
+        "fieldhelp",
+        "fontfamily",
+        "grid_cursor_move",
+        "statusline",
+        "windows_themes",
         "behavior",
+        "baseyear",
+        "break",
+        "chaindflt",
+        "collate",
+        "database",
+        "decimal",
+        "editor",
+        "execute",
+        "fieldbreak",
+        "flowstack",
+        "forstack",
+        "rpnstack",
+        "workstack",
+        "helpdflt",
+        "helptree",
+        "helptree2",
+        "insert",
+        "keyboard",
+        "maxrecall",
+        "max_sort_memory",
+        "picture",
+        "rd",
+        "setenv",
+        "date",
+        "dimonly",
+        "pageoflow",
+        "s36-mode",
+        "search_char",
+        "shell",
+        "soflow-grow",
+        "typeahead",
+        "userlevel",
+        "wsid",
+        "style",
         "printer",
+        "spoolcmd",
+        "printscreen",
+        "pdf_reader",
+        "webserver-config",
+        "http",
+        "https",
         "config",
         "examples",
         "see-also"
@@ -3386,6 +4533,7 @@
         "semantics",
         "env-substitution",
         "path-resolution",
+        "login_name",
         "setenv",
         "env-read",
         "client-current-dir",
@@ -3416,7 +4564,9 @@
         "AUTH",
         "LISTEN",
         "OBSERVE",
-        "SCREENLOG"
+        "SCREENLOG",
+        "LOG",
+        "DISCONNECT"
       ],
       "related": [
         "config-directives",
@@ -3424,13 +4574,15 @@
       ],
       "anchors": [
         "editors",
-        "lexi",
+        "lexi-preprocessor",
         "catalog",
         "odbc",
         "pdf",
         "dotnet",
         "diagnostics",
         "debug",
+        "log",
+        "disconnect",
         "automation",
         "see-also"
       ],
@@ -3936,6 +5088,8 @@
         "call",
         "dll",
         "msgbox",
+        "msgbox-buttons",
+        "msgbox-icons",
         "encryption",
         "encrypt$",
         "decrypt$",
@@ -3989,6 +5143,7 @@
         "system-variables",
         "levels",
         "conditions",
+        "conditions-by-statement",
         "ignore",
         "system",
         "soflow-grow",
@@ -4029,6 +5184,7 @@
         "def",
         "fnend",
         "parameters",
+        "call-matching",
         "local-variables",
         "examples",
         "see-also"
@@ -4065,7 +5221,11 @@
         "TO",
         "ON",
         "OFF",
-        "PRINT"
+        "PRINT",
+        "LINES",
+        "LABELS",
+        ">",
+        ">>"
       ],
       "related": [
         "conditionals",
@@ -4121,6 +5281,7 @@
         "syntax",
         "semantics",
         "line-numbers",
+        "line-length",
         "comments",
         "identifiers",
         "name-resolution",
@@ -4154,7 +5315,8 @@
         "BUTTON",
         "BUTTONS",
         "BUTTONROWS",
-        "MENU$"
+        "MENU$",
+        "DISPLAY"
       ],
       "related": [
         "input-output",
@@ -4167,6 +5329,7 @@
         "combo",
         "radio",
         "check",
+        "display",
         "buttons",
         "text",
         "date-picker",
@@ -4239,7 +5402,8 @@
         "RINPUT",
         "SELECT",
         "ATTR",
-        "HELP"
+        "HELP",
+        "WAIT="
       ],
       "related": [
         "fields-attributes",
@@ -4254,6 +5418,7 @@
         "field-help",
         "plain-input",
         "linput",
+        "input-details",
         "navigation",
         "examples",
         "see-also"
@@ -4291,11 +5456,13 @@
       "anchors": [
         "open-window",
         "semantics",
+        "print-border",
         "keyboard-results",
         "borders",
         "gui-console",
         "parent-none",
         "help-facility",
+        "br-tree-help",
         "examples",
         "see-also"
       ],
@@ -4387,6 +5554,7 @@
         "sharing",
         "locking",
         "reserve",
+        "release",
         "linked",
         "wsid",
         "slash",
@@ -4458,8 +5626,10 @@
       "status": "2b",
       "keywords": [
         "INDEX",
-        "KEY",
-        "SEARCH",
+        "KEY=",
+        "KEY>=",
+        "SEARCH=",
+        "SEARCH>=",
         "KEYED",
         "KEYONLY",
         "REORG",
@@ -4532,9 +5702,13 @@
         "DELETE",
         "RESTORE",
         "REREAD",
-        "REC",
-        "KEY",
+        "REC=",
+        "KEY=",
+        "KEY>=",
+        "SEARCH=",
+        "SEARCH>=",
         "LINK=",
+        "POS=",
         "KEYONLY",
         "FIRST",
         "LAST",
@@ -4547,9 +5721,11 @@
         "OUTIN",
         "SEQUENTIAL",
         "OUTPUT",
-        "WAIT",
+        "WAIT=",
         "DROP",
-        "FREE"
+        "FREE",
+        "RELEASE",
+        "RESERVE"
       ],
       "related": [
         "file-model",
@@ -4567,10 +5743,13 @@
         "display",
         "read",
         "rewrite",
+        "io-wait",
         "linput",
         "write",
         "delete",
         "restore",
+        "release",
+        "reserve",
         "link",
         "keyonly",
         "no-abbreviation",
@@ -4635,7 +5814,8 @@
         "USING",
         "PIC",
         "COPIES",
-        "PRINTER_LIST"
+        "PRINTER_LIST",
+        "WAIT="
       ],
       "related": [
         "pcl-pdf",
@@ -4655,6 +5835,7 @@
         "positioning",
         "pageoflow",
         "print-files",
+        "print-redirect",
         "examples",
         "see-also"
       ],
@@ -4847,7 +6028,8 @@
         "DEL",
         "SOURCE",
         "CLAUSES",
-        "NOEJECT"
+        "NOEJECT",
+        "XREF"
       ],
       "related": [
         "program-management",
@@ -4861,6 +6043,10 @@
         "del",
         "list",
         "list-options",
+        "xref",
+        "list-output",
+        "list-scroll",
+        "list-forms",
         "list-input",
         "edit",
         "builtin-keys",
@@ -4885,15 +6071,20 @@
         "RMDIR",
         "CHDIR",
         "FREE",
+        "FRE",
         "PROTECT",
         "DROP",
-        "TYPE"
+        "TYPE",
+        "SEARCH",
+        "RESERVE",
+        "RELEASE"
       ],
       "related": [
         "program-management",
         "information"
       ],
       "anchors": [
+        "paging",
         "syntax",
         "semantics",
         "chdir",
@@ -4910,10 +6101,14 @@
         "rename-filesystem",
         "overwrite",
         "type",
+        "search",
         "drop-free",
         "drop",
         "free",
+        "fre",
         "protect",
+        "reserve",
+        "release",
         "examples",
         "see-also"
       ],
@@ -4927,6 +6122,7 @@
       "category": "70-commands",
       "status": "2b",
       "keywords": [
+        "HELP",
         "STATUS",
         "LIST",
         "TRACE",
@@ -4934,6 +6130,7 @@
         "LOGGING",
         "STEP",
         "BREAK",
+        "DATE",
         "TIME",
         "ALL",
         "FONTS",
@@ -4957,8 +6154,12 @@
         "syntax",
         "semantics",
         "date-time",
+        "date",
         "time",
+        "trace",
+        "trace-file",
         "break",
+        "break-function",
         "display",
         "list-search",
         "debug-str",
@@ -4968,10 +6169,11 @@
         "msg",
         "printer-list",
         "procin-program",
+        "help",
         "examples",
         "see-also"
       ],
-      "summary": "Inspecting state and debugging a running program: date/time, the command console, single-stepping, breakpoints, variable display, and logging."
+      "summary": "Inspecting state and debugging a running program: date/time, the command console, single-stepping, breakpoints, variable display, and logging. The HELP command, which shows br_tree topics in the browser or on the console, has its own page: HELP."
     },
     {
       "path": "70-commands/program-management",
@@ -4997,6 +6199,7 @@
         "ALL",
         "SUBPROC",
         "PROCERR",
+        "SKIP",
         "ALERT",
         "FILES",
         "ECHO",
@@ -5005,7 +6208,9 @@
         "OBJECT",
         "ONLY",
         "NOSTEP",
-        "NOTRACE"
+        "NOTRACE",
+        "LINES",
+        "LABELS"
       ],
       "related": [
         "file-directory",
@@ -5014,6 +6219,7 @@
       ],
       "anchors": [
         "command-vs-statement",
+        "print-redirect",
         "command-help",
         "entry-exit",
         "system",
@@ -5031,6 +6237,7 @@
         "proc",
         "subproc",
         "run-proc",
+        "skip",
         "procerr",
         "alert",
         "look-ahead",
@@ -5058,12 +6265,15 @@
       "anchors": [
         "sort",
         "syntax",
+        "control-file",
         "semantics",
         "sort-command",
         "file",
+        "index-out",
         "alts",
         "record",
         "mask",
+        "sizing",
         "examples",
         "see-also"
       ],

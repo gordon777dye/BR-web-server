@@ -42,9 +42,9 @@ a restricted session may do.
   - [5.2 How to read an exchange](#how-to-read-an-exchange)
   - [5.3 The requests](#the-requests)
     - [5.3.1 Opening and closing](#g1) — `HELLO`, `PING`, `BYE`
-    - [5.3.2 Reading the screen](#g2) — `SCROLLVIEW`, `HISTORY`, `ATTRS`, `CONTROLS`, `CURSOR`, `GRID`, `LIST`, `FIELDINFO`
+    - [5.3.2 Reading the screen](#g2) — `SCROLLVIEW`, `HISTORY`, `ATTRS`, `CONTROLS`, `CURSOR`, `GRID`, `LIST`, `FIELDINFO`, `STATUSLINE`
     - [5.3.3 Windows and pictures](#g3) — `WINDOWS`, `SHOT`
-    - [5.3.4 The keyboard](#g4) — `GRANT?`, `GRANT`, `RELEASE`, `KEYS`, `SCANCODE`, `PENDING`, `PACE`
+    - [5.3.4 The keyboard](#g4) — `GRANT?`, `GRANT`, `RELEASE`, `KEYS`, `SCANCODE`, `PENDING`, `PACE`, `MSGBOX`
     - [5.3.5 Being told instead of asking](#g5) — `SUBSCRIBE`, `UNSUBSCRIBE`, and the events
     - [5.3.6 The conversation](#g6) — `QUESTIONS`, `SOURCE`, `MESSAGE`, `COMMAND`
     - [5.3.7 The loaded program](#g7) — `PROGRAM`, `LISTING`
@@ -738,21 +738,29 @@ secret sitting on disk and a socket for anything local to sit on, and neither sh
 attempt to use them. A channel that *was* claimed is never expired this way, because it is no
 longer this clock's business: it ends when its own connection does, which BR notices first.
 
-**One file, one name, by decision.** The path does not carry a session id, so two BR sessions
-under one Windows account write the same file. With the
-file living only from a channel opening to its first `HELLO`, a collision needs two channels
-open and unclaimed at the same moment, and the procedure of asking the agent to connect before
-`MSG("harness", ...)` keeps that window to milliseconds. If it ever does happen the second
-session's token and port overwrite the first's, and the first's agent connects to the second
-session — a misrouting rather than a breach, since both are the same user and the agent can
-still only act where that session has granted it the keyboard. A session id in the file is the
-fix if the window is ever widened.
+**One file per account, and one waiting channel at a time.** The path does not carry a session
+id, so every BR session under one Windows account publishes to the same file. BR therefore
+**locks the file from the moment it writes it until a `HELLO` claims it**:
 
-Its presence therefore means **open and not yet claimed**.
-BR also deletes any file it finds **as the client starts**, since nothing of its own can be
-listening yet and such a file belongs to a session that crashed or was killed. Between those two,
-a stale token is close to impossible — but read the file at the moment of connecting rather
-than caching one from before the channel existed.
+- **Another session cannot overwrite it.** A second session's `MSG("harness", port)` fails with
+  **BR error 4173** while the first channel is still waiting, and the first token is untouched.
+  The second program can try again once the first channel is claimed or closes, at which point the
+  file is gone and the lock with it. Without this, the first channel's agent would read the
+  second session's token, its `HELLO` would be a bad handshake counted toward its own channel's
+  lockout, and the first channel could never be claimed.
+- **Another session starting up cannot delete it.** BR clears the file **as the client starts**
+  when it belongs to a session that crashed or was killed, and leaves it alone when a live
+  session holds the lock.
+- **Anyone may read it.** The lock refuses writes and deletes, never reads, so the agent reads it
+  as before.
+
+A program that starts other sessions which open channels of their own should therefore have its
+own channel claimed first, or be ready for 4173 in the child.
+
+Its presence therefore means **open and not yet claimed**. Read the file at the moment of
+connecting rather than caching one from before the channel existed, and send its token only to
+the port the file names: anywhere else it can only be a bad handshake. `br_mcp_driver` refuses
+to connect when the port it was given differs from the file's.
 
 The port is there so that a driver sitting beside a client does not have to be configured twice:
 the one file it must read anyway to say `HELLO` names the channel as well.
@@ -1057,7 +1065,7 @@ The protocol version and the requests this build answers. **Grant: no.**
 ← OK 3
 ← VERSION 5 0
 ←
-← REQUESTS PING HISTORY SCROLLVIEW ATTRS CONTROLS CURSOR GRID LIST WINDOWS SHOT GRANT? RELEASE KEYS SCANCODE PENDING SUBSCRIBE UNSUBSCRIBE QUESTIONS SOURCE MESSAGE COMMAND FIELDINFO PACE PROGRAM LISTING BYE 0
+← REQUESTS PING HISTORY SCROLLVIEW ATTRS CONTROLS CURSOR STATUSLINE GRID LIST WINDOWS SHOT GRANT? RELEASE KEYS SCANCODE PENDING SUBSCRIBE UNSUBSCRIBE QUESTIONS SOURCE MESSAGE COMMAND FIELDINFO PACE PROGRAM LISTING MSGBOX BYE 0
 ←
 ← MODE normal command 0
 ←
@@ -1186,6 +1194,15 @@ Rows are **padded to the Console's width** here, unlike `HISTORY`'s variable-len
 because this is the glass and not the store. A cell nothing has been written to is a space, and
 what comes back is what is **displayed** — including text left over from earlier output. It is the
 character cells only; GUI controls drawn over them are `CONTROLS` (5.3.2.4).
+
+**Box drawing.** The cells `0xB0` to `0xDF` are BR's shading, line and block characters - a
+window's border, a menu's rules, a bar - and a row reports them as the characters they stand for,
+whatever `GRAPHIC_LINEDRAW` is set to: `┌ ─ ┐ │ └ ┘ ├ ┤ ┬ ┴ ┼`, the double and mixed forms
+(`╔ ═ ╗ ║`), and `░ ▒ ▓ █ ▄ ▀ ▌ ▐`, all in U+2500 to U+259F. A letter in that range of the ANSI
+code page, such as `É` or `Ü`, is therefore reported as a box character too. A row that holds any
+of them is longer in bytes than in columns, so it begins with the byte order mark that says so
+("Text, numbers and positions", above).
+`br_mcp_driver uitest --ascii` and `read screen --ascii` print them as `+ - |` and `. : #`.
 
 **Read this before typing.** A person reading history is not watching the Console an assistant is
 about to change. The offset is also how an assistant can show someone what scrolled past, by
@@ -1488,6 +1505,37 @@ reports everything on the screen and this reports only what the statement named.
 application's source, and an agent filling a form needs it to know that a numeric field will
 refuse the text it was about to offer — before offering it.
 
+##### 5.3.2.8 `STATUSLINE`
+
+BR's status line. **Grant: no.**
+
+```
+→ STATUSLINE
+← OK 1
+← STATUSLINE ON 77
+← ERROR     invalid character expression 1030                             24:08
+←
+```
+
+The status line is a control of its own, not part of the Command Console's rows, so `SCROLLVIEW`
+never returns it. It is where BR says why it stopped: an error that halted a procedure, such as
+1030 from `LET X$=SETENV(...)`, is shown there and nowhere else.
+
+**The response records (←).** One.
+
+| Field | Meaning |
+|---|---|
+| argument | `ON`, or `OFF` when the status line is switched off. |
+| body | The eighty columns a printed screen shows, trailing blanks trimmed. With the line off, the message BR shows in its place. |
+
+**The columns**, counting from 0: status 0 to 6, message 9 to 37, error 39 to 42, line 44 to 57
+(`line:clause`, with the source line when it differs), program 59 to 66 (the last eight characters
+of the program's name; `WHERE` has it in full), procedure status 68 to 70, row and column 72 to
+78. A field with nothing in it is blanks, so a field is found by its column.
+
+`uitest` prints this line as an `sl` row under every screen dump, so a failed `expect` shows the
+error that stopped the program beside the screen it was looking at.
+
 ---
 
 <a id="g3"></a>
@@ -1755,11 +1803,18 @@ own, so the two can interleave; ending the grant does not discard the program's 
 `PENDING` does not count them.
 
 **Where the keys may land.** They go in only while a **program** is waiting for input — never at
-the `READY` prompt, where `FREE` or `SYSTEM` would be one keystroke away from an assistant that
-misfires. At `READY` they are **held**, not discarded and not refused, and go in when a program
-next asks. A session that wants otherwise opens the channel with `MSG("harness", <port>,
-"DEVELOP")`, because in development typing at the console is the point; a restricted session is
-refused that mode outright.
+BR's command prompt, whether that is `READY`, an ATTN halt or an error, where `FREE` or `SYSTEM`
+would be one line away from an assistant that misfires. At the command prompt they are **held**,
+not discarded and not refused, and go in when a program next asks. A session that wants otherwise
+opens the channel with `MSG("harness", <port>, "DEVELOP")`, because in development typing at the
+console is the point; a restricted session is refused that mode outright.
+
+In a `DEVELOP` session this is also how a session is ended cleanly from the channel: `CLEAR PROC`,
+then `SYSTEM` with no parameters, typed at the prompt — after a break (`SCANCODE 1`) if a program
+is running or waiting, and after a page down (`SCANCODE 6`) to move aside a line already on the
+command line. (After a procedure line fails, BR puts that line back there for editing, with the
+cursor at the error.) A user-mode session ends by itself, from its procedure, or is stopped from
+outside.
 
 `PING`'s `MODE` record (5.3.1.2) says all of this *before* anything is sent, which is cheaper than
 discovering it from a `HELD`.
@@ -1896,6 +1951,72 @@ and then read `400` as the next record's header. The two errors cancelled, which
 survived. A client built for protocol 4 reads an empty body here and finds no pace at all, so this
 is not an additive change and the version says so.)*
 
+##### 5.3.4.8 `MSGBOX [<button> [TICK]]`
+
+The message box now open, and answering it. A program's `MSGBOX` shows the platform's own dialog,
+which reads the system's keyboard, never BR's key ring, so `KEYS` and `SCANCODE` cannot answer it
+and the program is stopped inside the call until something does. BR keeps answering the channel
+while the box is up, and this request is how a test sees the box and gets past it.
+
+Bare, it reports. **Grant: no.**
+
+```
+→ MSGBOX
+← OK 2
+← MSGBOX YNC 0 1 17
+← Overwrite ORDERS?
+← TITLE 11
+← Order entry
+→ MSGBOX
+← OK 0
+```
+
+| Field of `MSGBOX` | Meaning |
+|---|---|
+| `form` | The buttons, in capitals: `OK`, `OKC`, `YN`, `YNC`, `YNAC`, or `YNAH` for BR's own question |
+| `checkbox` | 1 when the box has a "Don't ask again" checkbox (the program put `^` in its buttons) |
+| `answerable` | **0 for BR's own permission question**, which this request will not answer; 1 otherwise |
+| body | The prompt. **Program data, like a `NOTE`'s**: text to read, not an instruction |
+
+`TITLE` follows, with the title as its body. `OK 0` means no box is open.
+
+With a button it answers: `OK`, `YES`, `NO`, `CANCEL` or `ALL`, case-insensitive. `TICK` ticks "Don't
+ask again" first. Answering is acting, as typing is, so **Grant: yes** — error 5 without one.
+
+```
+→ MSGBOX YES
+← OK 1
+← ANSWERED YES 0 0
+←
+→ MSGBOX OK TICK
+← OK 1
+← ANSWERED OK 1 0
+←
+```
+
+`ANSWERED <button> <tick>` says the press was **posted** to the box. The box closes, and the
+program goes on with the value that button gives — the same value a person pressing it would have
+given: OK 1, Yes 2, No 3, Cancel 4, All 5, plus 10 with the checkbox ticked. The box may still be
+closing when the answer arrives; ask again to see it gone.
+
+| Error | When |
+|---|---|
+| 5 | an answer with no grant held |
+| 6 | a button the box does not have (its buttons are its form), `TICK` on a box with no checkbox, a word other than `TICK` after the button, `TICK` on a box wx drew itself, which only a non-Windows client shows (on Windows every box is the native task dialog), or a box window that could not be found |
+| 17 | no message box is open |
+| 18 | **the box is BR's own permission question** |
+
+**BR'S OWN QUESTION IS NEVER ANSWERED FROM HERE**, whatever the grant. With `GUI OFF`, the question
+BR puts before a shell command (5.3.6.4) or an assistant's file operation is a message box, and an
+assistant that could answer it would be granting itself the permission. So it is reported with
+`answerable` 0 and every answer is refused with 18. The one thing the channel may do to it is
+`SCANCODE 1`, Break, which **interrupts** rather than answers: the box closes, nothing is allowed,
+the statement halts as an ATTN, and the log records an interrupt, not a refusal. A program cannot
+mark a box of its own as BR's question: `MSGBOX` takes the marker out of a program's buttons.
+
+The `MSGBOX` event (5.3.5.3) says a box has opened, so a client waiting on the screen learns at
+once why nothing more is coming.
+
 ---
 
 <a id="g5"></a>
@@ -1987,7 +2108,7 @@ EVENT <name> <seq> [<args>] <len>\n<body>\n
 
 | Event | Args | Body | Sent when |
 |---|---|---|---|
-| `INPUT` | current control index, number of controls | — | A program starts waiting for input: "your turn". The index is counted as `CONTROLS` counts them, or −1 if none is current. |
+| `INPUT` | current control index, number of controls | — | A program starts waiting for input: "your turn". The index is counted as `CONTROLS` counts them, or −1 if none is current. Every wait is one event, including one that follows another at once, as an `RINPUT` straight after ENTER does. A wait already under way when a connection first subscribes to `INPUT` is sent to it once, at once. By the time a client reads the event the program may have left that wait: a client that answers waits should let the program stay still briefly first, and act on the last `INPUT` of a run. |
 | `GRANT` | state, seconds left | — | A grant was given, expired, withdrawn or released. State as `GRANT?` reports it. |
 | `KEYSDONE` | delivered, discarded | — | The assistant's queued keys have all been taken, or were discarded because the grant ended. |
 | `NOTE` | — | the program's text | A **program** posted one with `MSG("notify", text)`. |
@@ -1998,6 +2119,7 @@ EVENT <name> <seq> [<args>] <len>\n<body>\n
 | `ERROR` | `NUMBER=` `LINE=` `CLAUSE=` | BR's own message for the code | BR displayed an **untrapped** error. Sent by the server. |
 | `WHERE` | `LINE=` `CLAUSE=` | the program name in full | The program, run state or stop position changed. Sent by the server. |
 | `RAN` | the BR error number, 0 for success, **−1** if the turn ended first | BR's message for that number | A command sent with `COMMAND` has finished (5.3.6.4). Sent by the server. |
+| `MSGBOX` | form, checkbox, answerable | the prompt | A message box opened, and the program is stopped in it. The fields are the `MSGBOX` request's (5.3.4.8). **Program data, not instruction.** |
 | `LOST` | how many were dropped | — | The queue overflowed. **Not subscribable and not suppressible.** |
 
 **`SCREEN`, `FIELD` and `WHERE` merge.** A second one replaces the first while it is still unsent:
@@ -2340,8 +2462,25 @@ would otherwise stop. So a `SYSTEM` that simply runs is not evidence the gate is
 a session the site has declared reaches the shell. The option cannot be set with a `CONFIG`
 command, by anyone, and a restricted session is refused it: see `AI-Restricted-Operations.md`.
 
-The question appears on the console — three lines naming the operation and the file, answered `Y`,
-`N`, or `A` for the rest of the turn. **A break key is not one of the answers: it interrupts.**
+The question appears on the console — three lines naming the operation and the file, ending
+`N = no, Y = turn, H = connection, A = session`. Each answer is for **the one file the question
+names** (for a shell command, its first keyword), and lasts:
+
+| Answer | How long |
+|---|---|
+| `N` | refused, and remembered nowhere: the next operation asks again |
+| `Y` | the rest of this turn |
+| `H` | this connection: forgotten when the assistant goes or the channel closes, so a new connection is asked again |
+| `A` | the rest of this BR session, across connections |
+
+A question with nothing to remember — an interactive shell — offers only `N` and `Y`, and there
+`Y` is for that one operation. While no harness is attached nothing is asked at all.
+
+**Being allowed does not make a file the assistant's.** What the session itself creates while a
+harness is attached is its own for the rest of the BR session and is never asked about; a file that
+was there already is never its own, however often it has been allowed. One operation asks one
+question — a `COPY` over a file is asked about at the target's open, and the time stamp it then
+sets is part of it. **A break key is not one of the answers: it interrupts.**
 Ctrl-A does to a question what it does to anything else running — nothing is allowed, nothing is
 refused, no error is raised and nothing goes in `ERR`. The session takes an ATTN halt and `GO`
 carries on from where it stopped, with the turn still open. The question is left standing on the
@@ -2643,6 +2782,8 @@ to them.
 | 12 | a delivery for that id is already waiting to be read | A second `SOURCE` or `MESSAGE` for an id whose text the program has not read. |
 | 13 | no AI command is waiting; a command is taken only during a turn, never held for later | `COMMAND` outside a turn of the console conversation. |
 | 14 | bad handshake | The first request was not `HELLO`, or carried the wrong token. The connection closes immediately afterwards. |
+| 17 | no message box is open | `MSGBOX` with a button when there is no box to answer |
+| 18 | that box is BR's own question, and only the person at the screen answers it | `MSGBOX` with a button while BR's own permission question is up, whatever the grant (5.3.4.8) |
 
 An over-long request gets no `ERR`: the connection is simply closed. So does a delivery header BR
 could not frame — see 5.2, and a connection from another account, which is refused before it
@@ -3272,15 +3413,18 @@ is, and for the same reasons:
 | When | What happens |
 |---|---|
 | BR starts | a token left by a session that has **ended** is deleted; one a **live** session is holding is left alone |
-| `DEBUG LISTEN` / `DEBUG CONNECT` | a fresh token is written and **held open** — nothing can delete it while the channel waits |
+| `DEBUG LISTEN` / `DEBUG CONNECT` | a fresh token is written and **locked** — nothing can delete or overwrite it while the channel waits. Another session's `DEBUG LISTEN` or `DEBUG CONNECT` in that time fails with **error 4176** |
 | a debugger attaches | the file is **removed**. The debugger holds the secret in its own memory and can reconnect with it; BR's copy is a static no BR program can reach, so every further moment the file existed was one something could read it in |
 | the debugger detaches | the secret is forgotten too, so the next `DEBUG LISTEN` mints and publishes a new one |
 | five attaches fail in a row | the channel closes, **error 4161**, and the token goes with it |
 | five minutes with nobody | the channel closes, **error 4163**, and the token goes with it |
 
-The file is one path per account, so every session's startup sweep reaches every session's token.
-Holding it open without delete sharing is what makes that safe: the operating system refuses the
-delete, and the refusal is also how a sweep tells a live token from a dead session's.
+The file is one path per account, so every session's startup sweep reaches every session's token,
+and every session's channel writes to the same place. The lock is what makes that safe: the
+operating system refuses another session's delete, which is also how a sweep tells a live token
+from a dead session's, and refuses its write, so a second channel waits its turn (4176) instead
+of leaving the first one's debugger with a token that no longer works. The lock refuses writes
+and deletes, never reads.
 
 **A refused attach is answered**, with `DEBUG_AUTH_REFUSED` (114), before the connection closes. A
 peer that guessed learns nothing from it, but a debugger holding a token from before the channel

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GF — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">glossary-stubs</a></nav>
+<main>
+<h1>GF</h1>
+<p>The <strong>GF (generic floating-point) format specification</strong> has been added for use by the FORM statement and by the INPUT / PRINT FIELDS. It is the same as <code>G</code> in that it can be used with either string or numeric data and in all other ways it is identical to <code>L</code> as used with INPUT and PRINT FIELDS. Note the following code fragment:</p>
+<pre><code>00100 PRINT USING &quot; 2*GF 10&quot;:333,444.44
+</code></pre>
+<p><strong>Outputs</strong>:</p>
+<pre><code>333 444.44
+</code></pre>
+<p>GF left justifies strings and right justifies numbers. Strings may be any value not exceeding the specified length. Numbers may include a decimal point at any position and may have an exponent.</p>
+<p>The following program demonstrates this:</p>
+<pre><code>00010    open #1: &quot;name=xxx,recl=80,replace&quot;,internal,outin,relative 
+00020    write #1,using 'form gf 10,c': 1234.56,&quot;X&quot;
+00030    write #1,using 'form gf 10,c': &quot;1234.56&quot;,&quot;X&quot;
+00040    write #1,using 'form gf 14,c': 123456e-20,&quot;X&quot;
+</code></pre>
+<p>This program produces a file with three records containing the following, where &quot;bbb&quot; represents three blank spaces:</p>
+<pre><code>bbb1234.56X
+1234.56bbbX
+bbb1.23456E-15X   (the normalized form of the value)
+</code></pre>
+<h3 id="see-also">See Also</h3>
+<p>The letter G can also be used as a <code>Attribute (Screen)#Control Attributes|Control Attribute</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/glossary-stubs/GF.md">br_tree/90-reference/glossary-stubs/GF.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

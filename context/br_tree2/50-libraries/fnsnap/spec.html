@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FnSnap function packs — BR reference</title>
+<meta name="keywords" content="FnSnap, LIBRARY">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">fnsnap</a></nav>
+<main>
+<h1 id="fnsnap-function-packs">FnSnap function packs</h1>
+<p>FnSnap is a shipped collection of ready-made <code>FN…</code> library functions (dialogs, screen helpers,
+printing/PCL, bar codes, dates, files, arrays, window maintenance). Link them with the
+<a href="../library-facility/spec.html">library facility</a> like any library function and call <code>FNINIT</code> once at
+program start. This page is a <strong>navigational index</strong>; each function's full signature, parameters and
+notes live in the per-area <code>FnSnap__*</code> pages linked below.</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<ul>
+<li><strong>Initialize</strong> with <code>LET FNINIT(; SYSDIR$, SYS$)</code> before using FnSnap functions; <code>LIBRARY &quot;fnsnap&quot;: FN…</code> lists the ones you call.</li>
+<li>Functions are grouped into the areas below; a few appear in more than one pack (e.g. <code>FNOPEN</code>,
+<code>FNPROGRESS</code>, <code>FNDIALOG</code>).</li>
+<li><strong>Get it</strong>: <code>fnsnap.dll</code> ships in <code>fnsnap.zip</code> (ftp.brulescorp.com <code>/Brg_pub/Zip/</code> — names are
+case-sensitive); the zip includes <code>fnsnap.pdf</code> with the same reference. Every entry is a library
+function, linked via <code>LIBRARY</code>. (Project lead: George Tisdale.)</li>
+</ul>
+<a id="screen"></a>
+<h2 id="screen-processing--fnsnap__screen_processingfnsnap__screen_processingmd">Screen processing — <a href="FnSnap__Screen_Processing.html">FnSnap__Screen_Processing</a></h2>
+<table>
+<thead>
+<tr>
+<th>Function(s)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FNBUTTON</code> <code>FNCLRBUTTON</code> <code>FNWINBUTTONS</code> <code>FNPICBUTTONS</code></td>
+<td>button-bar / window / picture buttons</td>
+</tr>
+<tr>
+<td><code>FNCHECK</code> <code>FNRADIOCHK</code> <code>FNRADNUM</code></td>
+<td>read radio-dot / check-box state</td>
+</tr>
+<tr>
+<td><code>FNDIALOG</code> <code>FNDLG</code> <code>FNTEXTBOX</code> <code>FNOPTIONS</code></td>
+<td>dialog / input / option boxes</td>
+</tr>
+<tr>
+<td><code>FNWAITWIN</code> <code>FNWAITMSG</code> <code>FNWAITBAR</code> <code>FNPROGRESS</code> <code>FNTIMEOUT</code></td>
+<td>wait / progress indicators</td>
+</tr>
+<tr>
+<td><code>FNHELP</code> <code>FNHELPTIP</code></td>
+<td>help windows &amp; tooltips</td>
+</tr>
+<tr>
+<td><code>FNSCREEN</code> <code>FNWINSCRN</code> <code>FNWINSIZE</code> <code>FNWINROWCOL</code></td>
+<td>screen / window geometry info</td>
+</tr>
+<tr>
+<td><code>FNFKEY</code> <code>FNPFKEY</code> <code>FNPFKEYLINE</code></td>
+<td>function-key handling</td>
+</tr>
+<tr>
+<td><code>FNPROPER</code> <code>FNNUM</code> <code>FNZERO</code> <code>FNPHONE</code> <code>FNMOD</code></td>
+<td>value formatting helpers</td>
+</tr>
+<tr>
+<td><code>FNENCRYPT</code> <code>FNDECRYPT</code> <code>FNERRTRAP</code> <code>FNPRINTSCREEN</code> <code>FNEMAILFILE</code></td>
+<td>misc screen-side helpers</td>
+</tr>
+</tbody>
+</table>
+<a id="printing"></a>
+<h2 id="printing--pcl--fnsnap__printing_and_pclfnsnap__printing_and_pclmd">Printing &amp; PCL — <a href="FnSnap__Printing_and_PCL.html">FnSnap__Printing_and_PCL</a></h2>
+<p>(see also <a href="../../40-io-printing/pcl-pdf/spec.html">40-io-printing/pcl-pdf</a>)</p>
+<table>
+<thead>
+<tr>
+<th>Function(s)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FNOPEN</code> <code>FNPRINT</code> <code>FNPRINT_FILE</code> <code>FNPRINTERS</code> <code>FNTYPE</code></td>
+<td>open / drive / list printers</td>
+</tr>
+<tr>
+<td><code>FNFONT</code> <code>FNLOADFONT</code> <code>FNMAKEPCL</code></td>
+<td>fonts &amp; PCL generation</td>
+</tr>
+<tr>
+<td><code>FNBARCODEM</code> <code>FNCODE3OF9</code> <code>FNCODEUPC</code> <code>FNPOSTNET</code></td>
+<td>bar codes (3-of-9 / UPC / PostNet)</td>
+</tr>
+<tr>
+<td><code>FNDRAWBOX</code> <code>FNPRINTBOX</code> <code>FNSIGNBOX</code> <code>FNGREYBAR</code></td>
+<td>boxes, signature lines, grey-bar shading</td>
+</tr>
+<tr>
+<td><code>FNENVELOPE</code> <code>FNLABEL</code> <code>FNGETZIP</code> <code>FNPRINTFORM</code></td>
+<td>envelopes, labels, forms</td>
+</tr>
+<tr>
+<td><code>FNRTF</code> <code>FNRTFSTART</code> <code>FNRTFEND</code> <code>FNREPRINT</code> <code>FNCLEANLOG</code></td>
+<td>RTF output, reprint, log cleanup</td>
+</tr>
+</tbody>
+</table>
+<a id="file"></a>
+<h2 id="file--fnsnap__filefnsnap__filemd">FILE — <a href="FnSnap__FILE.html">FnSnap__FILE</a></h2>
+<table>
+<thead>
+<tr>
+<th>Function(s)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FNGETFILE</code> <code>FNGETFILENAME</code> <code>FNPUTFILE</code> <code>FNFILENAME</code> <code>FNNEXTFIL</code></td>
+<td>file pick / name helpers</td>
+</tr>
+<tr>
+<td><code>FNFILEOK</code> <code>FNFILESIZE</code> <code>FNSIZE</code></td>
+<td>existence / size checks</td>
+</tr>
+<tr>
+<td><code>FNINDEX</code> <code>FNSEQ</code> <code>FNBLDSORT</code></td>
+<td>index / sequence / sort builders</td>
+</tr>
+<tr>
+<td><code>FNCFORM</code> <code>FNCF</code> <code>FNUPDATE_VERSION</code></td>
+<td>compiled FORM, version update</td>
+</tr>
+</tbody>
+</table>
+<a id="datetime"></a>
+<h2 id="date--time--fnsnap__date_and_timefnsnap__date_and_timemd">Date &amp; time — <a href="FnSnap__Date_and_Time.html">FnSnap__Date_and_Time</a></h2>
+<table>
+<thead>
+<tr>
+<th>Function(s)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FNDATE</code> <code>FNDATEFWD</code> <code>FNDATEREV</code> <code>FNPRIOR</code> <code>FNNEXTMONTH</code></td>
+<td>format / advance / reverse dates</td>
+</tr>
+<tr>
+<td><code>FNCCYYMMDD_TO_DAYS</code> <code>FNMMDDYY_TO_DAYS</code> <code>FNYYMMDD_TO_DAYS</code> <code>FNDAYS_TO_MMDDCCYY</code> <code>FNDAYS_TO_MMDDYY</code></td>
+<td>↔ DAYS conversions</td>
+</tr>
+<tr>
+<td><code>FNMDY2YMD</code> <code>FNYMD2MDY</code></td>
+<td>reorder date components</td>
+</tr>
+<tr>
+<td><code>FNWEEKDAY</code> <code>FNDAYOFYEAR</code> <code>FNWEEKOFMONTH</code> <code>FNWEEKOFYEAR</code></td>
+<td>calendar parts</td>
+</tr>
+<tr>
+<td><code>FNBUSINESSDAY</code> <code>FNPRIOBUSINESSDAY</code> <code>FNTIMMILREG</code></td>
+<td>business-day / time helpers</td>
+</tr>
+</tbody>
+</table>
+<a id="array"></a>
+<h2 id="array-functions--fnsnap__array_functionsfnsnap__array_functionsmd">Array functions — <a href="FnSnap__Array_Functions.html">FnSnap__Array_Functions</a></h2>
+<table>
+<thead>
+<tr>
+<th>Function(s)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FNSORTARRAY</code> <code>FNSRTARY</code> <code>FNSRTNARY</code> <code>FNBLDSORT</code></td>
+<td>sort arrays (string / numeric)</td>
+</tr>
+<tr>
+<td><code>FNLISTSPEC</code> <code>FNLISTSRCH</code> <code>FNLISTSRCHN</code> <code>FNSELECTION</code> <code>FNSRCHCRIT</code></td>
+<td>list build / search / selection</td>
+</tr>
+<tr>
+<td><code>FNROWSUM</code> <code>FNCOLSUM</code> <code>FNDELROW</code> <code>FNCHRMAT</code> <code>FNPARMAT</code></td>
+<td>row/col sums, delete row, parse to MAT</td>
+</tr>
+</tbody>
+</table>
+<a id="window"></a>
+<h2 id="window-maintenance--fnsnap__window_maintenancefnsnap__window_maintenancemd">Window maintenance — <a href="FnSnap__Window_Maintenance.html">FnSnap__Window_Maintenance</a></h2>
+<p><code>FNWIN</code> <code>FNWINDEV</code> <code>FNWINHEAD</code> <code>FNSAP</code> <code>FNLISTSPEC</code> — open/develop/head standard windows.</p>
+<a id="misc"></a>
+<h2 id="miscellaneous--fnsnap__miscellaneous_functionsfnsnap__miscellaneous_functionsmd">Miscellaneous — <a href="FnSnap__Miscellaneous_Functions.html">FnSnap__Miscellaneous_Functions</a></h2>
+<p><code>FNCHECKAMOUNT</code> <code>FNLEADZERO</code> (number formatting) · <code>FNEMAIL</code> <code>FNEMAILFILE</code> (email) ·
+<code>FNCURDRV</code> (current drive) · <code>FNMSEXE</code> <code>FNPROG</code> (run programs) · <code>FNCLKBUF</code> (clipboard) · <code>FNX</code>.</p>
+<a id="obsolete"></a>
+<h2>Obsolete</h2>
+<p>Deprecated FnSnap functions kept for legacy programs are catalogued in
+<a href="FnSnap__FNSNAP_Obsolete_functions.html">FnSnap__FNSNAP_Obsolete_functions</a> — avoid in new code.</p>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">00100 LIBRARY &quot;fnsnap&quot;: FNINIT, FNDIALOG, FNCODE3OF9
+00110 LET FNINIT
+00120 LET RC = FNDIALOG(&quot;Save changes?&quot;)          ! dialog box
+00130 PRINT #255: FNCODE3OF9(INVNR$)              ! 3-of-9 bar code
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../library-facility/spec.html">library-facility</a> — how to <code>LIBRARY</code>-link and load these functions</li>
+<li><a href="../../40-io-printing/pcl-pdf/spec.html">40-io-printing/pcl-pdf</a> — the printing/PCL FnSnap functions</li>
+<li><a href="../../20-io-screen/controls/spec.html">20-io-screen/controls</a> — native controls the screen helpers wrap</li>
+<li>Backing keyword pages (the per-function API reference): <a href="FnSnap__Screen_Processing.html">FnSnap__Screen_Processing</a>,
+<a href="FnSnap__Printing_and_PCL.html">FnSnap__Printing_and_PCL</a>, <a href="FnSnap__FILE.html">FnSnap__FILE</a>,
+<a href="FnSnap__Date_and_Time.html">FnSnap__Date_and_Time</a>, <a href="FnSnap__Array_Functions.html">FnSnap__Array_Functions</a>,
+<a href="FnSnap__Window_Maintenance.html">FnSnap__Window_Maintenance</a>,
+<a href="FnSnap__Miscellaneous_Functions.html">FnSnap__Miscellaneous_Functions</a>,
+<a href="FnSnap__FNSNAP_Obsolete_functions.html">FnSnap__FNSNAP_Obsolete_functions</a></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/fnsnap/spec.md">br_tree/50-libraries/fnsnap/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

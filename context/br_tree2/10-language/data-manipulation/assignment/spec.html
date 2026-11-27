@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assignment &amp; data movement — BR reference</title>
+<meta name="keywords" content="LET, MAT, DATA, READ, RESTORE, &#34;:=&#34;, AIDX, DIDX">
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">assignment</a></nav>
+<main>
+<h1 id="assignment--data-movement">Assignment &amp; data movement</h1>
+<p>Putting values into variables and arrays and changing them in place: <code>LET</code>, the forced-assignment
+operator <code>:=</code>, <code>MAT</code> array operations, substring mutation, and the internal data table
+(<code>DATA</code>/<code>READ</code>/<code>RESTORE</code>). Operators that <em>form</em> the right-hand-side values are in
+<a href="../expressions/spec.html">expressions</a>; declaring/sizing storage is in
+<a href="../declaration/spec.html">declaration</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">[LET] &lt;variable&gt; = &lt;expression&gt; [ &lt;error-condition&gt; &lt;line-ref&gt; ]*
+[LET] &lt;function-call&gt; [ &lt;error-condition&gt; &lt;line-ref&gt; ]*    -- call for effect; return value discarded
+&lt;forced-assignment&gt; ::= &lt;variable&gt; ':=' &lt;expression&gt;
+
+&lt;mat-assignment&gt;  ::= MAT &lt;array-reference&gt; [ '=' &lt;mat-rhs&gt; ]
+&lt;array-reference&gt; ::= &lt;array-name&gt;                                 -- the whole array
+                   | &lt;array-name&gt; '(' &lt;dimension&gt; [',' &lt;dimension&gt;]* ')'  -- redimension
+                   | &lt;sub-array-reference&gt;                          -- a run of elements
+&lt;sub-array-reference&gt; ::= &lt;array-name&gt; '(' &lt;first&gt; ':' &lt;last&gt; ')'   -- MAT implied at these positions
+&lt;mat-rhs&gt;        ::= '(' &lt;expression&gt; ')'                          -- init all elements
+                   | &lt;array-name&gt; | &lt;sub-array-reference&gt;          -- copy / copy subarray
+                   | &lt;numeric-array&gt; { '+' | '-' } &lt;numeric-array&gt; -- element-wise
+                   | '(' &lt;numeric-expression&gt; ')' { '*' | '/' } &lt;numeric-array&gt;  -- scalar × array
+                   | AIDX '(' &lt;array-name&gt; ')' | DIDX '(' &lt;array-name&gt; ')'  -- sort index
+
+&lt;substring-target&gt; ::= &lt;string-variable&gt; '(' &lt;start-pos&gt; ':' &lt;end-pos&gt; ')'   -- left of '='
+
+READ &lt;variable-list&gt;            -- from the internal data table
+DATA &lt;value&gt; [',' &lt;value&gt;]*
+RESTORE [&lt;line-ref&gt;]
+
+&lt;value&gt; ::= &lt;quoted-literal&gt;   -- '&quot;' or &quot;'&quot; delimited; a doubled quote embeds one
+          | &lt;unquoted-text&gt;    -- everything up to the next comma, taken verbatim (may be empty)
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<a id="let"></a>
+<h3>LET</h3>
+<p>Assigns a value or computed expression; <code>LET</code> is optional (<code>X = Y*2+Z</code> is an implicit <code>LET</code>).
+String values must be quoted and cannot be used in arithmetic. In immediate mode (no line number)
+an assignment also prints its result. <code>LET</code> also <strong>calls a function</strong> (the assignment target is
+optional: <code>FNSCRNH(LINES)</code> runs a function for effect; for a library function <code>LET</code> loads &amp; runs it).
+<strong><code>LET</code> is optional there too</strong> — a bare call is a complete statement, the same as a bare assignment
+is: <code>fnCloseDisplayWindow</code> and <code>STR2MAT(&quot;300,400,700&quot;,MAT DEPT$,&quot;,&quot;)</code> both run with no <code>LET</code> written,
+their return values discarded.</p>
+<p>Either form — assigned or called, <code>LET</code> written or implied — may close with a trailing
+<a href="../../flow-control/error-handling/spec.html#conditions">error-condition clause</a>, the same one any
+statement takes: <code>LET VAL(F$(N)) CONV skipval</code> and, with <code>LET</code> dropped, <code>X = 5 CONV 900</code>. The conditions that can be trapped on a <code>LET</code> are <code>CONV</code>, <code>ERROR</code>, <code>EXIT</code>, <code>OFLOW</code>, <code>SOFLOW</code> and
+<code>ZDIV</code>. BR types the word <code>LET</code> for you: in the console it is added as you press Enter, and with an external editor
+it is added when the program is compiled, so programs are normally written without it.</p>
+<ul>
+<li><strong>Multiple assignment</strong> — assign one value to several variables at once:
+<code>LET SUMA = SUMB = SUMC = SUMD = 0</code>.</li>
+<li><strong>Compound assignment operators</strong> <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code> update a variable in place:
+<code>LET TOTAL += AMT</code> (= <code>TOTAL = TOTAL + AMT</code>).</li>
+</ul>
+<a id="forced-assignment"></a>
+<h3 id="forced-assignment-">Forced assignment <code>:=</code></h3>
+<p>Always performs assignment — even inside a conditional, where a plain <code>=</code> would mean &quot;is equal
+to&quot;. It evaluates the RHS, assigns it, and yields the assigned value as the expression result.</p>
+<ul>
+<li><strong>Parenthesize</strong> it inside <code>IF</code>/<code>WHILE</code>/<code>UNTIL</code> so the assignment happens first, then the result
+is compared.</li>
+<li>Works for numeric and string variables; can nest in larger expressions.</li>
+<li>Do <strong>not</strong> use it in a <code>LET</code> — plain <code>=</code> is idiomatic there. (Operator precedence of <code>:=</code> is in
+<a href="../expressions/spec.html#forced-assignment">expressions</a>.)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Context</th>
+<th><code>=</code> means</th>
+<th><code>:=</code> means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LET X = 5</code></td>
+<td>assignment</td>
+<td>not idiomatic — use <code>=</code></td>
+</tr>
+<tr>
+<td><code>IF X = 5 THEN</code></td>
+<td>comparison (is X = 5?)</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td><code>IF (X := 5) &gt; 2 THEN</code></td>
+<td>compares X to 5</td>
+<td>assigns 5 to X, then tests 5 &gt; 2 (true)</td>
+</tr>
+</tbody>
+</table>
+<a id="mat"></a>
+<h3 id="mat-operations">MAT operations</h3>
+<p>Whole-array operations, much faster than element loops. Scalars must be parenthesized when used
+with an operator. (Runtime <em>resizing</em> via <code>MAT</code> is in
+<a href="../declaration/spec.html#redimensioning">declaration</a>.)</p>
+<ul>
+<li><strong>Initialize</strong>: <code>MAT A = (0)</code>, <code>MAT B$ = (&quot;&quot;)</code></li>
+<li><strong>Copy</strong>: <code>MAT A = B</code>, subarray <code>MAT A(6:10) = B</code> (copies <code>B(1:5)</code>) — see
+<a href="#mat-sub-array">sub-array references</a> below</li>
+<li><strong>Arithmetic</strong>: <code>MAT A = B + C</code> (element-wise), <code>MAT SAL = (1.064) * SAL</code> (scalar × array).
+<code>*</code> and <code>/</code> are reachable <strong>only</strong> from the parenthesized-scalar form, so <code>MAT A = B * C</code> is a
+syntax error; <code>+</code> and <code>-</code> take either. A <strong>string</strong> target ends the statement after one right-hand
+operand, so <code>MAT A$ = B$</code> and never <code>MAT A$ = B$ + C$</code></li>
+<li><strong>Sort index</strong>: <code>MAT ORDER = AIDX(CUST$)</code> / <code>DIDX(...)</code> builds an <em>index</em> array (original
+unchanged); see <a href="../system-functions/spec.html#array-functions">system-functions</a>.</li>
+<li><strong>The <code>=</code> is optional.</strong> <code>MAT A(4,5)</code> alone redimensions; <code>MAT A(1:5)</code> alone computes a sub-array
+reference and discards it (legal, and pointless).</li>
+</ul>
+<a id="mat-sub-array"></a>
+<h4 id="sub-array-references--mat-afirstlast">Sub-array references — <code>MAT A(first:last)</code></h4>
+<p>A run of an array's <strong>elements</strong>, written with the same characters that slice a string's <em>characters</em>.
+<code>first</code> and <code>last</code> are ordinary numeric expressions, not literals: <code>MAT A$(F:F+9)</code> is ten elements
+starting at <code>F</code>.</p>
+<p><strong>Which of the two readings applies is decided by the reference, never by the variable.</strong> A <code>MAT</code>
+reference gets the element reading and anything else gets the <a href="#substring">substring</a> reading — what
+the name was dimensioned as is not consulted, and could not be, because <code>A$</code> and <code>MAT A$</code> are
+<a href="../declaration/spec.html#semantics">two different variables</a>. So <code>A$(1:5)</code> is five characters and
+<code>MAT A$(1:5)</code> is five elements, in the same program, of names spelled the same way.</p>
+<p><strong>Inside a <code>MAT</code> statement the qualifier is implied</strong> — at the target and at each right-hand array
+operand. That is why every one of these is elements on both sides:</p>
+<pre><code class="language-business-rules">00100 MAT A(6:10) = B          ! copies B(1)..B(5) into A(6)..A(10)
+00110 MAT B = A(6:10)          ! B must be dimensioned for 5 elements
+00120 MAT B(1:5) = A(6:10)     ! part of one array to part of another
+00130 READ MAT A(1:5)          ! read only elements 1-5
+00140 PRINT FIELDS SF$: MAT A$(F:F+9)   ! ten elements starting at F
+00150 MAT A$ = (B$(1:5))       ! a *substring*, spread over the array
+</code></pre>
+<p>Line 150 is the boundary: a parenthesized right-hand side is an ordinary expression, so the
+implication stops at the <code>(</code>.</p>
+<ul>
+<li><strong>It aliases; it does not copy.</strong> The reference is a descriptor over the original array's own
+storage, of length <code>last - first + 1</code>. The copying in line 100 is done by the assignment, not by
+the reference</li>
+<li><strong>A sub-array cannot be redimensioned</strong> — error <a href="../../../90-reference/error-codes/0315.html">0315</a>,
+which is also what a <code>MAT X(0)</code> on an unpassed optional array parameter reports</li>
+<li><strong>One dimension, one range.</strong> The array must be one-dimensional and the reference must carry exactly
+one <code>first:last</code> pair. More is a <strong>run-time</strong> failure, not a compile-time one: <code>MAT A(1:5,2:3)</code>
+compiles and answers error 0123</li>
+<li><strong>Bounds are checked at run time</strong> — both within the array's <em>current</em> size and <code>first &lt;= last</code>,
+else error 0122. Positions are in the program's <code>OPTION BASE</code></li>
+</ul>
+<a id="substring"></a>
+<h3 id="substring-mutation">Substring mutation</h3>
+<p>A substring on the <strong>left</strong> of <code>=</code> changes part of a string (positions are 1-based, inclusive;
+<code>0</code> inserts before, <code>inf</code> appends). Reading a slice on the right is a string <em>expression</em>
+(<a href="../expressions/spec.html#concatenation">expressions</a>).</p>
+<pre><code class="language-business-rules">00210 X$(2:3) = &quot;23&quot;      ! replace  → &quot;A23D&quot;   (from &quot;ABCD&quot;)
+00310 Y$(2:3) = &quot;&quot;        ! delete   → &quot;AD&quot;
+00410 Z$(2:0) = &quot;123&quot;     ! insert   → &quot;A123BCD&quot;
+00430 Z$(inf:inf) = &quot;End&quot; ! append
+</code></pre>
+<p>The string must be dimensioned large enough; an insertion that exceeds the slice extends the
+result (but cannot exceed <code>DIM</code>). Idioms: <strong>append</strong> with <code>X$(inf:0)=…</code> (fastest) or <code>X$(inf:inf)=…</code>;
+<strong>prepend</strong> with <code>X$(0:0)=…</code> or <code>X$(1:0)=…</code>; <strong>insert</strong> with <code>X$(pos:0)=…</code>; <strong>delete</strong> with
+<code>X$(pos:end)=&quot;&quot;</code>.</p>
+<a id="data-table"></a>
+<h3 id="internal-data-table--data--read--restore">Internal data table — DATA / READ / RESTORE</h3>
+<p><code>DATA</code> defines an internal table of constants (non-executable; all <code>DATA</code> lines merge in
+line-number order). <code>READ</code> pulls the next value(s) into variables, advancing the pointer.
+<code>RESTORE</code> resets the pointer (optionally to a specific <code>DATA</code> line). <code>MAT READ</code> fills a whole
+array at once.</p>
+<p><strong>A <code>DATA</code> value is not an expression, and the language's ordinary lexical rules do not apply
+inside one.</strong> A value that does not begin with a quote is taken <strong>verbatim to the next comma</strong> —
+so a backslash, an apostrophe, a stray double quote, an operator or a space are all just data:</p>
+<pre><code class="language-business-rules">00010 DATA &quot;Scanning Program&quot;,bcp\scanser        ! second value is  bcp\scanser
+00020 DATA &quot;340 HENRY FORD II&quot;,3001 MILLER ROAD&quot; ! second value keeps its lone quote
+</code></pre>
+<p>A value that <em>does</em> begin with <code>&quot;</code> or <code>'</code> is a quoted literal with the usual doubling rule, and
+only a comma, a <code>!</code> comment or the end of the line may follow it — anything else is an error.</p>
+<p>Two consequences worth stating: <strong><code>DATA</code> must be the first statement on its line</strong> (a second
+clause raises &quot;invalid operation in multiclause statement&quot;), and it <strong>owns the rest of that
+line</strong>. A tool that lexes <code>DATA</code> items by the general rules will report errors in valid programs.</p>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">00050 LET MPG = MI/GAL           ! compute
+00080 PUMA = COUGAR              ! implicit LET (copy)
+00150 DO WHILE (LINE$ := LINPUT$(1)) &lt;&gt; &quot;&quot;   ! assign-and-test
+00160    PRINT LINE$
+00170 LOOP
+
+00100 MAT A = (0)                ! init all to 0
+00350 MAT SAL = (1.064) * SAL    ! 6.4% raise to every salary
+00520 READ MAT CUST$ : MAT ORDER = AIDX(CUST$)   ! ascending index
+
+00100 DATA 6,17,38,49,66,75,93,84,77,67,42,22
+00110 READ MAT SPTEMP            ! load all 12 at once
+00300 RESTORE                    ! reset DATA pointer
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../expressions/spec.html">expressions</a> — operators forming RHS values; <code>:=</code> precedence; substring extraction</li>
+<li><a href="../declaration/spec.html">declaration</a> — <code>DIM</code>/<code>MAT</code> sizing of the targets</li>
+<li><a href="../system-functions/spec.html#array-functions">system-functions</a> — <code>AIDX</code>/<code>DIDX</code>, <code>STR2MAT</code>, <code>SRCH</code></li>
+<li><a href="../data-types/spec.html">data-types</a> — value kinds being assigned</li>
+<li>(Backing keyword pages folded into this spec and pruned.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/assignment/spec.md">br_tree/10-language/data-manipulation/assignment/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

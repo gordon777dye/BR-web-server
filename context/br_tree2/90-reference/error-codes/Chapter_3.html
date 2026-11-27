@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chapter_3 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>Chapter_3</h1>
+<h3 id="31-more-operation--programming-fundamentals">3.1 More Operation &amp; Programming Fundamentals</h3>
+<p> 
+Now that you've learned the basics about running, saving, loading and editing programs, you're ready to learn more about writing programs that actually do something. When you have completed Chapter 3 you should be able to:
+ </p>
+<ol>
+<li>Use the INPUT and LET statements in a program.</li>
+<li>Code the CONV error condition and a corresponding error-handling routine in a program.</li>
+<li>Recover from user errors.</li>
+<li>Enter and exit from ATTN mode.</li>
+<li>Use line labels and comments to help identify your programming logic.</li>
+<li>Explain the purpose of a variable and describe two types of variables, numeric and string.
+ </li>
+</ol>
+<h3 id="input--let-statements">INPUT &amp; LET statements</h3>
+<p>In Chapter 2 you learned to write a program called GRANDMA, which tells a brief story. GRANDMA was unlike most programs you will write, because it did not require any information or interaction from the user.</p>
+<p>In BR, <strong>users</strong> are people, who are using (running) software written in BR without complete technical expertise required to understand the system fully.
+ 
+Let's now write a program that does require action or input from the user. This program, which computes miles per gallon, first asks for information and then takes that information, performs a mathematical operation, and prints the result.
+ 
+Most programmers try to keep the needs of the user in mind when they write. Programs which are easy to use and forgiving of the user's mistakes are often called user-friendly.
+ 
+To tell the person who is running the program what information is needed, we must first start off with a PRINT statement:
+ </p>
+<pre><code>00010 PRINT &quot;Total number of miles?&quot; 
+</code></pre>
+<p>This statement asks a question that the user must answer.
+ 
+Next, you must use the INPUT statement to tell BR to wait for and accept information from the user:
+ </p>
+<pre><code>00020 INPUT MI 
+</code></pre>
+<p>The letters MI in line 20 are called a variable. It represents the number of miles (and the answer to the question in line 10), which varies every time that the program is run.</p>
+<p>A <strong>variable</strong> is a named memory location which temporarily stores data that can change while the program is running.</p>
+<p>You must always specify a variable when you use the INPUT statement. We will discuss more about variables in another lesson. When the miles per gallon program is run and the user enters a number in response to the question, Business Rules! puts this number into the variable MI.
+ 
+The next two statements in your program ask for and accept the answer to the following question: What information does the variable GAL in line 40 stand for?
+ </p>
+<pre><code>00030 PRINT &quot;Number of gallons?&quot; 
+00040 INPUT GAL 
+</code></pre>
+<p>Once the program has asked for and received all the information it needs, it must perform the computation. Miles per gallon can be determined by dividing the number of miles by the number of gallons.  In Business Rules! you can use the following symbols to perform mathematical calculations:</p>
+<ul>
+<li>plus</li>
+</ul>
+<ul>
+<li>minus</li>
+</ul>
+<ul>
+<li>multiply
+/ divide</li>
+</ul>
+<pre><code>= assign a value to a variable
+( ) determine the order of arithmetic operations
+</code></pre>
+<p>Using the variables that we have already chosen, the formula is:</p>
+<pre><code>MPG = MI/GAL
+</code></pre>
+<p> 
+The LET statement tells Business Rules! to perform this exact computation. MPG is introduced as a new variable in this statement:
+ </p>
+<pre><code>00050 LET MPG = MI/GAL 
+</code></pre>
+<p>When Business Rules! finishes executing line 50, it knows the answer to the miles per gallon problem. If you want the user to know what the answer is, you must make the program specifically say it! The following statement instructs Business Rules! to print two things: the information within delimiters (Miles Per Gallon =), and the value of the variable MPG.
+ </p>
+<pre><code>00060 PRINT &quot;Miles Per Gallon=&quot;; MPG 
+</code></pre>
+<p>The last statement in your program is STOP:
+ </p>
+<pre><code>00070 STOP 
+</code></pre>
+<p>If you now do a LIST of your program, it should look like this:</p>
+<p> 
+<code>image:3.1.png</code></p>
+<h4 id="miles-per-gallon-program-mileage">Miles Per Gallon Program (MILEAGE)</h4>
+<p>To see if the program works, type RUN and answer the questions. Then SAVE the program under the name MILEAGE and go on. Note that the program will expect you to type a number in response to both questions. If you type in letters, symbols, or numbers surrounded by quotes, then an error will occur.</p>
+<h4 id="quick-quiz-31">Quick Quiz 3.1</h4>
+<ol>
+<li>
+<p>Name the three variables which are used in the Miles Per Gallon Program:______, ______, and ______.</p>
+</li>
+<li>
+<p>Match the following functions to the corresponding Business Rules! symbols:</p>
+</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a)  Addition</td>
+<td>1. *</td>
+</tr>
+<tr>
+<td>b)  Subtraction</td>
+<td>2. +</td>
+</tr>
+<tr>
+<td>c)  Multiplication</td>
+<td>3. /</td>
+</tr>
+<tr>
+<td>d)  Division</td>
+<td>4. -</td>
+</tr>
+</tbody>
+</table>
+<ol start="3">
+<li>
+<p>What punctuation mark is used in a PRINT statement to separate two or more 		items to be printed? (Hint: see line 60 of the MILEAGE program.)</p>
+</li>
+<li>
+<p>What does the INPUT statement do?</p>
+</li>
+</ol>
+<p>a)  Tells Business Rules! to print a question that the user must answer with the letters MI or GAL. <br>
+b)  Tells Business Rules! to perform an arithmetic operation.  <br>
+c)  Tells Business Rules! to accept information from the user and assigns that information to a specific variable.  <br></p>
+<ol start="5">
+<li>What does the LET statement do?</li>
+</ol>
+<p>a)  Tells Business Rules! to perform an arithmetic operation and print the result.  <br>
+b)  Tells Business Rules! to let the user answer a question.  <br>
+c)  Assigns a value to a variable.  <br></p>
+<p><code>Answers 3.1</code></p>
+<h4 id="extra-practice">Extra Practice:</h4>
+<p>Write a program which calculates the area of a circle. Use the INPUT and LET statements, calculate the area and assign it to a variable named Area.</p>
+<p>As you progress through the next few chapters, we’ll continue to build on and modify this program as you learn different statements and commands.</p>
+<h3 id="32-getting-an-error-and-interrupting-a-program-during-a-run">3.2 Getting an error and interrupting a program during a RUN</h3>
+<p>You have already learned about getting errors (called syntax errors) as you write a program, you can also get an error when you RUN a program. In the next few exercises, we'll use the MILEAGE program which you should have written and saved in the last lesson to learn about recovering from execution errors.
+ 
+When you have MILEAGE loaded and READY, go ahead and RUN it.  Answer the first question as shown below:
+ </p>
+<pre><code>Total number of miles?       
+three hundred         		-Type this (yes, spell it out!) 
+</code></pre>
+<p>Now press ENTER. The following things should happen: one, the computer should beep; two, error code <code>0726</code> should appear in the center of the status line; and three, the word ERROR should appear in the left corner of the status line. This is called an &quot;user error or run-time error because the error occurred when the user was running the program.</p>
+<p>A <strong>run-time error</strong> is an error detected during the execution a program.</p>
+<p>As signified by the word ERROR in the status line, your program is now in error mode. When a program enters this mode, it stops executing and waits for instructions in the form of commands from the user. This leaves plenty of time for you to look up the error code in the Wiki.
+ 
+When you have figured out what caused the 0726 error, you can tell Business Rules! to re-execute the last statement by entering the command GO (remember GO is a command and it doesn't use a line number). Business Rules! will then go back into RUN mode to the statement at which the error occurred and allow you to enter the information correctly. Go ahead and do this now:</p>
+<p><code>image:3.2.png</code>
+ </p>
+<h3 id="go">GO</h3>
+<p>As soon as you have entered the GO command and pressed ENTER, you can go through the steps illustrated in the following frame.</p>
+<p>The INPUT prompt in the left corner of the status line reminds you that you must enter information before the program can continue:</p>
+<p> 
+<code>image:3.3.png</code></p>
+<h3 id="input">INPUT</h3>
+<p>Now that you have successfully recovered from the 0726 error, we are going to ask you to make the same type of error again. Where the program asks for the number of gallons, enter &quot;fifteen&quot;. This time instead of entering GO to get back into the program, you should enter STOP. Business Rules! will then terminate the RUN of the program and return to READY mode. During a program interruption, Business Rules! accepts and executes almost any command that you enter except SAVE, RUN, REPLACE, and SYSTEM.
+ 
+What if you want to execute a command while the program is running? There is a way to interrupt program execution by pressing CTRL + A.
+ 
+After you press CTRL + A, your program will then go into ATTN (attention) mode. ATTN mode allows you to execute commands and assign values to variables. To continue running the program you interrupted, use the GO command. Everything you did in attention mode is erased when GO is entered, and the screen will look just as it did before you went into attention mode.</p>
+<p>For future reference:
+From now on, if we refer to pressing several keys at the same time, we will use the plus sign between the desired keys. For example, to signify pressing the Ctrl, Alt, and Del keys at the same time, we will write Ctrl + Alt + Del.</p>
+<h4 id="quick-quiz-32">Quick Quiz 3.2</h4>
+<ol>
+<li>What are two different kinds of errors that you can get?</li>
+</ol>
+<p>a)  Syntax and run-time errors. <br>
+b)  user and data-mapping errors. <br>
+c)  user and syntax errors. <br>
+d)  Error codes and beeps. <br></p>
+<ol start="2">
+<li>What happens when a program goes into ERROR mode?</li>
+</ol>
+<p>a)  The program stops executing and waits for instructions, in the form of commands, from the user. <br>
+b)  Business Rules! terminates the program, clears memory and shows a listing of the directory. <br>
+c)  Business Rules! looks up the error code, then executes the GO command and starts the program all over. <br></p>
+<ol start="3">
+<li>Match the following:</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a)  ATTN</td>
+<td>1. Terminate program</td>
+</tr>
+<tr>
+<td>b)  GO</td>
+<td>2. Ctrl-A</td>
+</tr>
+<tr>
+<td>c)  STOP</td>
+<td>3. Resume program execution</td>
+</tr>
+</tbody>
+</table>
+<p><code>Answers 3.2</code></p>
+<h3 id="33-program-operation">3.3 Program Operation</h3>
+<p>In the last section, you learned what to do when a run-time error occurs. But what happens when you give your MILEAGE program to somebody who knows nothing about programming encounters an error? How will the user know what went wrong, and how will he/she know how to get out of error mode?</p>
+<p>A partial answer to this problem is that you can code error conditions into your programs that catch (or trap) specific kinds of errors. For instance, the kind of error that you caused by entering letters instead of number was called a conversion (CONV) error.  </p>
+<p>Often you can foresee that somebody might make a certain error such as entering letters instead of numbers and this is when error conditions can be helpful. To add the CONV error condition and its corresponding error-handling routine to your program, you should first LIST your code.</p>
+<p>Now, think back to the first error you caused. It happened when you were providing information for the INPUT statement in line 20. Since you must add the CONV error condition to the statement where the error could occur, it must go here.  The same error may also occur in line 40 as well, so move your cursor to line 20 and then to line 40 and change them to this:</p>
+<pre><code>00020 INPUT MI CONV 80  
+00040 input GAL CONV 80
+</code></pre>
+<p>By adding CONV 80 to the INPUT statement in lines 20 and 40, you are telling the program (in shorthand fashion) that when a conversion error occurs, it should jump to line 80 rather than going into error mode. The number 80 is an example of a line-ref (or line reference) which refers the BR system to a program line. A line-ref must be included every time you specify an error condition. A line-ref is a very specific item to BR: it must always be either a line number or a line label (which you will learn about in a later lesson).</p>
+<p>So what's at line 80, you ask? Well, that's your next step. Since BR keeps track of the statement where the error occurred (line 20 or 40, in this case), you could simply tell the program to re-execute that statement (and give the user a second chance at doing it right) by specifying RETRY:</p>
+<p><code>image:3.4.png</code></p>
+<p>To see how well this error condition works, RUN your program. When the &quot;Total number of miles?&quot; question comes up, enter letters instead of numbers again. Try to imagine the execution order of your program as it is running. It might help to envision Zippy the Cursor dashing along from one statement to the next, executing each one. When Zippy reaches the INPUT statement in line 20 or 40, he patiently stands by (right next to the MI manila folder) and waits for you to enter a number that he can assign to MI. But when you enter letters instead, he double-checks line 20 or 40 to see if you told him what to do for such an error. Why yes! The CONV 80 portion of the line is practically screeching at him to go to line 80. So he takes a flying leap to line 80 (he even flew past the STOP statement in line 70), where he discovers that you want him to retry the error-causing statement. Back he goes to line 20 or 40, wherever the error had occurred, where he again patiently waits for you to enter a number.</p>
+<p>But wait a second. Pretend that you are the user now. You entered &quot;three hundred&quot; for the number of miles and Zippy did all that work just so you wouldn't have to deal with an error mode, but now nothing is happening on the screen. The only clue as to what should be done is the INPUT prompt in the status line, and who knows what that means (besides you, the computer programmer)?</p>
+<p>You know that Zippy is eagerly waiting, with MI manila folder open, for that number so go ahead and enter it, then let Zippy finish the program with no more mishaps.</p>
+<p>Now do another LIST of your program and look at that line 80. Is there some way you can make it tell Winston what he did wrong, then send program execution back to line 20?</p>
+<p>Of course there is! It just takes two statements instead of one! Just so you know: your error-handling routine can be as long as is necessary. Try this:</p>
+<pre><code>00080 print &quot;Please enter numbers, not letters.&quot; 
+00090 RETRY 
+</code></pre>
+<p>Once you have entered both of these statements, run the program and again answer the first question with letters instead of numbers. Does your error-handling routine work? Does it work well? Would Winston M. Meyerbottom figure it out?</p>
+<p>Don't forget to REPLACE your old version of MILEAGE with this new version.</p>
+<h4 id="quick-quiz-33">Quick Quiz 3.3</h4>
+<ol>
+<li>How can you cause a CONV (conversion) error?</li>
+</ol>
+<p>a)  By entering feet and inches when the program expects metric units. <br>
+b)  By entering letters when the program expects numbers. <br>
+c)  By pressing Ctrl-A. <br></p>
+<ol start="2">
+<li>Where must the CONV error condition be coded when you use it with the INPUT statement?</li>
+</ol>
+<p>a)  At the beginning of the program.<br><br>
+b)  At the beginning of the statement where the error could occur. <br>
+c)  At the end of the statement where the error could occur. <br></p>
+<ol start="3">
+<li>What must be included with every error condition?</li>
+</ol>
+<p>a)  ENTER. <br>
+b)  A line-reference. <br>
+c)  The number 80. <br></p>
+<ol start="4">
+<li>What does the RETRY statement do?</li>
+</ol>
+<p>a)  Starts execution of the program all over again. <br>
+b)  Prints a message that says, &quot;Please enter numbers, not letters.&quot; <br>
+c)  Retries execution of the error-causing line. <br></p>
+<p><code>Answers 3.3</code></p>
+<h4 id="extra-practice-1">Extra Practice</h4>
+<p>Continue with the program AREA that you created in section 3.1. Add a CONV statement to handle a similar error as described above, to prevent the user from entering the numbers in word form.</p>
+<p><code>Solutions#CHAPTER 3|Solution</code></p>
+<h3 id="34-line-labels">3.4 Line Labels</h3>
+<p>LIST your revised version of the MILEAGE program. It should now look like this:</p>
+<p><code>image:3.5.jpg</code></p>
+<p>MILEAGE is a short program. Even if you look at it ten months from now, it will probably take only a minute or less to figure out its purpose and its flow. Eventually you will write programs that are quite a lot longer than this, and then it will be much more difficult to follow your original programming logic.</p>
+<p>Program code can sometimes look like gibberish to even experienced programmers, so Business Rules! allows you to help explain it to yourself with identifying labels at the beginnings of any or all program lines.</p>
+<p>A line label is simply a name for a line. If you have ever attended a school where students were referred to by numbers (which are hard to remember) rather than names, you will probably see the value of a line label without difficulty. The purpose of a line label is similar to a comment in that it helps someone who is reading the program to understand what the programmer is doing. LABELS tell the reader where a programmer is going with their LINE REFERENCE STATEMENTS. The label gives you an easily-remembered way to refer to a line. When you get more experienced, on a job you may be writing programs that consist of ten thousands of tens of thousands of lines! Wow! And when the reader of the program gets to line 120, and there is a line reference statement to line number 8060, how will they remember, when they finally get to line 8060, that it was referred to at line 120? We could remind them in the name! One part of your MILEAGE program which could be difficult to identify is the error-handling routine in lines 80 and 90. If MILEAGE were much longer, it would be difficult to trace these statements back to the CONV error in lines 20 and 40. A way to make it easier would be to use a line label that identifies the error condition (CONV) for which the routine was written. Here is how to apply a label to a program line:</p>
+<pre><code>00080 CONVRSN: PRINT &quot;Please enter numbers, not letters.&quot; 
+00090 RETRY 
+</code></pre>
+<p>In this case, CONVRSN is the line label. When line labels are used, they must be placed immediately after the line number. They can be 1–30 characters of letters, numbers and underscores, and cannot include spaces. An underscore counts as a letter throughout, so a label may begin with one too. <em>(Corrected — the original said labels could be &quot;any length&quot; and had to &quot;begin with a letter&quot;; both are wrong. See <code>corrections:</code> in the frontmatter.)</em></p>
+<p>Immediately after the label comes a colon, which tells BR that the preceding was a label and that the statement follows. Labels must be unique once you have used a line label in a program, you cannot use the same name as a label for another line. Labels can have the same name as a keyword or variable name, or as in the following case, they can also have the name of an error condition.</p>
+<p>Line numbers and line labels perform essentially the same duties. The difference is that every line must have a number, but labels are optional. Both are considered to be line-refs, however; a line label can be used anywhere in a program that a line-ref (a line reference) is called for. Do you remember where you used line references in your MILEAGE program?</p>
+<p>You used line references when you coded error conditions into lines 20 and 40. Let's return to these lines now and test to see if line labels really do work as line references. Go ahead and change the lines as written:</p>
+<pre><code>00020 INPUT MI CONV CONVRSN 
+00030 PRINT &quot;Number of gallons?&quot; 
+00040 INPUT GAL CONV CONVRSN 
+</code></pre>
+<p>Also, change line 50 to</p>
+<pre><code>00050 FORMULA: let MPG = MI / GAL
+</code></pre>
+<p>LIST the program to be sure that your changes are correct (did you remember to press ENTER after both changes?), then RUN it and see if it works when you type in an error.</p>
+<p><code>image:3.6.png</code></p>
+<p>Can you envision a situation where a line label such as the one you used could be really helpful? Imagine that you are working on a program that is 200 or more lines long. You code the CONV error condition into lines 20 and 40, just as you have done above. And, just as above, you code the CONV error-handling routine into line 80. After writing another 140 lines, (bringing your line# into the thousands), you decide to use the same error-handling routing again, for another potential CONV error. But think about it: you've written 140 lines of code, probably taken two breaks and answered six phone calls since then. Will you be more likely to remember that the error-handling routine is at line 80, or will you remember that it's at the CONVRSN line label? Line Labels are important for both the programmer and the reader.</p>
+<h4 id="quick-quiz-34">Quick Quiz 3.4</h4>
+<ol>
+<li>Which of the following statements is true:</li>
+</ol>
+<p>a)  Line labels can be up to 30 letters, numbers and underscores long. <br>
+b)  As long as they are at least 140 lines apart, two line labels in the same program can have the same name. <br>
+c)  Every line label must begin with a letter.</p>
+<ol start="2">
+<li>Which of the following can be used as line labels:</li>
+</ol>
+<p>a)  PRINT <br>
+b)  ZIPPY1 <br>
+c)  SAVE <br>
+d)  THIS_IS_A_LINE_LABEL(?): <br>
+e)  123GRASS <br>
+f)  C99887754321 <br></p>
+<p><code>Answers 3.4</code></p>
+<h3 id="35-comments">3.5 Comments</h3>
+<p>Another way that Business Rules! allows you to explain programs to yourself is through the addition of comments. Comments which are separated from the rest of a statement with an exclamation point (!) are non-executable, meaning Business Rules! completely ignores them. A comment is used to inform someone who is reading the program about what that certain part of the program is for. This is called increasing the &quot;readability&quot; of the program. If you ever work as a professional programmer, or you ever need to come back and look over an old program, your program needs to have good readability, and be very understandable.</p>
+<p>An example of a spot where you might want to use a comment in your MILEAGE program is with the INPUT statement at line 20. Here you have used the variable of MI to represent the number of miles. It may not be very difficult to figure this out, but you want it to be so clear that even Winston M. Meyerbottom would understand, so you should change the line to the following:</p>
+<p><code>image:3.7.jpg|600px</code>
+ <br>
+You could add a similar comment to line 40:</p>
+<pre><code>00040 INPUT GAL CONV CONVRSN ! GAL = Number of gallons 
+</code></pre>
+<p>Any comment you wish to make is legal. You can even put a comment on a line that has no other statements on it. It is in fact, a good practice to use comments to identify your name, the name of your program, and the date. Use the following lines as an example, and then add your own to the beginning of MILEAGE:</p>
+<p><code>image:3.8.png</code></p>
+<p>Make sure that when adding these lines to the program, you give them the numbers 1-5 and not 10-50. These lines come before the first line that is executed (10).</p>
+<h4 id="quick-quiz-35">Quick Quiz 3.5</h4>
+<ol>
+<li>Which symbol tells Business Rules! that a non-executable comment is following?</li>
+</ol>
+<p>a)  :  <br>
+b)  !  <br>
+c)  &quot;  <br></p>
+<ol start="2">
+<li>True or False - Business Rules! changes all lowercase letters in a comment to uppercase.</li>
+</ol>
+<p><code>Answers 3.5</code></p>
+<p> </p>
+<h3 id="36-numeric-vs-string-variables">3.6 Numeric VS String Variables</h3>
+<p>Business Rules! distinguishes between two different types of variables: numeric and string.</p>
+<p>A numeric variable indicates to Business Rules! that an arithmetic operation will be performed with the value of this variable. The value of a numeric variable must be a number. When you assign the value to the variable, you must specify either a number, (also called a numeric constant), a numeric variable (i.e. PUMA = COUGAR), or a formula that computes to a number (i.e. MPG = MI/GAL). The following example shows each of these possibilities:</p>
+<p><code>image:3.9.png</code></p>
+<p>A string variable indicates to Business Rules! that no mathematical operation will be performed with the value of the variable. Business Rules! will accept any value (either numbers or letters) for the variable. But it will refuse all attempts to use arithmetic with the variable, even if the value happens to be a number (there is a way to get around this rule; we will learn about it in a later chapter). The only way that Business Rules! can tell the difference between numeric and string variables is by the way that you name them: a string variable's name ends in <code>$</code>. Both types must begin with a letter or an underscore, which Business Rules! treats as a letter throughout. <em>(Corrected — the original said &quot;must always begin with a letter&quot;. See <code>corrections:</code> in the frontmatter.)</em></p>
+<p>The vital difference between them is that string variables must end with a dollar sign ($), and numeric variables must not.
+ 
+The following lines give examples of values which can be assigned to string variables:</p>
+<pre><code>10 let country$ = “Africa”
+20 let population$ = “9,876,543”
+30 let landmass$ = “5,654,342 square miles”
+</code></pre>
+<p>Note that even though on line 20, the string variable population$ is assigned the value “9876543”, you cannot perform any arithmetic operations with this value, because it is a string.</p>
+<p>Also, note that the above LET statements all list the name of the variable on the left of the equal sign, and the value of the variable on the right of the equal sign. This syntax can be described with the following syntax sentence:
+ </p>
+<pre><code>line# LET variable = value 
+</code></pre>
+<p> 
+So far you have used only numeric variables in the programs that you have written: MI, GAL, and MPG, from your MILEAGE program, are all examples of numeric variables.
+ 
+Let's look at an example of how string variables are used. Key the following program lines into Business Rules!:
+ </p>
+<pre><code>00010 PRINT &quot;What is your first name?&quot; 
+00020 INPUT NAME$ 
+00030 PRINT &quot;How old are you, &quot;;NAME$;&quot;?&quot; 
+00040 INPUT AGE$ 
+00050 PRINT NAME$;&quot; is &quot;;AGE$;&quot; years old.&quot; 
+</code></pre>
+<p>When this program is run, it asks the question, &quot;What is your first name?&quot; If the user answers &quot;Gladys&quot;, the INPUT statement in line 20 puts the name Gladys into the NAME$ manila folder. Line 30 then prints &quot;How old are you,&quot; the value of NAME$ and a question mark:</p>
+<pre><code>How old are you, Gladys? 
+</code></pre>
+<p> 
+Line 40 takes Gladys' answer to the age question and puts it into the AGE$ manila folder. Since AGE$ is a string variable (rather than numeric), Zippy the Cursor does not pay any attention to whether the answer to this question is numbers or letters. Gladys' answer to the question could be fifteen or it could be 15; either way, Zippy just drops the information into the AGE$ variable and dashes back to execute the next line.  RUN this program for yourself and see how it works.</p>
+<p>Now, let's try an experiment. You would like the above program to multiply the user's age by three and print the result. Can you explain why Business Rules! will not even allow you to enter the following expression?:</p>
+<pre><code>00060 PRINT AGE$*3 
+</code></pre>
+<p>Business Rules! sends an error when you attempt to enter the above statement because you are telling the system to perform a mathematical operation (* means multiply) with a string variable AGE$. Even if the value of the variable is 15 rather than &quot;fifteen&quot;, Business Rules! will not perform arithmetic with this variable.
+ 
+Okay, so our first try didn't work. Will it work if you take the $ off the AGE$ variable? Change line 60 to the following statement, then RUN the program and see:
+ </p>
+<pre><code>00060 PRINT &quot;Your age multiplied by three is&quot;;AGE*3 
+</code></pre>
+<p>Well, this was a step in the right direction (at least Business Rules! allowed you to enter statement, right?), but it does not result in the correct answer. No matter what value you enter for the age question when you RUN this program, Business Rules! will tell you that three times your age is zero.</p>
+<p>The reason that this second line 60 does not work is that it introduces a brand new, undefined variable into the program. AGE$ and AGE are two completely different variables; each has its location in memory. They cannot be used interchangeably. If you wish to assign the answer to the age question to a numeric variable, you must go back to the point at which the variable is originally assigned and change that variable name. In this case, you would have to go back to line 40 and 50 and change them to:</p>
+<pre><code>00040 INPUT AGE 
+00050 PRINT NAME$;&quot; is &quot;;AGE;&quot; years old.&quot; 
+</code></pre>
+<p>Line 60 will now work properly. RUN the program and see. Notice that Business Rules! will no longer allow you to enter letters instead of numbers for the age question. As an exercise, see if you can code the CONV error condition and an error-handling routine for a potential conversion error into the program.</p>
+<p><code>image:3.9a.png</code>
+ </p>
+<h4 id="quick-quiz-36">Quick Quiz 3.6</h4>
+<ol>
+<li>A numeric variable:</li>
+</ol>
+<p>a)  Is a number which represents another number. <br>
+b)  Must end with a dollar sign. <br>
+c)  Indicates that a mathematical operation may be performed with the value of the variable.</p>
+<ol start="2">
+<li>A string variable:</li>
+</ol>
+<p>a)  Cannot have a value which is a number. <br>
+b)  Indicates that no mathematical operation may be performed with the value of the variable. <br>
+c)  Must begin with a letter and end with a colon.</p>
+<ol start="3">
+<li>Identify the following variables as either string (s), numeric (n), or invalid (i):</li>
+</ol>
+<p>a)  CL2R6$N <br>
+b)  REG:1# <br>
+c)  $66614$ <br>
+d)  NUM$ <br>
+e)  PENGUIN <br>
+f)  PC12 <br>
+g)  DASH-# <br>
+h)  X <br></p>
+<ol start="4">
+<li>True or False - When you assign the value 64 to the variable WIMPNUM, you are also assigning it to the variable WIMPNUM$.</li>
+</ol>
+<p><code>Answers 3.6</code></p>
+<p> </p>
+<h3 id="37-assigning-values-to-variables">3.7 Assigning values to variables</h3>
+<p>The value of a variable is a specific piece of information that Business Rules! assigns under the name you give it.</p>
+<p>Remember in the AGE program when we asked you to insert a new line 60, which multiplied the value of AGE by three, into the sample program of the last lesson? And then, until you changed the previous AGE$ variable to AGE, the computer kept responding with an answer of zero? The following scenario should help you to understand why this happened:</p>
+<p>Imagine that Business Rules!'s memory has access to two huge rooms with rows and rows of filing cabinets in them. The door to one of the rooms is marked &quot;Numeric Variables&quot;; the door to the other is marked &quot;String Variables&quot;. The filing cabinets in the two rooms are filled with manila folders which are labeled with every numeric and every string variable name that could possibly exist in Business Rules!.</p>
+<p>Whenever Business Rules! is started, all the manila folders in the String Variables room are empty, but all the folders in the Numeric Variables room contain the number 0.</p>
+<p>Now imagine that these two rooms have a caretaker named Windela. Windela is like a master librarian - she knows everything about anything to do with the variables in her two rooms. Whenever a statement in a program assigns a value to a variable, she is the one who makes sure that the value gets inserted into the right manila folder. Windela is also the one who goes back to the manila folders which were used with a program and empties them out. Every time that a RUN, LOAD or CLEAR is performed, Windela goes through all her manila folders, changing all the numeric variable values back to zero and all the string variable values back to empty space.</p>
+<p>Translating this story into real terms, there are 4 concepts that you should remember: <br></p>
+<ol>
+<li>No matter what variable you use, it already contains a default value.</li>
+<li>All numeric variables have a default value of zero.</li>
+<li>All string variables have a default value of empty string, or a string of zero length.</li>
+<li>No matter what values you assign to the variables in a program, they are reset to zero or zero length whenever you RUN, LOAD, or CLEAR a program.</li>
+</ol>
+<p>A default is a standard course of action that Business Rules! takes when you do not tell it how to handle a specific situation. BR's process of setting the value of unassigned variables to zero is a default. That's why the answer kept coming up as zero when you first coded the AGE variable into the sample program of the last lesson.  Business Rules! multiplied 0 by 3 and came up with 0.</p>
+<p>When you don't assign a value to a string variable, Business Rules! automatically gives it a default value of zero length. This essentially means that the value of the variable is empty space. The string has no characters; it is sometimes referred to as a null or empty string.</p>
+<p>You may have already noticed in your experimentation with Business Rules! that you can sometimes type in a letter, a word or a set of nonsense letters and numbers. Then, when you press ENTER, Business Rules! prints a zero on the next line of the screen. As an example, enter the letter &quot;a&quot; and press ENTER:</p>
+<p> a
+ 0</p>
+<p>Business Rules! thinks you are asking it to print the value of the variable &quot;a&quot;. Since you have not yet changed the default value of a, the value is zero. You would get the same response if you had entered “PRINT a&quot;. As a default, Business Rules! automatically executes a PRINT statement when it finds no other statement or command (we'll explain why in this next section).</p>
+<p>Notice that &quot;a&quot; is a numeric variable. If you try the same experiment with a string variable, Business Rules! returns exactly what it finds in the manila folder - empty space:
+  <code>image:3.9b.png</code></p>
+<p>You have already learned the two most popular ways of assigning values to variables: with INPUT, and with LET.</p>
+<p>In the MILEAGE program and in the last lesson, your INPUT statements instructed Business Rules! to assign the program user's choice of a value to the specified variable. An example of this statement is:</p>
+<pre><code>20000 INPUT HORSE$ ! HORSE$=Name of fastest horse 
+</code></pre>
+<p>When you used the LET command, and when you used the LET statement in your MILEAGE program, you were assigning values to numeric variables. When you assign values to string variables with the LET statement, you must enclose the value within Quotation marks, as in the following example:</p>
+<pre><code>00010 LET REX$=&quot;Doggy&quot; 
+</code></pre>
+<h4 id="quick-quiz-37">Quick Quiz 3.7</h4>
+<ol>
+<li>What is the value of a variable?</li>
+</ol>
+<p>a)  A manila folder that holds a number.  <br>
+b)  A specific piece of information which is represented by the variable.  <br>
+c)  The amount of money that a variable is worth.  <br></p>
+<ol start="2">
+<li>What is a default?</li>
+</ol>
+<p>a)   An error that Business Rules! tries to correct by returning zero instead of a beep and an error code.  <br>
+b)   A null string.  <br>
+c)   A standard course of action that Business Rules! takes when the program does not tell it how to handle a specific situation.  <br></p>
+<ol start="3">
+<li>The default for a numeric variable is:</li>
+</ol>
+<p>a)   A null string.  <br>
+b)   Zero length.  <br>
+c)   Zero.  <br></p>
+<ol start="4">
+<li>
+<p>Name two ways of assigning values to variables.</p>
+</li>
+<li>
+<p>Which of the following is not required when you specify the value of a string 		variable in a LET statement?</p>
+</li>
+</ol>
+<p>a)   First character of the variable must be a letter.  <br>
+b)   Last character of the variable must be a $.  <br>
+c)   A comment at the end of the statement must clarify the variable's purpose.  <br>
+d)   Value must be enclosed within quotation marks.  <br></p>
+<p><code>Answers 3.7</code></p>
+<h4 id="extra-practice-2">Extra Practice:</h4>
+<p>Type the following program into Business Rules! and try to run it:</p>
+<pre><code>10 Print “What is your favorite color?”
+20 Input color$
+30 Print “What is your favorite number?”
+40 input numb
+50 Print “The square root of your favorite number is” SQR(numb)
+60 Print “Your favorite color is”; color
+70 Stop
+</code></pre>
+<p>You will encounter two errors in this code. Study the lines and what you’ve learned in the previous lessons to fix it. SQR( ) functions as a square root symbol in BR, its not an error.</p>
+<p><code>Solutions#CHAPTER 3|Solution</code></p>
+<h3 id="38-more-about-variables">3.8 More about variables</h3>
+<p>We suggested that you think of a variable's reserved space for information as a &quot;manila folder&quot; with the name of the variable stamped on it. When you or the user specifies that the value of the MI variable is 300, Business Rules! places the number 300 into the MI manila folder. This process assigns the value 300 to the variable MI. But if you later specify that MI equals 329, Business Rules! will go back to the MI manila folder and replaces the number 300 with the number 329. Anytime that a command or program calls for use of the MI variable, Business Rules! returns to the manila folder and looks up the CURRENT value and uses it. You can test this with the following command exercises:
+ 
+Enter the following without a line number:
+ </p>
+<pre><code>MI = 300 
+</code></pre>
+<p>Business Rules! puts the number 300 into its MI folder. Then it displays the value of the calculation. This acts as a LET statement as well as an immediate PRINT statement (we'll tell you why its a print statement soon).
+ 
+The computer will respond by printing the value of MI, which is 300. Your screen will say:</p>
+<pre><code>MI = 300
+ 300 
+</code></pre>
+<p>Now type in MI</p>
+<pre><code>MI
+ 300
+</code></pre>
+<p>To change the value of MI, you need only specify a new number after the equal sign:
+ </p>
+<pre><code>MI = 329
+ 329 
+</code></pre>
+<p>This command causes Business Rules! to replace 300 with 329 in the MI folder. It will keep 329, or any value you specify, in the folder until you do one of the following:
+ </p>
+<ol>
+<li>Specify a new value for MI.</li>
+<li>Enter a CLEAR command.</li>
+<li>RUN a program. RUN automatically sets all variables to zero or zero length.</li>
+<li>LOAD a new program. LOAD automatically performs a CLEAR function.</li>
+<li>Exit Business Rules!.
+ 
+Type in K = 10, then NEWPAGE. Next type in K + MI
+ </li>
+</ol>
+<pre><code>K + MI 
+ 339 
+</code></pre>
+<p>Even after NEWPAGE, the variables have their same value in temporary memory until you use the CLEAR command.</p>
+<p>You may be wondering why Business Rules! does these things without commands, so here's the default order in which Business Rules! processes the information that you enter into it, (remember that a COMMAND is executed immediately and a STATEMENT WITH A LINE # requires RUN):</p>
+<ol>
+<li>After pressing ENTER, Business Rules! takes your information and looks 			for a line number. A line number would indicate that the information is a statement that is not to be executed until a RUN occurs. So if it has a line number, Business Rules! does not have to worry about it until RUN is executed.</li>
+<li>If there is no line number, then Business Rules! checks to see if it is a temporary informational statement such as LET. If it is, BR! takes note of it in temporary memory, but the statement cannot be saved to disk without a line number.</li>
+<li>If it is not just an informational statement, then BR! checks to see if it is an immediate statement or a command. PRINT is a statement that acts like a command when used without a line number. So do INPUT and STOP. These are immediate statements that Business Rules! executes immediately. Some of the commands in BR that are never used with a line number are SAVE, REPLACE, CLEAR, LOAD, RUN, ATTN, GO, etc. These commands are always executed immediately, but any statement can be run immediately as a command if you don’t use a line number.</li>
+<li>If Business Rules! does not understand the purpose of what you are typing in, it assumes that it is a PRINT statement asking to print either a number or a variable (like a print statement that does not include quotes). You can type in any jumble of letters, numbers, and underscores and Business Rules! will assume that you are trying to print a numeric variable. If any symbol characters are included in this jumble, you will get error message 1030 (Invalid Character Expression), because symbol characters cannot be included in the name of a variable (except for the $ sign at the end of string variables). If there is a dollar sign on the end, BR! assumes that you want it to print that string variable. If you type in a number without any non-numeric characters and press ENTER, BR! will print that number below like this:
+ </li>
+</ol>
+<pre><code>123
+ 123
+</code></pre>
+<p>Also, if you type in a letter, word, or letter/number mix before an = sign and a number after the = sign, i.e.</p>
+<pre><code>Tiger = 10
+</code></pre>
+<p>this acts as a LET statement. &quot;LET&quot; doesn't need to be typed in. The statement assigns 10 to the numeric variable Tiger and the prints this value. The value for that variable stays in temporary memory until CLEAR is used.</p>
+<h4 id="quick-quiz-38">Quick Quiz 3.8</h4>
+<ol>
+<li>
+<p>True or False - When you assign a value to a variable and Business Rules! prints the value, then it resets the value to zero.</p>
+</li>
+<li>
+<p>True or False - If you type any mix of letters, numbers, and characters without a command, Business Rules! will always PRINT what you typed out below as a default.</p>
+</li>
+</ol>
+<p><code>Answers 3.8</code></p>
+<h4 id="challenge-questions">Challenge Questions</h4>
+<p>a)  What will happen if you delete line 70 from your MILEAGE program, and then RUN it? Make a guess, then try it and see. Use the command DEL 70 to delete line 70.</p>
+<p>b)  Look at the suggested comments for program lines 1-5 in the section called &quot;comment&quot;. These five lines form a title similar to the one that you created for your own MILEAGE program. What changes could you make to these lines so that the user sees the information every time the program is run?</p>
+<p>c)  Study the following section of the program code carefully. The program assigns values to the variables MI, G, and MPG, and then prints the value of MPG. It next assigns new values to MI and G and again prints the value of MPG:</p>
+<pre><code>00010 LET MI=600 
+00020 LET GAL=30 
+00030 LET MPG=MI/GAL 
+00040 PRINT MPG 
+00050 LET MI=900 
+00060 LET GAL=25 
+00070 PRINT MPG 
+00080 STOP 
+</code></pre>
+<p>What number does Business Rules! print when it executes line 40? What number does it print when it executes line 70? Type this program into Business Rules! and RUN it to see if your answers are correct.</p>
+<p>ANSWERS:</p>
+<p>Type the program into Business Rules! and find out the answers for yourself!</p>
+<p><code>Challenge 3.8|Check them here</code></p>
+<h4 id="chapter-exercise">Chapter Exercise</h4>
+<p>Write a program that asks the user to type in 3 things:
+a)  An employee's last name.
+b)  An employee's annual salary.
+c)  An employee's percentage salary increase.
+Then the program should calculate how much will be added to user's salary after the percentage increase is added.</p>
+<p>For example, the user should be able to enter JOHNSON with an annual salary of 18000, and a salary raise of 12.4 percent. Your program should then calculate the amount of the raise in dollars, and then print output like the following 2 lines:</p>
+<p>JOHNSON has a current salary of 18000
+A raise of 12.4 percent will be 2232 dollars.</p>
+<p>Be sure that there is a message to the user before each INPUT statement, so that he or she knows what to enter. We have an example here for you TO COMPARE WITH YOURS after you've finished:</p>
+<p>Example Answer:</p>
+<p><code>image:3.9e.png</code></p>
+<p><strong>To challenge yourself further, modify this program to calculate what the employee’s salary will be over the next 5 or 10 years.</strong></p>
+<p><code>Solutions#CHAPTER 3|Solution</code></p>
+<p>NEXT:<code>Chapter 4|Constants and Variables</code></p>
+<p><code>BR Tutorial|Back to Index</code></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/Chapter_3.md">br_tree/90-reference/error-codes/Chapter_3.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -160,6 +160,7 @@ _783 entries._
 | [0754](0754.md) | Failed to process path information for the http server log file |
 | [0756](0756.md) | Failed to open the http server log file |
 | [0757](0757.md) | Http server failed to assign (via rename) specified filename |
+| [0758](0758.md) | HTTP URL_BASE= is not in BR's current folder or below it |
 | [0760](0760.md) | Picture does not exist |
 | [0762](0762.md) | Image spec had syntax errors. |
 | [0763](0763.md) | HTTP= must be SERVER or CLIENT |
@@ -287,6 +288,7 @@ _783 entries._
 | [1005](1005.md) | Duplicate label or function |
 | [1006](1006.md) | Syntax error |
 | [1008](1008.md) | Invalid keyword in shell interpreter |
+| [1009](1009.md) | Invalid regular expression |
 | [1011](1011.md) | Illegal immediate statement |
 | [1012](1012.md) | Illegal line number |
 | [1020](1020.md) | Missing parenthesis |
@@ -427,7 +429,7 @@ _783 entries._
 | [4153](4153.md) | Restricted session: may not change a file this session did not create |
 | [4154](4154.md) | Restricted session: this operation is not permitted |
 | [4155](4155.md) | No session is free on this WSID for a restricted session |
-| [4156](4156.md) | A restricted session can be started only from a local Windows session |
+| [4156](4156.md) | A restricted session cannot be started from this session |
 | [4157](4157.md) | The restricted session did not finish in time and was ended |
 | [4158](4158.md) | No assistant is listening on this session's channel |
 | [4159](4159.md) | DEPRECATED ERROR, as of 4.30: Volume not on line |
@@ -436,7 +438,7 @@ _783 entries._
 | [4162](4162.md) | A process belonging to another user tried to reach the assistant channel |
 | [4163](4163.md) | No assistant connected to the channel in time and it has been closed |
 | [4164](4164.md) | This session is in user mode and cannot change to DEVELOP mode |
-| [4165](4165.md) | Restricted session: brrestrict.sys does not permit this file |
+| [4165](4165.md) | brrestrict.sys does not permit this file |
 | [4166](4166.md) | The assistant's own commands may not raise the keyboard grant - only the person at the session may |
 | [4167](4167.md) | The operator did not permit this operation for the assistant |
 | [4168](4168.md) | The session reached for the operating system while an assistant was attached |
@@ -444,9 +446,12 @@ _783 entries._
 | [4170](4170.md) | A line the assistant sent tried to set AI_TURN_OK |
 | [4171](4171.md) | A line the assistant sent used the AI command |
 | [4172](4172.md) | This OPTION may be set only in the configuration file, never with a CONFIG command |
+| [4173](4173.md) | Another session's assistant channel is waiting for its assistant; a channel can open once that one is claimed or closes |
 | [4174](4174.md) | Attempted file reservation on non-local file. |
 | [4175](4175.md) | Multiple WBServer.dat files |
+| [4176](4176.md) | Another session's debug channel is waiting for its debugger; a debug channel can open once that one is attached or closes |
 | [4177](4177.md) | DEPRECATED ERROR, as of 4.30: No command provided. Windows shell call without command |
+| [4178](4178.md) | The restricted session did not start: its client did not log in and claim it in time |
 | [4179](4179.md) | Failed to lock in progress byte in WBServer.dat (formerly Share.exe not loaded) |
 | [4180](4180.md) | Drive start. Bad drive statement |
 | [4184](4184.md) | Drive is already mapped |

@@ -8,12 +8,17 @@ kind: spec
 status: 2b           # reference base + br_tree enrichment (PAGEOFLOW); misfiled command/config pages relocated; no conflicts
 recovered-fold: 'PRINT_USING, PRN, REMOTE_PRINTING (3 redirect-collision pages folded from re-fetched source — RUN >/>>/>CON: redirect, string-FORM recompile, PRN:/10 pass-through, DIRECT:/ vs SPOOLCMD, PRINTER_LIST(), CS OPTION 30/@ routing; verbatim retained on the BR wiki)'
 related: [pcl-pdf, sort]
-keywords: [PRINT, OPEN, PAGEOFLOW, NEWPAGE, BELL, TAB, HEADING, USING, PIC, COPIES, PRINTER_LIST]
+keywords: [PRINT, OPEN, PAGEOFLOW, NEWPAGE, BELL, TAB, HEADING, USING, PIC, COPIES, PRINTER_LIST, "WAIT="]
 corrections:
+  - "2026-11-23, from BR 5.03's source (primop1.cpp: PRINT_PRI calls print() without the statement's wait) and run headless: WAIT= added to both PRINT forms, where BR's syntax tree puts it, as accepted with no effect. `PRINT #3, WAIT=1: \"printed\"` ran clean and wrote the line. Also the formatted form's separator: it read `['#'<file-num> ':'] USING`, and the channel is followed by a comma there (`PRINT #255, USING 100: X`), as the tree has it and as QSMRP writes it 4,672 times, with 0 colons. WAIT= added to the keywords."
   - "PRINTER_LIST added to the frontmatter keywords. `PRINTER_LIST(MAT a$)` is documented on this
     page (populates an array with local printer names/ports) and was routing nowhere. Found
     2026-09-11 auditing `go run ./cmd/gendata`'s unrouted-function list against actual br_tree
     content."
+  - "The `PRINT ... | > file` section (console output to a file or string array, BR 5.0) moved here
+    from 70-commands/program-management/spec.md, where a pointer stays under the same anchor
+    (`print-redirect`). Text unchanged apart from the SOFLOW rule for arrays: they now grow under
+    EXECUTE too (2026-11-21), `ON SOFLOW IGNORE` being the only way to cut a line."
 ---
 
 # Printing statements
@@ -25,17 +30,25 @@ codes are canonically in [30-io-file/form-spec](../../30-io-file/form-spec/spec.
 *configuration* (spooling, PRINTER.SYS) is in
 [00-configuration](../../00-configuration/config-directives/spec.md).
 
+**File #253 is where a plain `PRINT` goes when it is open.** A `PRINT` with no file number and no `FIELDS` (the
+console `PRINT` of a program or the command line) writes to channel 253 if the program has opened it
+(`OPEN #253: ...`), and to the screen otherwise. In an **unattended** session this is how a program captures what
+would have been printed on the console. `PRINT #253:` itself is refused (error for a bad file use): the channel is
+only opened, not printed to by number. (`#254` is the alternate printer and `#255` the main printer.)
+Printing `NEWPAGE` to `#255` resets the `PAGEOFLOW` counter and the `KREC(255)` function to zero.
+
 <a id="syntax"></a>
 ## Syntax
 
 ```bnf
 -- unformatted --
-PRINT ['#'<file-num> ':'] [<print-options>] [<print-list>]
+PRINT ['#'<file-num> [',' 'WAIT=' <numeric-expr>] ':'] [<print-options>] [<print-list>]
 <print-options> ::= BELL | NEWPAGE | TAB(<column>)
 <print-list>    ::= <expression> [ { ';' | ',' } <expression> ]*
 
 -- formatted --
-PRINT ['#'<file-num> ':'] USING { <form-ref> | <string-expr> } ':' <expression-list>
+PRINT ['#'<file-num> ','] USING { <form-ref> | <string-expr> } [',' 'WAIT=' <numeric-expr>] ':' <expression-list>
+-- WAIT= is accepted on both and has no effect: PRINT does not read it
 <form-ref> ::= FORM <format-spec> [',' <format-spec>]*
 <format-spec> ::= POS <column> | X <spaces> | SKIP <lines>            -- cursor
                | C <length> | N <length>[.<dec>] | PIC(<picture>)     -- conversion
@@ -125,6 +138,47 @@ to print headers/footers and form-feed:
 
 In **client-server** mode: output prints on the *client* by default. `OPTION 30` (not available on Windows servers) routes `PRN:/` and `WIN:/` to the *server* instead, while `PRN:@/` and `WIN:@/` print on the *client*. The `SPOOLCMD` setting runs server-side by default unless prefixed with `@` for client-side. See [client-server](../../00-configuration/client-server/spec.md).
 
+<a id="print-redirect"></a>
+### `PRINT ... | > file` — console output to a file or array (BR 5.0)
+
+A `PRINT` given at the command line — typed at `READY`, in a procedure, or run by
+[`EXECUTE`](../../70-commands/program-management/spec.md#execute) — can send what it would show on the console to a file or a string array:
+
+```bnf
+PRINT [<print-list>] | > { <file> | <array$> }     -- create or replace the file; empty the array
+PRINT [<print-list>] | >> { <file> | <array$> }    -- add to the end of the file or array
+```
+
+```
+PRINT MAT CUST$ | > cust.txt
+PRINT USING "form pos 3,c 10": NAME$ | >> names.txt
+PRINT MAT A | > LINES$
+```
+
+- **It is the console output that is redirected.** The lines are exactly what the console would
+  have shown, wrapped and zoned at the console's width as they would be there, and nothing goes to
+  the screen. `PRINT USING` is redirected the same way. A `PRINT #n:` writes to its file as usual;
+  it produces no console output, so its target is created or emptied and receives nothing.
+- **`|` comes after the whole print list**, and the target is the last thing on the line (a `!`
+  comment may follow it). Blanks between `|`, `>` and the name are optional: `|>out.txt` and
+  `| > out.txt` are the same.
+- **`<array$>`** is a one-dimensional string array of the program the command is given in, one
+  line to an element, as with `LIST > A$` and `DISPLAY ... > A$`. A name ending in `$` is always
+  an array: if the program has none by that name it is made, as `A$(1)` would make it, and starts
+  empty even with `>>`. A file whose name ends in `$` is written in quotes: `| > "A$"`.
+  It is redimensioned to the lines it holds. A line longer than its elements makes them that long,
+  at the console and under `EXECUTE` alike; the one exception is an `EXECUTE` run under
+  `ON SOFLOW IGNORE`, which cuts the line to the element length. Growing stops at
+  `SOFLOW-GROW MAX=`, past which the line is error 58. It is written when the `PRINT` is done, so a `PRINT`
+  may print the array it fills: `PRINT MAT A$ | >> A$` adds a copy of `A$` to its end.
+- **A line a `PRINT` leaves unfinished** (ending in `;` or `,`) is written without a line end.
+- The file is opened before the statement runs and closed when it ends, whether it ends normally
+  or with an error. An error opening it stops the statement before anything runs.
+- **Only on a command line.** In a numbered program line `|` is not an operator, and the line is a
+  syntax error. A single `|` is never an operator (`||` is OR), so nothing else is read
+  differently.
+- A missing name, or anything other than a comment after it, is error **1006**.
+
 <a id="examples"></a>
 ## Examples
 
@@ -150,6 +204,7 @@ In **client-server** mode: output prints on the *client* by default. `OPTION 30`
 - [20-io-screen/input-output](../../20-io-screen/input-output/spec.md) — on-screen `PRINT FIELDS`
 - Printer **spooling / PRINTER.SYS config** → [00-configuration/config-directives](../../00-configuration/config-directives/spec.md)
 - File/dir **commands** (`COPY`/`DIR`/`DROP`) → [70-commands/file-directory](../../70-commands/file-directory/spec.md)
+- `PRINT ... | > file` is also run from `EXECUTE` and from procedures: [program-management](../../70-commands/program-management/spec.md#execute)
 - Backing keyword page (deep **`PRINTER`** escape-translation reference retained): [PRINTER](PRINTER.md).
   Other backing pages folded/covered and pruned. The 2b
   redirect-collision pages `Print_Using`, `PRN` and `Remote_Printing` were folded here and pruned;

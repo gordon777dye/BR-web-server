@@ -8,7 +8,7 @@ related: [Windows, Parent=NONE, FKEY, CHAIN, END, STOP, kstat$, input fields, 62
 ---
 # Menu support
 
-*(only for the `Windows` version)*
+*(GUI clients only. Used and tested on Windows; the Linux and Mac GUI clients compile the same menu code, but it has not been run there. A console client has no menu bar.)*
 
 When a user defined Windows menu is displayed, the Preferences menu is suppressed. When the user defined menu is cleared, Preferences is restored.
 
@@ -72,13 +72,21 @@ If the text is `"-"`, a line separator will be displayed.
 - `E` = Sends `FKEY` 98 event if selected and no submenus are defined (activate `ON FKEY 98` in program)
 - `P` = Protect (disable/grey out/inactive) menu item
 - `C` = Make item a checkable item, selecting item displays a check mark before it.
-- `X` = Used with `C`, item is checked.
+- `G` = Make item a radio item: one of a group of which only one is checked. Implies `C`. Consecutive `G` items form one group.
+- `X` = Used with `C` or `G`, item is checked.
 - `R` = Retain menu option even after the program ends, or chains to another program.
+- `K<key>` = Raise this key instead of `FKEY` 98 when the item is selected. Implies `E`. `<key>` is an FKEY number (`K5`, or `KF5`), or `KX` and a two- or four-digit hexadecimal scancode (`KX0F`). **`K` must come last**: everything after it is read as the key, so flags written after it are lost. A `<key>` that is not valid is ignored, and the item then raises nothing unless it also has `E`.
+
+The flags may be in any order, apart from `K`.
 
 Combinations:
 
 - `ECX` will return an FKey of 98, is checkable and is checked.
 - `EC` will return an FKey of 98, is checkable and is not checked.
+- `GX` is the checked item of a radio group.
+- `RK12` raises `FKEY` 12 when selected and stays across a `CHAIN`.
+
+`INPUT MENU STATUS` gives the flags back as BR holds them, in the order `X`, `C` or `G`, `P`, `E`, `R`, then `K` and the key.
 
 ```
 00260    display MENU: MAT M$, MAT PGM$, MAT STATUS$  !Displays menu

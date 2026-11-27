@@ -12,6 +12,7 @@ corrections:
   - "§Comments corrected. The section said a `!` comment ends at the end of the current statement, and its example asserted that `LET X = 5 ! set initial value :LET Y = X * 2` still assigns Y. It does not. BR's compiler (command6.cpp, the comment copy loop) scans past every `:` and stops only where the character before the colon is `!` — that is, only at `!:`. A plain colon inside a comment is comment text. The corpus settles it beyond argument: 381 comment bodies in the reference corpus alone contain a bare colon, `! ***** Convert H:M:S To Seconds` among them, and every one of those programs compiles. REM is unchanged and runs to end of line, but the reason it differs is now stated: the same loop skips the `!:` check for REM."
   - "NEXT removed from the intrinsics-outside-the-tables list in §Name resolution, and from that section's DIM example. It is not an intrinsic: it resolves in neither table6k nor table7k, and unlike ABS/INT/SGN (command3.cpp, gated on a following open paren) and AIDX/DIDX (command5.cpp, MAT path) the expression parser has no match for it. It is a keyword — table3k for FOR/NEXT, table4k for record positioning. The DIM line stayed true after the edit (no keyword in BR is reserved) but it was illustrating intrinsic-shadowing with something that is not an intrinsic."
   - "§Name resolution said \"these six names\" where the list above it holds five (ABS, INT, SGN, AIDX, DIDX). Left over from the same edit that removed NEXT from that list (see the note above): the list was corrected and the count under it was not. Confirmed against functions.json, whose outside_tables set is exactly those five."
+  - "§Line length added (2026-11-19). The limit was stated only on the error-code pages, which disagree: 1050.md gives 800 characters before BR 4.2 and 2000 from 4.2 on, and 9988.md's BR 5 message says 800 bytes but marks that error deprecated as of 4.3. The owner set 2000 as the limit to document and enforce (brls rule line-too-long). The 255-character compiled limit is 1050.md's."
 related: [conditionals, other-flow, functions-udf, system-functions, expressions]
 keywords: [REM, comment, line-number, label, continuation, "!:", abbreviation, identifier, name-resolution]
 ---
@@ -45,6 +46,13 @@ Statement separators: `:` or `!:` join multiple statements on one physical line.
 ### Line numbers
 - **Required on every program line**; range **1–99999**; conventionally incremented by 10
   (`100, 110, 120 …`) to leave room for insertions.
+
+<a id="line-length"></a>
+### Line length
+- A source line may be up to **2000 characters** in BR 4.2 and later, and **800** before
+  ([error 1050](../../90-reference/error-codes/1050.md)).
+- BR must also be able to compile the line into 255 characters or less (also error 1050).
+- Whether the limit applies to each `!:` sub-line or to the logical line is not documented.
 
 ### Language-wide lexical rules
 - **Case-insensitive** keywords and identifiers (`PRINT` = `pr` = `Print`; `NAME$` = `name$`).
@@ -246,7 +254,7 @@ in angle brackets is a default keyed to the Defaults list; **insertable** sub-di
 - [system-functions](../data-manipulation/system-functions/spec.md) — the intrinsics whose arity
   drives [name resolution](#name-resolution); which names are reserved
 - [expressions](../data-manipulation/expressions/spec.md) — where call-vs-subscript is parsed
-- [installation-tooling — Lexi preprocessor](../../00-configuration/installation-tooling/spec.md#lexi) —
+- [installation-tooling — Lexi preprocessor](../../00-configuration/installation-tooling/spec.md#lexi-preprocessor) —
   `/* ... */` comments, `X$&=` compound append, and `#Select#`/`#Case#`/`#Define#`/`#AutoNumber#`
   directives are not base-BR syntax at all; they're rewritten to plain BR *before* this spec's
   grammar ever sees them. Encountering one of these in real source is a sign the app preprocesses

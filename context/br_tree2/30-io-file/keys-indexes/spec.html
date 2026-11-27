@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Keyed access &amp; the index facility — BR reference</title>
+<meta name="keywords" content="INDEX, KEY, SEARCH, KEYED, KEYONLY, REORG, VERIFY, BTREE_VERIFY, KLN, KREC">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">30-io-file</a> <span>/</span> <a href="_index.html">keys-indexes</a></nav>
+<main>
+<h1 id="keyed-access--the-index-facility">Keyed access &amp; the index facility</h1>
+<p>Building and using index (key) files for fast record access by key value. The OPEN/READ/REWRITE
+statements are in <a href="../statements/spec.html">statements</a>; access-method concepts in
+<a href="../file-model/spec.html">file-model</a>; record layout in <a href="../form-spec/spec.html">form-spec</a>.</p>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<h3 id="how-it-works">How it works</h3>
+<p>An <strong>index/key file</strong> holds each master record's <strong>key value</strong> plus its <strong>relative record number</strong>
+(binary <code>B 4</code>). To fetch by key, BR binary-searches the index, gets the record number, and jumps
+straight to the master record — no sequential scan. Reading a keyed file <strong>without</strong> a <code>KEY=</code>
+clause returns records <strong>in key order</strong> (a free sort).</p>
+<ul>
+<li><strong>Key field</strong>: up to <strong>6 non-contiguous sections</strong> (a <em>split key</em>), <strong>≤128 bytes</strong> total.</li>
+<li><strong>Index types</strong>: <strong>Btree2</strong> (the default for new indexes, ~25–35% faster shared I/O,
+<code>BTREE_VERIFY &lt;master&gt;[ OFF]</code> audits structure after each index-altering op), Btree (<code>OPTION 22</code>
+makes new indexes Btree), ISAM (<code>OPTION 5 = 4</code>). The option decides only what a <strong>new</strong> index is
+made as (<code>INDEX</code>, <code>INDEX … REPLACE</code>, an <code>OPEN</code> that creates the key file); each index records its
+kind in its header and is opened as that kind whatever the option says. One master may have Btree
+and Btree2 indexes open and updated together. <code>INDEX … REPLACE</code> converts an index to the kind the
+option asks for.</li>
+<li><strong>Btree2 locking (5.01)</strong>: a shared Btree2 index has no lock for the whole of it; each index
+record has its own. A read holds each record it passes through only until it has the next one, an
+update only the records it changes (usually one), so sessions wait only for one using the same
+part of the index. <code>NOSHR</code> takes no locks. <strong>Version 3:</strong> 5.01 makes Btree2 indexes version 3
+(each index record ends in a 4-byte link for its free lists). A version 2 index, made by an
+earlier release, is read but not updated: error <a href="../../90-reference/error-codes/0633.html">0633</a>
+until <code>INDEX ... REPLACE</code> (or <code>REORG</code>, which rebuilds it) makes it version 3. Earlier releases
+refuse version 3 with error 4124, so rebuild Btree2 indexes and upgrade every engine together.</li>
+<li><strong>Primary vs overflow area</strong>: <code>INDEX … REORG</code> sorts the overflow (recently added/changed) into
+the sorted primary area.</li>
+</ul>
+<a id="index"></a>
+<h3 id="index-command-createrebuild">INDEX command (create/rebuild)</h3>
+<pre><code class="language-bnf">INDEX &lt;master-file&gt; &lt;key-file&gt; &lt;key-positions&gt; &lt;key-lengths&gt; [&lt;work-path&gt;]
+      [REPLACE] [REORG] [VERIFY] [DUPKEYS] [LISTDUPKEYS] [BADKEYS] [LISTBADKEYS]
+      [ '&gt;' &lt;output-file&gt; ] [NATIVE]
+</code></pre>
+<ul>
+<li>Positions/lengths use <code>/</code> to separate up to 6 sections; append <strong><code>Y</code></strong> for <code>BASEYEAR</code> (Y2K)
+date handling (<code>23Y</code>; for binary date fields <code>2BY</code>).</li>
+<li><code>REPLACE</code> rebuilds; <code>VERIFY</code> checks a Btree2 index (below); <code>DUPKEYS</code>/<code>LISTDUPKEYS</code> and
+<code>BADKEYS</code>/<code>LISTBADKEYS</code> control duplicate/invalid-key handling (<code>BADKEYS</code> = Y2K/baseyear keys whose
+master field holds non-numeric data; with both, bad keys list before dup keys); <code>&gt;file</code> redirects
+the list. Parameters may be separated by <strong>spaces or commas</strong>; key fields <strong>may overlap</strong>.</li>
+<li><code>REORG</code> reorganizes the index directly (no master read) — fast, since the already-sorted part is
+skipped. It does <strong>not add new records</strong> (keep the overflow current by opening the index whenever
+you write the master). It <strong>fully rebuilds</strong> only when the index is absent, isn't an index file,
+or the stored key positions/lengths differ from those given. For a Btree2 index, <code>REORG</code> repairs
+instead (below).</li>
+<li><a id="verify"></a><strong>Btree2: <code>VERIFY</code> and <code>REORG</code>.</strong> <code>VERIFY</code> runs while programs use the index (no exclusive
+access). It checks key order, that no record is reached twice, that every live master record's
+key is present, and that no update was left unfinished. Anything that looks wrong is rechecked
+once any update of that part has finished, so updates in progress are not reported. Clean: no error, and an old
+<code>&lt;index file&gt;.flaws</code> is deleted. Otherwise error <strong>9401</strong>, the flaws are written to
+<code>&lt;index file&gt;.flaws</code> (a first line <code>VERIFIED</code>, then one per line, kind first: <code>OUT_OF_RANGE</code>, <code>STALE_REF</code>, <code>SEPARATOR</code>,
+<code>MISSING</code>, <code>INTERRUPTED</code>, <code>EXTRA</code>, <code>DISORDER</code>, <code>DAMAGED</code>, <code>DEPTH</code>, <code>TWICE</code>, <code>STRUCTURE</code>), and the index is marked as needing repair. Freed index
+records are set aside, not reused, until it is repaired. <code>REORG</code> also runs while programs use
+the index. It checks the ranges a VERIFY-written <code>.flaws</code> names (or everything, master file
+included, without one or with one only reads wrote; <code>btree2_create</code> deletes an old one), repairs them in place (locking only the index records it changes; a missing key under its
+master record's lock), rewrites a <code>DISORDER</code> index record (keys out of order or repeated) with
+its in-range keys in order, once each, keeping only those its master records still have (each
+checked under that record's lock), removes the link to an unusable (<code>DAMAGED</code>) or too-deep
+(<code>DEPTH</code>) index record and frees what was below it, removes a second link to a record reached
+<code>TWICE</code>, removes <code>EXTRA</code> keys (record deleted or keyed otherwise), adds missing keys (scanning the
+whole master file after removing such a link), puts the records set aside on the free list, then
+clears the mark and deletes <code>.flaws</code>. Records that stay locked: error <code>0061</code>, mark and <code>.flaws</code>
+kept for a later <code>REORG</code>. It does not shorten the file; <code>REPLACE</code> rebuilds an index at its
+smallest. A <code>DAMAGED</code>/<code>DEPTH</code> removal needs the master file to restore the keys; without it REORG ends
+with the master file's error, the index still marked for repair. When the index cannot be repaired (<code>STRUCTURE</code>: its first index
+record is unusable), it rebuilds it from the master file
+as <code>REPLACE</code> does, which needs the index to itself (a file-sharing error while it is open
+elsewhere). That rebuild accepts duplicate keys as <code>DUPKEYS</code> does: a <code>WRITE</code> never refuses a
+duplicate in a Btree2 index, so the index it replaces can hold them.</li>
+<li><code>INDEX</code> performs an implicit <code>CLEAR</code> (unless a program is active), runs from READY mode / a
+procedure / <code>EXECUTE</code>, can be interrupted with <code>Ctrl-A</code> and resumed with <code>GO</code>; <code>-N</code> suppresses the
+action log.</li>
+</ul>
+<a id="open-keyed"></a>
+<h3 id="opening-for-keyed-access">Opening for keyed access</h3>
+<pre><code class="language-business-rules">! existing keyed file (no RECL/KPS/KLN)
+00500 OPEN #5: &quot;NAME=ACCT.INT,KFNAME=ACCT.KEY&quot;, INTERNAL, INPUT, KEYED
+! new keyed file (include RECL, KPS, KLN)
+00100 OPEN #1: &quot;NAME=ACCT.INT,RECL=31,KFNAME=ACCT.KEY,KPS=1,KLN=4&quot;, INTERNAL, OUTIN, KEYED
+</code></pre>
+<p>A master file may have <strong>multiple index files</strong> (different <code>KFNAME</code>, different channels, same
+master name; consistent share params).</p>
+<a id="key-clause"></a>
+<h3 id="key-vs-search">KEY vs SEARCH</h3>
+<table>
+<thead>
+<tr>
+<th>Clause</th>
+<th>Match</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>KEY=k$</code></td>
+<td>exact; <code>k$</code> length must equal <code>KLN</code> (else error 0718); <code>NOKEY</code> if absent</td>
+</tr>
+<tr>
+<td><code>KEY&gt;=k$</code></td>
+<td>exact, else next-higher key</td>
+</tr>
+<tr>
+<td><code>SEARCH=k$</code></td>
+<td>partial (leading substring) allowed</td>
+</tr>
+<tr>
+<td><code>SEARCH&gt;=k$</code></td>
+<td>partial, else next-higher</td>
+</tr>
+</tbody>
+</table>
+<a id="keyed-io"></a>
+<h3>Keyed I/O</h3>
+<ul>
+<li><code>READ #n, KEY=k$: … NOKEY &lt;ref&gt;</code> — fetch by key.</li>
+<li><code>RESTORE #n, KEY&gt;=k$:</code> / <code>SEARCH&gt;=…</code> — position for a sequential keyed scan.</li>
+<li>A sequential read (forward or <code>PRIOR</code>) goes on from the last key it read. That holds even when
+other sessions, or another channel of the same program, have added or deleted keys since. On a
+<strong>Btree2</strong> index it stays in key order, gives each key once, and misses none that was there
+throughout. A key added or deleted meanwhile is met or not, according to where it falls. A next
+key that points at the record just read is passed over, as a deleted record's key is, so the
+same record is never read twice in a row. An index update stopped part way can leave a key in two
+places until <code>INDEX ... REORG</code> repairs it.</li>
+<li><code>REWRITE</code> without <code>KEY=</code> updates the last record read (fast); with <code>KEY=</code> it searches first
+(slower). <strong>Changing the key field value is allowed</strong> — BR automatically updates all related key
+files opened as a group (the old error 0059 is deprecated).</li>
+<li><code>DELETE #n, KEY=k$:</code> — of the <em>key</em> parameters only <code>KEY=</code> is allowed, not <code>KEY&gt;=</code> or
+<code>SEARCH=</code>/<code>SEARCH&gt;=</code>, because a delete has to name one record and not the next-greater one. It does
+also take <code>REC=</code>, <code>LINK=</code> and the positional five — see
+<a href="../statements/spec.html#positioning-per-statement">statements</a>.</li>
+<li><a id="keyonly"></a><strong><code>READ #n, KEYONLY: key$, recnum</code></strong> reads the key + relative record number from the index
+<strong>without</strong> touching the master record (faster sequential key scans; returns the key when the
+master record is locked). Valid only for <code>INPUT KEYED</code>/<code>OUTIN KEYED</code>; a master record must have
+been read first (else error 0718); use <code>FORM</code> of key length + <code>B 4</code>; it moves the master pointer
+but a following <code>REREAD</code>/<code>DELETE</code>/<code>REWRITE</code> errors. Keep the key file current or it may return a
+stale record number.</li>
+<li><strong>Functions</strong>: <code>KPS(n)</code>, <code>KLN(n)</code>, <code>KREC(n)</code> — key start position, key length, and last <em>index</em>-file
+record accessed; all return <code>-1</code> if the file isn't open keyed. <code>KLN(n,seg)</code> (and <code>KPS(n,seg)</code>) give a
+<strong>split-key section's</strong> length/position — <code>seg=0</code> (or omitted) is the <em>total</em> combined length, a
+too-large <code>seg</code> returns <code>-1</code>. <strong><code>KREC(n)</code> is the last record in the <em>index/key</em> file, not the master</strong>
+(that's <code>REC(n)</code>); for a <strong>display</strong> file it's instead the line counter since the last <code>NEWPAGE</code>
+(same as <code>LINES(n)</code>; <code>NEWPAGE;</code> with a trailing <code>;</code> suppresses the reset). In a <strong>linked</strong> file
+<code>KREC</code> tracks an <em>anchor</em> record only when <code>REC=&lt;anchor&gt;</code> is processed or an anchor is read/written/
+deleted; <code>RESTORE REC=&lt;non-anchor&gt;</code> sets it to 0.</li>
+</ul>
+<a id="duplicates"></a>
+<h3 id="duplicate-keys">Duplicate keys</h3>
+<p>All <code>KEY=</code> forms return the <strong>first</strong> match (lowest record number); read sequentially to walk the
+rest, stopping when the key changes:</p>
+<pre><code class="language-business-rules">00100 READ #1, KEY=&quot;JONES&quot;: NAME$, ADDR$, AMOUNT
+00110 DO
+00120   READ #1: NAME2$, ADDR2$, AMT2 EOF DONE
+00130   IF NAME2$ &lt;&gt; &quot;JONES&quot; THEN EXIT DO
+00140   ! process duplicate
+00150 LOOP
+</code></pre>
+<a id="tables"></a>
+<h2 id="tables--error-codes">Tables — error codes</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4272</td>
+<td>NOKEY — key not found</td>
+</tr>
+<tr>
+<td>0718</td>
+<td>key string length mismatch</td>
+</tr>
+<tr>
+<td>0059</td>
+<td><em>(deprecated, 2.x only)</em> attempt to change key field value — changing a key is now allowed</td>
+</tr>
+<tr>
+<td>7603</td>
+<td>duplicate keys found (warning)</td>
+</tr>
+<tr>
+<td>7611</td>
+<td>key file already exists (no <code>REPLACE</code>)</td>
+</tr>
+</tbody>
+</table>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">! Build a split-key index: name (1-20) + zip (50-54)
+INDEX CUSTOMER.DAT CUSTZIP.KEY 1/50 20/5 REPLACE
+
+! Read July–August by key range
+00410 OPEN #3: &quot;NAME=MILES.DAT,RECL=24,KFNAME=MILES.KEY&quot;, INTERNAL, INPUT, KEYED
+00420 READ #3, USING 430, KEY&gt;=070196: DATE, MILES, GALLONS, MPG
+00430 FORM N 6, N 6.2, N 6.2, N 6.3
+00440 DO WHILE DATE &lt; 090196
+00460   READ #3, USING 430: DATE, MILES, GALLONS, MPG EOF 480
+00470 LOOP
+00480 CLOSE #3:
+
+! Rebuild after batch updates
+99000 EXECUTE &quot;INDEX ACCT.INT ACCT.KEY 1 4 REPLACE&quot;
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../statements/spec.html#io">statements</a> — <code>READ</code>/<code>REWRITE</code>/<code>DELETE</code> with <code>KEY=</code>/<code>SEARCH=</code></li>
+<li><a href="../file-model/spec.html#access-methods">file-model</a> — keyed vs relative vs sequential</li>
+<li><a href="../form-spec/spec.html">form-spec</a> — key field types (incl. <code>DH</code> dates as character keys)</li>
+<li><a href="../../70-commands/file-directory/filename-patterns.html#tab-completion">filename-patterns</a> — Tab completes the file after <code>INDEX</code>'s <code>&gt;</code>/<code>&gt;&gt;</code> at <code>READY</code> (not its master or key file)</li>
+<li>Backing keyword pages (deep detail retained): <a href="INDEX.html">INDEX</a>, <a href="Index_Facility.html">Index_Facility</a></li>
+</ul>
+<p><em>(5 redirect-collision pages re-fetched in 2b — <code>BTree</code>, <code>Key_Spec</code>, <code>KFName</code>, <code>KLn</code>, <code>KRec</code> — were
+folded into this spec and pruned; verbatim wikitext remains on the BR wiki.)</em></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/30-io-file/keys-indexes/spec.md">br_tree/30-io-file/keys-indexes/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

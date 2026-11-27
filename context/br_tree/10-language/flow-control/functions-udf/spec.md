@@ -37,6 +37,11 @@ corrections:
     cannot be redimensioned, and `MAT Z(1)` on it raises 0315. Error page 0315 already gave this
     exact case (`def fna(mat y;mat z)` / `mat z(1)`), and the owner confirmed it 2026-10-14. Added
     a sentence and a link to 0315. Kept in sync with `dev/essentials.md` §1."
+  - "2026-11-09 §Parameters: added how a call is matched to its DEF (argument count, positional
+    type, scalar-for-array, literals by reference). Stated by the owner and then verified against BR's
+    own C source, `user_fn` in runb.cpp lines 256-339, which raises errors 301, 303 and 304; the page
+    previously gave only the upper bound on argument count. Found building brls's `missing-argument`,
+    `argument-type` and `literal-by-reference` rules."
 related: [other-flow, syntax, system-functions, error-handling]
 keywords: [DEF, FNEND, FN, LIBRARY, CONV]
 ---
@@ -133,6 +138,21 @@ not `FNGETNAME$()` (empty `()` is a syntax error). Call a function for its side 
   *string* parameter (`NAME$*20`) but **not** dimension an array in the signature (`ROW(1)*255` is
   illegal). Arrays arrive as `MAT name`, dimensioned by the caller or a separate `DIM`; declare array
   *locals* with their own `DIM`, never in the parameter list.
+
+<a id="call-matching"></a>
+**Matching a call to its `DEF`.** BR checks this when the call runs (`user_fn`), not when the program
+loads:
+- **Count.** Parameters before the `;` are required; those after it are optional. Too few required
+  arguments, or more arguments than parameters, is error **0301**.
+- **Type, by position.** Each argument must match its parameter as string or numeric, else error
+  **0304**. A plain (by-value) parameter must also match in being a scalar or an array, so an
+  array (`MAT name`) cannot be passed for one.
+- **A scalar variable may stand for an array parameter.** BR builds a one-element array from it.
+- **A literal cannot be passed by reference.** `&` parameters and array parameters, which are always
+  by reference, refuse a number or string constant with error **0303**, so the scalar-for-array
+  allowance covers a variable and not `FNX(5)`.
+- **Spelling.** An array argument is written `MAT name`; a plain name is the scalar. `A$(i)` is an
+  element of the *array* `A$`, never of a scalar parameter `&A$`.
 
 <a id="local-variables"></a>
 ### Scope & local variables

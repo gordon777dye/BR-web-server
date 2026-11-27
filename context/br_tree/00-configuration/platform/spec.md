@@ -73,7 +73,7 @@ by that name.
 
 <a id="wbserver-exit"></a>
 ## Workstation tracking & exit
-- **`WBSERVER.DAT`** (located via the `BRSERVER`/`WBSERVER` BRConfig.sys statement, else the first
+- **`WBSERVER.DAT`** (located via the `BRSERVER` BRConfig.sys statement, else the first
   `DRIVE`) tracks workstation IDs and **must be the *same* file for every workstation** sharing data —
   two stations using *different* `WBSERVER.DAT`s and opening the same file raise **error 4175**.
   The first session to sign on when no other is using it empties it and writes it out afresh;

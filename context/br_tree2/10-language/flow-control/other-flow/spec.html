@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loops &amp; branching — BR reference</title>
+<meta name="keywords" content="FOR, NEXT, DO, LOOP, WHILE, UNTIL, GOTO, GOSUB, RETURN, ON GOTO, ON GOSUB, EXIT, RANDOMIZE, STOP, END, PAUSE, CHAIN, TRACE, STEP, TO, ON, OFF, PRINT">
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">flow-control</a> <span>/</span> <a href="_index.html">other-flow</a></nav>
+<main>
+<h1 id="loops--branching">Loops &amp; branching</h1>
+<p>Iteration and control transfer: <code>FOR/NEXT</code>, <code>DO/LOOP</code>, <code>GOTO</code>, <code>GOSUB</code>/<code>RETURN</code>,
+<code>ON … GOTO/GOSUB</code>, and <code>EXIT</code>. The <code>IF</code> decision itself is in
+<a href="../../data-manipulation/conditionals/spec.html">conditionals</a>; the conditions are in
+<a href="../../data-manipulation/expressions/spec.html">expressions</a>. Targets are <code>&lt;line-ref&gt;</code>s
+(line number or label) — see <a href="../../syntax/spec.html#line-labels">syntax</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">FOR &lt;num-var&gt; = &lt;num-expr&gt; TO &lt;num-expr&gt; [STEP &lt;num-expr&gt;]
+    &lt;statements&gt;
+NEXT &lt;num-var&gt;
+
+DO [{WHILE|UNTIL} &lt;condition&gt;]
+    &lt;statements&gt;
+    [EXIT DO]
+LOOP [{WHILE|UNTIL} &lt;condition&gt;]
+
+GOTO  &lt;line-ref&gt;
+GOSUB &lt;line-ref&gt;          ... RETURN
+ON &lt;num-expr&gt; GOTO  &lt;line-ref&gt; [',' &lt;line-ref&gt;]* [NONE &lt;line-ref&gt;]
+ON &lt;num-expr&gt; GOSUB &lt;line-ref&gt; [',' &lt;line-ref&gt;]* [NONE &lt;line-ref&gt;]
+EXIT DO                   -- there is no EXIT FOR; leave a FOR loop with GOTO
+RANDOMIZE                 -- reseed RND from the system clock
+TRACE {ON|OFF|PRINT}      -- line-number tracing, under program control
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<a id="for-next"></a>
+<h3 id="for--next">FOR / NEXT</h3>
+<p>Counts the loop variable from start to end by <code>STEP</code> (default <code>1</code>; negative steps count down).
+The test happens <strong>before</strong> each pass; the variable <strong>retains its final value</strong> after the loop.
+<code>NEXT</code> must name the same variable as <code>FOR</code>. Loops must be fully contained (no partial overlap: the inner
+<code>NEXT</code> comes before the outer <code>NEXT</code>). Leave early with <code>GOTO</code>. <strong>How many loops can be active</strong> is set by
+the <a href="../../../00-configuration/config-directives/spec.html#flowstack"><code>FORSTACK</code></a> setting in BRConfig.sys, which
+counts distinct loop <em>variables</em>, not loops: the default is <strong>100</strong> here (the original wiki says 20, which was the
+old default), and a variable reused by many loops uses one slot. The number of times each variable is used is not
+limited.</p>
+<a id="do-loop"></a>
+<h3 id="do--loop">DO / LOOP</h3>
+<p>Flexible condition loop; the <code>WHILE</code>/<code>UNTIL</code> test may sit on <code>DO</code> (tested first — may run zero
+times) or on <code>LOOP</code> (tested last — runs <strong>at least once</strong>). No labels needed for the structure;
+leave early with <code>EXIT DO</code>. <code>WHILE</code> continues while true; <code>UNTIL</code> continues until true. <code>LOOP</code> must be the last
+statement on its line, and the <code>LOOP</code> keyword is always required. With <code>CONFIG STYLE INDENT</code> (see
+<a href="../../../00-configuration/config-directives/spec.html#style"><code>STYLE</code></a>), <code>LIST</code> indents the lines between <code>DO</code> and <code>LOOP</code>.</p>
+<a id="goto"></a>
+<h3>GOTO</h3>
+<p>Unconditional transfer to a <code>&lt;line-ref&gt;</code>. Backward jumps form loops; forward jumps skip code.
+The target must exist before <code>SAVE</code>/<code>REPLACE</code>.</p>
+<a id="gosub"></a>
+<h3 id="gosub--return">GOSUB / RETURN</h3>
+<p>Calls a subroutine (a labeled/numbered block ending in <code>RETURN</code>); control returns to the line
+after the <code>GOSUB</code>. The depth of nested GOSUBs is limited by the call stack (<code>FLOWSTACK</code>), which is
+<strong>configurable</strong> via the BRConfig.sys <code>FLOWSTACK</code> directive (default <strong>100</strong>, 4.3+; shared with
+user-defined-function returns — see
+<a href="../../../00-configuration/config-directives/spec.html">config-directives</a>); subroutines may call
+other subroutines. <code>GOSUB</code> <strong>can't run from the command line</strong> (<strong>error 1011</strong>,
+illegal immediate statement), and active GOSUBs can't be edited during an interruption; <code>RETURN</code>
+resumes at the statement after the call even if that's mid-way through a multi-statement line.</p>
+<a id="on-goto"></a>
+<h3 id="on--goto--gosub">ON … GOTO / GOSUB</h3>
+<p>Multi-way branch: the numeric expression is <strong>rounded to the nearest integer</strong> and selects the
+<em>n</em>-th <code>&lt;line-ref&gt;</code> (1 = first). If the value is <code>&lt; 1</code> or beyond the list, control goes to the
+<code>NONE</code> target if present, otherwise falls through to the next line. <code>ON … GOSUB</code> returns after the
+selected subroutine's <code>RETURN</code> (menu dispatch pattern); its <code>NONE</code> target is itself a <strong>GOSUB</strong> branch
+(the routine there must also <code>RETURN</code>), not an error handler, and an <code>ON … GOSUB</code> may carry trailing
+error-condition clauses.</p>
+<p><strong><code>FKEY</code>/<code>FNKEY</code> as the numeric expression</strong> — <code>ON FKEY-89 GOTO A,B</code> and <code>ON FKEY GOTO A,B</code> are this
+form, not <a href="../error-handling/spec.html">error-handling</a>'s <code>ON FKEY &lt;n&gt; …</code> condition, whenever more than
+one target follows or nothing/an operator sits where the condition's <code>&lt;n&gt;</code> belongs; see that page for
+why the two cannot be confused for one another mid-statement.</p>
+<a id="exit"></a>
+<h3>EXIT</h3>
+<p><code>EXIT DO</code> terminates the <strong>innermost</strong> <code>DO</code>/<code>LOOP</code> and continues at the first statement after it.
+There is <strong>no <code>EXIT FOR</code></strong> in BR — leave a <code>FOR</code>/<code>NEXT</code> loop early with <code>GOTO</code> (see
+<a href="#for-next">FOR / NEXT</a>).</p>
+<a id="randomize"></a>
+<h3>RANDOMIZE</h3>
+<p>Reseeds the <code>RND</code> random-number generator from the <strong>system clock</strong> so each run differs. <strong>Without
+<code>RANDOMIZE</code>, <code>RND</code> repeats the same sequence every time BR is loaded.</strong> (<code>RND</code> returns 0–1; scale it,
+e.g. <code>INT(RND*100+1)</code> for 1–100.)</p>
+<a id="termination"></a>
+<h3 id="program-termination--interruption">Program termination &amp; interruption</h3>
+<ul>
+<li><a id="stop"></a><strong><code>STOP</code></strong> halts the program (it can be resumed with <code>GO</code> from the console); used to mark the end
+of the main line before subroutines.</li>
+<li><a id="end"></a><strong><code>END [&lt;num-expr&gt;]</code></strong> ends the program, <strong>closes all files</strong>, and sets the <a href="../../data-manipulation/system-functions/spec.html#system-info"><code>CODE</code></a>
+return value (<code>END 12</code> sets <code>CODE</code>=12; default 0). <code>END</code> is optional — a program auto-ends with
+<code>CODE</code>=0.</li>
+<li><a id="pause"></a><strong><code>PAUSE</code></strong> interrupts execution so the operator can enter commands / inspect variables; <code>GO</code>
+resumes and restores the screen (a handy debugging breakpoint).</li>
+<li><strong><code>CHAIN</code></strong> also ends the program, but — unlike <code>STOP</code>/<code>END</code>/<code>PAUSE</code> — hands off to another
+program or procedure instead of stopping. It's documented in full in
+<a href="../../../70-commands/program-management/spec.html#chain">program-management</a> (where it's used
+from), with its deep-reference page retained on this page as <a href="CHAIN.html">CHAIN</a>.</li>
+</ul>
+<a id="trace"></a>
+<h3>TRACE</h3>
+<p>Turns <strong>line-number tracing</strong> on and off from inside the program, rather than from the console. As
+each line executes, BR writes its line number — five digits, zero-padded — to the main window, or
+to the system printer when the print destination is selected, and logs a <code>Trace line &lt;n&gt; in &lt;program&gt;</code> event.</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TRACE ON</code></td>
+<td>start tracing</td>
+</tr>
+<tr>
+<td><code>TRACE OFF</code></td>
+<td>stop tracing, and clear the print destination</td>
+</tr>
+<tr>
+<td><code>TRACE PRINT</code></td>
+<td>send trace output to the printer instead of the window</td>
+</tr>
+</tbody>
+</table>
+<p><code>TRACE</code> is the statement form of the <code>RUN</code>/<code>GO</code> command options — the same two run flags — so
+<code>TRACE ON</code> and a console <code>RUN TRACE</code> do the same thing, and <code>TRACE OFF</code> matches <code>NOTRACE</code>. See
+<a href="../../../70-commands/information/spec.html">70-commands/information</a> for the command side. The value
+of the statement is that it can bracket <strong>one suspect region</strong> of a long program instead of tracing
+the whole run:</p>
+<pre><code class="language-business-rules">02000 TRACE ON
+02010 GOSUB POST_LEDGER
+02020 TRACE OFF
+</code></pre>
+<p>Two things to know before relying on it:</p>
+<ul>
+<li><strong><code>TRACE PRINT</code> does not start tracing.</strong> It only selects the destination; the trace output is
+still gated on tracing being on, so <code>TRACE PRINT</code> on its own produces nothing. Write
+<code>TRACE ON</code> as well. (The console form is defensive here where the statement is not: <code>RUN PRINT</code>
+sets the destination <em>only</em> if tracing is already on, while the statement sets it either way and
+the setting then applies to the next <code>TRACE ON</code>.)</li>
+<li><strong>Write <code>TRACE ON</code>, not a bare <code>TRACE</code>.</strong> BR's grammar marks the <code>ON</code> keyword optional, so a bare
+<code>TRACE</code> compiles, but the compiler emits no operand for it and the runtime reads the byte that
+follows the statement instead. What that byte is has not been established, so the effect of a
+bare <code>TRACE</code> is unverified — the two-word form is unambiguous.</li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">! FOR with STEP, early EXIT
+00300 FOR DELAY = 1 TO 10
+00310   SLEEP(1)
+00320   IF EXISTS(&quot;file.dat&quot;) THEN GOTO 340
+00330 NEXT DELAY
+00340 !
+
+! DO with test at bottom (runs at least once)
+00100 DO
+00110   INPUT &quot;Enter password: &quot;: PASSWORD$
+00120 LOOP UNTIL PASSWORD$ = &quot;SECRET&quot;
+
+! File loop with EOF branch and EXIT DO
+00200 DO
+00210   READ #1: DATA$ EOF DONE
+00220   IF DATA$ = &quot;STOP&quot; THEN EXIT DO
+00230   ! process...
+00240 LOOP
+00250 DONE: CLOSE #1
+
+! Multi-way dispatch
+00130 ON CHOICE GOSUB ELEC, NATGAS, PHONE, CABLE
+00200 ON DAY GOTO 500,1000,1500,2000,2500 NONE 100
+
+! Subroutine
+00250 GOSUB SALESTAX
+10000 SALESTAX: LET TAX = PRICE * 0.06 : RETURN
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../../data-manipulation/conditionals/spec.html">conditionals</a> — <code>IF</code> (the decision construct)</li>
+<li><a href="../../data-manipulation/expressions/spec.html">expressions</a> — loop/branch conditions</li>
+<li><a href="../../syntax/spec.html#line-labels">syntax</a> — <code>&lt;line-ref&gt;</code> line numbers &amp; labels</li>
+<li><a href="../functions-udf/spec.html">functions-udf</a> — <code>DEF</code>/<code>FN</code> (the function alternative to <code>GOSUB</code>)</li>
+<li>(Backing keyword pages folded into this spec and pruned. The 2b
+redirect-collision pages <code>GoSub</code>, <code>On_GoSub</code> and <code>Randomize</code> were folded here and pruned; verbatim
+wikitext remains on the BR wiki. <a href="CHAIN.html">CHAIN</a> — 11 technical notes on the CHAIN statement —
+was relocated here from 70-commands/program-management, which had misfiled it as a command; see
+that page's <code>corrections:</code> note.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/flow-control/other-flow/spec.md">br_tree/10-language/flow-control/other-flow/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

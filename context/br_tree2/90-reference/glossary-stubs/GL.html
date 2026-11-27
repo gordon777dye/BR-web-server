@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GL — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">glossary-stubs</a></nav>
+<main>
+<h1>GL</h1>
+<p>The <strong>GL (generic, lowercase) format specification</strong> indicates that string data is to be converted to lowercase upon keyboard input. It can be used with <code>INPUT FIELDS</code> and <code>RINPUT FIELDS</code> processing. (PRINT FIELDS accepts it and treats it the same as <code>G</code>. If GL is specified with <code>FORM</code>, error <code>1006</code> will be generated.)</p>
+<p><strong>Input characteristics</strong>:</p>
+<p>When GL is used with keyboard input of string data, case conversion automatically occurs as the characters are being typed in. Even if the operator attempts to type uppercase letters, only lowercase letters will appear on the screen. Characters other than the letters A-Z are not affected. Also, data that is already displayed is not changed -on the screen or internally - by a GL specification. When used for input of numeric data, GL operates the same as <code>G</code>.</p>
+<p>The following example will convert all letters entered to lowercase:</p>
+<pre><code>00100 INPUT FIELDS &quot;1,40,GL 10,r&quot;: X$
+</code></pre>
+<p><strong>Output characteristics</strong>:</p>
+<p>When GL is used for output in PRINT FIELDS or INPUT FIELDS statements, it is treated the same as G (see the <code>G</code> format specification for more information). GL cannot be used for either input or output in a FORM statement.</p>
+<h3 id="see-also">See Also</h3>
+<p>The letters G and L can also be used as a <code>Attribute (Screen)#Syntax|Screen Attributes</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/glossary-stubs/GL.md">br_tree/90-reference/glossary-stubs/GL.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

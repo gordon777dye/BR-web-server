@@ -277,8 +277,10 @@ OPEN `#`<channel> `:` <file-open-string> `,` `EXTERNAL` `,`
 
 **Syntax:**
 ```bnf
-READ `#`<channel> [ `,` `USING` <form-ref> ] [ `,` <position> ] [ `,` {`RESERVE` | `RELEASE`}] [ `,` `KEYONLY` ]
+READ `#`<channel> [ `,` `USING` <form-ref> ] [ `,` <position> ] [ `,` `WAIT=` <numeric-expr> ]
+      [ `,` {`RESERVE` | `RELEASE`}] [ `,` `KEYONLY` ]
       `:` <variable-list> [ `EOF` <line-ref> ] [ `NOKEY` <line-ref> ] [ `NOREC` <line-ref> ] [ `ERROR` <line-ref> ]
+      -- WAIT= is accepted and has no effect: a locked record waits for the OPEN's WAIT= (see OPEN)
       -- KEYONLY reads the key, not the record; READ only, and the colon must follow it
 <position> ::= `REC=` <numeric-expr> | `KEY[>]=` <string-expr> | `SEARCH[>]=` <string-expr>
              | `LINK=` <string-expr>   -- LINKED files only; exact total key length, else 0718
@@ -474,8 +476,9 @@ REREAD `#`<channel> [ `,` `USING` <form-ref> ] [ `,` {`RESERVE` | `RELEASE`}] `:
 
 **Syntax:**
 ```bnf
-WRITE `#`<channel> [ `,` `USING` <form-ref> ] [ `,` { `REC=`<n> | `POS=`<n> } ]
+WRITE `#`<channel> [ `,` `USING` <form-ref> ] [ `,` { `REC=`<n> | `POS=`<n> } ] [ `,` `WAIT=` <numeric-expr> ]
       [ `,` {`RESERVE` | `RELEASE`}] `:` <expression-list>
+      -- WAIT= is accepted and has no effect, as on READ
       -- REC= writes a specific slot (see below); POS= is an absolute byte, external RELATIVE only
 ```
 
@@ -580,7 +583,7 @@ REWRITE `#`<channel> [ `,` `USING` <form-ref> ] [ `,` <update-position> ]
 - **Partial updates** — REWRITE preserves all fields not mentioned in the FORM; ideal for selective record updates
 - **If no `REC=` / `KEY=`** — REWRITE uses the position from the last READ; this is the typical pattern
 - **With `REC=` / `KEY=`** — Repositions and updates in one step (useful if the file was read elsewhere)
-- **`WAIT=` (positioning only)** — When repositioning via `REC=`/`KEY=`, the target record must be lockable; `WAIT=<sec>` bounds how long to wait for a record another workstation has locked before **error 0061** (defaults to the OPEN's `WAIT=`, 15s). It is meaningless on a plain REWRITE, which updates the already-locked current record
+- **A locked record when repositioning** — When repositioning via `REC=`/`KEY=`, the target record must be lockable; BR waits the OPEN's `WAIT=` (15s by default) for a record another workstation has locked, then raises **error 0061**. REWRITE itself takes **no** `WAIT=` clause: BR's syntax for it has none, so `REWRITE #1, WAIT=5: …` does not compile. A plain REWRITE updates the already-locked current record and waits for nothing
 - **Lock is held** — If the file was opened `SHR` and REWRITE RESERVE is specified, the lock persists across READ/REWRITE; other `SHR` workstations remain blocked from accessing the record
 - **Key Fields** - Multiple key files, if opened as a group, will be updated automatically when key field values are changed by a REWRITE
 
@@ -826,6 +829,7 @@ RESTORE `#`<channel> [ `,` <position> ] [ `,` { `RESERVE` | `RELEASE` } ] `:` [ 
 **Syntax:**
 ```bnf
 CLOSE `#`<channel>  [`,` { `DROP` | `FREE` } ] [ `,` `RELEASE` ] `:`
+CLOSE `#`<channel> `,` `WAIT=` <numeric-expr> [ `,` `FREE` ] `:`   -- WAIT= accepted, no effect; FREE still deletes
 ```
 
 **What it does:**
@@ -1011,7 +1015,7 @@ Control-file specification types (in this order):
 **Semantics:**
 - **Control file, not inline** — `SORT` is driven by a `.SRT` control file of up to six spec types in a fixed order: `FILE` (required, first), `ALTS`, `RECORD`, `SUM`, `MASK` (required, last)
 - **Invoked from code** — `EXECUTE "SORT CUSTOMER.SRT"` runs it from a program; it also runs from READY or a PROC
-- **FILE** — input, output, and work paths; output style `R` (full records), `A` (address-out PD3, ≤99,999 recs) or `B` (address-out B4, ≤2.147 billion); native/alternate collating; plus `REPLACE` and a share-spec
+- **FILE** — eleven positional parameters, then keywords: `<in-name>,<in-path>,<in-drive>,<out-name>,<out-path>,<out-drive>,<work-name>,<work-path>,<work-drive>,<file-spec>,<collating>[,REPLACE][,<share>]`. Empty positions take defaults, but keep their commas. File-spec `R` (full records, default), `A` (address-out PD 3, ≤99,999 recs), `B` (address-out B 4, ≤2.147 billion), `3` (S/36 B 3, record number less one), `I` (index-out: an ISAM index of the input, keyed on the `MASK` fields, which must all be ascending). Collating `N`/`A` overrides the configuration's `COLLATE`; blank takes it. `REPLACE` overwrites an existing output file (otherwise it must be empty). Share `NOSHR`, `SHRI` (default) or `SHR`/`SHRU` applies to the input. One `FILE` per sort; a control file may hold several sorts. See br_tree `70-commands/sort#file`
 - **ALTS** — reorder or equate collating (e.g. make upper match lower, sort digits equal)
 - **RECORD** — include (`I`) / omit (`O`) records by a field's value range; chain with `AND`/`OR`
 - **MASK** — up to **10** sort fields, each `<pos>,<len>,<form>,{A|D}`; max total key length **32,767 bytes**; append `Y` for BASEYEAR Y2K dates
@@ -1178,12 +1182,13 @@ INDEX CUSTOMER.DAT CUSTZIP.KEY 1/50 20/5 REPLACE
 **Syntax:**
 ```bnf
 -- unformatted --
-PRINT [`#`<file-num> `:`] [<print-options>] [<print-list>]
+PRINT [`#`<file-num> [ `,` `WAIT=` <numeric-expr> ] `:`] [<print-options>] [<print-list>]
 <print-options> ::= `BELL` | `NEWPAGE` | `TAB(`<column>`)`
 <print-list>    ::= <expression> [ { `;` | `,` } <expression> ]*
 
 -- formatted --
-PRINT [`#`<file-num> `:`] `USING` { <form-ref> | <string-expr> } `:` <expression-list>
+PRINT [`#`<file-num> `,`] `USING` { <form-ref> | <string-expr> } [ `,` `WAIT=` <numeric-expr> ] `:` <expression-list>
+-- WAIT= is accepted on both and has no effect: PRINT does not read it
 
 -- window border and caption --
 PRINT `#`<window> `,` `BORDER` [<border-spec>] [ `:` <caption> ]
@@ -1309,9 +1314,12 @@ determines what the option does.
 
 **Syntax:**
 ```bnf
-INPUT <variable-list> [ `CONV` <ref> ] [ `SOFLOW` <ref> ] [ `EOF` <ref> ] [ `TIMEOUT` <ref> ]
-`LINPUT` <string-variable> [ `TIMEOUT` <ref> ]
-`RINPUT` <variable> [ `TIMEOUT` <ref> ]           -- any single variable (numeric or string), not a list
+INPUT [<source>] <variable-list> [ `CONV` <ref> ] [ `SOFLOW` <ref> ] [ `EOF` <ref> ] [ `TIMEOUT` <ref> ]
+`LINPUT` [<source>] <string-variable> [ `TIMEOUT` <ref> ]
+`RINPUT` [<source>] <variable> [ `TIMEOUT` <ref> ]           -- any single variable (numeric or string), not a list
+<source> ::= `#`<channel> [ `,` `WAIT=` <numeric-expr> ] `:`
+           | `WAIT=` <numeric-expr> `:`                         -- the keyboard, with a timeout
+-- WAIT= is the input timeout: it overrides the OPEN's WAIT= for this read (see Timeout below)
 ```
 
 **What it does:**
@@ -1325,7 +1333,7 @@ INPUT <variable-list> [ `CONV` <ref> ] [ `SOFLOW` <ref> ] [ `EOF` <ref> ] [ `TIM
 - **LINPUT** reads an entire line, preserving commas and quotes (unlike `INPUT`, which splits on commas)
 - **`EOL=` (DISPLAY opens only; `FORMAT=ASYNC` is just the optional communications variant)** — When `LINPUT` reads from a `DISPLAY` file opened `INPUT` (a plain display file **or** a `FORMAT=ASYNC` communications file), the open's `EOL=` controls delimiting: `EOL=NONE` lets `LINPUT` read up to the LINPUT variable's dimensioned length (one byte at a time if `DIM X$*1`); `EOL=CRLF`/`LF` accepts and strips the delimiter. Affects `LINPUT` only — not the plain `INPUT` statement, and not INTERNAL/EXTERNAL files
 - **`RECL` does not limit input** — `RECL` governs output only; `LINPUT` may read strings longer or shorter than `RECL` (provided the variable is dimensioned large enough)
-- **Timeout (`WAIT=` / `TIMEOUT`)** — `INPUT`, `LINPUT`, and `RINPUT` all honor an input timeout: a `WAIT=<sec>` in effect (from the input channel's OPEN, or a `WAIT=` clause on the `FIELDS` forms) arms a `TIMEOUT` trap — **error 4145** if nothing is entered in time. `WAIT=0` = don't wait; `WAIT=-1` = wait forever (the timer resets on each keypress). Trap it with a `TIMEOUT <line-ref>` clause (otherwise `GO` re-executes the line)
+- **Timeout (`WAIT=` / `TIMEOUT`)** — `INPUT`, `LINPUT`, and `RINPUT` all honor an input timeout: a `WAIT=<sec>` in effect (the statement's own — `INPUT WAIT=10: X$`, `LINPUT #1, WAIT=10: L$`, or on the `FIELDS`/`SELECT` forms — and otherwise the input channel's OPEN) arms a `TIMEOUT` trap — **error 4145** if nothing is entered in time. `WAIT=0` = don't wait; `WAIT=-1` = wait forever (the timer resets on each keypress). Trap it with a `TIMEOUT <line-ref>` clause (otherwise `GO` re-executes the line)
 - **RINPUT <var>** prints the current value of the variable and prompts for a replacement (single variable only)
 - **No auto-advance** — The cursor stays at the input line until Enter is pressed
 - **In INPUT mode** — The status line shows "INPUT" and the program waits for Enter
@@ -1704,7 +1712,7 @@ PRINT [`#`<window>`,`] `FIELDS` <field-specs> `:` <expression-list>
 
 **Syntax:**
 ```bnf
-INPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
+INPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `WAIT=` <seconds>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
 
 <field-specs> ::= `"` <field-def> [ `;` <field-def> ]* `"` -- one or more fields
                 | `MAT` <string-array>                          -- array of field definitions
@@ -1846,7 +1854,7 @@ INPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` <
 
 **Syntax:**
 ```bnf
-RINPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
+RINPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `WAIT=` <seconds>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
 
 <field-specs> ::= `"` <field-def> [ `;` <field-def> ]* `"` -- one or more fields
                 | `MAT` <string-array>                          -- array of field definitions
@@ -1929,8 +1937,8 @@ RINPUT [`#`<window>`,`] `FIELDS` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` 
 
 **Syntax:**
 ```bnf
-`INPUT`  [`#`<window>`,`] `SELECT` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
-`RINPUT` [`#`<window>`,`] `SELECT` <field-specs> [`,` `ATTR` <attrs>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
+`INPUT`  [`#`<window>`,`] `SELECT` <field-specs> [`,` `ATTR` <attrs>] [`,` `WAIT=` <seconds>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
+`RINPUT` [`#`<window>`,`] `SELECT` <field-specs> [`,` `ATTR` <attrs>] [`,` `WAIT=` <seconds>] [`,` `HELP` <help>] `:` <io-list> [<error-cond>]
 
 <field-specs> ::= `"` <field-def> [ `;` <field-def> ]* `"` | `MAT` <string-array>
 -- abbreviations: IN S (INPUT SELECT), RI S (RINPUT SELECT)
@@ -3353,29 +3361,34 @@ EXIT CONV 100, SOFLOW 100, OFLOW 100    ! three conditions → one handler
 ---
 
 <a id="trace"></a>
-## TRACE — Line-number tracing under program control
+## TRACE — Tracing lines and labels under program control
 
 **Syntax:**
 ```bnf
-`TRACE` { `ON` | `OFF` | `PRINT` }
+`TRACE` [ { `LINES` | `LABELS` | `PRINT` } ]* { `OFF` | [ `ON` ] [ { `>` | `>>` } <file> ] }
+<file> ::= <name>              -- unquoted: runs to the next blank, taken as written (`>F$` is a file named F$)
+         | <string-expr>       -- quoted: may be a string expression; a name with blanks must be quoted
 ```
 
 **What it does:**
-1. **`TRACE ON` starts line-number tracing** — as each line executes, BR writes its line number (five digits, zero-padded) to the main window and logs a `Trace line <n> in <program>` event
-2. **`TRACE OFF` stops it**, and also clears the print destination
-3. **`TRACE PRINT` sends trace output to the system printer** instead of the window
-4. **Same two run flags as the console options** — `TRACE ON` is the program-controlled equivalent of `RUN TRACE`, and `TRACE OFF` of `NOTRACE`
+1. **`LINES`, `LABELS` and `PRINT` name the trace modes,** in any order (BR 5.03; before it, only `TRACE ON`, `TRACE OFF` and `TRACE PRINT`). `LINES` writes each line's number as it runs, five digits, zero-padded. `LABELS` writes each label the run reaches, by `GOTO`, `GOSUB` or falling into it, with its colon (`POST_LEDGER:`); with both on, a line's label comes before its number. `PRINT` sends the items to the system printer instead of the main window's bottom line
+2. **`ON` turns on the modes named, and `OFF` turns them off; a form turns on or off only the modes it names** — `TRACE LABELS ON` adds labels to any line tracing already on, and `TRACE PRINT OFF` goes back to the window with the other modes still on
+3. **A bare `TRACE OFF` stops every mode, printer or file included, and remembers which were on**; a later `TRACE ON`, or a bare `TRACE`, resumes them. With nothing remembered, `TRACE ON` traces line numbers
+4. **`>file` and `>>file` send the items to a file** (BR 5.03), which `>` replaces and `>>` adds to. It comes last, after `ON` if given. Each label is a line of its own, and line numbers fill the lines between to 80 columns
+5. **The statement form of the `RUN`/`GO` trace options** — the same run flags — so `TRACE ON` matches a console `GO TRACE`, and `TRACE OFF` matches `NOTRACE` and `GO TRACE OFF`
 
 **Semantics:**
-- **The point of the statement form** is that it can bracket one suspect region of a long program, instead of tracing the whole run from the console
-- **`TRACE PRINT` does not start tracing** — it selects the destination only, and output is still gated on tracing being on. Write `TRACE ON` as well
-- **Statement and command differ here** — `RUN PRINT` sets the destination *only* if tracing is already on, while the statement sets it either way, so the setting survives to apply to a later `TRACE ON`
-- **Tracing costs a per-line check** even when nothing is printed, so turn it off rather than leaving it set
+- **The point of the statement form** is that it can bracket one suspect region of a long program, instead of tracing the whole run from the console; because `TRACE OFF` remembers the modes, the region can be bracketed with `TRACE OFF` … `TRACE ON` without naming them again
+- **A `TRACE OFF` with nothing on leaves the remembered modes as they are, and `RUN` forgets them**
+- **The trace file** closes at a bare `TRACE OFF` and when the program ends; `TRACE ON` reopens it to add to it. `LIST` shows its name in quotes. Of `PRINT` and a file, the last named wins
+- **Each item is followed by a space,** and BR logs a `Trace line <n> in <program>` or `Trace label <label>: in <program>` event (logging level 12)
+- **Labels are kept with the source,** so a program saved without its source traces none
 
 **Gotchas:**
-1. **Write `TRACE ON`, never a bare `TRACE`** — BR's grammar marks the `ON` keyword optional so a bare `TRACE` compiles, but no operand is emitted for it and the runtime reads the byte that follows the statement instead. The effect is unverified; the two-word form is unambiguous
-2. **`TRACE PRINT` alone looks broken** — it is legal, it changes a flag, and it prints nothing. That is the gating above, not a fault
-3. **Trace output interleaves with program output** — it goes to the same main window, so a screen-formatted program becomes hard to read while tracing; `TRACE PRINT` exists for exactly that case
+1. **`TRACE PRINT` does not start tracing** — it only selects the printer. Write `TRACE ON`, or name `LINES` or `LABELS`, as well: `TRACE LINES PRINT ON`. `TRACE >>t.txt` likewise only selects the file. (On the console it is the other way round: the word `TRACE` starts tracing, so `RUN TRACE PRINT` traces line numbers to the printer)
+2. **A bare `TRACE` means `TRACE ON` from BR 5.03.** Before that the grammar accepted it, but the runtime read the byte after the statement, so its effect was undefined. Where a program must also run on an older BR, write `TRACE ON`, and do not use `LINES`, `LABELS`, `PRINT OFF` or a file: an older BR does not know them, cannot compile them from source, and misreads them in a saved program
+3. **A trace file is never an array** — `>A$` naming one is error 315. An unquoted `>F$` is the file named `F$`; to use the variable's value, it must be a quoted expression's operand
+4. **Trace output interleaves with program output** in the main window, so a screen-formatted program becomes hard to read while tracing; send it to the printer or a file instead
 
 **Example code:**
 ```business-rules
@@ -3384,14 +3397,15 @@ EXIT CONV 100, SOFLOW 100, OFLOW 100    ! three conditions → one handler
 02010 GOSUB POST_LEDGER
 02020 TRACE OFF
 02030 !
-! Send the trace to the printer, leaving the screen readable
-02100 TRACE PRINT
-02110 TRACE ON
+! The labels a run passes through, to a file
+02100 TRACE LABELS ON >trace.txt
+02110 GOSUB POST_LEDGER
+02120 TRACE OFF
 ```
 
 **See also:**
 - [10-language/flow-control/other-flow](../br_tree/10-language/flow-control/other-flow/spec.md#trace) — TRACE statement (comprehensive)
-- [70-commands/information](../br_tree/70-commands/information/spec.md) — `RUN STEP`/`TRACE` and the console debugging options
+- [70-commands/information](../br_tree/70-commands/information/spec.md#trace-file) — the trace file, and `RUN STEP`/`TRACE` and the console debugging options
 - STOP / END / PAUSE / CHAIN (`PAUSE` as the other in-program debugging aid)
 
 ---

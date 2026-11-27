@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0061 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0061</h1>
+<p><strong>Error:</strong> 0061</p>
+<p><strong>Description:</strong> <code>Time out</code> on locked <code>record</code></p>
+<p><strong>Details:</strong> This error occurs when the system times out on a locked record.  It also occurs when a sort is aborted by an operator due to a locked record. Possibly some other computer has the record open or the <code>operating system</code> has the record locked. Perhaps a record should not be locked this long. Check other <code>workstations</code> to see which one is locking the record, and unlock it. The <code>Status Locks</code> <code>command</code> may be helpful. Enter <code>retry</code> to retry the operation.  If the error occurs during a <code>sort</code>, it can be trapped with the <code>ERR</code> function and acted upon by the <code>procedure</code>.If that doesn't work try to reboot the workstation that has the file locked, and if that doesn't work, try to reboot the <code>file server</code> (this releases all locks by all workstations and server) If nothing else works, first try: <code>Free</code> <code>WBServer.dat</code> then try <code>copying</code> file with a -d and recreating all <code>indexes</code>.</p>
+<ul>
+<li>In rare situations, this error will indicate a problem with damaged header or index files.  As a precaution try <code>copying</code> the file with a -d and recreating all <code>indexes</code>.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0061.md">br_tree/90-reference/error-codes/0061.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

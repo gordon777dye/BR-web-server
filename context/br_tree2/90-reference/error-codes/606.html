@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>606 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>606</h1>
+<p><strong>Error:</strong> 606</p>
+<p><strong>Description:</strong> Invalid element in <code>Open</code> <code>statement</code></p>
+<p><strong>BR 5 message:</strong> bad key position or length</p>
+<p><strong>Details:</strong> The Open statement includes an invalid element in the KPS= or KLN= string. Some possibilities:</p>
+<ul>
+<li>The record length, key position or key length for an Open statement is either missing or invalid.</li>
+<li><code>Open Linked</code> statement attempted to use first 8 bytes of record as key field (releases <code>3.60</code> and higher). #Add or correct the <code>RecL</code>=, KPS= and/or KLN= parameters.</li>
+<li>don't do that.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/606.md">br_tree/90-reference/error-codes/606.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

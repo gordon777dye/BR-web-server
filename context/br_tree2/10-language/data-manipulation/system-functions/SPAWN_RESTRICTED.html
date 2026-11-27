@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPAWN_RESTRICTED — BR reference</title>
+<link rel="stylesheet" href="../../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../../_index.html">BR reference</a> <span>/</span> <a href="../../_index.html">10-language</a> <span>/</span> <a href="../_index.html">data-manipulation</a> <span>/</span> <a href="_index.html">system-functions</a></nav>
+<main>
+<h1>SPAWN_RESTRICTED</h1>
+<p><code>SPAWN_RESTRICTED(command$ [, config$ [, wait [, label$]]])</code></p>
+<p>Starts a <strong>new BR session on this workstation ID</strong> — the next free session number — restricted from
+its first moment, and runs <code>command$</code> as that session's startup command, typically <code>PROC &lt;file&gt;</code>.</p>
+<p>This is how a session runs something it does not trust <strong>without restricting itself</strong>: the new
+session is restricted and disposable; the one that called it is neither.</p>
+<h2 id="arguments">Arguments</h2>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>command$</code></td>
+<td>the new session's startup command, e.g. <code>&quot;PROC report.prc&quot;</code></td>
+</tr>
+<tr>
+<td><code>config$</code></td>
+<td>its configuration file; defaults to <strong>this session's</strong></td>
+</tr>
+<tr>
+<td><code>wait</code></td>
+<td>seconds to wait for it to finish; omitted or <code>0</code> means do not wait</td>
+</tr>
+<tr>
+<td><code>label$</code></td>
+<td>what the session is for, in a few words. It opens the new session's audit log and is in this session's own record of starting it, so a reader can tell several children apart. Control characters become spaces, a double quote becomes a single one, and it is cut to 200 characters</td>
+</tr>
+</tbody>
+</table>
+<h2 id="what-it-returns">What it returns</h2>
+<ul>
+<li><strong>Without a <code>wait</code>, or with <code>0</code>:</strong> the new process's <strong>id</strong>, at once.</li>
+<li><strong>With a <code>wait</code>:</strong> the session's <strong>exit code</strong>. The wait yields the way <a href="spec.html#system-info"><code>SLEEP</code></a>
+does, so the screen keeps repainting and ATTN still works while the child runs.</li>
+<li>A session still running when the wait runs out <strong>is ended</strong>, and the call raises <strong>4157</strong>. A
+disposable session nobody is waiting for has no reason to keep holding a session number.</li>
+<li>Pressing a key that takes the caller elsewhere stops the waiting, raises <code>BRETRAPSLEEPKEY</code>, and
+<strong>leaves the child running</strong> to finish its own work.</li>
+</ul>
+<h2 id="errors">Errors</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>4154</code></td>
+<td>a <strong>restricted</strong> session called it. Nothing in the child could be less restricted than its parent; the refusal is because a program generated for a user has no business spending the WSID's sessions</td>
+</tr>
+<tr>
+<td><code>4155</code></td>
+<td>no session is free. <strong>One session per workstation ID is always kept back</strong>, so a spawn can never take the last one a person might need — with eight of nine in use, this is raised</td>
+</tr>
+<tr>
+<td><code>4156</code></td>
+<td>not local Windows. It is available in local mode on Windows and raises this elsewhere for now</td>
+</tr>
+<tr>
+<td><code>4157</code></td>
+<td>the session did not finish within <code>wait</code> and was ended</td>
+</tr>
+</tbody>
+</table>
+<p>Every refusal is logged as a security event.</p>
+<h2 id="the-restriction-holds-before-the-configuration-is-read">The restriction holds before the configuration is read</h2>
+<p>The new session is latched <strong>before it reads its configuration file</strong>, and the ordering is the whole
+point: <code>config$</code> is the <em>caller's</em> choice, so the configuration operations a restricted session
+refuses are refused <strong>in that file</strong>, not applied and then locked.</p>
+<p>Since <code>LOGGING</code> and <code>BRSERVER</code> are among them, the new session is handed the <strong>current session's</strong>
+<code>wbserver.dat</code>, and the <strong>folder</strong> of the current session's log. It writes its own audit log there,
+<code>restricted-&lt;SESSION$&gt;.log</code> (for example <code>restricted-012.log</code> for WSID 01, session 2), at level 8;
+when the current session is not logging, it goes in <code>%LOCALAPPDATA%\ADS</code>. The log's first entry
+says why the session is restricted and, when <code>label$</code> was given, what it was started for:</p>
+<pre><code class="language-text">Restricted-session audit log for session 012, started for &quot;C1 order check&quot;: this session may ...
+</code></pre>
+<p>The new session can add notes of its own with <a href="spec.html#debug_str"><code>DEBUG_STR</code></a>. In a restricted
+session they are written as <code>Program note: &lt;text&gt;</code>, on one line, at level 5 or above, so they cannot
+pass for BR's own entries.</p>
+<h2 id="example">Example</h2>
+<pre><code class="language-text">00100    LET PID = SPAWN_RESTRICTED(&quot;PROC &quot;&amp;REPORT$)           ! start it, carry on
+00110    LET RC  = SPAWN_RESTRICTED(&quot;PROC &quot;&amp;REPORT$, &quot;&quot;, 300)  ! or wait 5 minutes
+00115    LET RC  = SPAWN_RESTRICTED(&quot;PROC &quot;&amp;REPORT$, &quot;&quot;, 300, &quot;month-end report&quot;)  ! labelled
+00120    IF RC &lt;&gt; 0 THEN PRINT &quot;the report ended with &quot;; RC
+</code></pre>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="spec.html#system-info">system-functions</a> — <code>WSID$</code>, <code>SESSION$</code>, <code>SLEEP</code></li>
+<li><a href="../../../00-configuration/config-directives/LOGGING.html#restricted-session">LOGGING in a restricted session</a> — the audit log, its name, its level and the program's notes</li>
+<li><a href="../../../90-reference/error-codes/_index.html">90-reference/error-codes</a> — 4154 to 4157</li>
+<li><a href="../../../00-configuration/config-directives/BRRESTRICT.SYS.html">BRRESTRICT.SYS</a> — the file list, which bounds the new session as it bounds every session</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../../br_tree/10-language/data-manipulation/system-functions/SPAWN_RESTRICTED.md">br_tree/10-language/data-manipulation/system-functions/SPAWN_RESTRICTED.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regular expressions (ECMAScript) — BR reference</title>
+<meta name="keywords" content="SEARCH, regex, regular expression, ECMAScript, pattern, 1009">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">file-directory</a></nav>
+<main>
+<h1 id="regular-expressions-ecmascript">Regular expressions (ECMAScript)</h1>
+<p>A pattern written between slashes in a <a href="spec.html#search"><code>SEARCH</code></a> command is a <strong>regular
+expression</strong>: <code>SEARCH /^ *PRINT/ src\*.brs</code>. BR uses the ECMAScript grammar, the one JavaScript
+uses, as the C++ standard library provides it. This page lists what that grammar accepts in BR,
+what it does not, and how a regex meets the rest of the <code>SEARCH</code> line. <code>HELP COMMANDS REGEX</code> (or
+<code>HELP REGEX</code>) shows this page.</p>
+<p>A pattern in quotes, or a single word, is not a regex: <code>SEARCH &quot;a.b&quot; file</code> finds the three
+characters <code>a.b</code> and nothing else. Use a quoted pattern when you mean text exactly as written.</p>
+<h2 id="contents">Contents</h2>
+<ol>
+<li><a href="#writing">Writing a regex in a SEARCH line</a></li>
+<li><a href="#subject">What a regex is matched against</a></li>
+<li><a href="#characters">Characters and escapes</a></li>
+<li><a href="#classes">Character classes</a></li>
+<li><a href="#anchors">Anchors and boundaries</a></li>
+<li><a href="#repetition">Repetition</a></li>
+<li><a href="#groups">Groups, alternatives and look-ahead</a></li>
+<li><a href="#unsupported">Not supported</a></li>
+<li><a href="#attributes">The attributes -I, -W, -B and -~</a></li>
+<li><a href="#errors">Errors and limits</a></li>
+<li><a href="#examples">Examples</a></li>
+</ol>
+<a id="writing"></a>
+<h2 id="writing-a-regex-in-a-search-line">Writing a regex in a SEARCH line</h2>
+<ul>
+<li>
+<p>The regex runs from the first <code>/</code> to the next <code>/</code> that has no <code>\</code> before it. Inside, <code>\/</code> stands
+for a <code>/</code>: <code>SEARCH /path\/to/ notes.txt</code>. Every other <code>\</code> sequence goes to the regex as written.</p>
+</li>
+<li>
+<p>Blanks, commas, quotes and <code>!</code> are part of the regex: <code>/IF X/</code>, <code>/a,b/</code>, <code>/say &quot;hi&quot;/</code>, <code>/it's/</code>,
+<code>/(?!x)/</code>. A <code>!</code> outside the regex still starts a remark, as on any command line.</p>
+</li>
+<li>
+<p>A regex with no closing <code>/</code> is error <strong>1003</strong>, and the cursor goes to the opening <code>/</code>.</p>
+</li>
+<li>
+<p>Attributes (<code>-I</code>, <code>-~</code>, <code>-W</code>, <code>-B</code>, <code>-R</code>) come before the regex and options (<code>-C</code>, <code>-L</code>, <code>-N</code>,
+<code>-P</code>) after the file names, as for any <code>SEARCH</code> pattern.</p>
+</li>
+<li>
+<p><strong>From a program</strong>, the command is a string, so a <code>&quot;</code> inside it is written twice and nothing else
+changes. A BR string gives <code>\</code> no special meaning, so the regex keeps its backslashes as typed:</p>
+<pre><code>EXECUTE &quot;SEARCH /^\s*LET\s/ src\*.brs &gt;hits$&quot;
+EXECUTE &quot;SEARCH /say &quot;&quot;hi&quot;&quot;/ notes.txt&quot;
+</code></pre>
+</li>
+</ul>
+<a id="subject"></a>
+<h2 id="what-a-regex-is-matched-against">What a regex is matched against</h2>
+<ul>
+<li><strong>One line at a time.</strong> A match never spans two lines, and the line holds no line end, so <code>\n</code>
+and <code>\r</code> find nothing.</li>
+<li><strong>The line is cleaned first</strong>: only displayable ASCII (32 to 126) and the tab are kept. Bytes
+above 127 are removed, so an accented letter can never be matched. <code>\t</code> and <code>\x09</code> find a tab.</li>
+<li><strong>Anywhere in the line.</strong> A regex matches if it is found anywhere in the line; it does not have
+to match all of it. To match a whole line, use <code>^</code> and <code>$</code>: <code>/^END$/</code>.</li>
+<li>An <strong>internal file</strong> is searched record by record, each record a line with its trailing blanks
+removed (see <a href="spec.html#search">SEARCH</a>).</li>
+</ul>
+<a id="characters"></a>
+<h2 id="characters-and-escapes">Characters and escapes</h2>
+<table>
+<thead>
+<tr>
+<th>Write</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a</code>, <code>7</code>, <code>=</code></td>
+<td>That character.</td>
+</tr>
+<tr>
+<td><code>.</code></td>
+<td>Any one character, a blank or a tab included.</td>
+</tr>
+<tr>
+<td><code>\.</code> <code>\*</code> <code>\+</code> <code>\?</code> <code>\(</code> <code>\)</code> <code>\[</code> <code>\]</code> <code>\{</code> <code>\}</code> <code>|</code> <code>\^</code> <code>\$</code> <code>\\</code></td>
+<td>The character itself, without its special meaning: <code>/a\+b/</code> finds <code>a+b</code>.</td>
+</tr>
+<tr>
+<td><code>\/</code></td>
+<td>A <code>/</code> (SEARCH's own rule, see above).</td>
+</tr>
+<tr>
+<td><code>\t</code></td>
+<td>A tab. <code>\f</code>, <code>\v</code>, <code>\n</code>, <code>\r</code> and <code>\0</code> are accepted, but those characters never occur in a cleaned line.</td>
+</tr>
+<tr>
+<td><code>\xhh</code></td>
+<td>The character with hex code <em>hh</em>: <code>\x21</code> is <code>!</code>, <code>\x50</code> is <code>P</code>.</td>
+</tr>
+<tr>
+<td><code>\uhhhh</code></td>
+<td>The character with hex code <em>hhhh</em>, the same within ASCII: <code>P</code> is <code>P</code>.</td>
+</tr>
+<tr>
+<td><code>\cX</code></td>
+<td>The control character Ctrl-<em>X</em>: <code>\cI</code> is a tab.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A <code>\</code> before a letter that has no meaning stands for the letter itself.</strong> <code>\A</code> is <code>A</code> and <code>\z</code>
+is <code>z</code>. They are not the start-of-text and end-of-text anchors of other regex languages, and BR
+gives no error for them. Use <code>^</code> and <code>$</code>.</p>
+<a id="classes"></a>
+<h2 id="character-classes">Character classes</h2>
+<table>
+<thead>
+<tr>
+<th>Write</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[abc]</code></td>
+<td>One of <code>a</code>, <code>b</code> or <code>c</code>.</td>
+</tr>
+<tr>
+<td><code>[^abc]</code></td>
+<td>One character that is not <code>a</code>, <code>b</code> or <code>c</code>.</td>
+</tr>
+<tr>
+<td><code>[a-z]</code>, <code>[0-9A-F]</code></td>
+<td>One character in the range. A range written backwards, <code>[z-a]</code>, is error 1009.</td>
+</tr>
+<tr>
+<td><code>\d</code> / <code>\D</code></td>
+<td>A digit <code>0</code>-<code>9</code> / anything else.</td>
+</tr>
+<tr>
+<td><code>\w</code> / <code>\W</code></td>
+<td>A word character, a letter, digit or <code>_</code> / anything else. <code>$</code> is <strong>not</strong> a word character here; it is one for <code>-W</code> (see below).</td>
+</tr>
+<tr>
+<td><code>\s</code> / <code>\S</code></td>
+<td>A blank or a tab / anything else.</td>
+</tr>
+<tr>
+<td><code>[\d.]</code>, <code>[\w$]</code></td>
+<td>The escapes above also work inside brackets.</td>
+</tr>
+<tr>
+<td><code>[[:alpha:]]</code>, <code>[[:digit:]]</code>, <code>[[:alnum:]]</code>, <code>[[:space:]]</code>, <code>[[:upper:]]</code>, <code>[[:lower:]]</code>, <code>[[:punct:]]</code>, <code>[[:xdigit:]]</code></td>
+<td>POSIX class names, inside the brackets of a class: <code>/[[:alpha:]]+[[:digit:]]/</code>.</td>
+</tr>
+<tr>
+<td><code>[]</code></td>
+<td>Never matches.</td>
+</tr>
+<tr>
+<td><code>[^]</code></td>
+<td>Any character.</td>
+</tr>
+</tbody>
+</table>
+<p>Inside brackets, <code>]</code>, <code>\</code>, <code>^</code> (first) and <code>-</code> (between two characters) are special. Write them as
+<code>\]</code>, <code>\\</code>, <code>\^</code> and <code>\-</code> to mean the character.</p>
+<a id="anchors"></a>
+<h2 id="anchors-and-boundaries">Anchors and boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Write</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>^</code></td>
+<td>The start of the line: <code>/^PRINT/</code> finds lines that begin with <code>PRINT</code>.</td>
+</tr>
+<tr>
+<td><code>$</code></td>
+<td>The end of the line: <code>/;$/</code>. To match a <code>$</code> character, write <code>\$</code>: <code>/TOTAL\$/</code>.</td>
+</tr>
+<tr>
+<td><code>\b</code></td>
+<td>A word boundary, between a <code>\w</code> character and a non-<code>\w</code> character or the line's end. <code>/\bEND\b/</code> finds <code>END</code> but not <code>ENDLESS</code> or <code>APPEND</code>.</td>
+</tr>
+<tr>
+<td><code>\B</code></td>
+<td>A place that is not a word boundary.</td>
+</tr>
+</tbody>
+</table>
+<p>A BR string variable's name ends in <code>$</code>, which <code>\b</code> does not count as part of a word: <code>/\bNAME\b/</code>
+finds the <code>NAME</code> in <code>NAME$</code>. Write <code>/\bNAME\$/</code> to find only <code>NAME$</code>, or use <code>-W</code> (see below).</p>
+<a id="repetition"></a>
+<h2>Repetition</h2>
+<p>Each of these applies to the character, class or group just before it.</p>
+<table>
+<thead>
+<tr>
+<th>Write</th>
+<th>Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>*</code></td>
+<td>Zero or more times.</td>
+</tr>
+<tr>
+<td><code>+</code></td>
+<td>One or more times.</td>
+</tr>
+<tr>
+<td><code>?</code></td>
+<td>Zero times or once.</td>
+</tr>
+<tr>
+<td><code>{n}</code></td>
+<td>Exactly <em>n</em> times: <code>/a{3}/</code>.</td>
+</tr>
+<tr>
+<td><code>{n,}</code></td>
+<td><em>n</em> or more times.</td>
+</tr>
+<tr>
+<td><code>{n,m}</code></td>
+<td>From <em>n</em> to <em>m</em> times.</td>
+</tr>
+<tr>
+<td><code>*?</code> <code>+?</code> <code>??</code> <code>{n,m}?</code></td>
+<td>The same, taking as few as will do (lazy).</td>
+</tr>
+</tbody>
+</table>
+<p>A repeat with nothing before it, such as <code>/*a/</code> or <code>/a|+b/</code>, is error 1009. So is <code>{,m}</code> with no
+lower bound, and a range written backwards, <code>{2,1}</code>. Possessive repeats (<code>a++</code>, <code>a*+</code>) are not
+supported and are error 1009.</p>
+<a id="groups"></a>
+<h2 id="groups-alternatives-and-look-ahead">Groups, alternatives and look-ahead</h2>
+<table>
+<thead>
+<tr>
+<th>Write</th>
+<th>Means</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>x|y</code></td>
+<td><code>x</code> or <code>y</code>. <code>/^(END|STOP)\b/</code>.</td>
+</tr>
+<tr>
+<td><code>(...)</code></td>
+<td>A group, which a repeat can apply to: <code>/(ab)+/</code>. It also captures what it matched.</td>
+</tr>
+<tr>
+<td><code>\1</code> ... <code>\9</code></td>
+<td>What group 1 to 9 matched, again: <code>/(\w)\1/</code> finds a doubled letter, <code>/(foo)\1/</code> finds <code>foofoo</code>. A number with no such group is error 1009.</td>
+</tr>
+<tr>
+<td><code>(?:...)</code></td>
+<td>A group that does not capture: <code>/(?:ab)+c/</code>.</td>
+</tr>
+<tr>
+<td><code>(?=...)</code></td>
+<td>Look-ahead: followed by <code>...</code>, which is not part of the match. <code>/foo(?=Bar)/</code>.</td>
+</tr>
+<tr>
+<td><code>(?!...)</code></td>
+<td>Negative look-ahead: not followed by <code>...</code>. <code>/foo(?!Bar)/</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>The match itself is not shown. <code>SEARCH</code> shows the whole line, so a group only decides whether a
+line matches.</p>
+<a id="unsupported"></a>
+<h2 id="not-supported">Not supported</h2>
+<p>These come from other regex languages (Perl, PCRE, .NET, Python). BR's ECMAScript grammar does not
+have them, and each is error <strong>1009</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Construct</th>
+<th>Example</th>
+<th>Instead</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Look-behind</td>
+<td><code>(?&lt;=a)b</code>, <code>(?&lt;!a)b</code></td>
+<td>Match the text before as well: <code>/ab/</code>.</td>
+</tr>
+<tr>
+<td>Named groups</td>
+<td><code>(?&lt;name&gt;...)</code>, <code>(?P&lt;name&gt;...)</code></td>
+<td>A plain group and its number, <code>(...)</code> and <code>\1</code>.</td>
+</tr>
+<tr>
+<td>Inline flags</td>
+<td><code>(?i)</code>, <code>(?x)</code></td>
+<td>The <code>-I</code> attribute: <code>SEARCH -I /print/ file</code>.</td>
+</tr>
+<tr>
+<td>Atomic groups</td>
+<td><code>(?&gt;...)</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Possessive repeats</td>
+<td><code>a++</code>, <code>a*+</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Unicode properties</td>
+<td><code>\p{L}</code>, <code>\P{L}</code></td>
+<td>A class, <code>[A-Za-z]</code>; a cleaned line is ASCII only.</td>
+</tr>
+<tr>
+<td>A repeat with no lower bound</td>
+<td><code>{,3}</code></td>
+<td><code>{0,3}</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Not refused but <strong>not anchors</strong>: <code>\A</code>, <code>\Z</code> and <code>\z</code> match the letters <code>A</code>, <code>Z</code> and <code>z</code> (see
+<a href="#characters">Characters and escapes</a>).</p>
+<a id="attributes"></a>
+<h2 id="the-attributes--i--w--b-and--">The attributes -I, -W, -B and -~</h2>
+<p>The attributes before the pattern apply to a regex as to a quoted pattern:</p>
+<ul>
+<li><strong><code>-I</code></strong> ignores the case of ASCII letters throughout the regex: <code>SEARCH -I /^print/</code> finds
+<code>PRINT X</code> and <code>print x</code>, and <code>[a-z]</code> also matches capitals.</li>
+<li><strong><code>-W</code></strong> is checked after the regex has matched: a match next to a word character is passed over,
+and the search goes on in the same line. For <code>-W</code> a word character is a letter, a digit, <code>_</code> or
+<strong><code>$</code></strong>, so <code>SEARCH -W /PRINT/</code> does not find <code>PRINT$</code>. <code>\b</code> inside the regex uses its own,
+narrower rule (no <code>$</code>).</li>
+<li><strong><code>-B</code></strong> gives the regex the line with each run of blanks and tabs made one blank, and the blanks
+at either end removed. <code>SEARCH -B /^IF X$/</code> finds <code>  IF   X  </code>. The line shown is the line as it is.</li>
+<li><strong><code>-~</code></strong> shows the lines the regex does not match.</li>
+</ul>
+<a id="errors"></a>
+<h2 id="errors-and-limits">Errors and limits</h2>
+<ul>
+<li><strong>Error <a href="../../90-reference/error-codes/1009.html">1009</a></strong>: the regex does not compile. At the
+command line the cursor goes back to the fault where it can be found: an unmatched <code>(</code> or <code>)</code>,
+an unclosed <code>[</code>, a <code>{</code> that is not a valid repeat, a repeat with nothing to repeat, or a backwards
+range. For anything else, such as a construct from <a href="#unsupported">Not supported</a>, it goes to the
+first character of the regex.</li>
+<li><strong>Error 1003</strong>: no closing <code>/</code>.</li>
+<li><strong>A line longer than 4,096 characters</strong> is not tried against a regex. A quoted pattern is still
+tried on it.</li>
+<li><strong>A line too complex for the regex engine</strong> is skipped. A pattern such as <code>(a*)*b</code> against a long
+run of <code>a</code>s can make the engine give up. The command goes on with the next line and does not end
+with an error.</li>
+<li>For both, the first such line of each file is noted on the screen (<code>name: line n too long</code>,
+<code>name: line n too complex to search</code>), and nothing is written to a redirected output.</li>
+<li>A regex that can match an empty string, such as <code>/x*/</code> or <code>/$/</code>, matches every line.</li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code>SEARCH /^\s*PRINT\b/ src\*.brs              ! lines that begin with PRINT, after any indent
+SEARCH -I /\bLET\s+\w+\$?\s*=/ src\*.brs     ! LET assignments, either case
+SEARCH /\bFN[A-Z]\w*\$?\(/ src\*.brs         ! calls of a user function
+SEARCH /^\d+\s+REM\b/ old.brs                ! numbered REM lines
+SEARCH /&quot;[^&quot;]*\\[^&quot;]*&quot;/ src\*.brs            ! string literals holding a backslash
+SEARCH /\d{3}-\d{4}/ customers.txt           ! a phone-number shape
+SEARCH /(\w+) \1/ notes.txt                  ! a word typed twice
+SEARCH /^(?!\s*!)/ src\*.brs -C              ! count the lines that are not remarks
+SEARCH -~ /\S/ notes.txt -C                  ! count the blank lines
+</code></pre>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="spec.html#search">SEARCH</a>: the command, its attributes, options and output</li>
+<li><a href="filename-patterns.html">File name patterns</a>: the glob patterns the file names take, which are not regexes</li>
+<li><a href="../../90-reference/error-codes/1009.html">Error 1009</a></li>
+<li><a href="../information/HELP.html">HELP</a></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/file-directory/ECMA_REGEX.md">br_tree/70-commands/file-directory/ECMA_REGEX.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

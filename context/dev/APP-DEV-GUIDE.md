@@ -54,7 +54,7 @@ prints `VERIFY OK` when they match, and otherwise lists what is out of step and 
 | **Interpret / debug** — read existing BR | `topics.json` → `statement-semantics.md` | [`system-functions-catalog.md`](system-functions-catalog.md), [`error-reference.md`](error-reference.md), the app data-model (§4) |
 | **Coding** — write correct, idiomatic BR | `topics.json` → `statement-semantics.md` | the two catalogs + data-model, closed by a fast **`brls -check -sema`** pass (§6 — `-check` alone is per-line and will not tell you a block is still open) then the authoritative **`LOAD … source`** syntax check in BR (write→check→fix; §6) |
 | **App design** — architecture, data model, modules | [`../app/architecture.md`](../app/architecture.md) + generated **data-model** (§4) + [`../app/conventions.md`](../app/conventions.md) | br_tree concept leaves — [`file-model`](../br_tree/30-io-file/file-model/spec.md), [`library-facility`](../br_tree/50-libraries/library-facility/spec.md), [`screenio`](../br_tree/50-libraries/screenio/spec.md) |
-| **Testing** — validate behaviour headlessly | headless BR (§6) | syntax-check via `LOAD "<prog>.brs" source`; run programs and procs headlessly through the BR invocation |
+| **Testing** — show that a changed program works, headlessly or on its screen | [`BR_testing.md`](BR_testing.md), which picks the way | headless BR (§6): syntax-check via `LOAD "<prog>.brs" source`; run programs and procs headlessly through the BR invocation. Screens: a `uitest` script ([`BR_testing.md` §4](BR_testing.md#uitest)); a look from a shell, one command at a time: `read screen` and `send keys` ([`BR_testing.md` §5](BR_testing.md#live-shell)) |
 | **Watching a program run** — screens, fields, listviews, a ScreenIO screen, anything interactive | [`BR_launch.md` — Live sessions](BR_launch.md#harness-launch) to start one, then [`BR_harness.md`](BR_harness.md) | the `guide` tool first, then [`ai_access/README.md`](ai_access/README.md) for the driver and [`ai_access/AI-Access-Protocol.md`](ai_access/AI-Access-Protocol.md) for the protocol |
 
 **Which of those last two you want:** headless BR runs a program and leaves you its output —
@@ -216,8 +216,9 @@ That is the signature in this kit's copy of FileIO ([`tools/fileio.brs`](tools/f
 | `DialogType` | What it opens |
 |---|---|
 | `1` | Nothing: uses `Filename$`, or generates a name when it is blank. No completion message. |
-| `3` | No file dialog, but a column-picker screen (`fnSelectDataCrawlerCols`, line 1868) |
-| `0`, `2`, other | The `fnCsvExportDlg` file dialog (line 1764), then an `"Export complete!"` `MsgBox` |
+| `3` | No file dialog, but a column-picker screen (`fnSelectDataCrawlerCols`, line 1868). No completion message. |
+| `2` | The `fnCsvExportDlg` file dialog (line 1764), then the column picker (line 1865 tests for 2 or 3), then an `"Export complete!"` `MsgBox` |
+| `0`, other | The `fnCsvExportDlg` file dialog (line 1764), then an `"Export complete!"` `MsgBox` |
 
 Anything that opens a screen or a `MsgBox` stops an `UNATTENDED` run with "Input attempted in
 unattended mode". Two more things to know:
@@ -331,7 +332,7 @@ only against its translated output:
    -Compile`), or save the file in VS Code with the "BR Language Server" extension installed —
    both run the identical underlying Lexi engine, so either is a legitimate way to produce the
    final `.br` (mechanism:
-   [`br_tree` — Lexi](../br_tree/00-configuration/installation-tooling/Lexi.md#mechanism)).
+   [`br_tree` — Legacy Lexi](../br_tree/00-configuration/installation-tooling/legacy_lexi.md#mechanism)).
 5. Close with real BR's own gate regardless: `LOAD <the-compiled-or-translated-file> source` (or
    trust step 4's `-Compile`, which already does this) — same discipline as any other BR program,
    per §7.

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dll — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">config-directives</a></nav>
+<main>
+<h1>Dll</h1>
+<p>BR functions with a Dll structure.</p>
+<h3 id="structure">Structure</h3>
+<p>As of Release 4.3 Business Rules! is structured with the following modules:</p>
+<ul>
+<li>brserver.exe - The BR Server module accessed by Client-Server configurations. Brserver.exe also operates as what is now viewed as the Standard Model. If it is invoked by brlistener, then it acts as brserver. If it is simply executed, it acts as brcombined. However, when operating as the standard model, it needs to have brclient.dll in the same directory as brserver.</li>
+<li>brclient.exe - The program that the user accesses in Client-Server configurations.</li>
+<li>brclient.dll - The client processing program that correlates with the brserver edition.</li>
+<li>npbrclient.dll - The standard (non-IE) browser plugin dll</li>
+<li>iebrclient.dll - Internet Explorer plugin dll</li>
+</ul>
+<p>Client installation is done by placing brclient.exe and brclient.dll on the client system and referencing brclient.exe in an icon. Server installation is done by placing brserver.exe and brclient.dll on the server and referencing brserver.exe in the brlistener.conf file. Exe files may be renamed as desired. The name of the released brclient.dll modules will be lengthy and must not be changed because BR relies on the DLL names for version identification.</p>
+<p>You will need one of the following possible configurations:</p>
+<ul>
+<li>Workstation Standard Model
+<ul>
+<li>Server executable</li>
+<li>Workstation Client dll</li>
+</ul>
+</li>
+<li>Linux Terminal Support
+<ul>
+<li>Server executable</li>
+<li>Linux Client dll ( .so )</li>
+</ul>
+</li>
+<li>Client Server Model
+<ul>
+<li>On Client Machine-
+<ul>
+<li>Client executable</li>
+<li>Workstation Client dll</li>
+</ul>
+</li>
+<li>On Server
+<ul>
+<li>Server executable</li>
+<li>Workstation Client dll</li>
+<li>BR Listener installed</li>
+<li>[ Linux Client dll for Linux terminal access ]</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Servers, clients, debug models and release models can be intermixed. However dlls must be the in same bit class (32 or 64) as the modules that call them.  Put your BR bmp files ( drawsunk.bmp, startup.bmp etc. ) in the BR server executable directory.  When client DLLs are transferred from the server to the client they are stored in \users-name-\AppData\Local\ADS\ and the full pathname to the most recent is stored in the registry at HKEY_CURRENT_USER\ Software\ADS\BusinessRules!\CurrentClient.</p>
+<p>Updates will pertain to Processor DLLs while the user interfaces will remain as installed. Client DLLs will be automatically uploaded when corresponding server DLLs are accessed in the event they are not already present on the client.</p>
+<p>The client can be accessed from within a browser by initiating it with HTML which can specify an embedded window or a separate independent window. In all cases opening a window with PARENT=NONE creates a separate window.</p>
+<h3 id="br-adjunctive-files">BR Adjunctive Files</h3>
+<p>The BR executable is now considered to be where the BR server actually resides, irrespective of Drive statements and current working directories.</p>
+<p>The following files are located in the BR executable directory by default:</p>
+<ul>
+<li>BR server executable</li>
+<li>BRconfig.sys</li>
+<li>BRserial.dat</li>
+<li>BRserver.dat</li>
+<li>WBcmd.wbh - BR help files</li>
+<li>Server Dlls</li>
+<li>Client Dlls for uploading as needed</li>
+<li>System Image files – linedraw, etc. - typically BMPs</li>
+</ul>
+<h3 id="exceptions">Exceptions</h3>
+<p>If WBcmd.wbh doesn't exist in the BR executable directory then BR looks for it in the initial directory specified by the first drive statement. (Deprecated – this will be eliminated at some point).  ONQPATH currently defaults to this initial path as well. (This will remain).</p>
+<p>If the BRconfig file is not present in the BR executable directory then BR looks for it in the current working directory at the time of BR invocation. </p>
+<p>The <code>SPOOLPATH</code> :OS-fullpath  configuration statement specifies where print spool files are temporarily stored during printing.  SPOOLPATH defaults to a spool directory that runs off of the BR root of the first drive statement. If no such spool directory exists and SPOOLPATH is not specified then BR creates one. For example:</p>
+<pre><code>DRIVE   J:, C:\BR, x, \MYAPP   
+</code></pre>
+<p>would result in spool files being placed in:</p>
+<pre><code>C:\BR\SPOOL\
+</code></pre>
+<p>SPOOLPATH @::client-OS-fullpath specifies where on the client spool files are to be placed. For example:</p>
+<pre><code>SPOOLPATH  @::C:\BR\SPOOL  (or whatever other full path is desired)
+</code></pre>
+<p>The @:  tells BR that this path is on the client. The second colon says the path is independent of drive specifications. In addition to regular spool files, this is where PDF files are created.</p>
+<p>SPOOLPATH can be set concurrently for both client and server by specifying two SPOOLPATH statements. BR creates print files in the server spool directory during printing and forwards them to the client when the print file is closed.</p>
+<p>The client-pathname has some unique characteristics:
+Relative paths are assumed to be OS pathnames relative to the CLIENT_CURRENT_DIR folder, or the startup directory if CLIENT_CURRENT_DIR is not specified.</p>
+<p>If a full pathname is specified it must begin with a colon. (For example,   @::X:\path). Otherwise, it will be preceded with the path to the client current working directory.</p>
+<p>Specifying a relative remote pathname is not compatible with CLIENT_CURRENT_DIR SYNC.</p>
+<p>The status of SPOOLPATH and REMOTESPOOLPATH settings are displayed in response to the STATUS SUBSTITUTE command (not the STATUS CONFIG command).</p>
+<p>WORKPATH defaults to the BR root of the first drive statement, for example:</p>
+<pre><code>C:\BR\
+</code></pre>
+<p>BRconfig.sys INCLUDE statements are relative to the location of the file containing the INCLUDE statement (the parent).  CONFIG command INCLUDE statements are relative to the current directory at the time the command is issued.</p>
+<h3 id="licensing-restrictions">Licensing Restrictions</h3>
+<p>As of 4.20H, brserial files must be specific to the first decimal position of the release of BR that is being used. (e.g. 4.2x versus 4.3x)</p>
+<p>To accommodate more than one brserial level, BR first looks for its own suffix (42 or 43) before looking for a DAT file. From now on it is most useful to name your brserial files either BRSERIAL.42 or BRSERIAL.43, etc.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/config-directives/Dll.md">br_tree/00-configuration/config-directives/Dll.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

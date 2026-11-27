@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScreenIO Function Reference — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">screenio</a></nav>
+<main>
+<h1 id="screenio-function-reference">ScreenIO Function Reference</h1>
+<p>The library's <strong>public surface is 21 <code>DEF LIBRARY</code> functions</strong> as of <strong>ScreenIO v2.95</strong>
+(<code>FNVERSION=2.95</code>). The rest of its ~425 functions are internal to the engine and the Designer.
+Every signature below is taken verbatim from the shipping source, not the wiki (the ScreenIO wiki page
+is empty). Parameters after the <code>;</code> are optional; <code>&amp;</code> marks pass-by-reference; <code>Mat</code> marks array
+parameters. See <a href="#coverage">Coverage check</a> for the full list of 21 and how v2.95 differs from the
+earlier 16-export build (a 2020 source with no version number recorded).</p>
+<p>All the screen-invocation calls are thin wrappers over one internal engine, <code>Fnmasterfm$</code> — so they
+share the same parameter set and semantics.</p>
+<a id="invocation"></a>
+<h2 id="a-screen-invocation-the-everyday-surface">A. Screen invocation (the everyday surface)</h2>
+<pre><code class="language-business-rules">Fnfm$ (Screenname$; Keyval$, Srow, Scol, Parent_Key$, Parent_Window, Display_Only,
+       Dontredolistview, Recordval, Mat Passeddata$, Usemyf, Mat Myf$, Mat Myf,
+       Path$, Selecting, SaveDontAsk)                      -- returns chosen/edited record key$ (&quot;&quot; if cancelled)
+
+Fnfm  (Screenname$; …same params…, ___, Returnvalue)       -- returns 1 ok / 0 cancelled (or the screen's return value)
+
+Fndisplayscreen (Screenname$; Keyval$, Srow, Scol, Parent_Key$,
+                 Parent_Window, Recordval, Path$, Selecting)  -- read-only display of a screen (forces Display_Only)
+
+Fncallscreen$ (Screen$; Keyval$, Parent_Key$, Display_Only, Parent_Window,
+               Dontredolistview, Recordval, Mat Passeddata$, Usemyf, Mat Myf$,
+               Mat Myf, Path$, Selecting)                   -- call by the bracket form; wraps name in [ … ] if absent
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Returns</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Fnfm$</code></td>
+<td>record key (string)</td>
+<td>Run/edit a screen; the workhorse call.</td>
+</tr>
+<tr>
+<td><code>Fnfm</code></td>
+<td>numeric (1/0 or screen return value)</td>
+<td>Same, when you want an ok/cancel or numeric result rather than the key.</td>
+</tr>
+<tr>
+<td><code>Fndisplayscreen</code></td>
+<td>numeric</td>
+<td>Show a screen read-only (it sets <code>Display_Only</code>/<code>Selecting</code> for you).</td>
+</tr>
+<tr>
+<td><code>Fncallscreen$</code></td>
+<td>record key (string)</td>
+<td>Programmatic equivalent of the in-screen <code>[SCRNNAME]</code> call syntax — adds the <code>[</code> <code>]</code> if you omit them.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="shared-parameters">Shared parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Screenname$</code> / <code>Screen$</code></td>
+<td>The screen <strong>code</strong> (key into <code>screenio.dat</code>; see <a href="ScreenIO_Data_Model.html">data model</a>).</td>
+</tr>
+<tr>
+<td><code>Keyval$</code></td>
+<td>Record key to edit. <strong>Blank = add a new record.</strong></td>
+</tr>
+<tr>
+<td><code>Srow</code>, <code>Scol</code></td>
+<td>Upper-left position for the screen window (0 = default/centred).</td>
+</tr>
+<tr>
+<td><code>Parent_Key$</code>, <code>Parent_Window</code></td>
+<td>Calling screen's key and window channel — establishes the parent/child relationship.</td>
+</tr>
+<tr>
+<td><code>Display_Only</code></td>
+<td><code>1</code> = read-only (no edits / no Write event).</td>
+</tr>
+<tr>
+<td><code>Dontredolistview</code></td>
+<td>Suppress re-populating a listview when returning to it.</td>
+</tr>
+<tr>
+<td><code>Recordval</code></td>
+<td>Open by <strong>record number</strong> instead of key.</td>
+</tr>
+<tr>
+<td><code>Mat Passeddata$</code></td>
+<td>Arbitrary data handed to the screen; readable in its event code.</td>
+</tr>
+<tr>
+<td><code>Usemyf</code> + <code>Mat Myf$</code>, <code>Mat Myf</code></td>
+<td>Supply your <strong>own</strong> open file record arrays instead of letting ScreenIO open the file.</td>
+</tr>
+<tr>
+<td><code>Path$</code></td>
+<td>Override the data-file path.</td>
+</tr>
+<tr>
+<td><code>Selecting</code></td>
+<td>Listview is being used as a <strong>picker</strong> (return a selection rather than just browse).</td>
+</tr>
+<tr>
+<td><code>SaveDontAsk</code></td>
+<td><strong><code>Fnfm$</code> only; added after the 2020 build, present in v2.95.</strong> On a screen with <strong>no</strong> listview, exiting by ESC (<code>fkey 99</code>), <code>fkey 93</code>, or a click on a parent screen sets <code>ExitMode</code> to <strong>SaveAndQuit</strong> instead of <strong>AskSaveAndQuit</strong>, so edits are kept without a &quot;save changes?&quot; prompt. It is meant for a caller that asks once for several screens itself: <code>run.brs</code>'s <code>fnRunTabs</code> passes its <code>AskSaveTogether</code> here. Listview screens are unaffected. <code>Fncallscreen$</code> does not take it.</td>
+</tr>
+</tbody>
+</table>
+<a id="designer"></a>
+<h2 id="b-event--designer-support">B. Event / designer support</h2>
+<pre><code class="language-business-rules">Fnselectevent$ (&amp;Current$; &amp;Returnfkey)     -- opens the designer's &quot;select event function&quot; dialog
+</code></pre>
+<p>Presents the event-function picker used inside the ScreenIO designer; updates <code>Current$</code> (the chosen
+function call) and <code>Returnfkey</code> <strong>by reference</strong> and returns the chosen function string. Used when wiring
+a screen/control event to a <code>DEF FN…</code> (see <a href="#events">Event-callback contract</a>).</p>
+<a id="helpers"></a>
+<h2 id="c-helpers-callable-from-event-code-and-the-designer">C. Helpers (callable from event code and the designer)</h2>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Signature</th>
+<th>Returns / purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Fnfindsubscript</code></td>
+<td><code>(Mat Subscripts$, Prefix$, String$*40)</code></td>
+<td>Index of a field subscript by <code>Prefix$</code>+<code>String$</code> — resolves <code>FILE_FIELD</code> subscript constants at run time.</td>
+</tr>
+<tr>
+<td><code>fnGetUniqueName$</code></td>
+<td><code>(Mat ControlName$, Control)</code></td>
+<td>A control name guaranteed not to collide with the existing names in <code>Mat ControlName$</code>.</td>
+</tr>
+<tr>
+<td><code>fnIsInputSpec</code></td>
+<td><code>(type$)</code></td>
+<td><code>1</code> if a control field-type code is an <strong>input</strong> control: <code>c</code>, <code>search</code>, <code>check</code>, <code>combo</code>, <code>filter</code>.</td>
+</tr>
+<tr>
+<td><code>fnIsOutputSpec</code></td>
+<td><code>(type$)</code></td>
+<td><code>1</code> if a code is <strong>output/static</strong>: <code>caption</code>, <code>button</code>, <code>p</code> (picture), <code>frame</code>, <code>screen</code>.</td>
+</tr>
+<tr>
+<td><code>fnDays</code></td>
+<td><code>(String$*255; DateSpec$*255)</code></td>
+<td>The numeric <code>DAYS</code> value parsed from a date string; supports <strong>relative</strong> offsets (e.g. <code>-3w</code> = three weeks ago).</td>
+</tr>
+<tr>
+<td><code>fnFunctionBase</code></td>
+<td><em>(no args)</em></td>
+<td>Base <strong>FKEY</strong> number for the current screen nesting level — <code>1500 + 200 × loaded-screen-count</code>. ScreenIO assigns each screen's buttons/controls function keys above this base, so nested screens never collide.</td>
+</tr>
+<tr>
+<td><code>fnBR42</code></td>
+<td><em>(no args)</em></td>
+<td><code>1</code> if running <strong>BR ≥ 4.2</strong> (feature detection on <code>WBVERSION$</code>).</td>
+</tr>
+<tr>
+<td><code>fnBR43</code></td>
+<td><em>(no args)</em></td>
+<td><code>1</code> if running <strong>BR ≥ 4.3</strong>.</td>
+</tr>
+<tr>
+<td><code>fnListSpec$</code></td>
+<td><code>(SpecIn$*255)</code> → <code>*255</code></td>
+<td><em>(export in v2.95, not in the 2020 build)</em> Returns <code>SpecIn$</code> <strong>cut before its third comma</strong>, i.e. the <code>row,col,LIST rows/cols</code> head of a listview <code>FIELDS</code> spec with everything after it dropped. It is a one-line <code>DEF</code> expression: <code>SpecIn$(1:POS(SpecIn$,&quot;,&quot;,POS(SpecIn$,&quot;,&quot;,POS(SpecIn$,&quot;,&quot;)+1)+1)-1)</code>. With fewer than three commas it does not error: it returns <code>&quot;&quot;</code> (zero or two commas) or just the first field (one comma). ScreenIO's compiler links it into every generated helper library, so event code can call it with no <code>LIBRARY</code> statement of its own.</td>
+</tr>
+</tbody>
+</table>
+<a id="animation"></a>
+<h2 id="d-wait-animation">D. Wait animation</h2>
+<p>A small &quot;please wait&quot; animation for long operations.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Signature</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fnPrepareAnimation</code></td>
+<td><em>(no args)</em></td>
+<td>Initialise the animation (timing, speed defaults via <code>fnSettings</code>).</td>
+</tr>
+<tr>
+<td><code>fnAnimate</code></td>
+<td><code>(; Text$*60)</code></td>
+<td>Render one animation frame, with an optional caption. Call repeatedly during the long task.</td>
+</tr>
+<tr>
+<td><code>fnCloseAnimation</code></td>
+<td><em>(no args)</em></td>
+<td>Tear down the animation window.</td>
+</tr>
+</tbody>
+</table>
+<a id="build"></a>
+<h2 id="e-designing-generating-and-compiling-screens-exports-in-v295-not-in-the-2020-build">E. Designing, generating and compiling screens <em>(exports in v2.95, not in the 2020 build)</em></h2>
+<pre><code class="language-business-rules">fnDesignScreen (; ScreenName$)                                   -- open the Designer
+fnMakeScreen (; Layout$, LaunchScreen)                           -- run the Screen Generator wizard
+fnCompileScreen (ScreenCode$*18; WaitForComplete)                -- rebuild one screen's helper library
+fnCheckScreenErrors (ScreenCode$*18, Mat ErrObject, Mat ErrField,
+                     Mat ErrMessage$, Mat ErrType)               -- run the Designer's &quot;To Do&quot; validation
+</code></pre>
+<p>Two of these (<code>fnDesignScreen</code>, <code>fnMakeScreen</code>) are <strong>interactive</strong>. The other two work headless,
+which lets a program build or check a screen with no Designer UI. The
+<a href="../../../dev/screenio-guide.md#compiling-from-code">ScreenIO internals guide</a> covers that workflow.</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Returns</th>
+<th>Behaviour (from the v2.95 source)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fnDesignScreen</code></td>
+<td>—</td>
+<td>Opens the Designer, loading <code>ScreenName$</code> if given. Needs GUI mode: if <code>ENV$(&quot;guimode&quot;)</code> is blank it only prints <em>&quot;Please use a New GUI version of BR to design your screens.&quot;</em> If GUI is <code>OFF</code> it turns it on for the session and back off afterwards. Restores the console's original rows/cols on exit.</td>
+</tr>
+<tr>
+<td><code>fnMakeScreen</code></td>
+<td>—</td>
+<td>Opens the <strong>Screen Generator</strong> wizard for a FileIO layout (<code>Layout$</code> pre-fills it). It is interactive: you pick which screens to build and which fields go on each. It can write up to three screens, named from the first 13–14 characters of the layout: <strong><code>&lt;layout&gt;LIST</code></strong> (listview with columns, a filter box on BR ≥ 4.3 or a search box otherwise, and exit buttons), <strong><code>&lt;layout&gt;EDIT</code></strong> (add/edit form), and <strong><code>&lt;layout&gt;COMBO</code></strong> (listview + edit fields on one screen). Each is written to <code>screenio.dat</code>/<code>screenfld.dat</code>. <code>LaunchScreen</code> non-zero then opens <strong>every</strong> generated screen in the Designer, each in its own BR process (<code>execute &quot;system -C -M …&quot;</code>). <code>LaunchScreen</code> zero (the default) opens none. It checks an internal <code>FNWARNMESSAGE</code> first and does <code>execute &quot;system&quot;</code> if that returns true. That function's source is not visible in the v2.95 listing, so the condition it tests is unknown.</td>
+</tr>
+<tr>
+<td><code>fnCompileScreen</code></td>
+<td><code>1</code> = screen found, compile launched; <code>0</code> = no such screen</td>
+<td>Reads the screen by code (upper-cased and trimmed) and generates its helper library, as the Designer's compile does. <strong>The compile itself runs in a separate BR process</strong> (<code>execute &quot;system -C -M &lt;br&gt; -&lt;config&gt; proc &lt;file&gt;&quot;</code>). A return of <code>1</code> therefore does <strong>not</strong> mean the compile succeeded. With <code>WaitForComplete</code> non-zero it waits for that process's output file before returning. Otherwise it returns immediately.</td>
+</tr>
+<tr>
+<td><code>fnCheckScreenErrors</code></td>
+<td><code>1</code> = screen found and validated; <code>0</code> = no such screen</td>
+<td>Runs the same field validation as the Designer's &quot;To Do&quot; debug listview, with no window. It resizes the four arrays to one element per finding: <code>ErrObject</code> = the Designer mode/panel the finding belongs to, <code>ErrField</code> = the <code>SI_…</code> field subscript or control index, <code>ErrMessage$</code> = the text (e.g. <em>&quot;File layout not found.&quot;</em>), <code>ErrType</code> = <strong><code>1</code> warning / <code>2</code> error</strong>. Zero findings leaves them dimensioned to 0. A return of <code>1</code> does not mean &quot;no errors&quot;: check <code>UDIM(Mat ErrType)</code>.</td>
+</tr>
+</tbody>
+</table>
+<a id="events"></a>
+<h2 id="event-callback-contract-how-your-code-runs">Event-callback contract (how your code runs)</h2>
+<p>ScreenIO is <strong>event-driven</strong>, but events are <strong>not</strong> fixed-signature callbacks. The designer stores, per
+screen and per control, a <strong>BR statement string</strong> (a function call you write); the engine <code>EXECUTE</code>s it
+(<code>fnExecute</code>) at the right point in the screen lifecycle. So you &quot;wire an event&quot; by typing a <strong>filename</strong> of a custom function file (in .\function\) such as
+<code>{MyValidation}</code> (assumes .brs) into the event field.</p>
+<p><strong>Screen-level events</strong> (each is a field in the <code>screenio.dat</code> header — see data model):</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Header field</th>
+<th>Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enter</td>
+<td><code>ENTERFN$</code></td>
+<td>when the screen is first displayed</td>
+</tr>
+<tr>
+<td>Initialize</td>
+<td><code>INITFN$</code></td>
+<td>when the screen is called <strong>without</strong> a <code>key$</code> (add mode), if it has a data file</td>
+</tr>
+<tr>
+<td>Read</td>
+<td><code>READFN$</code></td>
+<td>when the initial record is read; in a <strong>listview</strong>, also whenever the selection changes</td>
+</tr>
+<tr>
+<td>Load</td>
+<td><code>LOADFN$</code></td>
+<td>as field values are loaded into controls</td>
+</tr>
+<tr>
+<td>Write</td>
+<td><code>WRITEFN$</code></td>
+<td>when the user picks <strong>Save</strong>, just before the record is written to disk</td>
+</tr>
+<tr>
+<td>Wait</td>
+<td><code>WAITFN$</code></td>
+<td>on keyboard idle, per the screen's <code>WAITTIME</code> timeout (<code>-1</code> disables)</td>
+</tr>
+<tr>
+<td>Record Locked</td>
+<td><code>LOCKEDFN$</code></td>
+<td>when the record is locked by another user</td>
+</tr>
+<tr>
+<td>Merge</td>
+<td><code>MERGEFN$</code></td>
+<td>during ScreenIO AutoMerge, before the record is written</td>
+</tr>
+<tr>
+<td>Main Loop</td>
+<td><code>LOOPFN$</code></td>
+<td>every pass of the main <code>RINPUT FIELDS</code> statement</td>
+</tr>
+<tr>
+<td>Nokey</td>
+<td><code>NOKEYFN$</code></td>
+<td>when a keyed read finds no record</td>
+</tr>
+<tr>
+<td>Listview Prepopulate</td>
+<td><code>PRELISTVIEWFN$</code></td>
+<td>before a listview is filled, <strong>after</strong> a <code>defaults\prelist.brs</code> if one exists — not a fallback pair, see the full ordering below</td>
+</tr>
+<tr>
+<td>Listview Postpopulate</td>
+<td><code>POSTLISTVIEWFN$</code></td>
+<td>after a listview is filled, <strong>after</strong> a <code>defaults\postlist.brs</code> if one exists — see the full ordering below</td>
+</tr>
+<tr>
+<td>Exit</td>
+<td><code>EXITFN$</code></td>
+<td>last, as the screen closes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Control-level events</strong> (the control's <code>FUNCTION$</code> field — see data model):</p>
+<ul>
+<li><strong>Validate</strong> — input controls (<code>c</code>, <code>search</code>, <code>check</code>, <code>combo</code>, <code>filter</code>): decide whether the entered
+value is acceptable; may modify or reject it.</li>
+<li><strong>Click</strong> — <code>button</code>, <code>caption</code>, <code>p</code> (picture): runs when the user clicks the control.</li>
+<li><strong>Filter</strong> — listviews: called once per record as the file is read. Return <code>0</code>/<code>&quot;&quot;</code>/<code>&quot;STOP&quot;</code> to
+suppress the record (<code>&quot;STOP&quot;</code> also halts reading the file — an early-exit optimization); return
+<code>1</code>/<code>&quot;1&quot;</code>/any other non-blank string to include it. If that non-blank return value is itself a
+valid BR color spec (<code>&quot;/#123456:#124324&quot;</code>, or a named macro from <code>BRConfig.sys</code>/an included file
+like <code>color.sys</code>, e.g. <code>&quot;[BLUE]&quot;</code>), the record is included <strong>and</strong> rendered in that color — one
+return value drives both inclusion and row color, not two separate mechanisms. Confirmed against
+the engine source (<code>design.brs</code>'s listview-population loop) and by ScreenIO's author, 2026-09-13.
+Example in <a href="spec.html#examples">spec.md</a>.</li>
+</ul>
+<p>A <strong><code>fnInit_&lt;name&gt;</code></strong> / <strong><code>fnFinal_&lt;name&gt;</code></strong> pair (<code>&lt;name&gt;</code> matching the Filter function's own name,
+truncated together with the <code>Init_</code>/<code>Final_</code> prefix to fit BR's identifier length limit — e.g.
+<code>fnFilterSubscriptionCharges</code> pairs with <code>fnInit_FilterSubscriptionCharg</code>/
+<code>fnFinal_FilterSubscriptionChar</code>) lets a <strong>listview's Filter function</strong> run one-time setup/teardown
+around the whole per-record loop, rather than on every record.</p>
+<p><strong><code>fnInit_</code>/<code>fnFinal_</code> were added to ScreenIO later than <code>PRELISTVIEWFN$</code>/<code>POSTLISTVIEWFN$</code></strong>
+(confirmed by ScreenIO's author, 2026-09-13) — older screens built before that addition achieve
+the same one-time-setup/teardown effect using the screen-level Listview Prepopulate/Postpopulate
+events instead. All three mechanisms (the <code>function/defaults/prelist.brs</code>/<code>postlist.brs</code> files,
+the screen-level <code>PRELISTVIEWFN$</code>/<code>POSTLISTVIEWFN$</code>, and the Filter function's own <code>fnInit_</code>/
+<code>fnFinal_</code>) <strong>are fully supported today, and none is a fallback for another</strong> — each is checked
+and run independently, so a screen can have any combination of the six fire around one listview
+load. <strong>Exact order, confirmed directly against the engine source</strong> (<code>design.brs</code>'s
+<code>Fnpopulatealllistviews</code>, lines ~1730-1753 for the open side and ~1930-1944 for the close side —
+verify against current source if <code>design.brs</code> changes, this is not a documented contract
+elsewhere):</p>
+<ol>
+<li><code>defaults\prelist.brs</code>, if that file exists (regardless of whether <code>PRELISTVIEWFN$</code> is also
+set — checked independently, not &quot;used only if blank&quot;).</li>
+<li><code>PRELISTVIEWFN$</code> (screen-level Listview Prepopulate), if specified.</li>
+<li><code>fnInit_&lt;name&gt;</code> (in the Filter function's own file), if a listview control's Filter function
+exists on this screen.</li>
+<li>The listview loads: the Filter function runs once per record, until EOF or a <code>&quot;STOP&quot;</code> return.</li>
+<li><code>defaults\postlist.brs</code>, if that file exists.</li>
+<li><code>POSTLISTVIEWFN$</code> (screen-level Listview Postpopulate), if specified.</li>
+<li><code>fnFinal_&lt;name&gt;</code>, if present — <strong>last</strong>, after both postlist calls, not before <code>POSTLISTVIEWFN$</code>
+as an earlier draft of this note (and the author's own initial recollection) had it.</li>
+</ol>
+<p>Confirmed real-world purpose of the <code>fnInit_</code>/<code>fnFinal_</code> pair, 2026-09-13: <code>fnInit_...</code> commonly
+opens files the per-record Filter function will do a keyed read against on every row
+(opening/closing per-row instead would be wasteful for a large list) and/or computes a one-time
+value (e.g. a listview header caption); <code>fnFinal_...</code> then closes what <code>fnInit_ ...</code> opened. All three functions live in the <strong>same</strong> <code>function/&lt;name&gt;.brs</code> file, sharing
+module-level <code>DIM</code>s declared at the top of that file (that's how the open file numbers survive
+from <code>fnInit_...</code> through every call of the main Filter function to <code>fnFinal_...</code>). This pairing is
+optional — older Filter functions may have only the plain function, no <code>_Init</code>/<code>_Final</code>.</p>
+<a id="context"></a>
+<h3 id="handler-runtime-context">Handler runtime context</h3>
+<p>The engine passes one large fixed parameter list into every event/helper function (so the same code can
+run from any event); most are <strong>by reference</strong>, so assigning to them changes the screen. The
+author-relevant ones:</p>
+<table>
+<thead>
+<tr>
+<th>In scope</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Mat F$</code> / <code>Mat F</code></td>
+<td>the screen's <strong>file</strong> record — fields by <code>FILE_FIELD</code> subscript constants</td>
+</tr>
+<tr>
+<td><code>Mat S$</code></td>
+<td>values of <strong>non-file</strong> controls (named controls not bound to a file field), by control name</td>
+</tr>
+<tr>
+<td><code>Key$</code> / <code>CurrentKey$</code></td>
+<td>current record key</td>
+</tr>
+<tr>
+<td><code>CurrentRec</code></td>
+<td>current record number</td>
+</tr>
+<tr>
+<td><code>ParentKey$</code></td>
+<td>the parent screen's key (child screens)</td>
+</tr>
+<tr>
+<td><code>FieldText$</code> / <code>FieldIndex</code></td>
+<td>value / index of the field being validated (Validate events)</td>
+</tr>
+<tr>
+<td><code>ControlIndex</code></td>
+<td>the control that fired (index into <code>Mat ControlName$</code>)</td>
+</tr>
+<tr>
+<td><code>ExitMode</code></td>
+<td>set this to exit the screen — see <a href="#exitmode">constants</a></td>
+</tr>
+<tr>
+<td><code>Mat PassedData$</code></td>
+<td>the <code>Mat passeddata$</code> handed to the screen at the call</td>
+</tr>
+<tr>
+<td><code>Path$</code>, <code>Selecting</code>, <code>DisplayOnly</code>, <code>Active</code></td>
+<td>call / mode context</td>
+</tr>
+<tr>
+<td><code>RepopulateListviews</code>, <code>RedrawListviews</code>, <code>RedrawScreens</code>, <code>RepopulateCombo</code></td>
+<td>set to force a UI refresh</td>
+</tr>
+<tr>
+<td><code>Window</code></td>
+<td>the screen's window channel</td>
+</tr>
+<tr>
+<td><code>Mat Disk_F$</code> / <code>Mat Disk_F</code></td>
+<td>the on-disk record (for Merge / compare)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Control properties</strong> are addressable by a <code>ctl_&lt;ControlName&gt;</code> subscript into property arrays, e.g.
+<code>let Invisible(ctl_MyField)=0</code> or <code>let BgColor$(ctl_MyField)=&quot;…&quot;</code> — so a handler can show/hide and
+recolour controls at run time.</p>
+<a id="exitmode"></a>
+<h3 id="exitmode-constants">ExitMode constants</h3>
+<p>A handler ends the screen by setting <code>ExitMode</code>; the engine keeps looping while it is <code>0</code>. From source
+(<code>fnDefineExitModes</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Constant</th>
+<th style="text-align:right">Value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>(none)</em></td>
+<td style="text-align:right"><code>0</code></td>
+<td>keep running (default)</td>
+</tr>
+<tr>
+<td><code>QuitOnly</code></td>
+<td style="text-align:right"><code>1</code></td>
+<td>cancel / discard — the <strong>ESC</strong> default</td>
+</tr>
+<tr>
+<td><code>SaveAndQuit</code></td>
+<td style="text-align:right"><code>2</code></td>
+<td>save the record, then exit</td>
+</tr>
+<tr>
+<td><code>SelectAndQuit</code></td>
+<td style="text-align:right"><code>3</code></td>
+<td>select the record, then exit — the <strong>ENTER</strong> default in select mode</td>
+</tr>
+<tr>
+<td><code>QuitOther</code></td>
+<td style="text-align:right"><code>4</code></td>
+<td>quit to another target</td>
+</tr>
+<tr>
+<td><code>AskSaveAndQuit</code></td>
+<td style="text-align:right"><code>5</code></td>
+<td>prompt to save, then exit</td>
+</tr>
+<tr>
+<td><code>Reload</code></td>
+<td style="text-align:right"><code>6</code></td>
+<td>reload the screen</td>
+</tr>
+<tr>
+<td><code>AutoReload</code></td>
+<td style="text-align:right"><code>7</code></td>
+<td>reload automatically (no prompt)</td>
+</tr>
+</tbody>
+</table>
+<a id="function-types"></a>
+<h3 id="valid-custom-function-types">Valid custom-function types</h3>
+<p>An event or control <code>FUNCTION$</code> field may hold any of (dispatch logic confirmed from source,
+<code>Fnexecute</code>/<code>fnFS</code> in <code>screenio.brs</code>, 2026-09-13):</p>
+<ul>
+<li><strong><code>{name}</code></strong> — a custom function file, <code>function/name.brs</code>, imported and compiled into the
+screen's Helper Library (see <a href="spec.html#how-it-works">spec.md</a>).</li>
+<li><strong><code>#libname:call(...)</code></strong> — an inline library-function call needing no separate function file:
+parsed as library name (up to the first <code>:</code>) and a call expression (after it); the compiler
+generates <code>library &quot;libname&quot; : fnXxx</code> (<code>fnXxx</code> taken from the call expression) plus
+<code>let ReturnValue[$] = call(...)</code> directly in the Helper Library's dispatcher. E.g.
+<code>#run:fnRun('[CUSTEDIT]',F$(CU_CODE))</code> calls <code>fnRun</code> from <code>library &quot;run&quot;</code>.</li>
+<li>a <strong>link to another screen</strong> — the <code>[SCRNNAME]</code> form, optionally <code>(row,col)</code> and/or a trailing
+expression after <code>]</code> (assigning <code>CurrentKey$</code> / <code>ThisParentKey$</code>, <code>DISPLAYONLY=1</code>, etc.) —
+evaluated via the same <code>{</code>/<code>#</code>/<code>*</code> rules as above.</li>
+<li><strong><code>%progname</code></strong> — <code>CHAIN</code>s to an entirely different program, ending the current screen stack.</li>
+<li><strong>any single BR command/statement</strong> — with none of the above prefixes, the field is passed
+straight to <code>EXECUTE</code>.</li>
+<li>(Conversion functions only) <strong>any valid BR field spec</strong>.</li>
+</ul>
+<a id="coverage"></a>
+<h2 id="coverage-check">Coverage check</h2>
+<p>This page documents <strong>all 21</strong> <code>DEF LIBRARY</code> exports of ScreenIO <strong>v2.95</strong>:</p>
+<ul>
+<li><strong>The original 16</strong> (all present in the 2020 build this page was first written from):
+<code>fnPrepareAnimation</code>, <code>fnAnimate</code>, <code>fnCloseAnimation</code>, <code>fnBR42</code>, <code>fnBR43</code>, <code>Fnselectevent$</code>,
+<code>Fndisplayscreen</code>, <code>Fnfm</code>, <code>Fnfm$</code>, <code>fnFunctionBase</code>, <code>fnGetUniqueName$</code>, <code>fnIsOutputSpec</code>,
+<code>fnIsInputSpec</code>, <code>fnDays</code>, <code>Fncallscreen$</code>, <code>Fnfindsubscript</code>.</li>
+<li><strong>Added since the 2020 build (5):</strong> <code>fnDesignScreen</code>, <code>fnMakeScreen</code>, <code>fnCompileScreen</code>,
+<code>fnCheckScreenErrors</code> (<a href="#build">§E</a>), and <code>fnListSpec$</code> (<a href="#helpers">§C</a>). The
+<a href="../../../dev/screenio-guide.md#compiling-from-code">internals guide</a> dates <code>fnCompileScreen</code> to
+v2.93 and <code>fnCheckScreenErrors</code> to v2.94. When the other three became exports is not recorded.
+<code>fnDesignScreen</code> already existed in the 2020 build, but as a private <code>DEF</code>.</li>
+<li><strong>Changed since the 2020 build:</strong> <code>Fnfm$</code> takes a 16th parameter, <code>SaveDontAsk</code>
+(<a href="#invocation">shared parameters</a>).</li>
+</ul>
+<p><strong>Two of the 21 are not visible in the v2.95 source listing.</strong> <code>Fnfm</code> and <code>Fndisplayscreen</code> do not
+appear in a <code>LIST</code> of the shipped <code>screenio.br</code>, but both names are in the compiled program, and
+ScreenIO's own compiler writes them into the <code>LIBRARY</code> line of every helper library it generates.
+The likely reason is that the shipped <code>screenio.br</code> has line ranges removed from its source with
+<code>DEL … source</code>, which hides them from <code>LIST</code> without removing the compiled code. That is not confirmed for these two functions. Their signatures above are therefore from the
+earlier, fully listed build and are not re-verified against v2.95.</p>
+<p><em>(To regenerate the inventory: <code>grep -niE &quot;^[0-9]*\s*def\s+library\s+fn&quot; &lt;listing&gt;</code>, then drop the
+<code>fnFunctionSwitch*</code>/<code>fnShow…</code>/<code>fnCheckStringFunction</code> hits, which are text inside <code>FNPRINTLINE</code>/<code>FNGC</code>
+calls that ScreenIO writes into generated helper libraries, not its own exports. A decompiled
+listing is not a complete inventory, for the reason above.)</em></p>
+<h2 id="see-also">See also</h2>
+<ul>
+<li><a href="spec.html">spec.md</a> — concepts, screen-function types, screen-to-screen call syntax</li>
+<li><a href="ScreenIO_Data_Model.html">ScreenIO_Data_Model.md</a> — the <code>screenio.dat</code> / <code>screenfld.dat</code> schema events and controls live in</li>
+<li><a href="../fileio/spec.html">fileio</a> — the FileIO library ScreenIO builds on</li>
+<li><a href="../library-facility/spec.html">library-facility</a> — linking the library (the BR <code>LIBRARY</code> statement)</li>
+<li><a href="../../../dev/screenio-guide.md">ScreenIO internals guide</a> — <em>(dev kit)</em> how the engine dispatches these events at run time; the Filter event's exact <a href="../../../dev/screenio-guide.md#filter-contract">return-value contract</a></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/screenio/ScreenIO_Function_Reference.md">br_tree/50-libraries/screenio/ScreenIO_Function_Reference.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

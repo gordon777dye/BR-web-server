@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1032 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>1032</h1>
+<p><strong>Error:</strong> 1032</p>
+<p><strong>Description:</strong> Invalid <code>Variable</code> name</p>
+<p><strong>BR 5 message:</strong> variable name is a reserved word or DIMONLY is on and a non-dimmed variable has been referenced</p>
+<p><strong>Details:</strong> Variable name is <code>reserved word</code> or <code>DIMONLY</code> violation.  One of the following situations has occurred:</p>
+<ul>
+<li>A specified variable name is a BR reserved word and is not capable of receiving an assigned value.</li>
+<li>An undimensioned variable name was referenced while CONFIG DIMONLY was active. # Replace the function name or sub-string reference with a valid variable. For example, the statement INPUT SQR(4) could be changed to: INPUT SQ(4). (<code>Sqr</code> is a <code>reserved word</code>.)</li>
+<li>Correct the specified variable name, dimension the desired variable name, or turn DIMONLY processing off.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/1032.md">br_tree/90-reference/error-codes/1032.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

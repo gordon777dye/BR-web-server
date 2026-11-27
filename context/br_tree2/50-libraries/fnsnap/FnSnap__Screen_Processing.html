@@ -1,0 +1,975 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FnSnap__Screen_Processing — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">50-libraries</a> <span>/</span> <a href="_index.html">fnsnap</a></nav>
+<main>
+<h1>FnSnap__Screen_Processing</h1>
+<h2 id="buttons-messages-and-dialogs">Buttons, messages and dialogs</h2>
+<h3 id="fnbutton---add-button-on-the-button-bar">FNBUTTON - Add button on the button bar</h3>
+<p>Creates a button on the button bar.  Buttons are created left to right and can be removed with FNCLRBUTTON</p>
+<pre><code>FNBUTTON(BUTTON_TEXT$,FK;BTN)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BUTTON_TEXT$</strong></td>
+<td>Text to display on button.  Must be less than 10 characters</td>
+</tr>
+<tr>
+<td><strong>FK</strong></td>
+<td>Function key value to return when the button is pressed</td>
+</tr>
+<tr>
+<td><strong>BTN</strong></td>
+<td>Button number if an existing button is to be changed.  If this parameter is omitted the next button position will be used.</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fncheck---in-connection-with-a-radio-dot-or-check-box-returns-a-1-if-checked">FNCHECK - in connection with a radio dot or check box returns a 1 if checked</h3>
+<p>Used to process the elements of a radio dot list or check box is to determine wether the element has been checked (true) or not (false)</p>
+<p>FNCHECK(L$*100)</p>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**L$ **</td>
+<td>The label description being processed for an element of a radio list or check b ox list</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>This function is intended to be used by other functions see for example FNOPTIONS and FNOPTIONS$</p>
+<h3 id="fncheck---places-or-strips--from-an-element">FNCHECK$ - places or strips ^ from an element</h3>
+<p>Based on the results of FNCHECK or a default parameter this function will add or remove the ^ from a description that indicates if it has been checked</p>
+<p>Returns the label modified to either contain or be free of a leading ^.</p>
+<pre><code>FNCHECK$*100(L$*100,L)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**L$ **</td>
+<td>The label description to be modified if L is true</td>
+</tr>
+<tr>
+<td>**L **</td>
+<td>A flag indicating whether the ^ is to be appended to the front of a label, or stripped from it</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Used as a part of FNOPTIONS and FNOPTIONS$</p>
+<h3 id="fnclrbutton---removes-a-button-from-the-button-bar">FNCLRBUTTON - removes a button from the button bar</h3>
+<p>Removes a button from the button bar if it was created using FNBUTTON</p>
+<pre><code>FNCLRBUTTON(;BTN)
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>BTN</strong></td>
+<td>The number of the button to be cleared.  If blank the last, highest number, button will be cleared. If equal to 99 all buttons will be cleared.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Use in connection with FNBUTTON to display and remove buttons left to right on the button bar.</p>
+<h3 id="fndialog40---display-dialog-box-and-return-selected-text">FNDIALOG$*40 - Display dialog box and return selected text</h3>
+<p>Displays a dialog box with up to three options and specifiable text.  See also FNDLG</p>
+<pre><code>FNDIALOG$*40(SROW$,SCOL$,DBWIDTH,TXTSTR$*900,OPT1$*40,OPT2$*40,OPT3$*40,REMOVE,DFLTOPT,DISPANYKEY,KEYWAIT) !:
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<p>Text does not align very well in the box when using proportional fonts.  This function can be called from FNDLG that uses an unformatted BR file to supply text and button labels.  Both functions have been updated to utilize the external utility from David Blankenship.</p>
+<p>See also FNWAITWIN for a very useful alternative.</p>
+<h3 id="fndlg---display-a-dialog-box-from-data-in-a-file">FNDLG - Display a dialog box from data in a file</h3>
+<p>Creates a dialog box from a DAT file prepared by DIALOGMN.BR</p>
+<pre><code>FNDLG(DIALOG_DAT,DLNR;DISPANYKEY,KEYWAIT,SUFFIX$*300)
+</code></pre>
+<p>Functions used</p>
+<ul>
+<li>FNDIALOG</li>
+</ul>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DIALOG_DAT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>DLNR</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>DISPANYKEY</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>KEYWAIT</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><strong>SUFFIX$</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p>This is a carry over from earlier versions and does not align proportional text very well. If possible use MSGBOX instead.</p>
+<p>The function has been updated to use the message box utility from David Blankenship if RADIOCHK.exe is in the VOL002 directory</p>
+<p>With version 4.2 the function FNWAITWIN and rel;ated functions FNWAITMSG and FNWAITBAR are much more flexible and provde a Windows look message box with custom buttons, a progress bar and optionsl message flashing across the wait window as processing progresses.</p>
+<h3 id="fnhelp---open-a-tip-box-associated-with-a-screen-using-a-text-file">FNHELP - open a tip box associated with a screen using a text file</h3>
+<p>Searches a specified text file for an anchor point, then displays a record after that point specified by HFLD.  Used for displaying pop up help windows based on the input field where the cursor is located</p>
+<p>[PICT(PICS\SNAP0007.ptf)]</p>
+<pre><code>FNHELP(HPATH$*60,HFILE$*20,HBASE$,HFLD,HROW,HCOL;HTITLE$*80)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**HPATH$ **</td>
+<td>Path where the help file is located</td>
+</tr>
+<tr>
+<td>**HFILE$ **</td>
+<td>File name within HPATH$ for the help file</td>
+</tr>
+<tr>
+<td>**HFLD **</td>
+<td>Field number, usually set by CURFLD except in GRIDs it should be set by CURCOL.</td>
+</tr>
+<tr>
+<td>**HROW **</td>
+<td>Current row position of cursor, used to help in the positioning of the help window.  Usually set by CURROW</td>
+</tr>
+<tr>
+<td>**HCOL **</td>
+<td>Current column of cursor, used to help in the positioning of the help window.  Usually set by CURCOL</td>
+</tr>
+<tr>
+<td>HTITLE$ '''</td>
+<td>An optional title to appear in the bar at the top of the help window.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Very flexible and easy to implement help system.  I uses David Blankenship's HELPTIPS.exe utility.</p>
+<h3 id="fnhelptip---uses-david-blankenship-utility-to-display-a-help-record">FNHELPTIP - uses David Blankenship utility to display a help record</h3>
+<p>Displays a record from a text file in a pop up window.  Used in the BR system by the ERRORS routine to display the description of an error number.</p>
+<pre><code>FNHELPTIP(PROGPATH$*100,TEXTFILE$*50,TITLE$*50,RECORD,HROW,HCOL;NO_WAIT)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**PROGPATH$ **</td>
+<td>Path where text file is located.</td>
+</tr>
+<tr>
+<td>**TEXTFILE$ **</td>
+<td>Name of text file within the specified path</td>
+</tr>
+<tr>
+<td>**TITLE$ **</td>
+<td>Name to be displayed at the top of the pop up window</td>
+</tr>
+<tr>
+<td>**RECORD **</td>
+<td>The record number within the text file to display as the text of the message.</td>
+</tr>
+<tr>
+<td>**HROW **</td>
+<td>A positioning variable generally set by CURROW</td>
+</tr>
+<tr>
+<td>**HCOL **</td>
+<td>A positioning variable generally set by CURCOL</td>
+</tr>
+<tr>
+<td>**NO_WAIT **</td>
+<td>Ignored</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>If HROW and HCOL are zero then the window id positioned in the center of the screen.</p>
+<h3 id="fnok---pop-up-ok-question">FNOK - Pop-up &quot;OK&quot; question</h3>
+<pre><code>FNOK
+</code></pre>
+<p>Description|<br>
+Displays a dialog box with OK yes or NO. If yes is returned FNOK is true else it is false</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<ul>
+<li>'''</li>
+</ul>
+<p><strong>Comments:<br></strong></p>
+<p>MSGBOX is probably a better option with current programs</p>
+<h3 id="fnoptions---creates-a-radio-dot-selection-pop-up">FNOPTIONS - creates a radio dot selection pop up</h3>
+<p>Displays a pop up radio dot selection window.  If David Blankenship's utility RADIOCHEK.exe is present that will be used.  If not present then a BR generated selection window will be generated.</p>
+<p>[PICT(PICS\SNAP0005.ptf)]</p>
+<pre><code>FNOPTIONS(MAT O$;DEFAULT,TITLE$*100,MESSAGE$*1000,WAITTIME,SROW,SCOL)
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNRADIOCHK</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**Mat O$ **</td>
+<td>Matrix containing the descriptions for each line in the list</td>
+</tr>
+<tr>
+<td>**DEFAULT **</td>
+<td>A number indicating which radio dot item should carry the dot when the box is displayed</td>
+</tr>
+<tr>
+<td>**TITLE$ **</td>
+<td>A title to appear across the top of the list box.</td>
+</tr>
+<tr>
+<td>**MESSAGE$ **</td>
+<td>A message to appear in a separate part of the dialog box explaining the choices if appropriate.</td>
+</tr>
+<tr>
+<td>**WAITTIME **</td>
+<td>Number of seconds that the list should be displayed before accepting whatever is checked and continuing.</td>
+</tr>
+<tr>
+<td>**SROW **</td>
+<td>Positioning parameter generally set by CURROW</td>
+</tr>
+<tr>
+<td>**SCOL **</td>
+<td>Positioning parameter generally set by CURCOL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnoptions---creates-a-check-box-selection-pop-up">FNOPTIONS$ - creates a check box selection pop up</h3>
+<p>Similar to FNOPTIONS, but this function displays the information in the form of a multiple selection check box list.</p>
+<p>[PICT(PICS\SNAP0006.ptf)]</p>
+<pre><code>FNOPTIONS$*100(MAT O$;DEFAULT$*100,TITLE$*100,MESSAGE$*1000,WAITTIME,NONE)
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNRADIOCHK</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**DEFAULT **</td>
+<td>A number indicating which radio dot item should carry the dot when the box is displayed</td>
+</tr>
+<tr>
+<td>**TITLE$ **</td>
+<td>A title to appear across the top of the list box.</td>
+</tr>
+<tr>
+<td>**MESSAGE$ **</td>
+<td>A message to appear in a separate part of the dialog box explaining the choices if appropriate.</td>
+</tr>
+<tr>
+<td>**WAITTIME **</td>
+<td>Number of seconds that the list should be displayed before accepting whatever is checked and continuing.</td>
+</tr>
+<tr>
+<td>**NONE **</td>
+<td>A flag that will allow no items to be selected, otherwise the check list may not be exited without at least one selection being made.Positioning parameter generally set by CURROW</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnpfkeyline---creates-a-hot-field-string-of-function-key-options">FNPFKEYLINE - Creates a hot field string of function key options</h3>
+<p>See also FNWINBUTTONS for 4.17+</p>
+<p>Prints a function key message line in an open window or child window at the row specified. Function keys displayed are hot and return the Fkey value. Fkey references can be hot text or optionally buttons.</p>
+<p>[PICT(PICS\SNAP0009.ptf)]</p>
+<pre><code>FNPFKEYLINE(ROW,TXT$*80;FKWIN)
+</code></pre>
+<p>Functions used</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ROW</strong></td>
+<td>The row number of the window on which the line should be displayed. Negative number indicate that many rows UP from the bottom of the window. Zero &quot;0&quot; indicates the very bottom of the window. All messages will be right justified within the window.</td>
+</tr>
+<tr>
+<td><strong>TXT$</strong></td>
+<td>Text to be displayed. Function keys should be designated with a leading carat ^ and trailing double space such as &quot;^Esc  End&quot;</td>
+</tr>
+<tr>
+<td><strong>FKWIN</strong></td>
+<td>Window number in which the line should be displayed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Valid function keys are numbers beginning with &quot;^F&quot; such a ^F9, or abbreviations for keys including ^PgUp ^PgDn ^Esc and ^Enter.  These are not case sensitive.
+See also FNWINBUTTONS for a GUI based alternative.</p>
+<h3 id="fnpfkey---prints-a-function-key-message">FNPFKEY - Prints a function key message</h3>
+<pre><code>FNPFKEY(R,C,F$,TXT$*78) !:
+</code></pre>
+<p>Description|<br>
+Prints a function key message on window zero</p>
+<p>Functions used</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R</strong></td>
+<td>Row number</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>Column number</td>
+</tr>
+<tr>
+<td><strong>F$</strong></td>
+<td>Function key to be displayed</td>
+</tr>
+<tr>
+<td><strong>TXT$</strong></td>
+<td>Message to be displayed next to the function key</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Displays only one function key message at the row and column of window #0 specified.  FNPFKEYLINE is more flexible and recommended.</p>
+<p>Effective with GUI mode and release 4.17 FNWINBUTTONS and FNPICBUTTONS are much better options.</p>
+<h3 id="fnradiochk---display-a-radiocheckbox-with-a-set-of-options">FNRADIOCHK$ - display a radio/checkbox with a set of options</h3>
+<p>Used by FNOPTONS and FNOPTIONS$ and FNDLG to display radio dot list, check box list, or a dialog box.  Makes use of David Blankenship's RADIOCHK.exe utility.</p>
+<pre><code>FNRADIOCHK$*100(CAPTION$*80,INFILE$*60,LEFT,TOP,ALLOW,DEFAULT$*100,TYPE$,LOCATE,NOCOLS,COLWIDTH,WAITTIME;TEXTSTRING$*2400)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**CAPTION$ **</td>
+<td>Title for the top bar</td>
+</tr>
+<tr>
+<td>**INFILE$ **</td>
+<td>File name to be processed</td>
+</tr>
+<tr>
+<td>**LEFT **</td>
+<td>Position form left of screen to display in pixels</td>
+</tr>
+<tr>
+<td>**TOP **</td>
+<td>Position from the top of the screen in pixels</td>
+</tr>
+<tr>
+<td>**ALLOW **</td>
+<td>allows no responses if true, requires at least one if false</td>
+</tr>
+<tr>
+<td>**DEFAULT$ **</td>
+<td>A string of 0 and 1 where 0 is not checked and 1 is checked</td>
+</tr>
+<tr>
+<td>**TYPE$ **</td>
+<td>R for Radio C for Check box</td>
+</tr>
+<tr>
+<td>**LOCATE **</td>
+<td>Record number in file to use as data for a dialog box</td>
+</tr>
+<tr>
+<td>**NOCOLS **</td>
+<td>Number of columns to display</td>
+</tr>
+<tr>
+<td>**COLWIDTH **</td>
+<td>Width of columns or buttons.  If not provided the spacing will be automatic based on the length of text provided</td>
+</tr>
+<tr>
+<td>**WAITTIME$ **</td>
+<td>Number of seconds to wait before returning the default answer.</td>
+</tr>
+<tr>
+<td>**TEXTSTRING$ **</td>
+<td>Text to display in a dialog box if not using text from a file.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnradnum---return-the-option-selected-in-a-radio-dot-list">FNRADNUM - Return the option selected in a radio dot list</h3>
+<pre><code>FNRADNUM(MAT V$)
+</code></pre>
+<p>Description|<br>
+Function determines which in a group of radio buttons was selected and returns the element number</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fntimeout---display-timeout-message">FNTIMEOUT - Display timeout message</h3>
+<pre><code>FNTIMEOUT(;SECONDS)
+</code></pre>
+<p>Description|<br>
+Displays a message that input has timed out and waits for a keystroke to reactivate the program.</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnwinbuttons---print-one-or-more-buttons-on-a-screen-in-a-designated-window">FNWINBUTTONS - print one or more buttons on a screen in a designated window</h3>
+<p>Similar to and a replacement of FNPFKEYLINE.  Prints one or more buttons, right justified in a designated window either BROWs down from the top of the window if BROPW is positive of BROWS up from the bottom of the window if BROW is zero or negative.</p>
+<p>[PICT(PICS\SNAP0002.ptf)]</p>
+<pre><code>DEF LIBRARY FNWINBUTTONS(BROW,BTEXT$*100;BWIN,CENTER,FONT$)
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNWINROWCOL<br></p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**BROW **</td>
+<td>The row number within a window on which to place the buttons.  If 0 or negative the row is up from the bottom of the window, positive is down from the top.</td>
+</tr>
+<tr>
+<td>**BTEXT$ **</td>
+<td>The text to display within the buttons. Each button is designated with a ^followed by FX: where X is the fkey value to be returned when the button is pushed.  FX can also be PGUP, PGDN or ESC.  The^FX: is followed by the text to appear within each button.  Al buttons are dimensioned to the longest string provided for any button.</td>
+</tr>
+<tr>
+<td>**BWIN **</td>
+<td>The window number of the window within which the buttons should appear.</td>
+</tr>
+<tr>
+<td>**CENTER **</td>
+<td>The default is zero (0) which right aligns the buttons on the right hand border of the window. To center the buttons horizontally in the window enter one (1) in this element.</td>
+</tr>
+<tr>
+<td>**FONT$ **</td>
+<td>If this element is blank the default BUTTONS font will be used for the WINBUTTONS. Entering an alternative font can allow wingdings or directional arrows if the font allows it.  An example would be specifying TERMINAL on a Windows machine and then usinrt chr$(16) and chr$(17) next to the word Right or Left.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Can only be used in GUI ON mode</p>
+<h2 id="string-manipulation">String Manipulation</h2>
+<h3 id="fndecrypt---decrypt-fnencrypt">FNDECRYPT$ - Decrypt FNENCRYPT$</h3>
+<p>Undoes what FNENCRYPT$ does</p>
+<pre><code>FNDECRYPT$(PW$)
+</code></pre>
+<p>Functions used</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PW$</strong></td>
+<td>The encrypted password from FNENCRYPT$.  This is usually a stored value to be compared with an entered value</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>This is a simple encryption routine only meant to hide a value from a casual observer, not a dedicated hacker. A more robust encryption routine is available with George Tisdale's WORKMENU.br menuing system.</p>
+<h3 id="fnencrypt---simple-encryption">FNENCRYPT$ - Simple encryption</h3>
+<pre><code>FNENCRYPT$(PW$) !:
+</code></pre>
+<p>Description|<br>
+Simple encryption routine to ward off SNOOPS, NOT serious hackers</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments:<br></strong></p>
+<p>This is a simple encryption routine only meant to hide a value from a casual observer, not a dedicated hacker.</p>
+<h3 id="fnfkey---converts-an-fkey-value-greater-than-1000">FNFKEY - Converts an FKEY value greater than 1000</h3>
+<p>Returns a function key value.  If the value would be greater than 1000 then only the right tree places are used to determine the number.  Useful in converting button FKEYs to hot text fkeys</p>
+<pre><code>FNFKEY(AKEY)
+</code></pre>
+<p>Functions used</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AKEY</strong></td>
+<td>An FKEY value to be reduced by 1000 and returned as the value of FKEY.  If AKEY is less than 1000 the value of AKEY will be returned</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p>Use in conjunction with FNPFKEYLINE</p>
+<h3 id="fnnum---convert-number-to-string">FNNUM$ - Convert number to string</h3>
+<pre><code>FNNUM$(NAMT,DCML,LNGTH) !:
+</code></pre>
+<p>Description|<br>
+Converts a number to a character string with fixed decimal places.  CNVRT$ is a better option.</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnphone---convert-number-to---">FNPHONE$ - Convert number to (###) ###-####</h3>
+<p>Formats a 10 digit number into a telephone number formatted string</p>
+<pre><code>FNPHONE$(X)
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>X</strong></td>
+<td>Numeric telephone number including a leading &quot;1&quot;</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnproper60---convert-to-proper-case">FNPROPER$*60 - Convert to Proper Case</h3>
+<p>Converts a string into an initial capital title or name case</p>
+<pre><code>FNPROPER$*60(A_IN$*60) !:
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A_IN$</strong></td>
+<td>String that is to be converted to initial capitals</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>The function uses a lot of SREP$ statements, consequently the string passed should be short enough to not cause a string overflow. About 500 characters is a reasonable limit.</p>
+<h2 id="other">Other</h2>
+<h3 id="fnauto---1-if-last-field-exit-was-automatic">FNAUTO - 1 if last field exit was automatic</h3>
+<p>Returns a 1 (true) if the last field was exited with an automatic exit Attribute E or X LASTFIELD is the field # that was current</p>
+<pre><code>FNAUTO(LASTFLD) !:
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<ul>
+<li>NONE</li>
+</ul>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnclkbuf---clear-keyboard-buffer">FNCLKBUF - Clear keyboard buffer</h3>
+<p>Clears the keyboard buffer</p>
+<pre><code>FNCLKBUF ! Clear the keyboard buffer
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>None</p>
+<p><strong>Variables</strong>:</p>
+<ul>
+<li>None</li>
+</ul>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnerrtrap---trapped-error-processing">FNERRTRAP - Trapped Error Processing</h3>
+<p>Red Screen error trapping routine. Displays error, program line and number to call.  Also logs the error to a log file by workstation and creates an email message</p>
+<pre><code>FNERRTRAP(EPROG$*50,ELINE,EERR,ECOUNT,EVARIABLE$,&amp;ECURFLD,EMENU$)
+</code></pre>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>EPROG$</strong></td>
+<td>Program name where the error was generated</td>
+</tr>
+<tr>
+<td><strong>ELINE</strong></td>
+<td>Line number where the error occurred</td>
+</tr>
+<tr>
+<td><strong>EERR</strong></td>
+<td>Error number that occurred</td>
+</tr>
+<tr>
+<td><strong>ECOUNT</strong></td>
+<td>Variable count if appropriate to the error</td>
+</tr>
+<tr>
+<td><strong>EVARIABLE$</strong></td>
+<td>Name of the variable, if appropriate where the error occurred</td>
+</tr>
+<tr>
+<td><strong>ECURFLD</strong></td>
+<td>Current field where the error occurred if in full screen processing</td>
+</tr>
+<tr>
+<td>**EMENU$ **</td>
+<td>The menu to which the program should return if the error can not be resolved</td>
+</tr>
+<tr>
+<td>**EMENUSEQ$ **</td>
+<td>The menu Sequence to which the program should return if the error can not be resolved.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<p>Requires FNEMAILFILE and EmailBlaster or EmailMonitor</p>
+<h3 id="fninit---initialize-variables-in-fnsnap-library">FNINIT - Initialize variables in FNSNAP Library</h3>
+<p>Initiates the variables for the FNSNAP library.  Be careful not to use more than once in a program</p>
+<pre><code>FNINIT(;SYSDIR$,SYS$)
+</code></pre>
+<p>Functions used</p>
+<p><strong>Variables</strong>:</p>
+<ul>
+<li>NONE</li>
+</ul>
+<p><strong>Comments:<br></strong></p>
+<p>Initializes variables for the older FNSNAP tools.  If run  in the middle of a program the variables will be reset to the initial values and may cause problems.  Most new functions being written should NOT use this function.</p>
+<h3 id="fnprintscreen---stuff-the-keyboard-to-generate-a-print-screen">FNPRINTSCREEN - stuff the keyboard to generate a print screen</h3>
+<p>Programmatically controls the keyboard to do the equivalent of Ctrl-P to issue a print screen</p>
+<pre><code>FNPRINTSCREEN
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<ul>
+<li>None</li>
+</ul>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnzero---set-to-number-if-zero">FNZERO - set to number if zero</h3>
+<pre><code>FNZERO(V,DV) ! SET Variable equal to the Default Variable if zero !:
+</code></pre>
+<p>Description|</p>
+<h2 id="screen-input-and-display">Screen input and display</h2>
+<h3 id="fnmod---returns-the-column-number-of-a-cell-in-a-grid">FNMOD - returns the column number of a cell in a grid</h3>
+<p>Replaced by CURCOL in 4.17.  Returns the column number of the current cell</p>
+<pre><code>FNMOD(CEL,COLS)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**CEL **</td>
+<td>The cell number where the cursor is located</td>
+</tr>
+<tr>
+<td>**COLS **</td>
+<td>The number of columns in the grid</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnparseres---returns-screen-resolution-and-br-window-size-for-a-session">FNPARSERES - returns screen resolution and BR window size for a session</h3>
+<p>Converts</p>
+<pre><code>FNPARSERES(W$,MAT SCRNRES,MAT WINRES,MAT CONRES)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**W$ **</td>
+<td>The workstation ID being queried</td>
+</tr>
+<tr>
+<td>**MAT SCRNRES **</td>
+<td>Two element array of current terminal rows and columns in pixels</td>
+</tr>
+<tr>
+<td>**MAT WINRES **</td>
+<td>Five element matrix 1    0 is maximized (&quot;M-&quot;) 1 is windowed (&quot;A-&quot;)2    rows in pixels of window  3    columns in pixels of window 4    row position of upper left corner in pixels of window  5    columns position of upper left corner in pixels of window</td>
+</tr>
+<tr>
+<td>**MAT CONRES **</td>
+<td>Five element matrix 1    0 is maximized (&quot;M-&quot;) 1 is windowed (&quot;A-&quot;)2    rows in pixels of window3    columns in pixels of window 4    row position of upper left corner in pixels of window5    columns position of upper left corner in pixels of window</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>Uses Steve Koger's RESOLUTION.exe utility</p>
+<h3 id="fnprogress---progress-bar">FNPROGRESS - Progress bar</h3>
+<pre><code>FNPROGRESS(&amp;PCT_WINDEV,PCT_TOTAL,PCT_DONE;SR$,CAPTION$*55)
+</code></pre>
+<p>Description|<br>
+Displays a progress bar that expands based on numbers passed to the function</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnscreen---24-x-80-screen-display-for-screen-painter">FNSCREEN - 24 x 80 screen display for screen painter</h3>
+<pre><code>FNSCREEN(SCRNO;SCREENFILE,MAT SCRATR$,MAT SCREEN$,MAT INWRK$,MAT INFLDA$,MAT INWRKH$,NOPAINT) ! Retrieve and display screen
+</code></pre>
+<p>Description|<br>
+Displays a generated screen in the full screen window 0.  Screen was created using SCREENMN in a 23x80 format.</p>
+<p>This function has been significantly changed by NEWSCREEN.dll</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fntextbox---creates-a-text-box-with-word-wrap">FNTEXTBOX - creates a text box with word wrap</h3>
+<pre><code>Displays and allows input from a windows text box with text
+</code></pre>
+<pre><code>FNTEXTBOX$*4000(&amp;TEXTWIN,SROW,SCOL,ROWS,COLS,TLEN,PARENT,TEXT$*4000;BORDER,TKEY$)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**TEXTWIN **</td>
+<td></td>
+</tr>
+<tr>
+<td>**SROW **</td>
+<td>Starting row within the parent window where the upper left corner should appear</td>
+</tr>
+<tr>
+<td>**SCOL **</td>
+<td>Starting column number within the parent window where the upper left corner should appear</td>
+</tr>
+<tr>
+<td>**ROWS **</td>
+<td>Number of rows the text box should cover</td>
+</tr>
+<tr>
+<td>**COLS **</td>
+<td>Number of Columns the text box should cover</td>
+</tr>
+<tr>
+<td>**TLEN **</td>
+<td>Allowable length of the text</td>
+</tr>
+<tr>
+<td>**PARENT **</td>
+<td>Parent window number</td>
+</tr>
+<tr>
+<td>**TEXT$ **</td>
+<td>Text to display.  Modified text will be returned as the value of the function</td>
+</tr>
+<tr>
+<td>**BORDER **</td>
+<td>Zero for no border or any other number to create a single line border</td>
+</tr>
+<tr>
+<td>**TKEY$ **</td>
+<td>Function key to return if the window is to be marked as hot</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnwinscrn---paints-a-screen-in-a-window">FNWINSCRN - paints a screen in a window</h3>
+<pre><code>FNWINSCRN(SFIL,SCRNO,WINNO,WINLIN,WINLEN,MAT SINFLDA$,MATSHELP$;DISPLAY) !:
+</code></pre>
+<p>Description|<br>
+Displays a generated screen in an open child window of specified size.  The generated screen was created using SCREENMN</p>
+<p>This function has been significantly changed by NEWSCRN.DLL</p>
+<p>Functions used |</p>
+<p><strong>Variables</strong>:</p>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnwinrowcol---in-gui-mode-returns-rows-and-columns-of-a-window">FNWINROWCOL - in GUI mode returns rows and columns of a window</h3>
+<p>Must be in GUI ON mode to use this function.  Returns the number of rows and number of columns in the specified window.  the values returned are actually one shorter than the actual size of the window.</p>
+<pre><code>FNWINROWCOL(WINNO,&amp;WROWS,&amp;WCOLS)
+</code></pre>
+<p><strong>Functions used:<br></strong></p>
+<p>FNWINSIZE</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**WINNO **</td>
+<td>Window number for which information is requested</td>
+</tr>
+<tr>
+<td>**WROWS **</td>
+<td>Number of rows less one of the requested window</td>
+</tr>
+<tr>
+<td>**WCOLS **</td>
+<td>Number of columns less on of the requested window</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments</strong>:</p>
+<h3 id="fnwinsize---in-gui-mode-creates-arrays-holding-all-window-sizes">FNWINSIZE - in GUI mode creates arrays holding all window sizes</h3>
+<p>Returns arrays carrying dimensions for all open windows</p>
+<pre><code>FNWINSIZE(MAT S_WINNO,MAT S_SROW,MAT S_SCOL,MAT S_EROW,MAT S_ECOL,MAT S_ROWS,MAT S_COLS,MAT S_PARENT)
+</code></pre>
+<p><strong>Functions used</strong>:</p>
+<p><strong>Variables</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>**MAT S_WINNO **</td>
+<td>Array is dynamically populated with window number information</td>
+</tr>
+<tr>
+<td>**MAT S_SROW **</td>
+<td>Array is dynamically populated with starting row number</td>
+</tr>
+<tr>
+<td>**MAT S_SCOL **</td>
+<td>Array is dynamically populated with starting column number</td>
+</tr>
+<tr>
+<td>**MAT S_EROW **</td>
+<td>Array is dynamically populated with ending row number</td>
+</tr>
+<tr>
+<td>**MAT S_ECOL **</td>
+<td>Array is dynamically populated with ending column number</td>
+</tr>
+<tr>
+<td>**MAT S_ROWS **</td>
+<td>Array is dynamically populated with the number of rows in the window</td>
+</tr>
+<tr>
+<td>**MAT S_COLS **</td>
+<td>Array is dynamically populated with the number of columns in the window</td>
+</tr>
+<tr>
+<td>MAT S_PARENT '''</td>
+<td>Array is dynamically populated with the number of the parent window</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Comments:<br></strong></p>
+<p>this is the working function for FNWINROWCOL</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/50-libraries/fnsnap/FnSnap__Screen_Processing.md">br_tree/50-libraries/fnsnap/FnSnap__Screen_Processing.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

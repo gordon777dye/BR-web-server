@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen input/output (FIELDS) — BR reference</title>
+<meta name="keywords" content="PRINT FIELDS, INPUT FIELDS, RINPUT FIELDS, INPUT SELECT, RINPUT SELECT, INPUT, LINPUT, RINPUT, SELECT, ATTR, HELP">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">20-io-screen</a> <span>/</span> <a href="_index.html">input-output</a></nav>
+<main>
+<h1 id="screen-inputoutput-fields">Screen input/output (FIELDS)</h1>
+<p>Full-screen data entry: positioning text and input at any row/column with <code>PRINT FIELDS</code>,
+<code>INPUT FIELDS</code>, and <code>RINPUT FIELDS</code>. Field <strong>formats and attributes</strong> are in
+<a href="../fields-attributes/spec.html">fields-attributes</a>; GUI <strong>controls</strong> (buttons, grids, …) in
+<a href="../controls/spec.html">controls</a>; <strong>windows</strong> in <a href="../windows-cursor/spec.html">windows-cursor</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">PRINT  ['#'&lt;window&gt;,] FIELDS &lt;field-specs&gt; ':' &lt;expression-list&gt;
+INPUT  ['#'&lt;window&gt;,] FIELDS &lt;field-specs&gt; [',' ATTR &lt;attrs&gt;] [',' HELP &lt;help&gt;] ':' &lt;io-list&gt; [&lt;error-cond&gt;]
+RINPUT ['#'&lt;window&gt;,] FIELDS &lt;field-specs&gt; [',' ATTR &lt;attrs&gt;] [',' HELP &lt;help&gt;] ':' &lt;io-list&gt; [&lt;error-cond&gt;]
+
+&lt;field-specs&gt; ::= '&quot;' &lt;field-def&gt; [ ';' &lt;field-def&gt; ]* '&quot;'   -- one or more fields
+                | MAT &lt;string-array&gt;                          -- array of field definitions
+&lt;field-def&gt;   ::= &lt;row&gt; ',' &lt;col&gt; ',' &lt;format&gt; [ ',' &lt;attributes&gt; ]
+&lt;row&gt; ::= 1-24    &lt;col&gt; ::= 1-80     -- default screen
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<ul>
+<li><strong>PRINT FIELDS</strong> displays values at positions; <strong>INPUT FIELDS</strong> accepts entry; <strong>RINPUT FIELDS</strong>
+(&quot;reverse input&quot;) shows current values <em>and</em> accepts changes (PRINT + INPUT combined). Abbreviations:
+<code>PR F</code> / <code>IN F</code> / <code>RI F</code> (and <code>IN S</code> / <code>RI S</code> for SELECT). <strong>PRINT FIELDS ignores control attributes</strong>
+(only monochrome/color attributes apply), and an <code>FMT</code> spec on output behaves as plain <code>C</code> — no
+formatting or validation is done on output.</li>
+<li>A field def is <code>row, col, format[, attributes]</code> (see
+<a href="../fields-attributes/spec.html#format-codes">fields-attributes</a>). Multiple fields are separated
+by <code>;</code> in one string, or supplied as a <code>MAT</code> of definition strings for array processing.</li>
+<li><strong>Field windowing</strong> lets a field accept more text than it displays. As of <strong>4.17</strong> the syntax is
+<code>&lt;disp&gt;/&lt;format&gt; &lt;max&gt;</code> — <code>&quot;10,5,8/C 12,UH&quot;</code> shows 8 chars but accepts 12 (the pre-4.17 form was
+<code>C 8/12</code>).</li>
+<li>Always bracket full-screen sections with <code>PRINT NEWPAGE</code>, and don't mix them with ordinary
+bottom-line <code>PRINT</code>/<code>INPUT</code>.</li>
+<li><strong>Error conditions</strong>: <code>CONV</code> (wrong type), <code>EXIT</code> (Esc), <code>HELP</code> (Help key), <code>SOFLOW</code> (overflow).</li>
+</ul>
+<a id="multiple-fields"></a>
+<h3 id="multiple-field-processing">Multiple-field processing</h3>
+<p>One statement can process many fields as a unit (via <code>;</code> list or <code>MAT</code>). Control attributes drive
+flow: <code>A</code> auto-advances, <code>AE</code> on the last field auto-submits, <code>C</code> sets initial cursor focus; <code>ENTER</code>
+submits the whole group. (Attribute letters: <a href="../fields-attributes/spec.html#control-attributes">fields-attributes</a>.)</p>
+<ul>
+<li><strong>MAT grouping</strong> — parenthesizing several <code>MAT</code>s in the I/O list alternates assignment across them:
+<code>INPUT FIELDS A$: (MAT B$, MAT C), X$</code> fills B$(1), C(1), B$(2), C(2), … (faster, far larger arrays
+than spelling them out). Up to 62 MATs, all the same length (else error 0106); MAT variables only.</li>
+<li><strong>Input across multiple windows</strong> (4.3): a <code>#&lt;win&gt;,</code> prefix <em>inside</em> a field def overrides the
+statement's window, so one statement can span windows —
+<code>INPUT FIELDS #121: &quot;10,10,C 20;#124,10,10,C 30&quot;: a$,b$</code>.</li>
+<li><strong>Per-field current attribute</strong>: <code>ATTR MAT &lt;attr$&gt;</code> supplies a different highlight per field (ideal
+for multi-select <code>INPUT SELECT</code>); it is compiled for attributes only and reuses the first if too few.</li>
+<li><strong>Hot fields</strong>: a trailing fkey value makes a field clickable; valid ranges are <strong>1–128</strong> (90–99 are
+reserved) and <strong>1000–9999</strong>, and the special value <strong>10000 = Enter</strong> (yields fkey 0). <code>NOWAIT</code>
+raises a Tab (returns without waiting). <em>(The old <code>X'xx'</code> hex-scancode trailing attribute was removed —
+use numeric fkey values.)</em></li>
+</ul>
+<a id="select"></a>
+<h3 id="input--rinput-select--menu-selection">INPUT / RINPUT SELECT — menu selection</h3>
+<p><code>INPUT SELECT</code> (and <code>RINPUT SELECT</code>) reuse the FIELDS machinery for <strong>menu choice</strong>: the syntax is
+identical to <code>INPUT FIELDS</code> but with the <code>SELECT</code> keyword. It does <strong>not</strong> change field data — it
+just sets <a href="../windows-cursor/spec.html"><code>CMDKEY</code></a> and <a href="../windows-cursor/spec.html"><code>CURFLD</code></a> when the
+operator picks a field with Enter / a function key / a control key. Navigation: typing a character
+jumps to the next field whose first matching (upper)case char matches; arrows / Tab / Shift-Tab move
+field to field. <code>ATTR &quot;&lt;attrs&gt;&quot;</code> highlights the current field (e.g. <code>ATTR &quot;R&quot;</code>); <code>HELP</code> attaches
+per-field help windows (shown when <code>USERLEVEL</code> ≠ 0).</p>
+<pre><code class="language-business-rules">00150 PRINT FIELDS FSPEC$: MAT MENU$
+00160 INPUT SELECT FSPEC$, ATTR &quot;R&quot;, HELP C$: MAT MENU$   ! sets CMDKEY + CURFLD on pick
+</code></pre>
+<a id="field-help"></a>
+<h3>Field help</h3>
+<p><code>INPUT/RINPUT FIELDS … , HELP &quot;&lt;helpstring&gt;&quot;</code> attaches per-field help (also usable on <code>PRINT FIELDS</code>
+buttons); the helpstring is one <code>;</code>-separated spec per field: <code>&lt;level&gt;&lt;placement&gt;[&lt;|&gt;]&lt;sep&gt;&lt;text&gt;&lt;sep&gt;</code>,
+or <code>X</code> (no help on that field), or <code>&amp;&lt;n&gt;;</code> (reuse field n's text — backward references only). <strong>Level
+1–4</strong> is the <code>USERLEVEL</code> at/below which the help auto-displays (<code>1</code> important/everyone … <code>3</code> novices;
+<strong><code>4</code> = Windows tooltip only</strong>, suppressing help windows — the recommended setting, 4.2; <code>USERLEVEL 0</code>
+disables all auto-display, though <code>&lt;HELP&gt;</code> still shows it). <strong>Placement</strong> is <code>A</code>/<code>B</code>/<code>L</code>/<code>R</code> (add <code>&lt;</code>/<code>&gt;</code>
+for flush-left/right), or an <strong>open window number 1–999</strong> to render the help <em>into</em> that window — a big
+optimization that avoids repainting per field (especially on Unix/Linux terminals). Text uses <code>\n</code> or
+<code>CHR$(10)</code> for line breaks (max <strong>78 chars/line</strong>; up to 1000 shown, ~100 practical); the separator must
+be a non-alphanumeric character absent from the text. Border/attributes come from the BRConfig.sys
+<code>FIELDHELP</code> directive. (Format/attribute summary in <a href="../controls/spec.html#help">controls §help</a>.)</p>
+<a id="plain-input"></a>
+<h3 id="plain-non-fields-keyboard-input">Plain (non-FIELDS) keyboard input</h3>
+<p>Bottom-line input without positioning:</p>
+<pre><code class="language-bnf">INPUT  &lt;variable-list&gt; [ CONV &lt;ref&gt; ] [ SOFLOW &lt;ref&gt; ] [ EOF &lt;ref&gt; ] [ TIMEOUT &lt;ref&gt; ]
+LINPUT &lt;string-variable&gt; [ TIMEOUT &lt;ref&gt; ]            -- whole line, including commas/punctuation
+RINPUT &lt;variable&gt; [ TIMEOUT &lt;ref&gt; ]                   -- single variable: prints its current value, then prompts for a replacement
+</code></pre>
+<p><code>INPUT</code> reads comma-separated values into the list (type-checked for numerics; <code>CONV</code>/<code>SOFLOW</code>
+handle bad data) — it takes <strong>no prompt argument</strong> (<code>INPUT &quot;X&quot;, A$</code> does not compile; emit the
+prompt with a separate <code>PRINT</code> first). <a id="linput"></a><code>LINPUT</code> reads an entire line into one string. Plain
+<code>RINPUT &lt;var&gt;</code> (&quot;reverse input&quot;) prints the current value and prompts for a replacement; it is
+seldom used because <code>RINPUT FIELDS</code> is preferred (it accepts a single variable only, not a list).
+Program-driven plain <code>PRINT</code>
+(zone/concatenated output) is in
+<a href="../../40-io-printing/statements/spec.html">40-io-printing/statements</a>. In <strong>INPUT mode</strong> the status
+line shows &quot;INPUT&quot; and the program waits for Enter. <code>INPUT</code>/<code>LINPUT</code>/<code>RINPUT</code> all honor an input
+timeout: a <code>WAIT=&lt;sec&gt;</code> in effect arms a <code>TIMEOUT</code> trap (<strong>error 4145</strong>) when no input arrives in time
+(<code>WAIT=0</code> = no wait, <code>WAIT=-1</code> = wait forever, reset on each keypress).</p>
+<p><a id="input-details"></a>
+<strong>Plain <code>INPUT</code>, in more detail.</strong> The full form is
+<code>INPUT [#&lt;file&gt;:] {&lt;variable&gt;|MAT &lt;array&gt;}[, …] [&lt;condition&gt; &lt;line&gt;]…</code>.</p>
+<ul>
+<li>
+<p><strong>Where the data comes from.</strong> The keyboard by default (no file number, or <code>#0</code>); the next records of a procedure
+file when the program was started with <code>RUN PROC</code>; or a file or window already opened, named by <code>#&lt;number&gt;:</code>: a
+display file, a communications file or a window file. From a display file the record is read as if it were typed,
+so it must hold the right number of items, separated by commas; extra values left in the record after the last
+variable has been given its value are ignored.</p>
+</li>
+<li>
+<p><strong>Error conditions</strong> that can be trapped: <code>CONV</code>, <code>EOF</code>, <code>ERROR</code>, <code>EXIT</code>, <code>HELP</code>, <code>IOERR</code> and <code>SOFLOW</code>.
+With none active an error interrupts the program.</p>
+</li>
+<li>
+<p><strong>Typing.</strong> A numeric item may be entered with an exponent (<code>5.2E3</code> is 5200, <code>-5.2e+3</code> is -520, <code>+5e-4</code> is .0005).
+A forward slash <code>/</code> as the last character typed ends a multi-variable <code>INPUT</code> without an error: the slash is not
+read, and the variables not yet read are <strong>not changed</strong>, so they can keep default values (this also holds for
+<code>RUN PROC</code> and display files). With <code>OPTION INVP</code> a comma, not a period, is the decimal point. Control characters
+are not accepted as input.</p>
+</li>
+<li>
+<p><strong>Choosing the right statement.</strong> To take a whole record, <code>LINPUT</code> is preferred unless the fields are separated by
+commas; <code>INPUT</code> must not be used with <code>EOL=NONE</code> for a display or communications file (<code>LINPUT</code> reads up to the
+string's maximum length instead). To wait for any response, use <code>LINPUT A$</code>: <code>INPUT A$</code> gives error <strong>0501</strong>
+(no data was entered) if only Enter is pressed.</p>
+</li>
+<li>
+<p><strong>Type-ahead.</strong> BR buffers keystrokes (up to 128) so none are lost between <code>INPUT</code> statements, and passes them to
+<code>INPUT</code> or <code>KSTAT$</code>. Ctrl-A clears everything typed ahead of it and is seen at once. Function keys and the Help key
+are also recognised unless <code>ON FNKEY IGNORE</code> or <code>ON HELP IGNORE</code> is in effect. The BRConfig.sys
+<a href="../../00-configuration/config-directives/spec.html#typeahead"><code>TYPEAHEAD</code></a> setting turns the buffering off.</p>
+</li>
+<li>
+<p><strong><code>WAIT=</code>.</strong> <code>WAIT=&lt;seconds&gt;</code> before the variables makes BR wait that long for input and then raise the <code>TIMEOUT</code>
+condition (error <strong>4145</strong>). <code>WAIT=0</code> waits zero seconds (it does not ignore the clause), and <code>WAIT=-1</code> waits as long
+as it takes, the clock restarting at each key. It is accepted by <code>INPUT</code>, <code>RINPUT</code>, <code>LINPUT</code> and the <code>FIELDS</code>/<code>SELECT</code>
+forms:</p>
+<pre><code class="language-text">00100 INPUT WAIT=10:X$ TIMEOUT 100
+00130 INPUT FIELDS &quot;10,10,C 10&quot;, WAIT=10:X$ TIMEOUT 100
+00160 INPUT SELECT &quot;10,10,C 10&quot;,WAIT=10:X$ TIMEOUT 100
+</code></pre>
+<p>The <code>TIMEOUT</code> routine is the place to <code>RELEASE</code> records the operator was holding, after a warning and an
+invitation to carry on, in multi-user programs. See also <code>KSTAT$</code>, which takes a <code>WAIT</code> too.</p>
+</li>
+</ul>
+<a id="navigation"></a>
+<h3 id="navigation-keys">Navigation keys</h3>
+<p><code>Tab</code>/<code>Shift+Tab</code> next/prev field · <code>Enter</code> next field (unless NOWAIT) / submit group · <code>F1</code> field
+help · <code>Esc</code> cancel · <code>PgUp</code>/<code>PgDn</code> scroll grids · <code>Home</code>/<code>End</code> field start/end ·
+<code>Ctrl+Home</code>/<code>Ctrl+End</code> first/last field.</p>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">00100 PRINT NEWPAGE
+00110 PRINT FIELDS &quot;5,10,C 20&quot;: &quot;Enter Name:&quot;
+00120 INPUT FIELDS &quot;5,31,C 30,U&quot;: NAME$
+00140 INPUT FIELDS &quot;7,31,N 10.2&quot;: AMOUNT
+
+! Multiple fields from a MAT (auto-advance, last auto-enters)
+00110 DATA &quot;8,15,C 30,A&quot;,&quot;10,15,C 40,A&quot;,&quot;14,15,C 12,AE&quot;
+00130 READ MAT FLDDEF$
+00190 RINPUT FIELDS MAT FLDDEF$: NAME$, ADDR$, PHONE$
+
+! Password masking with the I attribute
+00140 INPUT FIELDS &quot;12,26,C 20,I&quot;: PASSWORD$
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../fields-attributes/spec.html">fields-attributes</a> — formats (<code>C</code>/<code>N</code>/<code>PIC</code>/<code>DATE</code>/<code>TEXT</code>) and attributes</li>
+<li><a href="../controls/spec.html">controls</a> — combo/radio/check/buttons/grid built on FIELDS</li>
+<li><a href="../windows-cursor/spec.html">windows-cursor</a> — windowed FIELDS (<code>PRINT #w, FIELDS …</code>)</li>
+<li>(Backing keyword pages folded into this spec and pruned. Buttons → <a href="../controls/spec.html">controls</a>; TEXT <code>^ENTER_LF</code>/<code>^ENTER_CRLF</code> → <a href="../fields-attributes/spec.html">fields-attributes</a>. The 2b redirect-collision pages <code>Input_Fields</code>, <code>Print_Fields</code>, <code>Field_Help</code> and <code>Full_Screen_Processing_Statements</code> were folded here and pruned; verbatim wikitext remains on the BR wiki.)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/20-io-screen/input-output/spec.md">br_tree/20-io-screen/input-output/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

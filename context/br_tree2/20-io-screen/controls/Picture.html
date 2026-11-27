@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picture — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">20-io-screen</a> <span>/</span> <a href="_index.html">controls</a></nav>
+<main>
+<h1>Picture</h1>
+<p>For information concerning the caching of images in BR see the <code>Picture (Config)| CONFIG PICTURE</code> page.</p>
+<p>Commonly referred to as a <strong>picture</strong> this is a <code>file</code> that is used to display an image on the BR! <code>GUI Console</code>. Either P or PICTURE may be specified as a FIELDS field type. P and PICTURE are synonymous, picture was simply added for readability.</p>
+<p>In Business Rules! there are a few ways to place pictures on the screen.</p>
+<ol>
+<li>By use of a <code>Input Fields</code> or <code>RInput Fields</code> statement.</li>
+<li>By use of a <code>Print Fields</code> statement.</li>
+<li>As the background image of <code>print</code> <code>newpage</code></li>
+</ol>
+<p>Examples:</p>
+<p>Pictures can be displayed as fields in INPUT, PRINT, or RINPUT statements: (see explanation below)</p>
+<pre><code>print #5,fields '1,1,PICTURE 2/4,[W]': 'dir\image.gif:isotropic'
+print #5,fields '1,1,P       2/4,[W]': 'dir\image.gif:isotropic'
+</code></pre>
+<p>Pictures can be displayed as the NEWPAGE background image in the following ways:</p>
+<p>1.) From <code>BRConfig.sys</code>:</p>
+<pre><code>SCREEN OPENDFLT srow=3,scol=3,rows=20,cols=50,Picture=mylogo.jpg[:NORESIZE|TILE|ISOTROPIC]
+</code></pre>
+<p>2.) From a command line or program:</p>
+<pre><code>00100 OPEN #0: &quot;srow=3,scol=3,rows=20,cols=50,Picture=mylogo.jpg[:NORESIZE|TILE|ISOTROPIC]&quot;,display,outin
+</code></pre>
+<ul>
+<li>NORESIZE keeps the original size of the picture, instead of resizing it to fit the window.</li>
+<li>TILE covers the window with as many copies of the image as will fit.</li>
+<li>If neither NORESIZE, nor TILE is specified, then the picture is resized to fit the window.</li>
+<li>ISOTROPIC retains the original aspect ratio during resizing.</li>
+<li>Keywords such as TILE are case insensitive.</li>
+</ul>
+<p>If a control overlaps the background image, then the part of the background picture which is not overlapped is still visible.  The part of the background picture which is overlapped is positioned under the control.</p>
+<pre><code>00100 OPEN #0: &quot;Picture=logo.jpg:NORESIZE&quot;,display,outin
+00200 INPUT FIELDS &quot;12,30,C 8&quot;: VAR$
+00300 PRINT FIELDS &quot;13,30,C 8&quot;: VAR$
+</code></pre>
+<p>Output:
+<code>Image:NEWC0018.jpg</code></p>
+<p>Also, pictures can be displayed in window areas by specifying them as FIELDS. The syntax for displaying PICTURES is:</p>
+<pre><code>PRINT FIELDS &quot;row,col,P rows/cols,[,FKEY]&quot; : &quot;myimage.jpg [:TILE|NORESIZE|ISOTROPIC]&quot;
+</code></pre>
+<p>If an FKEY value is provided, the picture generates the specified FKEY value when mouse clicked.</p>
+<p>The name of this example is: CHESSPRN.BR</p>
+<pre><code>00100 PRINT FIELDS &quot;1,10,P 3/7,, 20&quot; : &quot;chess.jpg&quot;  ! FKEY will return 20 if the picture is clicked
+</code></pre>
+<p>Output:
+<code>Image:NEWC0019.jpg</code></p>
+<p>The corresponding IO string variable must be of string type and contain the filename of a graphic image. A broad range of graphic image types are supported.</p>
+<p>When a picture is specified as an input field, all non-navigation keys are ignored.  For pictures, the BR Help user level is assumed to be zero. This enables tooltips without floating help windows irrespective of the actual help user level.</p>
+<p>At a minimum, the following graphical image types are supported:</p>
+<ul>
+<li><code>ANI</code></li>
+<li><code>JPG</code></li>
+<li><code>BMP</code></li>
+<li><code>PCX</code></li>
+<li><code>CUR</code></li>
+<li><code>PNG</code></li>
+<li><code>GIF</code></li>
+<li><code>PNM</code></li>
+<li><code>ICO</code></li>
+<li><code>TIFF</code></li>
+<li><code>IFF</code></li>
+<li><code>XPM</code></li>
+<li><code>JPEG</code></li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/20-io-screen/controls/Picture.md">br_tree/20-io-screen/controls/Picture.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

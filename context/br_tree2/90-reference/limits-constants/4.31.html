@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.31 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<h1>4.31</h1>
+<p>Release Notes 4.31h</p>
+<p>The prior versions were <code>4.1</code> and <code>4.2</code> and <code>4.30</code>.</p>
+<p>As Of 06/30/2015</p>
+<h3 id="version-430zmf">Version 430+zmf</h3>
+<p>Added final keepalive send before turning off the copy_sort_index_sys_cmd flag.<br>
+Revised SSL shutdown wait loop.<br>
+Set SSL shutdown start time (this was causing a reconnect timeout because it wasn't set).<br></p>
+<p>Changed close listener wait from 5 seconds down to 2 seconds.</p>
+<h3 id="version-431">Version 431</h3>
+<p>Made connection status global.<br>
+Prevented sending KB char to server when reconnecting.<br>
+Level 14 logging of client-server messages (debug version only).<br></p>
+<h3 id="version-431a">Version 431a</h3>
+<p>Error <code>413</code> message (window not on top) clarified.<br>
+Suppressed logging in checkSSL until CS version match established.<br>
+Polished up source terms and spelling errors - no object affect.<br>
+Revised order of Menu Display responses to brserver.<br>
+Allowed BR MSG() keyboard function to work when Command Console is the active window.<br></p>
+<h3 id="version-431b">Version 431b</h3>
+<p>Corrected exit pre-processing for both normal and unattended modes.<br>
+Changed &quot;blank&quot; references to &quot;blanksPtr&quot;.<br>
+Completely revised UNATTENDED_INPUT_CALL processing.<br>
+Changed HTTP &quot;Client-Inquiry&quot; to &quot;PAGE-URL&quot;.<br>
+Added HTTP support for &quot;PAGE-HEADER&quot;.<br></p>
+<p>Revised error messages that pertain to system errors to indicate as much.<br>
+Added some DLL errors to the BRERR$ definitions file. <br></p>
+<p>Added support for getting cookies via http. <br>
+Cleaned up some errors causing dumps during termination.<br>
+Switched log information to message boxes for errors that occur while uploading the client DLL.<br></p>
+<p>Revised SYSTEM LOGOFF to not fail to zero session IDs when issued to BRSERVER.
+This is to fix the problem where Windows reports active sessions where there is none, causing WSID's to be assigned incorrectly.</p>
+<h3 id="br431ce">br4.31ce</h3>
+<p>Fixed the problem where NOWAIT was being ignored if OPTION 38 was on.</p>
+<h3 id="version-431d">Version 431d</h3>
+<p>Removed DUPLICATE FLOWSTACK code.<br>
+Revised ENDRUN processing of libraries .. set currentFileChain and currentScreenChain values during library PCB detachment. This fixed a problem detaching a NOFILES library.<br>
+Lots of changes to run.cpp for flowstack processing and readability.</p>
+<p>Changes from prior editions:<br></p>
+<ul>
+<li>SQL and SYSERR fixes.</li>
+<li>Suppress error 867 on a radio button.</li>
+<li>Don't show LABELS, and BUTTONS in STATUS command when GUI is off.</li>
+<li>Removed an error trying to close an already closed window.</li>
+</ul>
+<h3 id="version-431d-1">Version 431d</h3>
+<p>Removed DUPLICATE FLOWSTACK code.<br>
+Revised ENDRUN processing of libraries .. set currentFileChain and CurrentScreenChain values during library PCB detachment. This fixed a problem detaching a NOFILES library.<br>
+Lots of changes to run.cpp for flowstack processing and readability.</p>
+<p>Changes from prior editions:</p>
+<ul>
+<li>SQL and SYSERR fixes.</li>
+<li>Suppress error 867 on a radio button.</li>
+<li>Don't show LABELS, and BUTTONS in STATUS command when GUI is off.</li>
+<li>Removed an error trying to close an already closed window.</li>
+</ul>
+<p>Mismatched packets are ignored when:</p>
+<ul>
+<li>Ignore failure or keyboard return or we're terminating.</li>
+<li>Ignore failure is now on for cleanupNormalExits and closeWindowZero.</li>
+<li>When a flow stack error occurs, BR now returns error 9003.</li>
+<li>Current program name is stored on the client in a global when the status line is updated.</li>
+</ul>
+<p>Corrected processing mismatched packets for CALL_FUNCTION_NULL_ACTION.<br>
+Added transfer of current line number to client.</p>
+<h3 id="version-431e">Version 431e</h3>
+<p>Revised remote.cpp ignoring of unmatched packets.<br>
+Polished up the transfer of program name and line number to the client.<br>
+Renamed clientOnly to ignoreFailureClientOnly<br></p>
+<p>Added error <code>0738</code> - SELECT should be a trailing attribute.<br>
+This error occurs when SELECT is used as a leading attribute without the ^.</p>
+<h3 id="version-431f">Version 431f</h3>
+<p>Added path to log message referencing brCrashDumpUploader.<br>
+Added support for DEBUG INTERNAL COREDUMP_SERVER.<br>
+Now we pass currentUserLineNumber to client in all models.<br></p>
+<h3 id="version-431fb">Version 431fb</h3>
+<p>If an invalid trailing attribute is allowed via OPTION 38 BR was occasionally dumping.<br>
+Keepalive timeouts are prevented when sitting in a message box.<br></p>
+<h3 id="version-431fc">Version 431fc</h3>
+<p>Created and applied MINOR_IO_ERROR (valued at 3). This relates to log levels.</p>
+<h3 id="version-431fe">Version 431fe</h3>
+<p>Ignore mismatched packets on menu display.<br>
+Suppress timeout during MSGBOX call.<br>
+Fix 2D control header font colors.<br>
+Removed V42 references.<br>
+Fixed a problem re loading library modules RELEASE.<br>
+Corrected logging before DLL loaded.<br></p>
+<h3 id="version-431ff">Version 431ff</h3>
+<p>Revised PIC processing.</p>
+<h3 id="version-431fg">Version 431fg</h3>
+<p>Revised PIC, and DATE processing to test formatted field capacity when inserting characters. (FMT runs only in overtype mode so it isn't affected.)<br>
+Statusline ROWCOL now defaults to off.<br></p>
+<h3 id="version-431g">Version 4.31g</h3>
+<p>Upgrade to VS 2010.<br>
+Fixed problem with license verification only to first decimal point of version number.<br>
+Change made to prevent looping during shutdown.<br>
+Client changed to let the server determine whether or not to terminate.<br>
+Graceful client shutdown. See build notes for details.<br></p>
+<h3 id="version-431ga">Version 431ga</h3>
+<p>Removed UPGRADE code flag from source.<br>
+Fixed date problem that was created by recent FMT and PIC revisions.<br>
+KREC is updated during printing only when the PUSH level is zero.<br>
+For HTTP client, the log data showing CURL information was extended.<br>
+The HTTP client now does a GET if no printing occurs prior to a LINPUT.<br>
+A display parameter was added to the fldedit function. This function is used
+by FMT, PIC DATE and other field types to see if typing is done in excess of field capacity.<br></p>
+<h3 id="version-431gc">Version 4.31gc</h3>
+<p>More detail is provided when a database connection attempt is unsuccessful.<br>
+Corrected failures pertaining to deleting characters in non-currency PIC masks, especially with backspace. <br>
+ENV$ and STATUS ENV search strings are now enhanced. See the wiki for details.
+Internal documentation updated.<br></p>
+<h3 id="version-431h">Version 4.31h</h3>
+<p>Removed references to abort. Used CANCEL instead.<br>
+Error 370 was dropping the program file during a REPLACE where OPTION 60 was on and the program contained 4.2+ statements. This is fixed.<br>
+The XLATE system function was extended to support translation to and from UTF-8. <br>
+Added error 438 &quot;Input String not valid UTF-8 format.&quot;<br>
+Removed system functions UPSI, LINEBUFFER, XPOS, CFIELDS$, and CHYRON$.<br>
+Days(date(&quot;H:M:S&quot;),&quot;H:M:S&quot;) was producing a date with the first day of the current month. This was changed to the current day.<br>
+RINPUT was positioning the cursor according to the previous Input. This was fixed.<br>
+The Web Server support now does not tamper with binary data. It was converting to UTF-8.<br>
+An internal pointer was adjusted to prevent crashes when the stack overflows.<br>
+Default stack sizes were revised.</p>
+<pre><code>work_size = 500000,    /* work stack size */
+flow_size = 100,       /* flow stack size */
+rpn_size = 1000,       /* rpn stack size */
+for_size = 100;        /* for-next stack */
+</code></pre>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/4.31.md">br_tree/90-reference/limits-constants/4.31.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

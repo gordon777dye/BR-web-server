@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Web integration (BR as web server) — BR reference</title>
+<meta name="keywords" content="WEB_SERVER12, WebForm, HTTP, web-server, BR_FUNC, HTTP=SERVER, HTTPS">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">60-integration</a> <span>/</span> <a href="_index.html">web</a></nav>
+<main>
+<h1 id="web-integration">Web integration</h1>
+<p>Running BR programs as the backend of a website: BR's own <strong><code>WEB_SERVER12.BR</code></strong> serves the pages, a
+page names a BR function via a <code>?BR_FUNC=…</code> URL, and the <strong>WebForm</strong> library builds the HTML. A BR
+program can also reach <em>out</em> to web pages/services as an HTTP client — see <a href="#http-client">Outbound</a>.</p>
+<p>JSON/data-store services are in <a href="../json-datastore/spec.html">json-datastore</a>.</p>
+<h2 id="br-as-web-server-web_server12--webform">BR as web server (<code>WEB_SERVER12</code> + WebForm)</h2>
+<a id="webserver"></a>
+<h3 id="architecture--the-ini">Architecture &amp; the <code>.ini</code></h3>
+<p>Three parts: the <strong>HTML page</strong> → BR's <strong><code>WEB_SERVER12.BR</code></strong> (run/restart it after program changes;
+errors beep with the error &amp; line number) → your <strong>BR program</strong> (whose functions the server calls).
+Point the server at your program via its <code>.ini</code>:</p>
+<pre><code>url_base=www
+logfile=weblog.txt
+debugfile=webdebug.txt
+library=websample.br,functions=fnfirstpage,fntheysavedit
+</code></pre>
+<p>Pages, images and CSS live in the <code>www</code> folder; <code>index.html</code> is the entry page; browse <code>LOCALHOST</code>.</p>
+<a id="br-func"></a>
+<h3 id="calling-br-from-the-page--br_func">Calling BR from the page — <code>?BR_FUNC=</code></h3>
+<p>A form or link names a BR function via a <strong><code>?BR_FUNC=fn…</code></strong> URL (the <code>?</code> is required):</p>
+<pre><code class="language-html">&lt;form action=&quot;?BR_FUNC=fnTravelSurvey&quot; method=&quot;get&quot;&gt;      &lt;!-- GET (default, visible) / POST (more secure) --&gt;
+   &lt;input type=&quot;text&quot; value=&quot;name&quot; name=&quot;namefield&quot; cols=&quot;20&quot;&gt;
+   &lt;input type=&quot;submit&quot; value=&quot;Click to Record&quot;&gt;
+&lt;/form&gt;
+&lt;a href=&quot;?BR_FUNC=fnThankYouPage&quot;&gt;Thanks page&lt;/a&gt;
+</code></pre>
+<a id="webform-program"></a>
+<h3 id="the-br-side--webform-library">The BR side — WebForm library</h3>
+<p>The called function is a <code>DEF LIBRARY</code> that receives the form's field names and values as two arrays:</p>
+<pre><code class="language-business-rules">00100 DEF LIBRARY FNTRAVELSURVEY(MAT KEYS$, MAT VALUES$)
+00200   LIBRARY &quot;webform&quot;: FNBUILDSUBSLIST, FNHTML, FNHEADING, FNFOOTER, FNSEND
+00210   LET FNREQUESTSUBS(MAT KEYS$)             ! map field names → R_&lt;name&gt; subscripts
+00220   IF R_NAMEFIELD THEN LET NAME$ = VALUES$(R_NAMEFIELD)
+00300   LET FNHEADING(&quot;Thank You&quot;)
+00310   LET FNHTML(&quot;&lt;h1&gt;Thank You&lt;/h1&gt;&quot;)
+00320   LET FNHTML(&quot;&lt;p&gt;Recorded &quot; &amp; NAME$ &amp; &quot;.&lt;/p&gt;&quot;)
+00330   LET FNFOOTER : LET FNSEND
+00400 FNEND
+</code></pre>
+<p><code>fnRequestSubs</code> (built on <code>fnBuildSubsList</code> with an <code>&quot;R_&quot;</code> prefix) turns the incoming field names
+into usable <code>R_&lt;name&gt;</code> subscripts into <code>MAT VALUES$</code>. Output is composed with the WebForm helpers —
+<code>fnHeading</code> / <code>fnHTML</code> / <code>fnFooter</code> / <code>fnSend</code> — instead of raw <code>PRINT</code>. Full worked walkthrough:
+<a href="Connecting_to_browsers_online_Tutorial.html">Connecting_to_browsers_online_Tutorial</a>.</p>
+<a id="security"></a>
+<h3>Security</h3>
+<ul>
+<li><strong>Escape user output</strong> — HTML-encode (<code>&amp;</code>→<code>&amp;amp;</code>, <code>&lt;</code>→<code>&amp;lt;</code>, …) before emitting user data.</li>
+<li><strong>Validate input</strong> and <strong>check authentication</strong> before acting on a request.</li>
+<li>Keep business logic in BR, presentation in HTML/CSS; use the FileIO library for data.</li>
+</ul>
+<a id="http-client"></a>
+<h2 id="outbound--br-as-an-http-client-httpclient">Outbound — BR as an HTTP client (<code>HTTP=CLIENT</code>)</h2>
+<p>The inverse of the model above: a BR program can <em>call</em> a web page/service by opening a DISPLAY file
+with <code>HTTP=CLIENT</code> (a curl-backed client). The required sequence is <strong>OPEN → optional <code>PRINT</code>(s) →
+<code>LINPUT</code></strong>: <code>NAME=&lt;full URL&gt;</code>, optional <code>CONTROL=&lt;display file&gt;</code>; each <code>PRINT</code> accumulates POST data
+(the first <code>LINPUT</code> then POSTs it and buffers the response; with <strong>no</strong> <code>PRINT</code> it does a GET), and
+<code>LINPUT</code> reads until EOF or the next <code>PRINT</code> (which clears the buffer). Out-of-order use errors.
+Control statements (case-insensitive) include <code>USER-AGENT</code>, <code>REFERER</code>, <code>COOKIE-OUT</code>/<code>COOKIE-FILE-IN</code>,
+<code>DATA &lt;file&gt;</code> (url-encoded form body; <code>@file</code> reads it), <code>HEADER</code>, <code>DUMP-HEADERS</code>, <code>HEAD</code>,
+<code>SSLV2</code>/<code>SSLV3</code>, and <code>RESULTS</code> (logs <code>http_code</code>, <code>time_total</code>, <code>size_download</code>, …).
+<code>FILE$(fileno,&quot;HTTPINFO&quot;)</code> returns log info for the last action. Full reference:
+<a href="HTTP=CLIENT.html">HTTP=CLIENT</a>. (The <code>OPEN</code> mechanics are in
+<a href="../../30-io-file/statements/spec.html#open">30-io-file/statements</a>.)</p>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-business-rules">! HTML-escape helper for user data placed into a page
+96100 DEF FNHTML$(X$)
+96110    LET X$ = SREPLACE$(X$,&quot;&amp;&quot;,&quot;&amp;amp;&quot;) : LET X$ = SREPLACE$(X$,&quot;&lt;&quot;,&quot;&amp;lt;&quot;)
+96160    LET FNHTML$ = X$
+96170 FNEND
+96200 LET FNHTML(&quot;&lt;p&gt;Welcome, &quot; &amp; FNHTML$(NAME$) &amp; &quot;&lt;/p&gt;&quot;)
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../json-datastore/spec.html">json-datastore</a> — JSON/object services for web responses</li>
+<li><a href="../../50-libraries/screenio/spec.html">50-libraries/screenio</a> — the GUI alternative to web (and the PhpIO web deployment for ScreenIO)</li>
+<li><a href="../../30-io-file/statements/spec.html#open">30-io-file/statements</a> — <code>HTTP=CLIENT</code>; FileIO reads for dynamic content</li>
+<li><a href="../../10-language/flow-control/functions-udf/spec.html">10-language/flow-control/functions-udf</a> — <code>DEF FN</code> helpers (escaping, auth)</li>
+<li>Backing keyword pages: <a href="Connecting_to_browsers_online_Tutorial.html">Connecting_to_browsers_online_Tutorial</a> (worked example),
+<a href="HTTP_SERVER.html">HTTP=SERVER</a> (the server interface <code>WEB_SERVER.BR</code> is written to, and HTTPS setup),
+<a href="HTTP=CLIENT.html">HTTP=CLIENT</a> (outbound HTTP client — relocated from client-server)</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/60-integration/web/spec.md">br_tree/60-integration/web/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

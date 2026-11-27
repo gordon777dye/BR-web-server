@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4169 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4169</h1>
+<p><strong>Error:</strong> 4169</p>
+<p><strong>Description:</strong> <code>AI</code> was used while a program or procedure was active and <code>ENV$(&quot;AI_TURN_OK&quot;)</code> was not <code>&quot;Y&quot;</code></p>
+<p><strong>Details:</strong> A turn cannot break into a running program: an AI turn can <code>LOAD</code>, and BR never lets an interrupted program be replaced (<code>SAVE</code>, <code>REPLACE</code>, <code>RENUM</code> and <code>RUN</code> refuse with 2108). Set <code>ENV$(&quot;AI_TURN_OK&quot;)</code> to <code>&quot;Y&quot;</code> (lower case <code>&quot;y&quot;</code> counts, <code>&quot;YES&quot;</code> does not) before the <code>AI</code> command, or end what is running. Raised before the assistant hears of it. Nothing running needs no flag, and <code>AI NEW</code> and a proc whose last line is the <code>AI</code> line need none.</p>
+<p><strong>Name:</strong> <code>BREAITURNNOTPERMITTED</code></p>
+<p><strong>Source:</strong> BR 5.0 <code>wberrdefs.h</code>, <code>BREAITURNNOTPERMITTED</code>: &quot;a program or procedure is active: set ENV$(&quot;AI_TURN_OK&quot;) to &quot;Y&quot; before an AI command, or end what is running&quot;.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4169.md">br_tree/90-reference/error-codes/4169.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

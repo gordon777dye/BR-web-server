@@ -81,6 +81,12 @@ corrections:
     only the first checked; HELP$'s topic is a string; DLL's arguments after the second are
     unchecked; DECRYPT$ written out. Eighteen of these confirmed by LOADing a probe in the kit's
     4.33c brserver - every refusal raised 1042 and every acceptance loaded clean."
+  - "HELP$ written as two forms, `HELP$([*]kw$[,mark|anchor$])` and `HELP$([*]kw$,anchor$,\"BROWSE\")`,
+    in place of one with nested brackets that let a numeric mark stand before the third argument. BR
+    5.03's ck_alph_sysfn (command2.cpp) takes 1 to 3 arguments, the first a string, and with three
+    requires the second and third to be strings: `case HELP_: if (!BETWEEN(1, 3, subcount) || ... (subcount
+    == 3 && (sysfn_parms[1] != PARMCHECK_STRING || sysfn_parms[2] != PARMCHECK_STRING)))`. Found by brls's
+    TestPackSignaturesMatchBR (2026-11-22)."
 related: [expressions, assignment, declaration, data-types]
 keywords: [CNVRT$, POS, LEN, TRIM$, UPRC$, LWRC$, STR$, VAL, DATE$, TIME$, RND, MAX, MIN, SUM, MSGBOX, KSTAT$, AIDX, DIDX, UDIM, SRCH, STR2MAT, MAT2STR, CHR$, ORD, LTRM$, RTRM$, LPAD$, RPAD$, RPT$, SREP$, XLATE$, LOGIN_NAME$, CFORM$, HEX$, UNHEX$, PIC$, INT, IP, FP, CEIL, ROUND, TRUNC, ABS, SGN, SQR, MOD, MAX$, MIN$, SIN, COS, TAN, ATN, DEG, RAD, LOG, EXP, PI, DAYS, SQL_DATE$, BR_DATE$, FILE, FILE$, FILENUM, FREESP, EXISTS, BR_FILENAME$, OS_FILENAME$, KPS, LREC, RLN, VERSION, LINESTATUS$, LINES, LINESPP, NXTFLD, NXTROW, NXTCOL, CURPOS, CURTAB, SCR_FREEZE, SCR_THAW, CNT, BRERR$, ENV$, CODE, PROCIN, WSID$, USERID$, SESSION$, PROCLVL, TIMER, VARIABLE$, WBVERSION$, WBPLATFORM$, SYSERR, SYSERR$, SHIFT, MSG$, MSG, SLEEP, SPAWN_RESTRICTED, HELP$, GET$, SET$, INVOKE$, CALL, ENCRYPT$, DECRYPT$, CMDKEY, FKEY, CURROW, CURCOL, CURFLD, CURWINDOW, MENU$, KLN, KREC, PROGRAM$, DEBUG_STR, PRINTER_LIST, INF, SERIAL, BELL, ERR, LINE, NEWPAGE, REC, REM, DATE, MENU, SETENV, DLL]
 ---
@@ -228,7 +234,7 @@ it: `LET FKEY=5` and `LET FKEY(5)=1` both fail LOAD with 1026 (1030 for `PIC$`).
 | <a id="days"></a>`DAYS(date\|date$[,mask$])` | day-count; Y2K-aware (BASEYEAR, auto century) 3.83+; dates from 1700 (3.90+) |
 | `DATE$([days][,"mask"])` | format a day-count to a string (`"day month, ccyy"`; time masks 4.30+). **Both arguments are optional and either may stand alone**: `DATE$("mm-dd-yy")` formats today, `DATE$(1)` formats a day-count with the default mask |
 | <a id="date"></a>`DATE([days][,"mask"])` | numeric date sibling of `DATE$` (for sorting; stores the days value); same optional arguments, and bare `DATE` is today |
-| <a id="br_date$"></a><a id="sql_date$"></a>`SQL_DATE$(d$[,fmt$])` / `BR_DATE$(s$[,fmt$])` | pack/unpack SQL dates (4.30+); the format is optional |
+| <a id="br_date$"></a><a id="sql_date$"></a>`SQL_DATE$(d$[,fmt$])` / `BR_DATE$(s$[,fmt$])` | convert between a date string and the SQL timestamp value. `SQL_DATE$` reads `d$` using the format `fmt$` (default: the current date format, as for `DAYS`) and returns a fixed-length SQL timestamp string; `BR_DATE$` takes such a timestamp string and returns the date formatted by `fmt$`. A `*` in front of `fmt$` also makes that format the session default, as in `DATE$`/`DAYS`. `BR_DATE$` of a string that is not a timestamp (wrong length or prefix) raises a timestamp-conversion error; a bad `fmt$` raises the date-format error. Used to move dates to and from ODBC/SQL columns |
 
 > Date *storage* types `DT`/`DL`/`DH` are FORM field types — see
 > [30-io-file/form-spec](../../../30-io-file/form-spec/spec.md), not here. The currency/format-string
@@ -282,9 +288,9 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | <a id="lrec"></a><a id="rec"></a>`LREC(n)` / `REC(n)` | last record / current record number |
 | <a id="rln"></a>`RLN(n[,newlen])` | record length of open file `n`; the optional `newlen` **resets** it (EXTERNAL files only, and not above the OPEN `RECL=`) |
 | <a id="version"></a>`VERSION(n[,ver])` | the marked **version number** of INTERNAL file `n` (**not** the BR release); the optional `ver` sets it when the file is open `OUTPUT` (also settable with `VERSION=` on OPEN); a **negative** `ver` leaves the version as it is and empties the file's deleted record chain, which the next `OUTPUT`/`OUTIN` open that reuses records builds again (see `OPTION 51`) |
-| <a id="linestatus$"></a>`LINESTATUS$(n)` | serial-line/modem status of communications channel `n` — see [30-io-file/serial-comm](../../../30-io-file/serial-comm/spec.md) |
+| <a id="linestatus$"></a>`LINESTATUS$(n)` | ⚠️ **reserved but not implemented** — parses (one numeric argument) but returns a runtime *bad-function* error; there is no serial-line status read in the current source |
 | <a id="lines"></a>`LINES(n)` | lines printed since last new-page (= `KREC` for display files) |
-| <a id="linespp"></a>`LINESPP(n)` | current lines per page (PRINTER `LPP`, else 66) |
+| <a id="linespp"></a>`LINESPP(<file number>)` | current lines per page of that print file: the `LPP` value of a BRConfig.sys `PRINTER` specification, else **66**. It lets a report adapt to dot-matrix and laser printers on one system. A *bracketed* PRINTER substitution that carries an `LPP` changes it when it is printed: with `PRINTER LPP 48 [SET48],"\Ep48"`, `PRINT LINESPP(255)` shows 66, then `PRINT #255:"[SET48]"` and `PRINT LINESPP(255)` shows 48 |
 | <a id="kln"></a><a id="krec"></a>`KLN(n[,seg])` / `KREC(n)` | key length of keyed file `n` (`seg` selects a split-key section) / last record read in the **index** file, not the master; `-1` if `n` is not open keyed (see [keys-indexes](../../../30-io-file/keys-indexes/spec.md#keyed-io)) |
 
 <a id="screen-query"></a>
@@ -302,15 +308,15 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | <a id="curfld"></a>`CURFLD[(field[,attr$[,fkey]])]` / `CURFLD(field,row\|cell)` / `CURFLD(field$)` | the 1-based field the cursor was on after the last `INPUT FIELDS`; with arguments it **sets** the next input's starting field, added attributes and a replayed `fkey`, or positions into a 2-D control's `row`/`cell` (see [windows-cursor](../../../20-io-screen/windows-cursor/spec.md#keyboard-results)). The compiler also accepts a single string argument, to no documented effect |
 | <a id="curwindow"></a>`CURWINDOW[(n)]` | the focused `PARENT=NONE` window (`-1` if none); `n` raises that window |
 | <a id="cmdkey"></a><a id="fkey"></a>`CMDKEY[(n)]` / `FKEY[(n)]` | the key that ended input (`0` = Enter; `-1` before the first input); `FKEY` is the richer successor, also set by controls, buttons and hot windows. `LET CMDKEY(x)` / `LET FKEY(x)` preset them (see [windows-cursor](../../../20-io-screen/windows-cursor/spec.md#keyboard-results)) |
-| <a id="menu"></a><a id="menu$"></a>`MENU[(n)]` / `MENU$[(n)]` | subscript / data string of the selected native-menu item; `MENU$(n)` gives the *n*-th item's (see [controls](../../../20-io-screen/controls/spec.md#menus)) |
+| <a id="menu"></a><a id="menu$"></a>`MENU[(n)]` / `MENU$[(n)]` | `MENU` is the subscript, `MENU$` the data string, of a native-menu item. With no argument they refer to the item most recently selected; `MENU$(n)` gives the data of item *n* (1-based) of the terminal window's menu, and an index that is not a live item returns the empty string. `MENU(n)` as a statement-style call sets which item counts as last selected (item *n*). See [controls](../../../20-io-screen/controls/spec.md#menus) |
 
 <a id="system-info"></a>
 ### System / information
 | Function | Returns |
 |---|---|
-| <a id="err"></a>`ERR` | last error number |
-| <a id="line"></a>`LINE` | current line number |
-| <a id="cnt"></a>`CNT` | data items successfully processed by the last I/O (`MAT A(CNT)` to size to what was read) |
+| <a id="err"></a>`ERR` | the number of the most recent error. Used in an error routine (`ON ERROR GOTO 99900` then `PRINT "Unexpected error";ERR;"at line";LINE`) and in procedures to see whether a command worked (`PROCERR RETURN`, the command, `PROCERR STOP`, `SKIP DONE IF ERR<>0`). It is set to **zero** by `RUN`, `PROCERR RETURN`, `CLEAR`, `CLEAR ALL` and any command that clears memory. It is **not set** (a) when `ON error … IGNORE` (or the default) ignores that condition, (b) for error **4273** (topic not found in the help file), so that a failed `HELP$` inside an error routine cannot spoil `RETRY` or `CONTINUE`, and (c) by an error in an immediate statement keyed at the keyboard. With `PROCERR RETURN` in a procedure the error is skipped but `ERR` is still set. An error produced by a string run with a line-numbered `EXECUTE` sets it too |
+| <a id="line"></a>`LINE` | the **line number of the most recent error** (not the line now running); `-1` when there has been none, after `RUN`, `PROCERR RETURN`, `CLEAR` or `CLEAR ALL`, and for an error in a procedure while `PROCERR RETURN` is in effect. It is unchanged in the same cases as `ERR`, including 4273. With `PROCERR RETURN`, a syntax error during `LOAD … SOURCE` gives the number of the previous line (the current one was not accepted) and control returns to the procedure |
+| <a id="cnt"></a>`CNT` | the number of data items successfully processed by the last I/O statement (`MAT A(CNT)` sizes an array to what was read). After an I/O error it localises the fault: with `READ #2,USING 520: MAT PAYTYPE$,FLAG$,MAT AMT` and 52-element arrays, a conversion error (0726) with `CNT` = 52 means the first 52 items read and the 53rd is the bad one. For an error in a field-definition array of `INPUT FIELDS`, `PRINT FIELDS` or `RINPUT FIELDS`, it is the number of the last element processed. If the current error was not an I/O error, `CNT` describes an earlier one |
 | <a id="brerr$"></a>`BRERR$([code])` | the *description* of a BR error code — what `ERR` is to the number (e.g. `BRERR$(682)`; 4.3+). **Bare** describes the last error |
 | <a id="env$"></a>`ENV$(name$[,MAT cfg$\|MAT cfg[,arg\|arg$]])` | environment / status interrogation (4.30+) — see [environment](../../../00-configuration/environment/spec.md#env-read) |
 | <a id="code"></a>`CODE` | the return code the last **program** set, with `STOP n` or `END n` (a bare `STOP` or `END` sets 0); 0 until something sets one, and cleared again by `LOAD`, `CHAIN` and `CLEAR` (`RUN` leaves it). **Not** a procedure's return value: BR has no `EXIT n` command |
@@ -319,7 +325,7 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | <a id="userid$"></a>`USERID$` | BR licensee name |
 | <a id="serial"></a>`SERIAL` | serial number of this BR software copy |
 | <a id="session$"></a>`SESSION$` | this session's ID — `WSID$` (3–4 digits) followed by a 1-digit session number `1`–`9` (e.g. `011`, `012`) |
-| <a id="proclvl"></a>`PROCLVL` | current procedure nesting level (`0` = keyboard / not in a procedure) |
+| <a id="proclvl"></a>`PROCLVL` | current procedure nesting level: `0` at the keyboard or when no procedure is running, `1` inside a procedure started from the keyboard, and one more for each procedure nested inside it. The deepest level is 9; a tenth raises the too-many-active-procedures error |
 | <a id="timer"></a>`TIMER` | seconds since the Unix epoch (1970-01-01 UTC) as a 5-decimal real; use two readings to time a section (accuracy follows the OS clock) |
 | <a id="setenv"></a>`SETENV(name$[,value$\|value])` | set a **BR session** environment variable (read back with `ENV$`; function form of `CONFIG SETENV`). **2 args** = `name$`,`value$`; **1 arg** = a single `NAME=VALUE` directive string |
 | <a id="variable$"></a>`VARIABLE$` | name of the variable that failed in the **last I/O statement** (for debugging / `HELP$` topics); not set for field-spec errors 850–890 or for calculated expressions |
@@ -328,12 +334,12 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | <a id="syserr"></a><a id="syserr$"></a>`SYSERR` / `SYSERR$[(n)]` | the underlying **OS** error number / its description (companion to `ERR`/`BRERR$`); `SYSERR$(n)` describes that code rather than the last — see [90-reference/error-codes](../../../90-reference/error-codes/_index.md) |
 | <a id="shift"></a>`SHIFT[(n)]` | **Deprecated** — no longer offered as a function. Always returns **`0`** — a legacy **System/23-compatibility** no-op (any argument is accepted and ignored) |
 | <a id="msg$"></a>`MSG$("text")` | display text in the 2nd box of the command console |
-| <a id="msg"></a>`MSG(action$[,arg\|arg$…])` | twenty-five actions (Windows / Client-Server): `MSG("send",keys$)` types into **this session** — the keys go into BR's own buffer, so they reach no other window and need no focus — with special keys in pipes, e.g. `"|CTRL+|c|CTRL-|"`; `MSG("sleeptime",ms)` sets the delay between them in milliseconds. **`MSG("kb")` was removed in BR 5.0 and raises 0412.** Full action list: [70-commands/information/MSG.md](../../../70-commands/information/MSG.md) |
+| <a id="msg"></a>`MSG(action$[,arg\|arg$…])` | twenty-five actions (Windows / Client-Server): `MSG("send",keys$)` types into **this session** — the keys go into BR's own buffer, so they reach no other window and need no focus — with special keys in pipes, e.g. `"|CTRL+|c|CTRL-|"`; `MSG("sleeptime",ms)` sets the delay between them in milliseconds. **`MSG("kb")` was removed in BR 5.0 and raises 0412.** Errors the actions can raise: 0414 (wrong number of arguments), 0415 (an error that has its own message), 0416 (not enough elements in the dimensioned array), 0417 (the dimensioned string is too short), 0418 (unknown) and 0419 (error in a special-character specification); 0413 (window not on top) is retired. Full action list: [70-commands/information/MSG.md](../../../70-commands/information/MSG.md) |
 | <a id="sleep"></a>`SLEEP(seconds)` | pause; fractional seconds, ms resolution (3.83h+) |
-| <a id="spawn_restricted"></a>`SPAWN_RESTRICTED(command$[,config$[,wait]])` | **BR 5.0.** Start a disposable **restricted** session on this WSID — the next free session number — running `command$` as its startup command, typically `PROC <file>`. `config$` defaults to this session's. No `wait` or `0` returns the new process id at once; a `wait` in seconds yields as `SLEEP` does and returns the session's **exit code**. See [SPAWN_RESTRICTED](SPAWN_RESTRICTED.md) for the errors and the ordering that makes the restriction hold |
-| <a id="help$"></a>`HELP$([*]kw$[,mark\|anchor$])` | enter HELP mode / show a topic (see [windows-cursor §help](../../../20-io-screen/windows-cursor/spec.md#help-facility)). Two arguments at most. The second is a numeric `mark` for the `.wbh` help (OPTION 85 ON) or a string `anchor$` for the br_tree help (OPTION 85 OFF, the default); the compiler accepts either, and the one that does not suit OPTION 85 raises error 9505 when it runs |
+| <a id="spawn_restricted"></a>`SPAWN_RESTRICTED(command$[,config$[,wait[,label$]]])` | **BR 5.0.** Start a disposable **restricted** session on this WSID — the next free session number — running `command$` as its startup command, typically `PROC <file>`. `config$` defaults to this session's. No `wait` or `0` returns the new process id at once; a `wait` in seconds yields as `SLEEP` does and returns the session's **exit code**. `label$` says what the session is for, and opens its audit log. See [SPAWN_RESTRICTED](SPAWN_RESTRICTED.md) for the errors and the ordering that makes the restriction hold |
+| <a id="help$"></a>`HELP$([*]kw$[,mark\|anchor$])` / `HELP$([*]kw$,anchor$,"BROWSE")` | enter HELP mode / show a topic (see [windows-cursor §help](../../../20-io-screen/windows-cursor/spec.md#help-facility)). The second argument is a numeric `mark` for the `.wbh` help (OPTION 85 ON) or a string `anchor$` for the br_tree help (OPTION 85 OFF, the default); the compiler accepts either, and the one that does not suit OPTION 85 raises error 9505 when it runs. With OPTION 85 off, `HELP$(folder$,anchor$)` returns where in br_tree the topic is, and a third argument `"BROWSE"` also shows it as the help key does: in the person's web browser when br_tree2 is found, else on the console. Any other third argument is error 410; a third argument with OPTION 85 on is error 9505 |
 | <a id="program$"></a>`PROGRAM$` | full path of the loaded program — handy in shared error routines (see [information](../../../70-commands/information/spec.md#procin-program)) |
-| <a id="debug_str"></a>`DEBUG_STR(level,str$)` | write `str$` to the debug log at `level` (4.3+; see [information](../../../70-commands/information/spec.md#debug-str)) |
+| <a id="debug_str"></a>`DEBUG_STR(level,str$)` | write `str$` to the debug log at `level` (4.3+; see [information](../../../70-commands/information/spec.md#debug-str)). In a restricted session it is written as `Program note: <str$>`, on one line, at level 5 or above |
 | <a id="printer_list"></a>`PRINTER_LIST(MAT a$)` | redimensions `a$` to the active Windows printer names (see [information](../../../70-commands/information/spec.md#printer-list)) |
 | <a id="newpage"></a>`NEWPAGE` | a char that form-feeds the printer / clears the screen and **zeroes the line counter** (`LINES`/`KREC`); `PRINT #255: NEWPAGE` no longer emits a trailing CR — avoid it immediately before `TAB(x)` in an *unformatted* `PRINT` |
 | <a id="bell"></a>`BELL` / `TAB(x)` | sound the tone / tab to column `x` within a `PRINT` list |
@@ -349,20 +355,62 @@ but there is **no `DLM$` function**) — or, as of **4.3**, a `MAT` of delimiter
 | <a id="dll"></a>`DLL(a$,b$[,arg\|arg$…])` | call a client-side DLL command — **≥2 args, first two strings**; dispatched to the client via `callClientDictCommand` (errors 0322–0327) — see [00-configuration/installation-tooling](../../../00-configuration/installation-tooling/spec.md#dotnet) |
 
 <a id="msgbox"></a>
-### Message box (Windows)
+### Message box
 | Function | Returns |
 |---|---|
 | `MSGBOX(prompt$[,title$[,buttons$[,icon$]]])` | the chosen button, also in `CNT` |
 
-`MSGBOX` pops a Windows message box and **returns the chosen
-button in `CNT`** (and as the function value). Only `prompt$` is required. `buttons$` ∈
-`OK`(default)/`YN`/`OKC`/`YNC`, and the **capitalized** letter is the default (Enter) button (`Yn`→Yes,
-`yN`→No); `icon$` ∈ `INF`/`ERR`/`EXCL`/`QST`. Return values: `0` error (rare), `1` OK, `2` Yes, `3` No,
-`4` Cancel/Esc. Force a line break in the text with `CHR$(13)` or `HEX$("0D0A")` (two in a row = a blank
-line).
+`MSGBOX` shows the platform's own message box and **returns the chosen button in `CNT`** (and as
+the function value). Only `prompt$` is required. Force a line break in the text with `CHR$(13)` or
+`HEX$("0D0A")` (two in a row = a blank line).
 ```business-rules
 00060 IF MSGBOX('Are the labels aligned?','Check Printer','Yn','Qst')><2 THEN GOTO ALIGN
 ```
+
+<a id="msgbox-buttons"></a>
+**`buttons$`**, which is not case sensitive except for choosing the default button:
+
+| `buttons$` | Buttons, left to right | Default (Enter) button |
+|---|---|---|
+| `OK` (the default) | OK | OK |
+| `OKC` | OK, Cancel | OK |
+| `YN` | Yes, No | the capital letter: `Yn` Yes, `yN` No |
+| `YNC` | Yes, No, Cancel | the same as `YN` |
+| `YNAC` | Yes, No, All, Cancel | the capital letter: `ynaC` Cancel, `yNac` No, otherwise Yes. All cannot be the default |
+
+**`^` anywhere in `buttons$`** (`"YN^"`, `"^"` for OK) adds a **Don't ask again** checkbox. A
+ticked checkbox adds 10 to the answer.
+
+| Answer | Returns | With Don't ask again ticked |
+|---|---|---|
+| OK | `1` | `11` |
+| Yes | `2` | `12` |
+| No | `3` | `13` |
+| Cancel | `4` | `14` |
+| All | `5` | `15` |
+
+`0` is returned on an error (rare). A program that does not use `^` never sees a value over 5.
+
+**Escape and the close box** answer Cancel on a box that has a Cancel button, and OK on the `OK`
+box. A `YN` box has neither, so the operator must choose Yes or No.
+
+**Ctrl-A on the box is an interrupt, not an answer.** The box closes, the program halts with ATTN at
+the `MSGBOX` (an `ON ATTN` handler takes it as usual), and **`GO` runs the `MSGBOX` again**, showing
+the box anew.
+
+<a id="msgbox-icons"></a>
+**`icon$`**: the icon is the platform's own.
+
+| `icon$` | Windows shows | Use it for |
+|---|---|---|
+| `INF` (the default) | a blue circle with a white **i** | information |
+| `ERR` | a red circle with a white **X** | an error |
+| `EXCL` | a yellow triangle with a black **!** | a warning |
+| `QST` | **no icon** | a question |
+
+`QST` shows no icon on Windows because the Windows task dialog, which BR uses for message boxes, has
+none for questions; Microsoft's guidance is that routine questions carry no icon. Linux shows the
+desktop theme's information, error, warning and question icons for the four values.
 
 <a id="encryption"></a>
 ### Encryption (4.30+) — deep reference in [Encryption](Encryption.md)

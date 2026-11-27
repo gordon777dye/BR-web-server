@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0607 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0607</h1>
+<p><strong>Error:</strong> 0607</p>
+<p><strong>Description:</strong> `KFName</p>
+<p><strong>BR 5 message:</strong> key file specification exists on non-KEYED file or KEYED file missing key file specification</p>
+<p><strong>Details:</strong> Key file name<code>conflict on</code>Open<code>#The Open</code>statement` is missing a KFName specification</p>
+<ul>
+<li>A key file name was specified for a non-keyed file.</li>
+<li>You specified Key information but forgot the &quot;,Keyed&quot; at the end of the statement. #Add the missing KFName specification.</li>
+<li>If no key was specified for a file to be opened <code>Keyed</code>, either add the key or delete the Keyed keyword from the open string.If a key file name was specified for a non-keyed file, either remove the KFName specification or add the Keyed keyword to the end of the Open statement.</li>
+<li>Add &quot;,Keyed&quot; to the end of the statement.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0607.md">br_tree/90-reference/error-codes/0607.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

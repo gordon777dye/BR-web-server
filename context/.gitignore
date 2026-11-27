@@ -18,6 +18,8 @@
 # only the kit's templates; STEP 1's config backups here are app-private.
 # A new template needs its own line or it is silently ignored.
 /app/onboarding/*
+!/app/onboarding/legacy.sys
+!/app/onboarding/qsmrp-brls.cmd
 !/app/onboarding/context-kit-always-load.md
 !/app/onboarding/copilot-instructions.md
 
@@ -53,6 +55,13 @@ node_modules/
 !/dev/ai_access/brls.exe
 !/dev/ai_access/prc/
 !/dev/ai_access/prc/*.prc
+# the worked test examples BR_testing.md runs: program, procedure, script.
+# *.brs is ignored everywhere above, so these need their own exception.
+!/dev/ai_access/examples/
+/dev/ai_access/examples/*
+!/dev/ai_access/examples/*.prc
+!/dev/ai_access/examples/*.uis
+!/dev/ai_access/examples/*.brs
 # allow access to the folder
 !/dev/tools/
 # but block unspecified content
@@ -68,17 +77,5 @@ node_modules/
 !/dev/tools/*.md
 !/dev/tools/*.json
 !/dev/tools/*.ps1
-
-# --- brweb: files this app's repo keeps although the kit skeleton ignores them ---
-# ScreenIO/FileIO reference sources the kit docs cite by line number (screenio-guide.md,
-# APP-DEV-GUIDE.md §4), and the STEP 1 environment scripts.
-!/dev/tools/screenio.br
-!/dev/tools/screenio.brs
-!/dev/tools/screenio-release-notes.txt
-!/dev/tools/fileio.brs
-!/dev/tools/fileio-release-notes.txt
-!/app/env.cmd
-!/app/onboarding/setx.cmd
-# The harness MCP entry (../.mcp.json runs it) and the GUI ON config it starts BR with.
-!/app/br_mcp.cmd
-!/dev/tools/brconfig.ai_gui
+!/dev/tools/*fileio*
+!/dev/tools/*screenio*

@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Native_Windows_Printing — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">40-io-printing</a> <span>/</span> <a href="_index.html">pcl-pdf</a></nav>
+<main>
+<h1>Native_Windows_Printing</h1>
+<p><strong>Native Windows Printing</strong> is commonly referred to as <strong>NWP</strong>, is a newer technology which allows BR! to print to any properly installed windows printer driver.</p>
+<p>See also <code>NWP.DOC</code>.</p>
+<p>Note that WIN: has new meaning with release <code>4.15</code>+.  It still overrides <code>SPOOLCMD</code>, but it also turns on NWP. See <code>OPTIONS</code> for instructions on how to suppress NWP.</p>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>Must be BR! <code>4.0</code> or later, several features require <code>4.16</code>+.<br></li>
+<li>Must be BR! <code>4.18</code>+  for Centering.</li>
+<li>Must specify WIN:/.... as the device type. ( This can be done with <code>SUBSTITUTE</code> statements. )
+Specify  &quot;CONFIG OPTION 31&quot; to suppress NWP.<br>
+Specify  &quot;CONFIG OPTION 31 OFF&quot; to resume NWP.</li>
+</ul>
+<p>Error <code>6245</code> indicates an invalid or unsupported (by BR) escape sequence has been printed under Native Windows Printing.  Note that such escape sequences are not processed until the end of each print line.  So lines that end with a semicolon typically will not generate this error. This error can be suppressed with OPTION 32.</p>
+<p><code>PCL</code> is case sensitive. The last control character of an escape sequence must be a capital letter which signifies the end of the sequence.</p>
+<p>Non-PCL keywords such as font= must be lower case.</p>
+<h3 id="print-preview">Print Preview</h3>
+<p>To activate the <strong>Print Preview</strong> feature:</p>
+<p>Substitute WIN:/  PREVIEW:/</p>
+<p>This will cause your Native Windows Printers to generate a report preview window before the report is actually printed.</p>
+<p>There are two ways to use the print preview feature:</p>
+<p>1.) by specifying the following in the <code>BRConfig.sys</code>:</p>
+<pre><code>Substitute WIN:/  PREVIEW:/
+</code></pre>
+<p>2.) by opening the printer with:</p>
+<pre><code>00100 OPEN #255: &quot;name=preview:/select&quot;,display,output
+</code></pre>
+<p>This will cause your Native Windows Printers to generate a report preview window after the print setup window, before the report is actually printed.</p>
+<p>As of 4.2, BR saves the PREVIEW window &quot;position&quot; and &quot;maximized&quot; settings across sessions.</p>
+<p>During PREVIEW, clicking &quot;Print (all)&quot; produces a standard Windows print dialog box so the user can specify copies, range and other printing options.</p>
+<p>The PREVIEW window continues to be non-modal (permitting multiple
+concurrent previews), but we suppress the raising of the initiating window in response to waiting for keyboard entry until the PREVIEW window is closed.
+This avoids the eclipsing of the preview window by the initiating window.</p>
+<h3 id="printscreen-gui">PrintScreen GUI</h3>
+<p>If the config statement <strong>PrintScreen GUI</strong> is specified in conjunction with a Windows printer (WIN:/printer or PREVIEW:/...) the printscreen will be graphical. Additionally, PrintScreen GUI implies WIN:/SELECT instead of PRN:/SELECT so it is not necessary to specify the PrintScreen device.</p>
+<p>Test change 3<br></p>
+<h3 id="epson-compatible-codes">Epson Compatible Codes</h3>
+<p>Notation-    2  -&gt; chr$(2)  -&gt; hex$(&quot;02&quot;)</p>
+<ul>
+<li>''' '2' -&gt; chr$(50) -&gt; hex$(&quot;32&quot;) Codes that trigger print property changes:</li>
+</ul>
+<p>\r go to col 0  chr$(13) -&gt; hex$(&quot;0D&quot;)<br>
+\n line feed    chr$(10) -&gt; hex$(&quot;0A&quot;)<br>
+12 new page<br>
+27 escape<br>
+15 begin compressed print<br>
+18 end compressed print</p>
+<p><strong>Escape followed by</strong>:</p>
+<p>'0' 8 lines per inch<br>
+'2' 6 lines per inch<br>
+'4' begin italics<br>
+'5' end italics<br>
+'@' Epson - reset<br>
+'&amp;' HP PCL code  - see below<br>
+'(' HP PCL code  - see below<br>
+'-' underline - 1 (on) or 0 (off)   {\b e.g. &quot;\E-1&quot;}<br>
+'_' overscore - 1 (on) or 0 (off)<br>
+'g' 15 cpi<br>
+'k' select typeface -</p>
+<pre><code>00000 - default    1 - roman    2 - swiss    3 - modern (fixed)
+00004 - script     5 - decorative    6 - default
+</code></pre>
+<p>Also, for version 4.14, see list of specific facenames below.<br>
+'x' letter quality (1) or utility mode (draft - 0)<br>
+'E' begin emphasized printing<br>
+'F' end emphasized printing<br>
+'G' begin enhanced printing (letter quality)<br>
+'H' end enhanced printing<br>
+'M' 12 cpi - Elite<br>
+'P' 10 cpi - pica<br>
+'W' double width printing - 1 (on) or 0 (off)</p>
+<h3 id="hp-compatible-codes-supported-by-nwp">HP Compatible Codes Supported By NWP</h3>
+<p><strong>Escape '&amp;' followed by</strong>:</p>
+<p>'l' letter L in lowercase and then a number (NWP supports fractions, HP doesn't), followed by:
+'C' VMI (vertical motion index) number of 48ths of an inch<br>
+'D' Line Spacing - lines per inch 1,2,3,4,6,8,12,16,24,48<br>
+Both of the above codes set VMI.</p>
+<p>'E' Top margin in lines (VMI increments) from the top of page.  The default is 1/2 inch from the top of page.</p>
+<p>'P' Page Length in lines<br>
+'F' Page Length in lines<br>
+These two values are treated synonymously by BR. They both set the bottom margin in relation to the top margin based on the current VMI. The default is 1/2 inch from the bottom.</p>
+<p>'H' set paper source  4.17+ only<br>
+2 Manual Feed<br>
+3 Manual Envelope Feed<br>
+4 Paper Tray 2 (lower tray)<br>
+5 Paper Tray 3 (optional paper source)</p>
+<p>Other paper source codes are available.  However, because these codes are not universal and vary by printer you will need to query the printer driver to determine the proper code.  This can be done by sending a simple print job to an NWP printer as WIN:\SELECT.  This option will allow you to select a windows printer and set the properties to the correct printer drawer or source.  Once the print job has been processed BR will set an environmental variable named env$(&quot;XXXXXXX&quot;).  Typing PRINT ENV$(&quot;XXXXX)&quot; from a command line will return the value needed to address the selected drawer.</p>
+<p>'O' letter O, page orientation<br>
+0=portrait<br>
+1=landscape<br>
+Note: THIS MODE NEEDS TO BE SELECTED BEFORE ANY OTHER OPTIONS.</p>
+<p>'A': designates the size of the paper which in turn defines the size of the logical page</p>
+<p>1 - Executive (7.25 x 10.5 in.)<br>
+2 - Letter (8.5 x 11 in.)<br>
+3 - Legal (8.5 x 14 in.)<br>
+6 - Ledger (11 x 17 in.)<br>
+26 - A4 (210mm x 297mm)<br>
+27 - A3 (297mm x 420mm)<br></p>
+<p><strong>ENVELOPES</strong>:</p>
+<p>80 - Monarch (Letter - 3 7/8 x 7.5 in.)<br>
+81 - Com-10 (Business - 4 1/8 x 9.5 in.)<br>
+90 - International DL (110mm x 220mm)<br>
+91 - International C5 (162mm x 229mm)<br>
+100 - International B5 (176mm x 250mm)</p>
+<p>'a' reposition in 720ths of an inch (decipoints) BR 4.14+ only<br>
+'V' number of decipoints from top of page<br>
+'H' number of decipoints from left edge<br>
+'C' number of columns (CPI units) from left edge<br>
+'R' number of rows (VMI units) from top of page<br></p>
+<p>Specify plus or minus ahead of the number for relative positioning.</p>
+<p><strong>Examples-</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>&quot;\E&amp;l1O&quot;</strong></td>
+<td>Set page orientation.. must come before other sequences.</td>
+</tr>
+<tr>
+<td><strong>&quot;\E&amp;ll6D&quot;</strong></td>
+<td>Set to 16 lines per inch.</td>
+</tr>
+<tr>
+<td><strong>&quot;\E&amp;l40P&quot;</strong></td>
+<td>Set to 40 lines per page.</td>
+</tr>
+<tr>
+<td><strong>&quot;\E&amp;a720h1440V&quot;</strong></td>
+<td>Set position to one inch from the left margin and two inches from the top margin. (BR 4.14+ only)</td>
+</tr>
+</tbody>
+</table>
+<p>'f' stack (0) or restore (1) current page position<br>
+'S' terminate save or restore value</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>'</em>'</td>
+<td>The stack depth is 20.</td>
+</tr>
+</tbody>
+</table>
+<p>'k' <br>
+'G' line termination<br>
+0:CR=CR,    LF=LF,    FF=FF<br>
+1:CR=CR+LF, LF=LF,    FF=FF<br>
+2:CR=CR,    LF=CR+LF, FF=FF<br>
+3:CR=CR+LF, LF=CR+LF, FF=CR+FF &quot;\E&amp;k3G&quot;  Set to CR=CR+LF, LF=CR+LF, FF=CR+FF</p>
+<p>'H': set horizontal motion index (HMI)<br>
+the number of 1/120's of an inch per character<br>
+fixed fonts use CPI instead<br>
+normally the size of one blank character</p>
+<p>'S' 0: uncompressed 10 cpi<br>
+2: compressed 16.67 cpi<br>
+4: uncompressed 12 cpi</p>
+<p>Escape '(' followed by Symbol set selection, language, etc.  *cannot combine commands<br>
+'s': e.g. for Stroke Weight: Ec(s#B<br>
+'B' Stroke Weight    -7  --0--  +7</p>
+<p>'H' Pitch  in characters per inch,  e.g.  10 = 10 cpi<br>
+'S' Style|0: normal<br>
+1: italics<br>
+'T' TypeFace Family|0 - default<br>
+1 - roman<br>
+2 - swiss<br>
+3 - modern (fixed)<br>
+4 - script<br>
+5 - decorative<br>
+6 - default</p>
+<p>'T' Specific TypeFace (version 4.14 only)</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Value</td>
+<td>Family</td>
+<td>Name</td>
+</tr>
+<tr>
+<td>00000</td>
+<td>MODERN</td>
+<td>&quot;Line Printer&quot;</td>
+</tr>
+<tr>
+<td>04099</td>
+<td>MODERN</td>
+<td>&quot;Courier New&quot;</td>
+</tr>
+<tr>
+<td>04101</td>
+<td>ROMAN</td>
+<td>&quot;CG Times&quot;</td>
+</tr>
+<tr>
+<td>04102</td>
+<td>MODERN</td>
+<td>&quot;Letter Gothic&quot;</td>
+</tr>
+<tr>
+<td>04113</td>
+<td>SWISS</td>
+<td>&quot;CG Omega&quot;</td>
+</tr>
+<tr>
+<td>04116</td>
+<td>SCRIPT</td>
+<td>&quot;Coronet&quot;</td>
+</tr>
+<tr>
+<td>04140</td>
+<td>ROMAN</td>
+<td>&quot;Clarendon Condensed&quot;</td>
+</tr>
+<tr>
+<td>04148</td>
+<td>SWISS</td>
+<td>&quot;Univers&quot;</td>
+</tr>
+<tr>
+<td>04168</td>
+<td>SWISS</td>
+<td>&quot;Antique Olive&quot;</td>
+</tr>
+<tr>
+<td>04197</td>
+<td>ROMAN</td>
+<td>&quot;Garamond&quot;</td>
+</tr>
+<tr>
+<td>04287</td>
+<td>SCRIPT</td>
+<td>&quot;Marigold&quot;</td>
+</tr>
+<tr>
+<td>04362</td>
+<td>SWISS</td>
+<td>&quot;Albertus Medium&quot;</td>
+</tr>
+<tr>
+<td>16602</td>
+<td>SWISS</td>
+<td>&quot;Arial&quot;</td>
+</tr>
+<tr>
+<td>16901</td>
+<td>ROMAN</td>
+<td>&quot;Times New Roman&quot;</td>
+</tr>
+<tr>
+<td>16686</td>
+<td>ROMAN</td>
+<td>&quot;Symbol&quot;</td>
+</tr>
+<tr>
+<td>31402</td>
+<td>DECORATIVE</td>
+<td>&quot;Wingdings&quot;</td>
+</tr>
+</tbody>
+</table>
+<p>[\RTFBOX]</p>
+<p>'V' font height in points ( 72nd of an inch )  *can be fractional<br>
+eg. &quot;\E(s17h4102t2B&quot;  Set to 17cpi, letter gothic, bold weight<br>
+Note- only the last terminator character should be capitalized.</p>
+<p><strong>version 4.14+ only</strong>:</p>
+<p><strong>Escape '*' followed by</strong>:</p>
+<p>(see the HP PCL.PDF file for examples of fill chars)</p>
+<p>p - reposition on page<br>
+'X' number of PCL units(pixels) from the left edge.<br>
+Specify plus or minus ahead of the number for relative positioning. *see &amp;a#H and &amp;a#V for decipoint positioning. -</p>
+<p>'Y' number of PCL units from the top edge.</p>
+<p>c - fill space<br>
+'H' horizontal fill distance in decipoints<br>
+'V' vertical fill distance in decipoints</p>
+<p>On an HP printers you can specify patterns and and corresponding images to be applied to the bitmap workspace.  Many effects are possible.  Text may be greyed or striped like a candy cane.</p>
+<p><strong>First the pattern (small bitmap - tiled) is used to fill the image, which may be a graphic image or a font character. Then the result is applied to the bitmap space.</strong></p>
+<p>Both applications are performed in accordance with transparency settings (0 = logical OR, 1 = copy).</p>
+<p>'G' set the current shading or cross hatch pattern<br>
+The HP_PCL.PDF file describes the available shading and cross hatch patterns on pages 274-276.</p>
+<p>'P' FILL the Horizontal/Vertical area using:</p>
+<pre><code>00000 black (default)
+00001 white
+00002 shaded (based on *c#G value)
+00003 cross-hatch  (based on *c#G value)
+00005 use current pattern mode (*v#T value)
+</code></pre>
+<p><strong>v</strong>:</p>
+<p>'T' set the current pattern mode</p>
+<pre><code>00000 black (default)
+00001 white
+00002 shaded (based on *c#G value)
+00003 cross-hatch (based on *c#G value)
+</code></pre>
+<p>Note- *v#T is not supported by BR except to support *c5P.</p>
+<p>'N' set the 'apply image' transparency mode</p>
+<pre><code>00000 is transparent (ORs bits), 1 is opaque (copies bits).
+</code></pre>
+<p>The net result is that white bits are copied in opaque mode, whereas source white bits are ignored in transparent mode.<br>
+Note that *v1N copies the framing whitespace of an image or font character.</p>
+<p>'O' (letter oh) set the 'apply pattern' mode</p>
+<pre><code>00000 is transparent (ORs bits), 1 is opaque (copies bits).
+</code></pre>
+<p>'p' pattern rotation</p>
+<p>'R' this command is ignored by BR</p>
+<p>This will apply the HP init string to the referenced printer:.<br>
+printer HP-WIN  INIT &quot;\E(s3b17H&quot;  ! NWP compressed<br>
+printer HP-WIN  INIT &quot;\E(s2b3t17H&quot;  ! NWP compressed</p>
+<h3 id="hp-and-nwp-font-sizing-and-positioning">HP and NWP Font Sizing and Positioning</h3>
+<p>Non-Proportional (fixed width) fonts vary in height based on characters per inch (CPI). Proportional fonts ignore CPI specifications.</p>
+<p>HP PCL Compatible equipment chooses font sizes from among those available based on several characteristics that may be specified (mainly font height). This is true for both proportional and fixed fonts.  HP equipment does no stretching of font height or width.</p>
+<p>Windows, allows for independent specification of true type font height versus width. Under NWP the font height, width of a space character, and the vertical movement to go to the next line are all specified independently. The affect of this is dependent on whether the selected font is proportional or fixed width.</p>
+<p>Fixed width fonts are stretched by Windows as needed to meet specifications. Proportional fonts are not stretched, but they are scaled based on height.</p>
+<p>NWP considers CPI and LPI when positioning and boxing with both fixed and proportional fonts.</p>
+<p>Positioning can be done in terms of rows and columns, 720ths of an inch (decipoints), PCL units (pixels), or simply inches (with decimal fractions).  Font pitch (width) is given in CPI. Font height is given in points (72/inch).  Picture sizes are given in inches.</p>
+<p>The following statements will set the Printer into Proportional Spacing mode.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[PS]</strong></td>
+<td>Set Proportional Spacing</td>
+</tr>
+<tr>
+<td>*<strong>[/PS]</strong></td>
+<td>Cancel Proportional Spacing</td>
+</tr>
+</tbody>
+</table>
+<p>Proportional Spacing is Character spacing based on the width of each character. The printer must be set into this mode before you may change the font size, or use any proportional fonts.</p>
+<h3 id="hp-hardware-font-selection-methodology">HP Hardware Font Selection Methodology</h3>
+<p>HP printers select font based the following criteria in order of importance.</p>
+<p>1.) Symbol Set - the characters this font contains
+2.) Spacing - proportional or non-proportional (fixed width)
+3.) Font width - if spacing is fixed, the width of the font is very important
+4.) Height - point size (this is regarded as less important then width)
+5.) Style - italics, outline, boldness (how dark and bold it is)
+6.) Typeface - the specific font that is specified
+7.) Resolution
+8.) Location
+9.) Orientation</p>
+<p>On an HP printer the typeface is given the lowest priority.  In NWP typeface is given the highest priority.</p>
+<p>Symbol set and Spacing are ignored.  On an HP printer, font can be set as condensed or expanded.  In NWP, this is reflected by changing the font width.  On an HP printer, fonts are always scaled the same in both axis.  In NWP, we scale the fonts in a manner that allows both CPI and font height to be set.</p>
+<h3 id="hmi-and-vmi-horizontal-and-vertical-motion-indicators">HMI and VMI (Horizontal and Vertical Motion Indicators)</h3>
+<p>An HP printer has a separate concept for HMI and VMI - the horizontal and vertical motion indexes.  This is how far the cursor moves for a newline or when printing a character (fixed spacing only).  In an HP printer, setting the font PITCH sets the HMI, but setting HMI does not set pitch.  VMI and font height are completely separated.</p>
+<p>In NWP, this separation between HMI, VMI, font width, and font height is not always made.  In addition, NWP only honors HMI for the tab character.  It does not currently honor HMI for the space character or for fixed pitch fonts.</p>
+<h3 id="nwp-only-codes">NWP Only Codes</h3>
+<p><strong>Font Selection</strong></p>
+<p>NWP adds support for a totally new way to implement font changes in your programs. With NWP, we have added a new Escape sequence that allows you to set your font to any of the installed fonts on your computer. The command looks like this:</p>
+<pre><code>\\Efont='fontname'
+</code></pre>
+<p>e.g.</p>
+<pre><code>brconfig.sys  PRINTER HP [Tahoma], &quot;\\Efont='Tahoma'&quot;
+</code></pre>
+<pre><code>00020 PRINT #255: [Tahoma]
+</code></pre>
+<p>Note- All such keywords such as &quot;font=&quot; must be lower case, but Tahoma is case insensitive in both instances.</p>
+<p>Printer.sys includes a few pre-mapped font substitute statements to make this even easier.<br>
+[FONT_MICR]|Sets the font to Micr<br>
+[FONT_TIMES]|Sets the font to Times New Roman<br>
+[FONT_ARIAL]|Sets</p>
+<pre><code>the font to Arial&lt;br&gt;
+</code></pre>
+<p>[FONT_LINEPRINTER]|Sets the font to Line Printer<br>
+[George Tisdale]|Sets Font to Blue Regular 12 pt Arial<br>
+[FONT]|becomes &quot;\Efont=&quot;. Specify any font such as [FONT]'WingDings'</p>
+<p><strong>Font Sizes</strong></p>
+<p>If you want to change the font size, you can even do that!</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[TINY]</strong></td>
+<td>6 pt font</td>
+</tr>
+<tr>
+<td><strong>[SMALL]</strong></td>
+<td>8 pt font</td>
+</tr>
+<tr>
+<td><strong>[LITTLE]</strong></td>
+<td>10 pt font</td>
+</tr>
+<tr>
+<td><strong>[MEDIUM]</strong></td>
+<td>12 pt font</td>
+</tr>
+<tr>
+<td><strong>[ESSAY]</strong></td>
+<td>14 pt font</td>
+</tr>
+<tr>
+<td><strong>[LARGE]</strong></td>
+<td>18 pt font</td>
+</tr>
+<tr>
+<td><strong>[155POINT]</strong></td>
+<td>15.5 pt font</td>
+</tr>
+</tbody>
+</table>
+<p>One thing to note, printer.sys is just a brconfig.sys file, and it can easily be customized and modified. If you need a font size that I left out, or if you want easier to remember names, these changes are very easy to implement. And many of these options can be simplified by using &quot;Parameterized Substitution Values&quot;, which is discussed later in this chapter.</p>
+<p><strong>Page Position</strong></p>
+<p>You can specify POSITION on the page as:</p>
+<pre><code>\\Eposition='horizontal,vertical'
+</code></pre>
+<p>Where 'horizontal' and 'vertical' are given as inches from the edge of the page, or may be signed to denote inches from the current position.</p>
+<p><strong>Bold/Underline/Italics</strong></p>
+<p>These next few statements control various common font modifiers.[UNDERLINE] [/UNDERLINE][ITALICS] [/ITALICS][BOLD] [/BOLD]</p>
+<p><strong>Font Color</strong></p>
+<p>With NWP, we have implemented an easy way to make Colors work, as well. Its actually remarkably similar to the syntax for FONTS. It looks like:</p>
+<p><strong>Current font COLOR may be specified as</strong>:</p>
+<p>\Ecolor=#rrggbb, eg.</p>
+<p><strong>The following colors are predefined for your printing pleasure (only in NWP)</strong>:</p>
+<p>[RED]<br>
+[GREEN]<br>
+[BLUE]<br>
+[MAGENTA]<br>
+[CYAN]<br>
+[YELLOW]<br>
+[ORANGE]<br>
+[PURPLE]<br>
+[BLACK]<br>
+[WHITE]</p>
+<p>The following substitution statement is also available:</p>
+<p>[COLOR].....Becomes &quot;\Ecolor=&quot;. Specify any html color such as [COLOR]'#0000FF'</p>
+<p><strong>Underline/Overline</strong></p>
+<p>NWP has its own syntax for specifying Underline and Overline.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[UNDERLINE]</strong></td>
+<td>becomes &quot;\E-1&quot;     Turn on Underline</td>
+</tr>
+<tr>
+<td><strong>[/UNDERLINE]</strong></td>
+<td>becomes &quot;\E-0&quot;     Turn off Underline</td>
+</tr>
+<tr>
+<td>*<strong>[OVERLINE]</strong></td>
+<td>becomes &quot;\E_1&quot;     Turn on Overline</td>
+</tr>
+<tr>
+<td>*<strong>[/OVERLINE]</strong></td>
+<td>becomes &quot;\E_0&quot;     Turn off Overline</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rotation</strong></p>
+<p>One of the remaining advantages to using PCL is the ability to print in different directions on the page. This can be done in PCL with the following:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[ROTATE0]</strong></td>
+<td>Sets the page direction normal</td>
+</tr>
+<tr>
+<td>*<strong>[ROTATE90]</strong></td>
+<td>Sets the page direction to 90° CC</td>
+</tr>
+<tr>
+<td>*<strong>[ROTATE180]</strong></td>
+<td>Sets the page direction to 180° CC</td>
+</tr>
+<tr>
+<td>*<strong>[ROTATE270]</strong></td>
+<td>Sets the page direction to 270° CC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Position</strong></p>
+<p>The following commands all set the position. You can reset the position to the top left of the page, or you can modify the commands in the text file to reset the position to any specific location on the page you want. You may also, of course, simply print the PCL codes.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[TOPLEFT]</strong></td>
+<td>Places the cursor at the top left of the page</td>
+</tr>
+</tbody>
+</table>
+<p>The PCL command for positioning allows for three ways to set the current position. You may do it based on Decipoints (1/720h of an inch). You may also set the position based rows and columns, or PCL units (pixels). If you append a +/- to the position numbers, you will set the relative position, relative to the current cursor position.</p>
+<p>The following syntaxes work for setting the position. YYY is the vertical coordinate, and XXX is the horizontal coordinate. \E represents the escape character.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>&quot;\E&amp;aYYYvXXXh&quot;</strong></td>
+<td>Set Position in Decipoints</td>
+</tr>
+<tr>
+<td><strong>&quot;\E&amp;aYYYrXXXC&quot;</strong></td>
+<td>Set Position in Rows and Columns</td>
+</tr>
+<tr>
+<td><strong>&quot;\E*pYYYyXXXx&quot;</strong></td>
+<td>Set Position in PCL units</td>
+</tr>
+</tbody>
+</table>
+<p>With NWP, you have one additional option for setting your cursor position. There is a new NWP only escape sequence: &quot;\Eposition='x,y' &quot;. If you prefix your numbers with a +/- then BR will interpret them as a relative position, and it will simply adjust from the current position. Position must be specified in Inches for this new escape sequence.</p>
+<p>A single substitution statement has been added to aid you with this. It is simply:</p>
+<ul>
+<li>[POSITION]|Becomes &quot;\Eposition=&quot;. Set the cursor to any position. An example of its usage would be:</li>
+</ul>
+<pre><code>00200 PRINT #255: &quot;[POSITION]'3,2'The Middle.&quot;
+</code></pre>
+<p>Position may else be specified with &quot;Parameterized Substitution Values&quot;, discussed in this chapter.</p>
+<p>You might make some statements like the following (which are already in printer.sys):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>*<strong>[TOPLEFT]</strong></td>
+<td>&quot;\Eposition='0,0'&quot; ! Set cursor to top left</td>
+</tr>
+<tr>
+<td>*<strong>[SHIFTDOWN]</strong></td>
+<td>&quot;\Eposition='0,+1'&quot; ! Move cursor right one inch</td>
+</tr>
+</tbody>
+</table>
+<p>With NWP, you may, of course, also use the PCL style positioning statements.</p>
+<p><strong>Printing Pictures</strong></p>
+<p>It's really nice to be able to print pictures. Hot off the press for the new NWP is the ability to print full color pictures straight from a file, using one simple escape sequence. This escape sequence is:</p>
+<pre><code>\\Epicture='width,height,imagefile.jpg [: TILE|NORESIZE|ISOTROPIC ]'
+</code></pre>
+<p>Where 'width' and 'height' are given in inches, and the remainder of the image specification matches that of New GUI Console pictures.</p>
+<p>NWP will print any file that you can display, including jpg, gif, bmp, ico, and many others. If you have a color printer, they will be printed in color.</p>
+<p>There is again a simple substitute statement for the use of this new escape function.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[PICTURE]</strong></td>
+<td>becomes &quot;\Epicture=&quot;.................Use like [PICTURE]'2,2,logo.jpg'</td>
+</tr>
+</tbody>
+</table>
+<p>I would suggest using a picture statement with a position statement. To print a logo in the top right of the page, you would say:</p>
+<pre><code>00300 PRINT #255: &quot;[POSITION]'6,0'[PICTURE]'2,2,logo.jpg'&quot;
+</code></pre>
+<p>....or....</p>
+<pre><code>00300 PRINT #255: &quot;[PUSH][POSITION]'6,0'[PICTURE]'2,2,logo.jpg'[POP]&quot;
+</code></pre>
+<p>....to restore the cursor to its original position. These statements will print the logo.jpg file 2 sq&quot; in the top right corner of the page.</p>
+<p>[E]|ESC Key (used for generating your own PCL code)</p>
+<p><strong>Paper Source</strong></p>
+<p>A new NWP only syntax is supported for paper tray selection. When you print to WIN:/SELECT or PREVIEW:/SELECT then you are given the opportunity to select a paper source tray. Then a new ENV$ keyword can be used to obtain a number associated with the paper source:</p>
+<p>TRAY$ = ENV$(&quot;LAST_TRAY_SELECTED&quot;)</p>
+<p>Finally the value associated with the selection can be applied as [ \Etray='value' ] to specify that the paper should be taken from that source. Note that paper tray selection and page orientation must be specified before printing any displayable data.</p>
+<h3 id="page-setup-options">Page Setup Options</h3>
+<p>The following Substitute codes work in NWP. Those with a * will work only in NWP.</p>
+<p><strong>Initial configuration</strong>:</p>
+<p>The following must be done before anything is printed to the printer.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[PORTRAIT]</strong></td>
+<td>Sets the printer to print portrait</td>
+</tr>
+<tr>
+<td><strong>[LANDSCAPE]</strong></td>
+<td>Sets the printer to print landscape</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The next six settings change the logical page size for printing on different sized pages</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[EXECUTIVE]</strong></td>
+<td>Set the logical page for Executive size paper (7.25 x 10.5)</td>
+</tr>
+<tr>
+<td><strong>[LETTER]</strong></td>
+<td>Set the logical page for Letter size paper (8.5 x 11)</td>
+</tr>
+<tr>
+<td><strong>[LEGAL]</strong></td>
+<td>Set the logical page for Legal size paper (8.5 x 14)</td>
+</tr>
+<tr>
+<td><strong>[LEDGER]</strong></td>
+<td>Set the logical page for Ledger size paper (11 x 17)</td>
+</tr>
+<tr>
+<td><strong>[A4PAPER]</strong></td>
+<td>Set the logical page for A4 size paper (210mm x 297mm)</td>
+</tr>
+<tr>
+<td><strong>[A7PAPER]</strong></td>
+<td>Set the logical page for A7 size paper (297mm x 420mm)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The next five settings change the logical page size for printing on envelopes</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[MONARCH]</strong></td>
+<td>(3 7/8 x 7.5)</td>
+</tr>
+<tr>
+<td><strong>[COM-10]</strong></td>
+<td>(4 1/8 x 9.5)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL DL]</strong></td>
+<td>(110mm x 220mm)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL C5]</strong></td>
+<td>(162mm x 229mm)</td>
+</tr>
+<tr>
+<td><strong>[INTERNATIONAL B5]</strong></td>
+<td>(176mm x 250mm)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The following six options set the paper source. By default it is set to Auto, and can be changed in printer preferences</strong>:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[PAPERSOURCEAUTO]</strong></td>
+<td>Feed from Printer Default</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCEMANUAL]</strong></td>
+<td>Feed from manual feeder</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCEMANUALENVELOPE]</strong></td>
+<td>Feed Envelope from manual feeder</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCETRAY2]</strong></td>
+<td>Feed from Lower Tray</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCEOPTIONAL]</strong></td>
+<td>Feed from Optional Input</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCEOPTIONALENVELOPE]</strong></td>
+<td>Feed from Optional Envelope Feeder (Must set to Envelope size first)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real Time Printing</strong></p>
+<p>All of the following PCL commands can be executed in the middle of a printing job.</p>
+<p>The following commands modify the LPI settings for the printer:[4LPI] [6LPI] [8LPI] [10LPI]
+This setting controls the number of lines printed per inch vertically on the page.</p>
+<p>The following commands modify the CPI settings for the printer:[4CPI] [6CPI] [8CPI] [10CPI] [12CPI] [14CPI] [17CPI] (16.7)  [20CPI] This setting controls the number of characters printed per inch horizontally on the page.</p>
+<h3 id="boxing--shading">Boxing &amp; Shading</h3>
+<p>Perhaps the most exciting new feature of Native Windows Printing is a new NWP-only escape sequence for printing Boxes and Shading. With this command, it has never been easier to generate grids and boxes, columns and tables for all your reporting needs.</p>
+<p>The way it works is simple. You simply turn Boxing on, and all the text you print is covered at the top and bottom with a box border. To print the sides of the box, you simply need to print a &quot;&quot; (pipe) character. BR will replace the pipe character with a line drawn at the correct place (according to the current CPI settings) to make a column border, or the edge of the box, except that proportional text can force the closing sidebar to the right.</p>
+<p>You may use the escape sequence &quot;\Ebegin_box&quot; to turn on boxing.</p>
+<p>If you wish to print only the sides and the top of the box, you may do so by printing &quot;\Ebegin_boxtop&quot;. This will print the border on the top, and it will print a vertical border anywhere you print a &quot;&quot;. This is in case you would like to print a box that spans multiple rows.</p>
+<p>When you then want to print the bottom of the box, you may send the escape sequence &quot;\Ebegin_boxbottom&quot;. This will print a line below the text, but not above. The &quot;&quot; symbols will still be interpreted as vertical borders.</p>
+<p>For all those rows in the middle of the box, you have the command &quot;\Ebegin_verticals&quot;. This will print nothing on the top or the bottom, but it will still print the vertical bar wherever you print a &quot;&quot;.</p>
+<p>Finally, to turn off boxing features, simply issue an &quot;\Eend_box&quot; command.</p>
+<p>Occasionally it is necessary to extend a field to the length it would be if it contained vertical box lines. e.g.</p>
+<pre><code>------------------------------|------------------------|-------------|
+  xxxxxxxxxxxxxxxxxxx         |  xxxxxxxxxxxxx         |  xxxxxxxxxx |
+------------------------------|------------------------|-------------|
+  xxxxxxxxxx                  |   an extended field is needed here   |
+------------------------------|--------------------------------------|
+</code></pre>
+<p>This can be done by appending a CHR$(5) character to the field contents. That will cause a fill character to be added to the printed field length. CHR$(5) is recognized only in one of the BOXING modes.</p>
+<p>To make your reports look extra nice, we have included two commands to turn on and off shading. This will shade the background of the text using the current shade density. This is great for lightly shading every second row of a report so that they stand out, and its easy to see what goes with what. To turn shading on, issue a &quot;\Ebegin_shade&quot;. To turn it back off, issue an &quot;\Eend_shade&quot; command.</p>
+<p>To change the current shading density by hand, I am afraid, you will have to resort to good old PCL. The command to do this is &quot;&quot;\E*c##G&quot; where ## is the shading density, by percent.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>\E*c20G</strong></td>
+<td>\Ebegin_shade  set shading density to 20 percent and begin</td>
+</tr>
+</tbody>
+</table>
+<p>\Eend_shade</p>
+<p>\Ebegin_boxtop = enclose sides and above<br>
+\Ebegin_boxbottom - enclose sides and below<br>
+\Ebegin_verticals - enclose only sides<br>
+\Eend_box - end box mode<br></p>
+<p>Possible configuration statements in BRConfig.sys might include:</p>
+<pre><code>PRINTER NWP [BOX], &quot;\\Ebegin_box&quot;
+PRINTER NWP [BOXTOP], &quot;\\Ebegin_boxtop&quot;
+PRINTER NWP [BOXOVER], &quot;\\Ebegin_boxtop&quot;
+PRINTER NWP [BOXVERTICALS], &quot;\\Ebegin_verticals&quot;
+PRINTER NWP [SIDES], &quot;\\Ebegin_verticals&quot;
+PRINTER NWP [BOXBOTTOM], &quot;\\Ebegin_boxbottom&quot;
+PRINTER NWP [BOXUNDER], &quot;\\Ebegin_boxbottom&quot;
+PRINTER NWP [NOBOX], &quot;\\Eend_box&quot;
+PRINTER NWP [SHADE], &quot;\\E*c20G\\Ebegin_shade&quot;
+PRINTER NWP [NOSHADE], &quot;\\Eend_shade&quot;
+</code></pre>
+<p>Luckily, {\b printer.sys} has the following shortcuts defined to help you out.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[BOX]</strong></td>
+<td>Begin Box Mode</td>
+</tr>
+<tr>
+<td><strong>[/BOX]</strong></td>
+<td>End Box Mode</td>
+</tr>
+<tr>
+<td><strong>[BOXTOP]</strong></td>
+<td>Begin Box Top Mode</td>
+</tr>
+<tr>
+<td><strong>[BOXOVER]</strong></td>
+<td>Synonym for BOXTOP</td>
+</tr>
+<tr>
+<td><strong>[BOXVERTICALS]</strong></td>
+<td>Begin Box Verticals</td>
+</tr>
+<tr>
+<td><strong>[BOXSIDES]</strong></td>
+<td>Synonym for BOXVERTICALS</td>
+</tr>
+<tr>
+<td><strong>[BOXBOTTOM]</strong></td>
+<td>Begin Box Bottom</td>
+</tr>
+<tr>
+<td><strong>[BOXUNDER]</strong></td>
+<td>Synonym for BOXBOTTOM</td>
+</tr>
+<tr>
+<td><strong>[SHADE]</strong></td>
+<td>Turn on Shading</td>
+</tr>
+<tr>
+<td><strong>[/SHADE]</strong></td>
+<td>Turn off Shading</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE0]</strong></td>
+<td>White</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE20]</strong></td>
+<td>Light</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE40]</strong></td>
+<td>Kinda Light</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE60]</strong></td>
+<td>Kinda Dark</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE80]</strong></td>
+<td>Dark</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE100]</strong></td>
+<td>Black</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Push/Pop</strong></p>
+<p>Next we have commands for storing the current position on the Stack. This will save the current position into printer memory and allow you to do anything you want with it. When you are done doing what you wanted to do, you may then pop the value back off the stack, and the cursor goes right back to where it was. The syntax is:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[PUSH]</strong></td>
+<td>Push!</td>
+</tr>
+<tr>
+<td><strong>[POP]</strong></td>
+<td><em>Pop</em></td>
+</tr>
+</tbody>
+</table>
+<p>HP Printers have a stack in their printer memory which you can use to store the current position. Use the stack to save the current cursor position with a  [PUSH] command. You many move it wherever you like and print whatever you like, and when you are ready to continue from where you left off, you simply [POP] and the cursor goes right back where it was. A stack is like a FOR loop, you can nest your [PUSH] and [POP] statements.</p>
+<p>One great use I can see for these commands is functions that you wish to use to place graphics on your printout. It would be a nice idea for a polite function in modern society to push the current cursor position before processing (to draw a box or whatever) and then pop the cursor position back to where it was. This way, if you are in the middle of printing a report, and you want to put lines on the report to underline something while you know where you are, you can call your function. When you are done, the function will place you right back where you were before you called it, and you may just finish printing the line as usual.</p>
+<h3 id="parameterized-substitution-values">Parameterized Substitution Values</h3>
+<p>We have a new format for specifying printer substitute statements.  The format works as follows:</p>
+<p>Currently, you may specify the shading density with a substitute statement such as the following:</p>
+<pre><code>PRINTER NWP [SET_SHADE20], &quot;\\E*c20G&quot;
+</code></pre>
+<p>With this new syntax, you will be able to specify a value to pass to the substitution statement which will be placed in the actual replacement text of the statement, as follows:</p>
+<pre><code>PRINTER NWP [SET_SHADE(Percent)], &quot;\\E*cPercentG&quot; ! Set to whatever you want
+</code></pre>
+<p>Now you may use a printing statement such as the following:</p>
+<pre><code>PRINT #255: &quot;[SET_SHADE(57)]&quot;
+</code></pre>
+<p>And the correct codes would be generated to set the shading density to 57 percent.</p>
+<p>With this new syntax, the following items are available (Note &quot;*&quot; items work ONLY with NWP:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>[SETDPPOSITION(YYY,XXX)]</strong></td>
+<td>Set Position in Decipoints</td>
+</tr>
+<tr>
+<td><strong>[SETRCPOSITION(YYY,XXX)]</strong></td>
+<td>Set Position in Rows and Columns</td>
+</tr>
+<tr>
+<td><strong>[SETPCLPOSITION(YYY,XXX)]</strong></td>
+<td>Set Position in PCL units</td>
+</tr>
+<tr>
+<td>*<strong>[SETPOSITION(xx,yy)</strong></td>
+<td>Set Position in inches</td>
+</tr>
+<tr>
+<td><strong>[SET_SHADE(Percent)]</strong></td>
+<td>Sets the Shading percent</td>
+</tr>
+<tr>
+<td><strong>[SETFONT(FontNumber)]</strong></td>
+<td>Set current font by number</td>
+</tr>
+<tr>
+<td><strong>[SETSIZE(PointSize)]</strong></td>
+<td>Set current font size</td>
+</tr>
+<tr>
+<td><strong>[CPI(XXX)]</strong></td>
+<td>Set CPI</td>
+</tr>
+<tr>
+<td><strong>[SETSTYLE(StyleCode)]</strong></td>
+<td>Set current font style</td>
+</tr>
+<tr>
+<td>*<strong>[SETCOLOR(CLRCODE)]</strong></td>
+<td>Set the Color</td>
+</tr>
+<tr>
+<td><strong>[PAPERSOURCE(PSCode)]</strong></td>
+<td>Set the current paper source</td>
+</tr>
+<tr>
+<td>*<strong>[SHOWPICTURE(2,2,Logo.jpg)]</strong></td>
+<td>Show a picture called Logo.jpg 2&quot; by 2&quot;</td>
+</tr>
+<tr>
+<td>*<strong>[SHOWISOPICTURE(YY,XX,IMGNAME)]</strong></td>
+<td>Show a picture Isotropically</td>
+</tr>
+<tr>
+<td>*<strong>[SHOWTILEPICTURE(YY,XX,IMGNAME)]</strong></td>
+<td>Tile a picture</td>
+</tr>
+</tbody>
+</table>
+<p><strong><br>Old</strong>:</p>
+<p>BRconfig.sys PRINTER statements have traditionally supported:</p>
+<p>PRINTER identifier [mode-setting], escape-sequence, e.g.</p>
+<pre><code>PRINTER Laserjet [8-LPI], &quot;\\E&amp;l8D&quot;
+</code></pre>
+<p>Then in the program you can activate the setting with:</p>
+<pre><code>02000 Print #255: &quot;[8-LPI]&quot;;
+</code></pre>
+<p><strong><br>New</strong>:</p>
+<p>The above method requires a separate configuration statement for each possible LPI setting. We have since added the capability of specifying in the print process values to be substituted in the actual escape sequences as in:</p>
+<pre><code>02000 Print #255: &quot;[LPI(8)]&quot;;
+</code></pre>
+<p>Then the configuration statement would read:</p>
+<pre><code>PRINTER Laserjet [LPI(XXX)], &quot;\\E&amp;lXXXD&quot;
+</code></pre>
+<p>Where XXX is any unique case sensitive identifier.</p>
+<h2 id="nwp-color-shading">NWP Color Shading</h2>
+<p>In versions 4.2 and higher NWP supports color shading via the specification &quot;\Eshade_color='#rrggbb'&quot;.
+This works in conjunction with the other NWP shade syntax. Note that if no shading is implemented the this specification has no effect.</p>
+<p>BR now saves the PREVIEW window &quot;position&quot; and &quot;maximized&quot; settings across sessions.</p>
+<p>During PREVIEW-  Print (all) produces a standard Windows print diaglog box so the user can specify copies, range and other printing options.</p>
+<h2 id="windows-themes-suppression">Windows Themes Suppression</h2>
+<p>Sometimes themes alter the way Windows displays fields (elements within controls). For example different themes may display buttons and captions differently, including rounding corners and highlighting.  Future versions of windows may do different things when it comes to displaying controls which may affect the colors and shapes of displayed fields.</p>
+<p>Microsoft first began using themes with XP. The 'classic look' is the Windows 2000 appearance, which is what is produced when themes are suppressed.
+Vista permits users to select from among several themes as a part of the user's desktop settings. Sometimes theme processing can slow down the display of large quantities of data, and sometimes it can create an appearance that is less desirable than the classic look.</p>
+<p>In versions 4.2 and higher BR offers three methods for suppressing the use of Windows Themes:</p>
+<p>A new field attribute is defined that may be specified in ATTRIBUTE statements and in FIELDS leading attributes:</p>
+<pre><code>^NOTHEME    indicates prevent use of Windows Themes
+</code></pre>
+<p>OPTION 50	! suppress Windows themes for text boxes only</p>
+<p>Config WINDOWS_THEMES OFF | ON
+This entirely suppresses the use of Windows themes.</p>
+<hr>
+<h2 id="field-justification">Field Justification</h2>
+<p>JUSTIFICATION can be specified as:</p>
+<ul>
+<li>\Eleft_justify – The default positioning is left to right.</li>
+<li>\Eright_justify – Printing will be aligned on the right. The right boundary is calculated based on fixed width character positions even when using proportional fonts.</li>
+<li>\Ecenter -  Printing is centered within the space provided.</li>
+</ul>
+<p>(As of 4.2) CHR$(6) implies right justify the previous field for printed output. This works just like \Eright_justify except \Eright_justify applies to the following text whereas CHR$(6) pertains to the preceding text.</p>
+<h2 id="page-number">Page Number</h2>
+<p>\Epage_number - is replaced with the page number.</p>
+<h2 id="duplex-printing">Duplex Printing</h2>
+<p>NWP supports DUPLEX printing ( &amp;l#S )where:
+0 indicates simplex
+1 indicates duplex long edge
+2 indicates duplex short edge</p>
+<h2 id="cursor-positioning-mode">Cursor Positioning Mode</h2>
+<p>BR NWP supports <em>alignment of proportional printing</em> by specifying a boundary and letting BR do the character positioning.</p>
+<p>First set the cursor at the desired boundary (right, left or center) using normal NWP cursor positioning (see above). Then specify <strong>\Estop_cursor</strong>. This will set the mode where the cursor does not move horizontally except when tabbing. Either before or after stopping the cursor you may specify justification ( default is left justify ).</p>
+<ul>
+<li>Center uses the current position as the center</li>
+<li>Right justify uses the current position as the right endpoint</li>
+<li>The cursor does not move when printing text</li>
+<li>Newline positioning is honored, but carriage return positioning is ignored. A normal CRLF moves to the next line at the same boundary.</li>
+<li>Tab positioning is honored</li>
+</ul>
+<p>\Emove_cursor - Resumes moving the cursor normally when printing ( default mode ).</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/40-io-printing/pcl-pdf/Native_Windows_Printing.md">br_tree/40-io-printing/pcl-pdf/Native_Windows_Printing.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

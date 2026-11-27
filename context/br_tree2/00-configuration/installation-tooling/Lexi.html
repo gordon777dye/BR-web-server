@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lexi — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">installation-tooling</a></nav>
+<main>
+<h1>Lexi</h1>
+<p><strong>Lexi</strong> is a preprocessor for BR source. It lets a program be written <strong>without line numbers</strong>
+and with a handful of constructs BR does not have, and expands it into plain, numbered BR before
+BR loads it. It is built into <strong>brls</strong>, the BR language server: there is nothing to install beyond
+brls, and it needs no copy of BR to expand a file.</p>
+<pre><code>! #AUTONUMBER# 1000,10
+let Total=0
+#SELECT# Mode #CASE# 1 # 2
+   print &quot;one or two&quot;
+#CASE ELSE#
+   print &quot;other&quot;
+#END SELECT#
+</code></pre>
+<p>becomes</p>
+<pre><code>01000 ! #AUTONUMBER# 1000,10
+01010 let Total=0
+01020 if Mode = 1 or Mode = 2 then  ! #SELECT# Mode #CASE# 1 # 2
+01030    print &quot;one or two&quot;
+01040 else  ! #CASE ELSE#
+01050    print &quot;other&quot;
+01060 end if  ! #END SELECT#
+</code></pre>
+<a id="how-it-runs"></a>
+<h2>How it runs</h2>
+<p><strong>Which files are Lexi.</strong> A Lexi file has the same <code>.brs</code>/<code>.wbs</code> suffix as BR source, so brls
+decides from the contents: a file containing a Lexi construct, or with no numbered line at all, is
+Lexi. A marker inside a string literal does not count; one inside a <code>!</code> comment does. The markers
+are the select directives (<code>#SELECT#</code>, <code>#CASE#</code>, <code>#CASE ELSE#</code>, <code>#END SELECT#</code>), the <code>#DEFINE#</code>
+directive, the <code>[[</code> that opens a macro reference, and a backtick at the head of a line. They are the
+dialect's own spellings: with a <a href="#customizing">dialect file</a> that renames <code>#SELECT#</code> or <code>#DEFINE#</code>,
+the new word marks a file as Lexi and the shipped one no longer does, and a construct whose rule the
+dialect does not run marks nothing. Choose words as distinctive as the shipped ones: a token that
+ordinary BR also contains would make ordinary BR files Lexi.</p>
+<p><strong>Numbering or not.</strong> A file whose first non-blank line is numbered keeps its numbers and has only
+its constructs expanded. Otherwise every line is numbered.</p>
+<p><strong>In the editor</strong>, brls checks a Lexi file as the BR it expands to: diagnostics, navigation,
+rename, completion, hover and the rest work on the expansion, with every position mapped back to
+the line and column typed. Text Lexi writes counts as part of the construct it was written for, so
+an edit that would change it, such as a rename reaching into a <code>#DEFINE#</code> value, is refused.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Key (VS Code)</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>BR: Show Lexi Expansion</em></td>
+<td>—</td>
+<td>Opens the BR the file expands to.</td>
+</tr>
+<tr>
+<td><em>BR: Compile with BR</em></td>
+<td><code>Ctrl+Shift+B</code></td>
+<td>Expands the file and has BR compile the expansion. BR's errors are reported on the source lines they came from. <code>br.compile.onSave</code> does this on every save.</td>
+</tr>
+<tr>
+<td><em>BR: Add Line Numbers</em></td>
+<td><code>Ctrl+Alt+3</code></td>
+<td>Numbers the lines, as the expansion numbers them (with the dialect's own numbering words: see <a href="#customizing">The dialect file</a>), and does nothing else: constructs stay as typed.</td>
+</tr>
+<tr>
+<td><em>BR: Strip Line Numbers</em></td>
+<td><code>Ctrl+Alt+4</code></td>
+<td>Removes the numbers again. A file numbered and then stripped comes back as it was. Warns when the file branches to a line number.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>From the command line</strong>, <code>brls -check &lt;file&gt; -sema</code> checks a Lexi file the same way, reporting
+source positions and the BR line number Lexi gives each line.</p>
+<p><strong>The original Lexi instead.</strong> In VS Code, with the <code>crs-dev.vslang-br</code> extension installed and
+disabled, brls uses that extension's <code>lexi.br</code> (see <a href="legacy_lexi.html">legacy_lexi.md</a>) rather than
+the Lexi this page describes. <em>Show Lexi Expansion</em> and <em>Compile with BR</em> run <code>lexi.br</code> itself,
+which writes no line-count markers; the checks as you type expand the file as <code>lexi.br</code> does, and
+report Lexi source in error as a warning, since <code>lexi.br</code> acts on it. brls runs <code>lexi.br</code> on Windows
+only. Where it cannot run it, those two commands report that, and do not fall back to brls's Lexi.</p>
+<a id="syntax"></a>
+<h2 id="constructs">Constructs</h2>
+<p>Each source line goes through these steps in this order, then is numbered. A construct is found
+only outside <code>&quot;…&quot;</code> and <code>'…'</code> literals, unless the step says otherwise.</p>
+<p><strong>Source in error is reported and left alone.</strong> Anything Lexi-specific that is written wrongly —
+each case is listed under its construct below — is an error in brls, on the line it is on, and
+the expansion leaves it as written instead of acting on it.</p>
+<h3 id="x--append"><code>X$&amp;=&quot;...&quot;</code> — append</h3>
+<p><code>&amp;=</code> becomes <code>(inf:0)=</code>, BR's append to the end of a string, every time it occurs on the line.</p>
+<pre><code>let A$&amp;=&quot;tail&quot;        →   let A$(inf:0)=&quot;tail&quot;
+</code></pre>
+<h3 id="_--join-with-the-next-line"><code>!_</code> — join with the next line</h3>
+<p>The line is cut at <code>!_</code>, anything after it is dropped, and the next line, trimmed, follows after a
+space. It repeats while the joined line has another <code>!_</code>. A <code>!_</code> on the last line of the file is an
+error, and is left as written.</p>
+<pre><code>print &quot;long&quot; !_ dropped
+   &quot;part&quot;             →   print &quot;long&quot; &quot;part&quot;
+</code></pre>
+<h3 id="continuation--a-line-ending-in-an-operator">Continuation — a line ending in an operator</h3>
+<p>A line whose code ends in <code>=</code>, <code>+</code>, <code>-</code>, <code>+=</code>, <code>-=</code>, <code>*</code>, <code>/</code>, <code>,</code>, <code>&amp;</code>, <code>(</code>, <code> and</code> or <code> or</code>
+(any case, the comment left out) goes on to the next line, which is trimmed and joined after a
+space; this repeats while the joined code still ends in one. Comments taken off the joined lines
+are put back at the end, after <code>!</code>.</p>
+<p>What counts as code:</p>
+<ul>
+<li><strong>Strings are tracked</strong>: a <code>!</code> inside a <code>&quot;…&quot;</code>, <code>'…'</code> or backtick string is not a comment, and an
+apostrophe inside a string does not hide one. <code>let A$=&quot;it's&quot;&amp; ! note</code> ends in <code>&amp;</code>.</li>
+<li><strong>A <code>!</code> is a comment unless <code>:</code> or <code>_</code> follows it.</strong> A line ending in <code>!:</code> is a BR continuation,
+not an operator one, and is left to BR — unless the code before the <code>!:</code> ends in one of the
+operators above, the comma included. BR rejects that (<code>let X=1+ !:</code> is error 1026, <code>let A$=&quot;a&quot;&amp; !:</code> is 1030), so Lexi takes it as an operator continuation: the <code>!:</code> is left out and the next
+line joined, <code>let X=1+ !:</code> and <code>2</code> becoming <code>let X=1+ 2</code>. An operator at the start of the line
+after the <code>!:</code> (<code>let X=1 !:</code> then <code>+2</code>) is BR's own continuation, and left as written.</li>
+<li><strong>Block comments are not code.</strong> A closed <code>/* … */</code> is skipped, a line that opens one without
+closing it is not continued, and a line inside one has code only after its <code>*/</code>. So comment text
+ending in <code>*</code> or <code>/</code>, and a line ending in <code>*/</code>, are never joined to the next line.</li>
+</ul>
+<pre><code>let T=1+
+   2 ! two            →   let T=1+ 2!  two
+</code></pre>
+<p>A statement still continuing when the file ends is an error, reported on its first line; its
+lines are written as they are, unjoined.</p>
+<h3 id="----template-strings"><code>`...`</code> — template strings</h3>
+<p>A string between backticks, outside literals and comments, becomes a <code>&quot;…&quot;</code> literal:</p>
+<ul>
+<li><code>{{expr}}</code> inserts a value: <code>&quot;&amp;expr&amp;&quot;</code> for a string expression, otherwise <code>&quot;&amp;str$(expr)&amp;&quot;</code>. An
+expression is a string one when it begins with a string literal or a name ending in <code>$</code> (a
+variable, element, substring, or a function such as <code>fnName$</code>), since BR does not mix the two
+types: <code>{{A$(1:2)}}</code> and <code>{{&quot;x&quot;&amp;B$}}</code> are inserted as they are, <code>{{len(A$)}}</code> and <code>{{N}}</code> with
+<code>str$( )</code>.</li>
+<li>The <code>}}</code> must be in the same string. A <code>{{</code> with no <code>}}</code> before the string closes is an error,
+and is left as text: <code>print `Total {{N`;`, done}}` </code> becomes <code>print &quot;Total {{N&quot;;&quot;, done}}&quot;</code>.</li>
+<li>A <code>&quot;</code> inside becomes <code>&quot;&quot;</code>, and a doubled backtick is one backtick.</li>
+<li>The string may run onto later lines: each line break becomes <code>&quot;&amp;hex$(&quot;0d0a&quot;)&amp;&quot;</code> (CR LF) and the
+next line is trimmed. A string never closed is an error, and its line is left as written.</li>
+<li>A backtick inside a block comment is comment text, not a string.</li>
+</ul>
+<pre><code>let M$=`Hi {{Name$}}, you are {{Age}} ``q```
+   →   let M$=&quot;Hi &quot;&amp;Name$&amp;&quot;, you are &quot;&amp;str$(Age)&amp;&quot; `q`&quot;
+let N$=`one
+   two`               →   let N$=&quot;one&quot;&amp;hex$(&quot;0d0a&quot;)&amp;&quot;two&quot;
+</code></pre>
+<h3 id="----block-comments"><code>/* ... */</code> — block comments</h3>
+<p>A <code>/*</code> in code (not in a string, not after a <code>!</code> comment) starts a comment, which ends at the next
+<code>*/</code>, on the same line or a later one. The code on a line stays where it is and the comment text
+follows it after <code>!</code>:</p>
+<ul>
+<li>The opening line is written as its code, then <code>!</code> and the comment text.</li>
+<li>Each line wholly inside the comment has <code>!</code> put in front.</li>
+<li>The closing line is written as its code (what follows the <code>*/</code>), then <code>!</code>, then the comment
+text.</li>
+</ul>
+<pre><code>/* open                  ! open
+inside            →       ! inside
+close */ let Z=1          let Z=1 ! close
+
+let A=1 /* note */        let A=1 ! note
+/* one line */            ! one line
+</code></pre>
+<p>Comment text is never joined to the next line, whatever it ends in (see Continuation). A <code>/*</code> that
+no later line closes, and a <code>*/</code> in code with no <code>/*</code> open, are errors, and are left as written.</p>
+<h3 id="indented-comments">Indented comments</h3>
+<p>A line that is only a comment, with its <code>!</code> indented three or more columns, has its first four
+columns replaced by <code> ! .</code> (a <code>!</code> among them is kept). When BR lists a program it indents
+statements and left-justifies comments unless a comment begins with a period, so the <code>.</code> keeps the
+comment indented. The line straight after one ending in <code>!:</code> is left alone.</p>
+<pre><code>   ! three            →    ! .! three
+      ! six           →    ! .  ! six
+</code></pre>
+<a id="define"></a>
+<h3 id="define-name--text--substitutions"><code>#DEFINE# [[name]] = text</code> — substitutions</h3>
+<pre><code>! #DEFINE# [[Max]] = 10
+let X=[[Max]]+[[max]] : print &quot;[[Max]] of [[Max]]&quot; ! up to [[MAX]]
+   →   let X=10+10 : print &quot;10 of 10&quot; ! up to 10
+</code></pre>
+<ul>
+<li><strong>The directive</strong> is found outside string literals, so it is normally written in a comment. One
+inside quotes defines nothing.</li>
+<li><strong>The name</strong> is everything from <code>[[</code> to <code>]]</code>, brackets included, and matches in any case.</li>
+<li><strong>The text</strong> is the rest of the line, trimmed. A leading <code>=</code> is dropped, and so are quotes around
+the whole text: <code>[[Q]]=&quot;quoted&quot;</code> substitutes <code>quoted</code>.</li>
+<li><strong>Every reference</strong> on every later line is replaced: in code, in string literals and in comments.</li>
+<li>Names are applied in the order they were defined, so a name used inside an earlier name's text is
+replaced too. A text containing its own name is expanded once, not again.</li>
+<li><strong>Errors</strong>, each left as written or ignored: a <code>#DEFINE#</code> with no <code>[[name]]</code>; a name defined a
+second time (the first definition stands); and a <code>[[name]]</code> that no earlier <code>#DEFINE#</code> defines.
+On a <code>#DEFINE#</code> line the name being defined is never replaced.</li>
+</ul>
+<a id="select"></a>
+<h3 id="select--end-select--case-branches"><code>#SELECT#</code> … <code>#END SELECT#</code> — case branches</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Becomes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>#SELECT# subject #CASE# value</code></td>
+<td><code>if subject = value then  ! </code> + the original line</td>
+</tr>
+<tr>
+<td><code>#CASE# value</code></td>
+<td><code>else if subject = value then  ! </code> + the original line</td>
+</tr>
+<tr>
+<td><code>#CASE ELSE#</code></td>
+<td><code>else  ! </code> + the original line</td>
+</tr>
+<tr>
+<td><code>#END SELECT#</code></td>
+<td><code>end if  ! </code> + the original line</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>
+<p><strong>Several values</strong> are separated by <code>#</code>: <code>#CASE# 1 # 2</code> tests <code>subject = 1 or subject = 2</code>.</p>
+</li>
+<li>
+<p><strong>A <code>#SELECT#</code> can be part of a <code>#CASE#</code>.</strong> <code>#SELECT#</code>s nest to any depth: each <code>#CASE#</code>,
+<code>#CASE ELSE#</code> and <code>#END SELECT#</code> belongs to the innermost <code>#SELECT#</code> open, and once that one is
+closed the outer one goes on. The result is nested <code>if</code> blocks:</p>
+<pre><code>#SELECT# Mode #CASE# 1               if Mode = 1 then  ! #SELECT# Mode #CASE# 1
+   #SELECT# Sub$ #CASE# &quot;a&quot;             if Sub$ = &quot;a&quot; then  ! #SELECT# Sub$ #CASE# &quot;a&quot;
+      print &quot;1a&quot;                           print &quot;1a&quot;
+   #CASE ELSE#                   →      else  ! #CASE ELSE#
+      print &quot;1 other&quot;                      print &quot;1 other&quot;
+   #END SELECT#                         end if  ! #END SELECT#
+#CASE# 2                             else if Mode = 2 then  ! #CASE# 2
+   print 2                              print 2
+#END SELECT#                         end if  ! #END SELECT#
+</code></pre>
+</li>
+<li>
+<p>The tokens match in any case. Inside a <code>!</code> comment they are comment text.</p>
+</li>
+<li>
+<p><strong>Errors</strong>, each left as written: a <code>#SELECT#</code> without its first <code>#CASE#</code> on its line, with
+nothing to test, or that no <code>#END SELECT#</code> closes — and with it the <code>#CASE#</code>, <code>#CASE ELSE#</code> and
+<code>#END SELECT#</code> lines that belong to it; and a <code>#CASE#</code>, <code>#CASE ELSE#</code> or <code>#END SELECT#</code> with no
+<code>#SELECT#</code> open.</p>
+</li>
+</ul>
+<a id="numbering"></a>
+<h2 id="line-numbers">Line numbers</h2>
+<p><strong>Defaults.</strong> Numbering starts at <code>00001</code> and counts by 1. Numbers are written with five digits and
+a space.</p>
+<p><strong><code>! #AUTONUMBER# &lt;number&gt;,&lt;step&gt;</code></strong> numbers its own line <code>&lt;number&gt;</code> and the lines after it by
+<code>&lt;step&gt;</code>. A number the lines before it have already reached is handled as numbers that do not fit
+(below).</p>
+<p>A directive is an error, and is ignored whole, when it is not <code>&lt;number&gt;,&lt;step&gt;</code> with nothing after
+the step (<code>3000,5 resume here</code>, or <code>3000</code> with no step), when the number is not 1 to 99999 or the
+step is less than 1, or when the number is not greater than the previous directive's.</p>
+<p><strong>Lines that already have a number</strong> keep it: a line that begins, after any blanks, with one to
+five digits followed by a blank or the end of the line.</p>
+<p><strong><code>!:</code> lines.</strong> The line after one ending in <code>!:</code> belongs to the same BR line, and is indented six
+spaces instead of numbered, whatever it begins with: <code>+12</code> there is part of an expression, not a
+line number.</p>
+<p><strong>Blank lines</strong> become a numbered blank comment, <code>NNNNN  !</code>.</p>
+<p><strong>Joined lines.</strong> A line taken in by a join (<code>!_</code>, continuation, a template string running on)
+still uses up its number, so the numbers after it are those the lines would have had unjoined.</p>
+<p><strong><code>L#####</code> labels.</strong> A line beginning <code>Lnnnn:</code> is a hint: numbering jumps to <code>nnnn</code> when it is still
+ahead, and the step becomes 10 when <code>nnnn</code> is a multiple of 10. A label whose number has already
+been reached is numbered on, the step is halved (never below 2) to catch up with the labels after
+it, and brls notes the number it took.</p>
+<p><strong>When the numbers do not fit</strong>, between one <code>#AUTONUMBER#</code> and the next or before 99999, Lexi does
+not stop:</p>
+<ol>
+<li>That section is numbered again one step smaller, down to 2. Other sections are not disturbed.</li>
+<li>If it still does not fit, its <code>#AUTONUMBER#</code> is not applied: the section is numbered on from the
+previous directive, the two as one run, starting from the larger of their steps and shrinking
+again to 2. This repeats, a directive further back each time.</li>
+<li>Step 1 is used only once that has reached the top of the file. A directive that asks for step 1
+keeps it.</li>
+</ol>
+<p>brls reports each section numbered differently from its directive. A file that cannot be numbered
+even at step 1 cannot be expanded.</p>
+<a id="line-markers"></a>
+<h2 id="line-count-markers">Line-count markers</h2>
+<p>BR counts physical lines as it loads a file, and names a line by that count in its messages. A
+join makes the expanded file shorter than the source, so after each statement that took in more
+than one source line, Lexi writes a marker, <code>!#-NN</code>, at the end of the statement's last line. BR
+reads it, adds NN to its count from there on, and removes the marker from the stored source, so the
+line BR names is the line of the Lexi source.</p>
+<pre><code>let T=1+
+   2                  →   00002 let T=1+ 2 !#-01
+</code></pre>
+<p><em>Compile with BR</em> always writes them. <em>Show Lexi Expansion</em> writes them unless
+<code>br.lexi.lineMarkers</code> is off. BR reads two digits.</p>
+<a id="limits"></a>
+<h2 id="line-length">Line length</h2>
+<p>An expanded line is written whole, however long. BR 4.2 and later accept a line of up to 2000
+characters (<a href="../../10-language/syntax/spec.html#line-length">syntax — line length</a>), and brls reports
+a longer one.</p>
+<a id="dialect"></a>
+<h2 id="the-dialect-file">The dialect file</h2>
+<p>Everything Lexi <em>recognises</em> and everything it <em>writes</em> comes from one JSON file, the <strong>dialect
+file</strong>, <code>lexi.json</code>. brls carries a copy inside itself, and reads one of your own instead when a
+project has it (see below). The file does two things: it spells every token, operator and inserted
+keyword, and it lists which steps run and in what order. The steps themselves, what &quot;continuation&quot;
+or &quot;select&quot; <em>does</em>, are code.</p>
+<p>Besides the rules (below), a dialect may set:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code>, <code>description</code></td>
+<td>Labels. Nothing reads them.</td>
+</tr>
+<tr>
+<td><code>recordLength</code></td>
+<td>Write each line in records of this length, a longer line going on in the next record. <code>0</code>, the default, writes lines whole.</td>
+</tr>
+<tr>
+<td><code>define.firstOnly</code></td>
+<td>Replace only the first reference to each <code>#DEFINE#</code> name on a line. <code>false</code> by default.</td>
+</tr>
+<tr>
+<td><code>legacy</code></td>
+<td>Reproduce the original <code>lexi.brs</code> exactly: its handling of comments in continuation, block comments, <code>{{…}}</code> types and limits, <code>!:</code> lines, already-numbered lines and select directives in comments, and what it does with source in error (brls then warns instead of objecting). <code>false</code> by default.</td>
+</tr>
+<tr>
+<td><code>lineMarker</code></td>
+<td><code>prefix</code> (<code>!#</code>), <code>digits</code> (<code>2</code>) and <code>separator</code> (<code>&quot; &quot;</code>) of BR's <a href="#line-markers">line-count markers</a>. Not a rule: it describes the expansion, not the source. <code>prefix</code> and <code>digits</code> must be set.</td>
+</tr>
+</tbody>
+</table>
+<a id="customizing"></a>
+<h3 id="customizing-the-preprocessor">Customizing the preprocessor</h3>
+<p>Lexi is a convention you can change. The <code>#DEFINE#</code> words, the <code>&amp;=</code> append, the <code>!_</code> join, the
+backtick strings, the comment forms, the way a <code>#SELECT#</code> becomes <code>IF … ELSE IF</code>, even the label
+that numbering reads, are all <em>spellings</em> in <code>lexi.json</code>. If your shop writes BR differently, you
+do not have to write BR the way the shipped dialect does: choose your own spellings, switch off the
+steps you do not want, and let the preprocessor turn what you write into the BR that BR reads. A
+team can settle on its own house conventions (its own directive words, its own shorthand for
+appending or continuing a statement, its own comment style) and have every program written that way
+expand the same way, in the checks and in <em>Show Lexi Expansion</em> and <em>Compile with BR</em> alike.</p>
+<p>What a dialect can change is the <strong>spelling</strong>, not the <strong>behaviour</strong>. A new token for an existing
+step is a data change; a step that does something Lexi has no step for is a change to brls's
+source (<code>internal/lexi/apply.go</code>).</p>
+<p><strong>How to change it.</strong> brls reads the dialect file while it runs. It uses, in this order:</p>
+<ol>
+<li>the file named by the <code>br.lexi.dialect</code> setting (a path, relative to the workspace folder);</li>
+<li><code>lexi.json</code> in the workspace folder;</li>
+<li>the dialect built into brls, when there is neither.</li>
+</ol>
+<p>In a workspace of several folders, &quot;the workspace folder&quot; is the first of them.</p>
+<p>The file is read again when it changes, so saving an edit to it changes what Lexi recognises and
+writes for the next expansion: the Lexi files that are open are expanded and checked again, which
+files count as Lexi is decided again, and <em>Show Lexi Expansion</em> and <em>Compile with BR</em> use it, without
+restarting anything. Creating the file and deleting it are seen the same way. brls watches the file,
+wherever it is; where the editor cannot watch it, brls still looks at it at most every two seconds.</p>
+<p>The dialect governs everything brls does with Lexi, not only the expansion: which files are Lexi (see
+<em>Which files are Lexi</em>), the numbers <em>Add Line Numbers</em> writes and the ones <em>Strip Line Numbers</em> takes
+off (<code>autonumber</code>: the directive, the label, the indent of a continued line, a blank line), and the
+words the Lexi snippets insert, which are not offered for a rule the dialect does not run.</p>
+<p><strong>Keep the file with the source.</strong> <em>Compile with BR</em> compiles the expansion, so a program is compiled
+differently under a different <code>lexi.json</code>. Keep the file in version control beside the programs it
+belongs to. Other tools, the original Lexi among them, do not read it.</p>
+<p><strong>The original Lexi has no dialect file.</strong> With the original Lexi in use (<em>How it runs</em>), a project's
+<code>lexi.json</code> is not used, and brls says so once in its output. To get the original's expansion from
+brls's own Lexi instead, a dialect file can set the three keys that make up the difference:
+<code>&quot;legacy&quot;: true</code>, <code>&quot;recordLength&quot;: 800</code> and <code>&quot;define&quot;: {&quot;firstOnly&quot;: true}</code>.</p>
+<p>The VS Code extension carries a copy of the shipped <code>lexi.json</code> for you to start from. Run
+<strong>BR: Create lexi.json (Lexi dialect) in the Workspace</strong> and it puts the copy in the workspace folder
+and opens it; an existing <code>lexi.json</code> there is opened and never overwritten. From the command line,
+<code>brls -workspace &lt;folder&gt;</code> uses the <code>lexi.json</code> in that folder, or <code>brls -workspace &lt;folder&gt; -lexi &lt;file&gt;</code> a file of your choosing, and says which it used.</p>
+<p><strong>The file holds only what you change.</strong> brls reads it on top of the shipped dialect: a key it
+leaves out keeps its shipped value, so <code>{&quot;concat&quot;: {&quot;find&quot;: &quot;&lt;&lt;=&quot;}}</code> on its own is a whole dialect,
+and a file written for an earlier brls still has the keys added since. A list the file gives, such as
+<code>rules</code> or <code>continuation.operators</code>, replaces the shipped list whole.</p>
+<ol>
+<li>Start from the shipped file. Change one thing at a time.</li>
+<li>Save, and look at a small source file with <em>Show Lexi Expansion</em>.</li>
+<li>If the file is not a dialect, brls says why and uses its own dialect until you fix it. In the
+editor that is an error on the dialect file itself, placed at the key, rule or character it is
+about, which goes when the file is fixed (a file the setting names that does not exist is said in
+a message instead); from the command line it is an error and the report is not made.</li>
+</ol>
+<p>A dialect is refused, with the reason, when a rule it lists is not one of those below (<code>unknown rule &quot;concatt&quot;</code>), is listed twice (<code>rule &quot;concat&quot; is listed twice</code>), or blanks a token that rule needs
+(<code>rule &quot;continuation&quot; needs continuation.operators</code>); when it names a key no dialect has, which is
+almost always a misspelling (<code>json: unknown field &quot;contination&quot;</code>); or when it is not valid JSON.
+<code>lineMarker</code> needs its <code>prefix</code> and <code>digits</code>.</p>
+<p><strong>Example: your own spellings.</strong> Changing two tokens in the file</p>
+<pre><code class="language-json">&quot;concat&quot;: { &quot;find&quot;: &quot;&lt;&lt;=&quot;, &quot;replace&quot;: &quot;(inf:0)=&quot; },
+&quot;define&quot;: { &quot;directive&quot;: &quot;#SET#&quot;, &quot;open&quot;: &quot;[[&quot;, &quot;close&quot;: &quot;]]&quot;, &quot;firstOnly&quot;: false },
+</code></pre>
+<p>makes <code>&lt;&lt;=</code> the append operator and <code>#SET#</code> the substitution directive. With that <code>lexi.json</code> in the
+workspace folder this source is clean:</p>
+<pre><code>! #SET# [[n]] = 5
+print [[n]]
+let x$&lt;&lt;=&quot;a&quot;
+</code></pre>
+<p>and expands to <code>print 5</code> and <code>let x$(inf:0)=&quot;a&quot;</code>. Under the shipped dialect the same source is
+reported as errors (<code>[[n]]</code> is not defined, <code>&lt;&lt;</code> is unexpected), since <code>&lt;&lt;=</code> and <code>#SET#</code> mean
+nothing there. Directives such as <code>#DEFINE#</code> and <code>#AUTONUMBER#</code> are written in a <code>!</code> comment, as
+the sections above show; the dialect changes the word, not that.</p>
+<p><a id="dialect-rules"></a>
+<strong>The rules, and what each reads.</strong> <code>rules</code> is the list of steps that run, in the order they run
+(the shipped order is the one below); leave a step out and it does not run. Each step reads only the
+keys under its own name:</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Keys</th>
+<th>What they say</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>concat</code></td>
+<td><code>find</code>, <code>replace</code></td>
+<td>The append operator: every <code>find</code> on a line becomes <code>replace</code> (<code>&amp;=</code> → <code>(inf:0)=</code>).</td>
+</tr>
+<tr>
+<td><code>lineWrap</code></td>
+<td><code>marker</code></td>
+<td>The mark that joins a line with the next (<code>!_</code>).</td>
+</tr>
+<tr>
+<td><code>continuation</code></td>
+<td><code>operators</code></td>
+<td>The list of endings that continue a statement on the next line (<code>=</code>, <code>+</code>, <code>-</code>, <code>+=</code>, <code>-=</code>, <code>*</code>, <code>/</code>, <code>,</code>, <code>&amp;</code>, <code>(</code>, <code> and</code>, <code> or</code>).</td>
+</tr>
+<tr>
+<td><code>templateString</code></td>
+<td><code>delimiter</code>, <code>open</code>, <code>close</code>, <code>lineBreak</code>, <code>stringOpen</code>, <code>stringClose</code>, <code>numericOpen</code>, <code>numericClose</code></td>
+<td>The backtick string. <code>delimiter</code> quotes it; <code>open</code> and <code>close</code> (<code>{{</code>, <code>}}</code>) mark an inserted expression; <code>stringOpen</code>/<code>stringClose</code> (<code>&quot;&amp;</code>, <code>&amp;&quot;</code>) are written round a string expression, <code>numericOpen</code>/<code>numericClose</code> (<code>&quot;&amp;str$(</code>, <code>)&amp;&quot;</code>) round a numeric one; <code>lineBreak</code> is what a line break inside the string becomes.</td>
+</tr>
+<tr>
+<td><code>blockComment</code></td>
+<td><code>open</code>, <code>close</code>, <code>comment</code>, <code>inside</code>, <code>closing</code></td>
+<td>The block comment (<code>/*</code>, <code>*/</code>), the BR comment mark it is turned into (<code>!</code>), and the text put before a line inside it and before the comment text on the closing line.</td>
+</tr>
+<tr>
+<td><code>commentIndent</code></td>
+<td><code>replace</code>, <code>width</code></td>
+<td>The first <code>width</code> columns of an indented comment line are replaced by <code>replace</code> (<code> ! .</code>).</td>
+</tr>
+<tr>
+<td><code>defineApply</code>, <code>define</code></td>
+<td><code>directive</code>, <code>open</code>, <code>close</code>, <code>firstOnly</code></td>
+<td>The substitution directive (<code>#DEFINE#</code>) and the brackets that mark a name (<code>[[</code>, <code>]]</code>); <code>defineApply</code> is the step that replaces the names, <code>define</code> the step that reads the directive, and both read the same keys.</td>
+</tr>
+<tr>
+<td><code>select</code></td>
+<td><code>select</code>, <code>case</code>, <code>caseElse</code>, <code>end</code>, <code>separator</code>, then <code>if</code>, <code>elseIf</code>, <code>or</code>, <code>equals</code>, <code>then</code>, <code>else</code>, <code>elseComment</code>, <code>endIf</code>, <code>endComment</code></td>
+<td>The case directives (<code>#SELECT#</code>, <code>#CASE#</code>, <code>#CASE ELSE#</code>, <code>#END SELECT#</code>, and the <code>#</code> between the values of one case), and the BR written for them (<code>if </code>, <code>else if </code>, <code>or</code>, <code>=</code>, <code>then  !</code>, <code>else </code>, <code>!</code>, <code>end if</code>, <code> !</code>). The first five are required.</td>
+</tr>
+<tr>
+<td><code>autonumber</code></td>
+<td><code>directive</code>, <code>labelPrefix</code>, <code>labelWidth</code>, <code>labelStep</code>, <code>continued</code>, <code>blank</code></td>
+<td>The numbering directive (<code>#AUTONUMBER#</code>), the label form (<code>L</code> and a number of this width) and its step, the indent of a continued line, and what a blank line becomes (<code>  !</code>). The <code>directive</code> is required.</td>
+</tr>
+</tbody>
+</table>
+<p>The order matters because each step sees what the earlier steps wrote. Keep the shipped order
+unless you have a reason: it is the one the shipped tests hold byte for byte to the original Lexi.</p>
+<p><strong>Check what you changed.</strong> The shipped dialect is held to the original <code>lexi.brs</code> by tests over
+a large body of real programs. A dialect of your own is held to nothing but what you check: keep a
+few source files that use each construct you changed, and look at their expansion after each edit
+(<code>brls -workspace</code> over that folder reports anything that no longer expands to valid BR).</p>
+<a id="reports"></a>
+<h2 id="what-brls-reports">What brls reports</h2>
+<table>
+<thead>
+<tr>
+<th>Report</th>
+<th>Severity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lexi source in error (listed under each construct above), left as written</td>
+<td>error</td>
+</tr>
+<tr>
+<td>An expanded line over 2000 characters</td>
+<td>error</td>
+</tr>
+<tr>
+<td>A file that cannot be numbered even at step 1</td>
+<td>error</td>
+</tr>
+<tr>
+<td>An <code>L#####</code> label numbered past its number</td>
+<td>information</td>
+</tr>
+<tr>
+<td>A section numbered at a smaller step, or on from an earlier directive</td>
+<td>information</td>
+</tr>
+</tbody>
+</table>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="spec.html#lexi-preprocessor">Installation &amp; tooling — Lexi preprocessor</a> — the category summary.</li>
+<li><a href="legacy_lexi.html">Legacy Lexi</a> — the original <code>lexi.brs</code> program, its editor tools and how they
+were installed.</li>
+<li><a href="../../10-language/syntax/spec.html#line-length">syntax — line length</a> — BR's line-length limit.</li>
+<li><a href="MyEdit_(BR_Edition).html">MyEdit_(BR_Edition)</a> — the first editor Lexi was integrated with.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/installation-tooling/LEXI.md">br_tree/00-configuration/installation-tooling/LEXI.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

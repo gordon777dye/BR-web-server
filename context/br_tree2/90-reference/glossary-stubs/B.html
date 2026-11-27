@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">glossary-stubs</a></nav>
+<main>
+<h1>B</h1>
+<p>The <strong>B (binary) format specification</strong> is used for fast and efficient internal numeric storage. Binary format is machine specific. There are two types: <code>BH</code> stores the most significant byte first, and <code>BL</code> stores the least significant byte first. B format defaults to BH or BL, whichever is the native format of the hardware. When portability is desired, BH or BL should be used. When speed is desired, B should be used. In general, systems that utilize Intel chips will use a native format of BL, and those that don't will use BH. The following chart indicates the format native to several hardware/operating system combinations:</p>
+<table>
+<thead>
+<tr>
+<th><strong>COMPUTER</strong></th>
+<th><strong>NATIVE FORMAT</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AT&amp;T with UNIX</td>
+<td>BH</td>
+</tr>
+<tr>
+<td>IBM PC, XT, AT, with DOS</td>
+<td>BL</td>
+</tr>
+<tr>
+<td>IBM AT with LINUX</td>
+<td>BL</td>
+</tr>
+<tr>
+<td>NCR Tower with UNIX</td>
+<td>BH</td>
+</tr>
+</tbody>
+</table>
+<p>The field length for a B-formatted number can be 1, 2, 3 or 4. The value range for each field length is as follows:</p>
+<table>
+<thead>
+<tr>
+<th><strong>FIELD</strong></th>
+<th><strong>VALUE</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LENGTH</strong></td>
+<td><strong>RANGE</strong></td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>+ / - 127</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>+ / - 32, 767</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>+ / - 8, 388,607</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>+ / - 2, 147, 483, 647</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Technical Considerations</strong>:</p>
+<p>1.) As with ZD and PD, the decimal point is implied for B format specifications; it is not stored with the number. To retrieve the same number as was written, the same format specification must be used. Reading a field with a B 4 that was written with a B 4.2 results in a number 100 times larger than was written. The number is rounded to the specified number of decimal positions before writing.</p>
+<h3 id="see-also">See Also</h3>
+<p>The letter B can also be used as a <code>Attribute (Screen)|screen attribute</code> for string or numeric values. See the category, <code>:Category:Field Specifications|field specifications</code>. B is also used in <code>PIC#Insertion Characters|PIC</code></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/glossary-stubs/B.md">br_tree/90-reference/glossary-stubs/B.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

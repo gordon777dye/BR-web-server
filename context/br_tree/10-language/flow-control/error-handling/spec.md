@@ -82,6 +82,22 @@ places. A name in one is not necessarily in the other.
 † **`EVENT` compiles and can never fire** — nothing in BR raises the condition. It is admissible
 everywhere the others are and traps nothing, in either roster.
 
+<a id="conditions-by-statement"></a>**Which conditions a statement can actually raise** (from the statement pages; a clause for another
+condition is accepted but never fires):
+
+| Statement | Conditions that apply |
+|---|---|
+| `CLOSE` | `EOF` `ERROR` `EXIT` `IOERR` |
+| `EXECUTE` | `ERROR` `EXIT` `IOERR` (every error, syntax errors included, is passed back to the `EXECUTE`) |
+| `INPUT` | `CONV` `EOF` `ERROR` `EXIT` `HELP` `IOERR` `SOFLOW` (and `TIMEOUT` with `WAIT=`) |
+| `LINPUT` | `EOF` `ERROR` `EXIT` `HELP` `IOERR` `SOFLOW` |
+| `RINPUT` | `ERROR` `EXIT` |
+| `LET` | `CONV` `ERROR` `EXIT` `OFLOW` `SOFLOW` `ZDIV` |
+| `PRINT` | `CONV` `EOF` `ERROR` `EXIT` `IOERR` `PAGEOFLOW` `SOFLOW` |
+| `REREAD` | `CONV` `ERROR` `EXIT` `IOERR` `SOFLOW` |
+| `REWRITE` | `CONV` `ERROR` `EXIT` `IOERR` `LOCKED` `NOKEY` `NOREC` `SOFLOW` |
+| `WRITE` | `CONV` `DUPREC` `EOF` (disk full) `ERROR` `EXIT` `IOERR` `LOCKED` `NOREC` `SOFLOW` |
+
 The clauses **repeat with no delimiter between them** — `… NOKEY 910 EOF 900` is two clauses, not
 one clause and a syntax error. <a id="ignore"></a>A `line-ref` may also be `IGNORE` or <a id="system"></a>`SYSTEM`, which are actions
 rather than branch targets (`… ERROR IGNORE`). `ON SOFLOW` has a third such action, `GROW`, which takes no line

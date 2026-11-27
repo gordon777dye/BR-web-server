@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.3 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<h1>4.3</h1>
+<p>The prior version was <code>4.2</code></p>
+<p>Note that the information release notes have been incorporated into the relevant wiki pages, but are left here in their original form.</p>
+<h2 id="grid-and-list-changes">Grid and List Changes</h2>
+<p>Arrays  are automatically resized when receiving data from 2D INPUT operations. This also applies to grouped arrays. Automatic resizing only applies to one dimensional arrays and does not occur when INPUTing into two dimensional arrays.</p>
+<p>Example where all arrays are one dimensional and may have the incorrect  number of elements:</p>
+<pre><code>INPUT FIELDS &quot;row,col,LIST rows/cols, ROW, ALL&quot; : (MAT Array1$, MAT Array2$, MAT Array3, MAT Array4, MAT Array5$)
+</code></pre>
+<h3 id="three-new-read-types">Three New Read Types</h3>
+<p>Notes:
+Auto Resizing applies</p>
+<p>Selection Type must be ALL</p>
+<p>The original 2D INPUT read types are:
+CNT	 - The number of cells specified.
+SUB	 - Read the Cell Subscript Values.
+CELL	 - Read each cell specified.
+ROWCNT - The number of rows specified.
+ROWSUB - The subscripts of the specified rows.
+ROW	 - Read all cells in each specified row.</p>
+<pre><code>HEADERS – The original PRINT FIELDS HEADER values.
+</code></pre>
+<p>e.g. INPUT FIELDS &quot;row,col,LIST rows/cols, HEADERS&quot; : (MAT HEADINGS$,MAT WIDTHS, MAT FORMS$)</p>
+<p>COLCNT - The number of columns established by the header arrays.
+e.g. INPUT FIELDS &quot;row,col,LIST rows/cols, COLCNT, ALL&quot; : numeric-variable</p>
+<p>These  are for generalized library routines to inspect passed controls.</p>
+<p>SORT_ORDER - Provides a value of zero for each unsorted column and gives the ascending sequence of column sorts that have occurred. If a column has been reversed (double sorted) it's value will be negative.</p>
+<p>e.g.   INPUT FIELDS &quot;row,col,LIST rows/cols, SORT_ORDER, ALL&quot; : numeric-array
+Given the following history of sorting a four column GRID:
+•	column 1 (descending most recent)
+•	column 2 (ascending first sorted)
+•	column 3 (not sorted)
+•	column 4 (sorted ascending)</p>
+<p>SORT_ORDER would return-
+array(1) -&gt;  -1
+array(2) -&gt;   3
+array(3) -&gt;   0
+array(4) -&gt;   2</p>
+<h3 id="restoring-a-user-sorted-2d-control">Restoring a User Sorted 2D Control</h3>
+<p>The syntax for sorting an array is currently:</p>
+<pre><code>PRINT FIELDS &quot;nn,nn,GRID 10/40,SORT&quot;: { column number }
+</code></pre>
+<p>This has been extended to allow a numeric array of instead of a scalar.
+If an array is given, it is assumed to be in the same format that SORT_ORDER
+returns. The new format is:</p>
+<pre><code>PRINT FIELDS &quot;nn,nn,GRID 10/40,SORT&quot;: { column-number | numeric-array }
+</code></pre>
+<p>Where the numeric-array has one element for each column left to right. BR will resort the columns in the requested order.</p>
+<p>The numeric array values indicating the order of column sorting to be performed
+do not need to exactly match the standard format. e.g Fractions are
+allowed, the values can fall within any range, and there does not need to
+be trailing zero elements for unsorted columns.</p>
+<p>A new Read Qualifier is available.
+DISPLAYED_ORDER - indicates that the read operation is to not restore the data into it's original order before returning the results to the program.
+e.g.   INPUT FIELDS &quot;row,col,LIST rows/cols, ROWSUB, ALL, DISPLAYED_ORDER, NOWAIT&quot;: numeric-array
+This reads the original row subscripts for all rows - in their present order. This qualifier works only with the ALL selection type. It may be used in conjunction with other qualifiers such as FKEY.</p>
+<h3 id="range-selection-type">Range Selection Type</h3>
+<p>Valid current selection types are:
+SEL	- Read one or more selected items.
+SELONE - Select only one item.
+ALL	- Read all items in the control (except headings).
+CUR	- Current cell or row number.
+CHG	- All cells or rows who’s values have been changed by the operator.</p>
+<p>BR now supports the following additional selection types:
+RANGE - Specifies which portion of a 2D control is to be input.
+CELL_RANGE – A special type of output range.</p>
+<h4 id="range-input">Range Input</h4>
+<p>In the folowing examples BR will redimension the receiving arrays as needed:</p>
+<p>INPUT FIELDS &quot;row,col,LIST rows/cols, CELL, RANGE&quot; :
+start, end, MAT Data$
+This reads the specified range of cells. BR redimensions MAT Data$ as needed.  Note that CELL may now be used with LIST. Previously, LISTs were only addressable by row.</p>
+<p>INPUT FIELDS &quot;row,col,LIST rows/cols, ROW, RANGE&quot; :
+(start:=7), (end:=11), ( MAT Array1$, MAT Array2, MAT Array3$ )
+This reads the cells in rows 7 through 11. The recieving arrays are
+redimensioned as appropriate.</p>
+<p>INPUT FIELDS &quot;row,col,GRID rows/cols, ROW, RANGE&quot; :
+MAT start, MAT end, ( MAT Data1$, MAT Data2$, MAT Data3 )
+This reads one or more ranges of rows.</p>
+<p>A more detailed example of this is:
+100 -- create and populate a LIST control --
+........
+200 MAT START(3) : MAT END(3)
+210 READ MAT START, MAT END
+220 DATA 7,21,33
+230 DATA 11,21,38
+240 INPUT FIELDS &quot;row,col,LIST rows/cols, ROW, RANGE&quot; : MAT START,
+MAT END, ( MAT Array1$, MAT Array2, MAT Array3$ )
+This reads 12 rows of data ( row 7-11, row 21 and rows 33-38 ).</p>
+<h4 id="range-output">Range Output</h4>
+<p>By default, RANGE output refers to rows. The special keyword CELL_RANGE
+is used to denote the specification of cell ranges. Additionally,
+the use of scalars versus arrays for start and end values determines
+important characteristics of the output process.</p>
+<p>Using Scalars For Range Specification</p>
+<p>PRINT FIELDS &quot;7,8,GRID 10/75, RANGE&quot;: start, end, MAT Data$</p>
+<p>This replaces the values in rows numbered 'start' through 'end'
+with the data in MAT Data$. The size of MAT Data$ must be a multiple
+of the number of columns in the GRID or an error is generated.</p>
+<p>PRINT FIELDS &quot;7,8,LIST 10/75, RANGE&quot;: start, end, (MAT NAME$,
+MAT CITY$, MAT AGE, MAT WEIGHT)</p>
+<p>This replaces the values in ROWs numbered 'start' through 'end'
+with the data from MATs NAME$, CITY$, AGE and WEIGHT. The data arrays
+must all be dimensioned the same.</p>
+<h4 id="insertion-and-deletion">Insertion and Deletion</h4>
+<p>The number of rows being output do not need to match the number of rows
+being replaced. To delete a range of rows, output one or more grouped  arrays with zero elements.</p>
+<p>Examples- Using the following statement various scenarios are described.</p>
+<p>PRINT FIELDS &quot;7,8,LIST 10/75, RANGE&quot;: start, end, (MAT NAME$,
+MAT CITY$, MAT AGE, MAT WEIGHT)</p>
+<p>start=7, end=11, and the arrays have been DIMed to nine elements
+Result- Nine rows replace five, and the total content of the control is
+expanded by 4 rows.</p>
+<p>start=7, end=11, and the arrays are DIMed to zero elements
+Result- Five rows are deleted, and the total size of the control is
+reduced by 5 rows.</p>
+<p>start=7, end=0 (anything less than 7), and the arrays are DIMed to
+support three rows
+Result- Three rows are inserted ahead of row seven and the total content
+of the control is expanded by three rows</p>
+<p>start=5000, end={any value}, the control only has 482 rows, and the source
+arrays are DIMed to support eleven rows
+Result- Eleven rows are appended to the end of the control and become
+rows 483 through 493.</p>
+<h4 id="outputting-ranges-of-cells">Outputting Ranges of Cells</h4>
+<p>Ranges of cells may be output in conjunction with the CELL_RANGE keyword.</p>
+<p>PRINT FIELDS &quot;7,8,LIST 10/75, CELL_RANGE&quot;: start, end, (MAT NAME$,
+MAT CITY$, MAT AGE, MAT WEIGHT)
+- or -</p>
+<p>PRINT FIELDS &quot;7,8,GRID 10/75, CELL_RANGE&quot;: start, end, MAT Data$</p>
+<p>In this case, start and end specify cells instead of rows. If insertion or deletion is indicated by dimensioning the data arrays to greater or fewer elements than are being replaced, then the data must be a multiple of the number of columns. Insertion and deletion is only valid in terms
+of rows, even when cell subscripts are used to specify ranges. In such cases, if the cell subscripts are not on row boundaries, an error is generated.</p>
+<p>PRINT FIELDS &quot;7,8,GRID 10/75, CELL_RANGE&quot;: start, start, Data$</p>
+<p>In this example, the value in one cell is replaced with the content of
+a scalar.</p>
+<h4 id="using-arrays-for-range-specification">Using Arrays For Range Specification</h4>
+<p>If the start and end specifications are arrays, denoting multiple ranges, there must be a one to one correspondence between the number of rows specified and those in the data. This method implies replacement only and insertion or deletion is not allowed.</p>
+<p>The data flow that this feature was designed to support is one where the user is presented with a LIST or GRID where multiple rows have been either selected or changed before returning control to the program and the program is responding by updating something on those rows.</p>
+<p>The program begins by presenting a 2D control to the user and reading the the control with type ROWSUB or SUB. Type SUB only works for GRIDs where all colmns have the same data type. Of course the subscripts are read into a numeric array which BR redimensions as appropriate.  Then the program reads the changed or selected data with NOWAIT. (This resets the CHG flags in the control.) The program then changes either row (ROWSUB) or cell (SUB)
+data and outputs the results using the subscript array as both the start and end specification. Other scenarios are possible but this is the primary intended use.</p>
+<p>An example of this is:
+100 -- create and populate a GRID --
+........
+200 INPUT FIELDS &quot;row,col,GRID rows/cols,ROWSUB,CHG&quot;: MAT Rowsubs
+(Reading subscripts does not reset the CHG flags in the control.)
+210 INPUT FIELDS &quot;row,col,GRID rows/cols,ROW,CHG,NOWAIT&quot;: ( MAT Data1$,
+MAT Data2, MAT Data3$ )
+BR redimensions the receiving arrays as needed.
+(Reading the data also resets the CHG flags in the control.)</p>
+<p>220 -- process the changed rows now present in the data arrays --
+........
+300 PRINT FIELDS &quot;row,col,GRID rows/cols,RANGE&quot;: MAT Rowsubs,
+MAT Rowsubs, ( MAT Data1$, MAT Data2, MAT Data3$ )</p>
+<p>This outputs the updated rows.</p>
+<h2 id="logging-enahncements">Logging Enahncements</h2>
+<p>See <code>Logging</code> for details.</p>
+<h2 id="fine-grain-field-positioning">Fine Grain Field Positioning</h2>
+<p>ROW/COL and ROWS/COLS in FIELDS operations may be expressed as
+decimal fractions.</p>
+<h2 id="csv-and-xml-parsing-enhancements">CSV and XML Parsing Enhancements</h2>
+<p>See <code>Str2Mat</code> for details.</p>
+<h2 id="new-dll-structure-of-business-rules">New DLL Structure of Business Rules!</h2>
+<p>As of Release 4.3 Business Rules! is restructured into the following modules:</p>
+<p>Client and Server User Interface Modules</p>
+<ul>
+<li><code>brserver.exe</code> – The BR Server module accessed by Client-Server configurations</li>
+<li><code>brcombined.exe</code> – What is now viewed as the Standard Model</li>
+<li><code>brclient.exe</code> – The program that the user accesses in Client-Server configurations</li>
+<li><code>plbrclient.dll</code> - The standard (non-IE) browser plugin dll</li>
+<li><code>iebrclient.dll</code> – Internet Explorer plugin dll</li>
+</ul>
+<p>Processor DLLs – Stored in the AppData\Local directory for each user and on each server.</p>
+<ul>
+<li><code>brserverdll</code>-(version,platform,etc info).dll</li>
+<li><code>brclientdll</code>-(version,platform,etc info).dll</li>
+</ul>
+<p>Updates will pertain to Processor DLLs while the user interfaces will remain as installed. Client DLLs will be automatically uploaded when corresponding server DLLs are accessed in the event they are not already present on the client.</p>
+<p>The client can be accesed from within a browser by initiating it with <code>HTML</code> which can specify an embedded window or a separate independent window. In all cases opening a window with <code>PARENT=NONE</code> creates a separate window.</p>
+<p>Each user will have a copy of either brcombined.exe or brclient.exe, but there are no licensing concerns because clients are not licenced. Only BR Servers are licensed.</p>
+<h2 id="client-server-reconnect-configuration-statement">Client Server Reconnect Configuration Statement</h2>
+<p>CLIENT_SERVER RECONNECT_AFTER=20   ERROR_AFTER=180   EXIT_AFTER=300</p>
+<p>The client will attempt to reconnect to the server after RECONNECT_AFTER seconds (default is 20 seconds).</p>
+<p>ERROR_AFTER generates a BR error and awaits for reconnection (default is 120 seconds).</p>
+<p>EXIT_AFTER generates a BR error and continues in unattended mode ( no client IO allowed - exit at next keyboard wait ). This is the normal exit from an unrecoverable disconnect (default is 240 seconds).</p>
+<p>If both ERROR_AFTER and EXIT_AFTER are specified, EXIT_AFTER will terminate an ERROR_AFTER wait.</p>
+<p>When a client is attempting to reconnect, it displays the session number it is using. The normal client login window will contain a check box that facilitates the entry of a reconnection session number. This allows reconnection from another workstation.</p>
+<h2 id="autoit-support">Autoit Support</h2>
+<p>Right now <code>Autoit</code> has trouble reading BR window content. We will correct that and see what other features we can provide to ease the integration of Autoit with BR, including possibly supporting Autoit DLL linkage.</p>
+<h2 id="odbc-version-43">ODBC Version 4.3</h2>
+<p><code>ODBC</code> version 4.3 released.</p>
+<h2 id="sql-support">SQL Support</h2>
+<p>BR will use a single SQL server module to perform all SQL database access. This ‘engine’ will communicate with multiple BR sessions via TCP/IP. Normally the engine resides in the same directory as BR, but may reside elsewhere on the network.</p>
+<h3 id="new-world-sql-support">New World SQL Support</h3>
+<h2 id="config-database">Config Database</h2>
+<p>CONFIG DATABASE may use one of 3 methods for connecting to SQL Sources</p>
+<ul>
+<li>DSN</li>
+<li>CONNECTSTRING</li>
+<li>ODBC-MANAGER</li>
+</ul>
+<h3 id="dsn">DSN</h3>
+<p>CONFIG DATABASE db-ref  DSN=dsn-ref  [, USER= department | LOGIN_NAME | ? ] [, {PASSWORD= dept-password | BR_PASSWORD | ?} | PASSWORDD=encrypted-passwd ]
+? indicates prompt</p>
+<p>Example: EXECUTE 'CONFIG DATABASE CLS_Data DSN=&quot;MyData&quot;'</p>
+<h3 id="connectstring-dsn-less">CONNECTSTRING (DSN Less)</h3>
+<p>CONFIG DATABASE db-ref  CONNECTSTRING=&quot;Driver={Microsoft Access Driver (*.mdb)} DBQ=C:\inetpub\wwwroot\BegASP\Chapter.14\Contact.mdb&quot;</p>
+<p><strong>Sample Connection Strings:</strong></p>
+<pre><code>Using a SQL Server /w SQL Login:
+CONFIG database db-ref connectstring=&quot;DRIVER=SQL Server;SERVER=server;Initial Catalog=database;UID=username;PWD=password&quot;
+db-ref is the database reference.
+server is the SQL Server [FQDN] or IP Address
+database is the [SQL Server Database] 
+username is the [SQL Server User Name]
+password is the [SQL Server Password]
+</code></pre>
+<pre><code>Using a SQL Server /w Windows Authentication:
+CONFIG database db-ref connectstring=&quot;DRIVER=SQL Server;Initial Catalog=database;Persist Security Info=True;MultipleBC_TableResultSets=True; Database=database;SERVER=server;Login Name=username;Password=BR_PASSWORD&quot;
+db-ref is the database reference.
+server is the SQL Server [FQDN] or IP Address
+database is the [SQL Server Database] 
+username is the [SQL Server User Name]
+Note that BR_PASSWORD will use the users Active Directory password to connect to the SQL Server.
+Note that &quot;SQL Server&quot; is one of several choices for SQL Server, another choice would be SQL Server Native Client 11.0
+</code></pre>
+<h3 id="odbc-manager">ODBC-MANAGER</h3>
+<p>CONFIG DATABASE db-ref ODBC-MANAGER</p>
+<p>Using ODBC Manager as the parameter will allow the end use to select the desired datasouce.</p>
+<h2 id="open-sql">Open SQL</h2>
+<p>OPEN #20: &quot;DATABASE= db-ref&quot; , SQL &quot;sql-statement&quot;, OUTIN</p>
+<p>Example:  OPEN #20: &quot;DATABASE=MyData&quot;,SQL &quot;SELECT FILENO,BALANCE from MASTER WHERE FILENO=?&quot;,OUTIN
+- or -</p>
+<p>OPEN #20: &quot;DATABASE= db-ref, Name= filename&quot; , SQL, OUTIN
+- filename refers to a DISPLAY file containing an SQL statement
+that gets executed when a WRITE statement is processed -</p>
+<p>Begin processing with a WRITE statement.
+If the WRITE conatins an IO list of values then it is used to populate the
+'filename' SQL before it is executed.
+This may or may not produce a result set. If it does, the result set may be
+processed like a BR file opened RELATIVE. Some operations that use file
+positioning may be slow since the whole result set may not be in memory
+immediately. Simple sequential access should be fairly quick.
+Once SQL has been populated by an IOlist, it may be reused with the same values
+by issuing a WRITE with no IOlist.
+READ IOlist variable associations are positional with each READ accessing one
+row of values.</p>
+<p>New System Functions
+A$ = SQL_DATE(&quot;date-value&quot; [,&quot;value-format&quot;]) ! format date for storage
+B$ = BR_DATE(vtring-var$ [,&quot;format&quot;])         ! upack DB date value</p>
+<ul>
+<li>Note: SQL DATETIME fields are &quot;Packed for Storage&quot;, but &quot;DATE&quot; fields are returned as a CCYY-MM-DD string in a SQL Query.  DATE returns &quot;BLANK&quot; for &quot;Empty or Null Date&quot;</li>
+</ul>
+<h3 id="future-legacy-sql-support">(Future) Legacy SQL Support</h3>
+<p>!!! This feature is a planned addition, and is not implemented yet!!!</p>
+<p>If a file that is opened INTERNAL is really a DISPLAY file which has as the
+first four characters &quot;#SQL&quot; then the file will be regarded as an SQL Reference
+file which must be in the following format:</p>
+<pre><code>#SQL
+DATABASE= -DB ref-  
+CONTEXT= dictionary-path
+</code></pre>
+<p>The file may then be processed as an INDEXED or RELATIVE BR file.
+If Indexing is specified, the Index file is used to identify the key elements
+to be used by BR for record selection. Split keys are broken into multiple
+values by field length.</p>
+<p>When a READ or WRITE is issued, BR transfers data between variables in memory
+and data in the DB using its own internally generated SQL control statements.
+It uses the ODBC dictionary (CONTEXT) to translate BR FORM statement field
+positions and formats to dictionary field names. These names are then used to
+access the database during READ and WRITE operations.</p>
+<h2 id="other-developments">Other Developments</h2>
+<p><code>Gary Hoff</code> may get into the development cycle for some BR <code>4.4</code> features that will move BR into the world of mobile computing.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/4.3.md">br_tree/90-reference/limits-constants/4.3.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

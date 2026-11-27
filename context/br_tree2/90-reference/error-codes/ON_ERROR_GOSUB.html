@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ON_ERROR_GOSUB — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>ON_ERROR_GOSUB</h1>
+<p>The <code>ON ERROR</code> statement has been augmented to support <code>GOSUB</code> in addition to <code>GOTO</code> and <code>SYSTEM</code>. This is a very important feature because it permits multiple nested error processes and <code>ON FKEY</code> GOSUB label-reference. Programmers are no longer limited to the simple <code>RETRY</code> or <code>CONTINUE</code> to return from an interrupt.</p>
+<p>A <code>RETURN</code> from such an interrupt will resume where <code>RETRY</code> does unless the error condition occurs at the completion of an Input/Output operation, in which case it performs a <code>CONTINUE</code>.</p>
+<h4 id="notes">Notes</h4>
+<ul>
+<li>The keyboard buffer is cleared by ON error GOSUB interrupts.</li>
+<li>By default, BR checks for Fkey interrupts every eight statements. Use the <code>BREAK</code> configuration statement to vary this.</li>
+<li>If an ON FKEY GOSUB / GOTO statement catches an interrupt during a SLEEP operation the Sleep is immediately terminated. In the case of GOSUB, a RETURN resumes with the clause following the Sleep.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/ON_ERROR_GOSUB.md">br_tree/90-reference/error-codes/ON_ERROR_GOSUB.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

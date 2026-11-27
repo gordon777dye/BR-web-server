@@ -1,0 +1,12 @@
+# oops.brs opens a file that does not exist after the first key.
+expect "OOPS TEST"
+press ENTER
+# the error is the point of this test, so it is accounted for
+expect error 4152
+# the program now waits at the error prompt; CLEAR PROC stops it and its
+# procedure, SYSTEM ends BR (SYSTEM alone is refused with 2108, program is active)
+type CLEAR PROC
+press ENTER
+type SYSTEM
+press ENTER
+wait end

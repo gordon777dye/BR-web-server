@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0861 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0861</h1>
+<p><strong>Error:</strong> 0861</p>
+<p><strong>Description:</strong> Invalid <code>format specification</code></p>
+<p><strong>Details:</strong> - The format specification in a <code>field</code> definition <code>parameter</code> is either invalid or missing.</p>
+<ul>
+<li>If working with grids you may have omitted the <code>LIST</code> or <code>GRID</code> keyword from the fields spec. #Check to see that the format specification is present and that it is <code>C</code>, <code>N</code>, <code>V</code>, <code>G</code>, <code>L</code>, or <code>PIC</code>. Also make sure that there is a blank space between the format specification and the field length. Specify <code>Option (Config) Option</code> 45 to use old format</li>
+<li>add the List or Grid keyword</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0861.md">br_tree/90-reference/error-codes/0861.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

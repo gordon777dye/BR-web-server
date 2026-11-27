@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FKey_Error_Cond — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>FKey_Error_Cond</h1>
+<p>The FKEY error condition is available for use only with the ON error statement. It cannot be used at the end of a program line or in the Exit statement.</p>
+<h3 id="syntax">Syntax</h3>
+<p><code>file:FKeyEC.png|300px</code></p>
+<h3 id="parameters">Parameters</h3>
+<p>The &quot;numeric expression&quot; portion of the FKEY error condition is a numeric expression that evaluates to a number from 1 to 10. The value of the num-expr determines which function key, when pressed, will activate the ON statement's GOTO.</p>
+<h3 id="error-traps">Error Traps:</h3>
+<p>During program processing (the status line says &quot;RUN&quot;), FKEY traps the pressing of a function key which is specified by the &quot;num-expr&quot; parameter.</p>
+<p>Business Rules tests for the pressing of function keys before execution of each
+line number. Multiple uses of the <code>ON FKEY</code> statement do not impact program
+performance.</p>
+<p>FKEY has no effect during other operation modes such as INPUT or SELECT (see the <code>CMDKEY</code> function for information about trapping function key selections during these modes). If FKEY is set to SYSTEM, the value of ERR will be set to 1. If FKEY is not set and the operator presses a function key during processing, it will be ignored.</p>
+<p>When FKEY is set to either SYSTEM or GOTO and the specified function key is pressed, the keyboard buffer will be cleared up to the pressing of that key in the same manner that pressing Ctrl-A clears the buffer.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/FKey_Error_Cond.md">br_tree/90-reference/error-codes/FKey_Error_Cond.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

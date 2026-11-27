@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.2 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<h1>4.2</h1>
+<p>Status:  <code>Stable</code></p>
+<p>The prior versions were <code>:Category:Release 4.0|4.0</code> and <code>:Category:Release 4.1|4.1</code>.</p>
+<p>As of 09/18/2008:</p>
+<ul>
+<li><code>Properties Events and Methods</code> are introduced.</li>
+<li>Many various <code>System Limits</code> have been increased.</li>
+<li><code>XML</code>support has been added.</li>
+<li>Fractional <code>row</code> values are now allowed in <code>rinput fields</code> statements</li>
+</ul>
+<p>= 4.2 Changes - 01/18/09 =</p>
+<h2 id="new-internal-br-storage-format">New internal BR storage format</h2>
+<p>BR has a new format for saving programs that allows for the expanded
+capacities in version 4.2. This format cannot be processed correctly
+with prior versions of BR. However, during development, it is
+desirable to be able to make changes to 4.1 programs while one is
+running version 4.2. So an OPTION is provided for doing this.</p>
+<p>Think of it as a mode setting. You are saving in 4.1 format or 4.2
+format at any given point.</p>
+<p>OPTION 60 [ ON | OFF ]	! save programs in 4.1 loadable form</p>
+<p>If an attempt is made to store 4.2 only code in 4.1 format, an error
+is generated.</p>
+<h2 id="web-bridge-support">Web Bridge Support</h2>
+<ul>
+<li><code>Web Bridge</code> now supported.</li>
+</ul>
+<h2 id="new-pdf-capability">New PDF Capability</h2>
+<p><code>PDF</code> capabilities introduced.</p>
+<h2 id="windows-themes-suppression">Windows Themes Suppression</h2>
+<p>Themes alter the way Windows displays fields (elements within controls). For example different themes display buttons and captions differently, including rounding corners and hilighting.  Future versions of windows may do different things when it comes to displaying controls which may effect the colors and shapes of displayed fields.</p>
+<p>Microsoft first began using themes with XP. The 'classic look' is the Windows 2000 appearance, which is what is produced when themes are suppressed.
+Vista permits users to select from among several themes as a part of the user's desktop settings. Sometimes theme processing can slow down the display of large quantities of data, and sometimes it can create an appearance thae is less desirable than the classic look.</p>
+<p>BR offers three methods for suppressing the use of Windows Themes:</p>
+<p>A new field attribute is defined that may be specified in ATTRIBUTE statements and in FIELDS leading attributes:</p>
+<pre><code>^NOTHEME    indicates prevent use of Windows Themes
+</code></pre>
+<p>OPTION 50	! suppress Windows themes for text boxes only</p>
+<p>Config WINDOWS_THEMES OFF | ON
+This entirely suppresses the use of Windows themes.</p>
+<h2 id="nwp-color-shading">NWP Color Shading</h2>
+<p>NWP supports color shading via the specification &quot;\Eshade_color='#rrggbb'&quot;.
+This works in conjunction with the other NWP shade syntax. Note that if no shading is implemented the this specification has no effect.</p>
+<p>BR now saves the PREVIEW window &quot;position&quot; and &quot;maximized&quot; settings across sessions.</p>
+<p>During PREVIEW-  Print (all) produces a standard Windows print diaglog box so the user can specify copies, range and other printing options.</p>
+<h2 id="new-input-fields-keywords-for-cursor-position">New INPUT FIELDS Keywords for cursor position</h2>
+<p><code>NEXT</code>, <code>NXTROW</code> and <code>NXTCOL</code> introduced</p>
+<h2 id="misc-notes">Misc Notes</h2>
+<p>To use active x controls with PEM use AXIMP.EXE (from the dot net framework)
+under XP or later.</p>
+<p>OPEN window Parent=None positions the window relative to the screen if ROW and
+COL are specified:
+Note- Open #0 doesn't honor this because once it has been opened, it keeps the
+last location of the window in the <code>registry</code>. ( ROW/COL, ROWS/COLS and FONTSIZE )</p>
+<p>BUTTONROWS are now changed only when a new Buttonrows value is given.
+Buttonrows=0 is now supported. If you specify Buttonrows=0 in the Config
+SCREEN OPENDFLT statement then OPEN #0 will default to Buttonrows=0.</p>
+<p>Given the new POS and SRCH use of the &quot;^&quot; character, to search for '^' with
+&quot;let X=POS(string$,'^',5)&quot; you will need to either turn the search character
+off with CONFIG SEARCH_CHAR OFF or change the search character to something
+else as in CONFIG SEARCH_CHAR 7E (where 7E is the hexidecimal representaion
+of an alternate search character).</p>
+<p>ON FNKEY has been disabled ... (use ON FKEY instead)
+OPTION 58 restores recognition of FNKEY</p>
+<p><code>MIN_FONTSIZE</code> 0x0 clears the MIN_FONTSIZE setting.</p>
+<h2 id="errors-corrected">Errors Corrected</h2>
+<p>The <code>BR-VB</code> interface had been broken when 32 bit string lengths were implemented. This has now been restored to 16 bit string lengths.</p>
+<h2 id="parentnone">Parent=None</h2>
+<p><code>Parent=None</code></p>
+<h2 id="library-nofiles">Library, NoFiles</h2>
+<p><code>NoFiles</code> parameter introduced for <code>Library</code> statements.</p>
+<h2 id="combo-boxes">Combo Boxes</h2>
+<p><code>Select</code> implemented.</p>
+<hr>
+<p>The leading attribute &quot;^user_entry&quot;, returns control upon the cursor entering a field. This does not apply to fields given initial focus by INPUT processing, such as with CURFLD or the first field of a FIELDS operation.</p>
+<p>Insert/overstrike remembers the operator's preference. This setting is stored along with the other visual components when you LET SETENV(&quot;SCRN_SIZE_POSN&quot;)</p>
+<p>Pre-Selection of GRID / LIST Elements-
+PRINT FIELDS &quot;nn,nn,GRID 10/40,ATTR&quot;: (mat start, mat end, mat attr$)
+The leading attribute values &quot;^select&quot; or &quot;^deselect&quot; may be specified.</p>
+<p>Concerning blue column and row separators...</p>
+<pre><code>PRINT FIELDS &quot;10,20,LIST 10/80,GRIDLINES&quot;: 1 | 0 (on or off)
+</code></pre>
+<p>Makes LIST controls look like GRIDs with respect to the display of data.</p>
+<pre><code>OPEN ... &quot; ... TABATTR= [tab_attr]&quot; 
+</code></pre>
+<p>Sets tab fonts, but not colors (at this time).</p>
+<p>In GRIDs and LISTs only, string arrays may be used to store numeric values.
+BR automatically perform VAL and STR conversions as needed.
+Specify #PIC, #FMT and #G for this purpose.</p>
+<p>e.g. #pic($##,##0.00-) in conjuction with &quot;231.45&quot;, &quot;430&quot;, etc.</p>
+<p>BR now supports aggregated sorting for LIST/GRIDs. This means when clicking on various column headings or programmatically sorting columns, fields of equal values retain their previous order within their new groupings.</p>
+<p>Either P or PICTURE may be specified as a FIELDS field type. Picture was added for readability.</p>
+<hr>
+<ul>
+<li>POS( str1$, str2$ [, {-}start] )</li>
+</ul>
+<p>If str2$ begins with ^ then the ^ is stripped and the search becomes case insensitive. A configuration statement will permit use of a flag character other than ^.</p>
+<ul>
+<li>SRCH( mat str$, str2$ [, start] )</li>
+</ul>
+<p>If str2$ begins with ^ then the ^ is stripped and the search becomes case insensitive AND str2$ is regarded as a SUBSTRING.</p>
+<p>SRCH returns zero if it fails (instead of -1) unless OPTION BASE ZERO is in effect - provide OPTION 56 to make this work the old way</p>
+<h2 id="new-internal-functions">New Internal Functions</h2>
+<h3 id="str2mat">Str2Mat</h3>
+<ul>
+<li><code>Str2Mat</code> was introduced.</li>
+<li><code>Mat2Str</code> implemented.</li>
+</ul>
+<h2 id="nwp-improvements">NWP Improvements</h2>
+<p><code>Native Windows Printing</code></p>
+<p>Print PREVIEW is no longer <code>modal</code>. That is, it runs independently from the BR application.</p>
+<ul>
+<li>
+<p>\Epage_number - is replaced with the page number.</p>
+</li>
+<li>
+<p>NWP Field Justification-</p>
+</li>
+<li>
+<p>CHR$(6) implies right justify the previous field for printed output.</p>
+</li>
+<li>
+<p>This works just like \Eright_justify</p>
+</li>
+</ul>
+<h3 id="new-nwp-cursor-positioning-mode">New NWP Cursor Positioning Mode</h3>
+<p>\Emove_cursor - this is the old mode with nothing changed</p>
+<p>\Estop_cursor - new mode where the cursor does not move horizontally except when tabbing</p>
+<ul>
+<li>Center uses the current position as the center</li>
+<li>Right justify uses the current position as the right endpoint</li>
+<li>The cursor does not move when printing text</li>
+<li>Newline positioning is honored, but carriage return positioning is ignored.</li>
+<li>Tab positioning is honored</li>
+</ul>
+<h2 id="http-support">HTTP Support</h2>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/4.2.md">br_tree/90-reference/limits-constants/4.2.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

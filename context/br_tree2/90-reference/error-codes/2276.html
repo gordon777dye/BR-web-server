@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2276 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>2276</h1>
+<p><strong>Error:</strong> 2276</p>
+<p><strong>Description:</strong> <code>Library</code> in use</p>
+<p><strong>Details:</strong> A <code>CLEAR</code> or <code>LOAD</code> command was issued for a library that has been attached to another <code>program</code> while the main program was active. # End the main program before attempting to CLEAR or reload the library.</p>
+<ul>
+<li>Reassign all the existing linkages to the specified library (the library must have 0 links in place) before attempting to CLEAR or reload the library.</li>
+<li>If you are attempting to load an as needed library as resident, wait until the as needed library is released before executing the LOAD.</li>
+<li>Check to make sure that an active library is not attempting to load itself as resident.</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/2276.md">br_tree/90-reference/error-codes/2276.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

@@ -8,6 +8,12 @@ kind: spec
 status: 2b           # reference base + br_tree enrichment (STOP/END/PAUSE/CHAIN termination); no conflicts
 recovered-fold: GOSUB, ON_GOSUB, RANDOMIZE (3 redirect-collision pages folded from re-fetched source — added RANDOMIZE, GOSUB error-1011 immediate restriction, ON-GOSUB NONE-is-a-GOSUB-branch; verbatim retained on the BR wiki)
 corrections:
+  - "The syntax summary's TRACE line brought into line with §TRACE (2026-11-24): it still read
+    `TRACE {ON|OFF|PRINT}`, the pre-5.03 form, after §TRACE gained the modes and the trace file. The
+    new line gives the form information/spec.md's summary of the statement gives."
+  - "LINES, LABELS, `>` and `>>` added to the frontmatter keywords (2026-11-24). They are BR 5.03's
+    TRACE clause keywords (table4k; synbc.cpp's trace[]), which §TRACE documents and did not
+    declare, so brls routed none of them."
   - "TRACE added as a statement. BR has a syn.txt tree for it — `TRACE` with three branches, PRINT, OFF and an optional ON — and a primary operation to execute it (TRACE_PRI, primop0.cpp), but the reference documented TRACE only as an option of the RUN and GO *commands*, so the statement form was missing from the tree entirely. It was the one genuinely undocumented statement left in gendata's coverage report. Semantics read from BR's source: primop0.cpp switches on the secondary opcode, where OFF_SEC (0x05) clears RUN_TRACE|RUN_TRACE_PRINT, ON_SEC (0x04) sets RUN_TRACE, and PRINT_SEC (0x06) sets RUN_TRACE_PRINT — the three constants are defined together in basoprcmn.h under the comment `/* trace */`. run.cpp gates the per-line output on RUN_TRACE and picks FILENBR_MAIN_PRINTER (255) over FILENBR_MAINWINDOW (0) on RUN_TRACE_PRINT, printing the line number with L_05ld (`%05i`). That gating is why TRACE PRINT alone traces nothing, and command9.cpp shows the console form guarding the same bit differently. A bare TRACE is left marked unverified rather than assumed equivalent to TRACE ON: command4.cpp stores no operand byte when an optional keyword is absent, so primop0 reads whatever follows the primary op. Added in brls phase 5."
   - "TO and OFF added to the frontmatter keywords. Both are table4k clause keywords this page's own BNF documents — `FOR <v> = <e> TO <e>` and `TRACE {ON|OFF|PRINT}` — and neither was declared, so a reader looking either one up reached nothing. STEP, ON and PRINT, from the same two trees, were declared already; these two were the siblings that got missed. Found in brls phase 13."
   - "A note added under §ON…GOTO/GOSUB that `FKEY`/`FNKEY` used bare or with an operator (`ON FKEY-89
@@ -20,7 +26,7 @@ corrections:
     is a statement, so it belongs with its termination siblings STOP/END/PAUSE here; the full
     BNF/semantics summary stays in program-management, which is where it's coded and used."
 related: [conditionals, syntax, functions-udf]
-keywords: [FOR, NEXT, DO, LOOP, WHILE, UNTIL, GOTO, GOSUB, RETURN, ON GOTO, ON GOSUB, EXIT, RANDOMIZE, STOP, END, PAUSE, CHAIN, TRACE, STEP, TO, ON, OFF, PRINT]
+keywords: [FOR, NEXT, DO, LOOP, WHILE, UNTIL, GOTO, GOSUB, RETURN, ON GOTO, ON GOSUB, EXIT, RANDOMIZE, STOP, END, PAUSE, CHAIN, TRACE, STEP, TO, ON, OFF, PRINT, LINES, LABELS, ">", ">>"]
 ---
 
 # Loops & branching
@@ -50,7 +56,7 @@ ON <num-expr> GOTO  <line-ref> [',' <line-ref>]* [NONE <line-ref>]
 ON <num-expr> GOSUB <line-ref> [',' <line-ref>]* [NONE <line-ref>]
 EXIT DO                   -- there is no EXIT FOR; leave a FOR loop with GOTO
 RANDOMIZE                 -- reseed RND from the system clock
-TRACE {ON|OFF|PRINT}      -- line-number tracing, under program control
+TRACE [{LINES|LABELS|PRINT}]* {OFF | [ON] ['>'['>']<file>]}  -- tracing, under program control
 ```
 
 <a id="semantics"></a>
@@ -60,15 +66,20 @@ TRACE {ON|OFF|PRINT}      -- line-number tracing, under program control
 ### FOR / NEXT
 Counts the loop variable from start to end by `STEP` (default `1`; negative steps count down).
 The test happens **before** each pass; the variable **retains its final value** after the loop.
-`NEXT` must name the same variable as `FOR`. Loops **nest up to 20 levels** and must be fully
-contained (no partial overlap — the inner `NEXT` comes before the outer `NEXT`). Leave early with
-`GOTO`.
+`NEXT` must name the same variable as `FOR`. Loops must be fully contained (no partial overlap: the inner
+`NEXT` comes before the outer `NEXT`). Leave early with `GOTO`. **How many loops can be active** is set by
+the [`FORSTACK`](../../../00-configuration/config-directives/spec.md#flowstack) setting in BRConfig.sys, which
+counts distinct loop *variables*, not loops: the default is **100** here (the original wiki says 20, which was the
+old default), and a variable reused by many loops uses one slot. The number of times each variable is used is not
+limited.
 
 <a id="do-loop"></a>
 ### DO / LOOP
 Flexible condition loop; the `WHILE`/`UNTIL` test may sit on `DO` (tested first — may run zero
 times) or on `LOOP` (tested last — runs **at least once**). No labels needed for the structure;
-leave early with `EXIT DO`. `WHILE` continues while true; `UNTIL` continues until true.
+leave early with `EXIT DO`. `WHILE` continues while true; `UNTIL` continues until true. `LOOP` must be the last
+statement on its line, and the `LOOP` keyword is always required. With `CONFIG STYLE INDENT` (see
+[`STYLE`](../../../00-configuration/config-directives/spec.md#style)), `LIST` indents the lines between `DO` and `LOOP`.
 
 <a id="goto"></a>
 ### GOTO
@@ -128,19 +139,52 @@ e.g. `INT(RND*100+1)` for 1–100.)
 
 <a id="trace"></a>
 ### TRACE
-Turns **line-number tracing** on and off from inside the program, rather than from the console. As
-each line executes, BR writes its line number — five digits, zero-padded — to the main window, or
-to the system printer when the print destination is selected, and logs a `Trace line <n> in
-<program>` event.
+`TRACE [LINES|LABELS|PRINT ...] { OFF | [ON] [>file|>>file] }` turns **tracing** on and off from inside the program,
+rather than from the console. Tracing has three modes, named by keywords given in any order (BR
+5.03; before it, only `TRACE ON`, `TRACE OFF` and `TRACE PRINT`):
+
+- **LINES**: as each line runs, BR writes its line number, five digits, zero-padded.
+- **LABELS**: as the run reaches a line with a label, by `GOTO`, `GOSUB` or falling into it, BR
+  writes the label followed by a colon (`POST_LEDGER:`). With both on, a line's label comes before
+  its number.
+- **PRINT**: the items go to the system printer (BR opens `PRN:` if the program has not) instead
+  of the main window's bottom line.
+- **`>file`, `>>file`** (BR 5.03): the items go to a file, which `>` replaces and `>>` adds to. It
+  comes last, after `ON` if given, and needs no quotes: an unquoted name runs to the next blank and
+  is taken as written (`>F$` is a file named `F$`); a quoted one may be a string expression, and a
+  name with blanks must be quoted. `LIST` shows the name in quotes. Each label is a line of its own
+  and line numbers fill the lines between to 80 columns. The file closes at a bare `TRACE OFF` and
+  when the program ends; `TRACE ON` reopens it to add to it. Never an array: `>A$` naming one is
+  error 315. Of `PRINT` and a file, the last named wins. Details:
+  [information](../../../70-commands/information/spec.md#trace-file).
+
+Each item is followed by a space, and BR logs a `Trace line <n> in <program>` or `Trace label
+<label>: in <program>` event (logging level 12). Labels are kept with the source, so a program
+saved without its source shows none.
 
 | Form | Effect |
 |---|---|
-| `TRACE ON` | start tracing |
-| `TRACE OFF` | stop tracing, and clear the print destination |
-| `TRACE PRINT` | send trace output to the printer instead of the window |
+| `TRACE LINES ON` | trace line numbers |
+| `TRACE LABELS ON` | trace labels; any line tracing already on stays on |
+| `TRACE LABELS LINES ON` | both, in any order |
+| `TRACE PRINT`, `TRACE PRINT ON` | send tracing to the printer. This does not start tracing |
+| `TRACE LINES PRINT ON` | line numbers, to the printer |
+| `TRACE PRINT OFF` | back to the window; the other modes stay on |
+| `TRACE LABELS ON >t.txt` | labels, to the file `t.txt`, replacing it |
+| `TRACE >>t.txt` | send tracing to the end of `t.txt`. This does not start tracing |
+| `TRACE LINES OFF`, `TRACE LABELS OFF` | stop that mode; the others stay on |
+| `TRACE OFF` | stop **every** mode, printer or file included, and remember which were on; a file closes |
+| `TRACE ON` or a bare `TRACE` | resume what the last `TRACE OFF` stopped; with nothing remembered, trace lines |
 
-`TRACE` is the statement form of the `RUN`/`GO` command options — the same two run flags — so
-`TRACE ON` and a console `RUN TRACE` do the same thing, and `TRACE OFF` matches `NOTRACE`. See
+`ON` is optional, `OFF` comes last, and a file comes after `ON`. A form that names modes turns on or off **only those**
+modes. **`TRACE OFF` remembers the modes**: a later `TRACE ON` resumes whichever were on when it
+ran, so a region can be bracketed with `TRACE OFF` … `TRACE ON` without naming them again. A
+`TRACE OFF` with nothing on leaves the remembered modes as they are, and `RUN` forgets them.
+
+`TRACE` is the statement form of the `RUN`/`GO` command options — the same run flags — so
+`TRACE ON` and a console `GO TRACE` do the same thing, and `TRACE OFF` matches `NOTRACE` and
+`GO TRACE OFF`. The console names the modes after `TRACE`: `RUN TRACE LABELS PRINT`,
+`GO TRACE PRINT OFF`. See
 [70-commands/information](../../../70-commands/information/spec.md) for the command side. The value
 of the statement is that it can bracket **one suspect region** of a long program instead of tracing
 the whole run:
@@ -153,15 +197,16 @@ the whole run:
 
 Two things to know before relying on it:
 
-- **`TRACE PRINT` does not start tracing.** It only selects the destination; the trace output is
-  still gated on tracing being on, so `TRACE PRINT` on its own produces nothing. Write
-  `TRACE ON` as well. (The console form is defensive here where the statement is not: `RUN PRINT`
-  sets the destination *only* if tracing is already on, while the statement sets it either way and
-  the setting then applies to the next `TRACE ON`.)
-- **Write `TRACE ON`, not a bare `TRACE`.** BR's grammar marks the `ON` keyword optional, so a bare
-  `TRACE` compiles, but the compiler emits no operand for it and the runtime reads the byte that
-  follows the statement instead. What that byte is has not been established, so the effect of a
-  bare `TRACE` is unverified — the two-word form is unambiguous.
+- **`TRACE PRINT` does not start tracing.** It only selects the printer; write `TRACE ON` (or name
+  `LINES` or `LABELS`) as well, as in `TRACE LINES PRINT ON`. On the console, the word `TRACE` is
+  what starts tracing, so `RUN TRACE PRINT` traces line numbers to the printer. Every console
+  trace option follows `TRACE`: a `PRINT` before it does nothing (`RUN PRINT TRACE` traces to the
+  window).
+- **A bare `TRACE` means `TRACE ON` from BR 5.03.** Before that the grammar accepted it, but the
+  compiler emitted no operand and the runtime read the byte that followed the statement instead, so
+  its effect was undefined. Write `TRACE ON` where a program must also run on an older BR, and do not
+  use `LINES`, `LABELS`, `PRINT OFF` or a file there: an older BR does not know them, cannot compile them from source,
+  and misreads them in a saved program.
 
 <a id="examples"></a>
 ## Examples

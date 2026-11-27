@@ -3,7 +3,7 @@
 What changed in BR 5.01 that a user, an administrator or a support engineer needs to know about.
 Entries that can change how an existing program behaves come first, because those are the ones worth
 reading before an upgrade rather than after. For BR 5.0 itself, see
-[BR 5.0 Release Notes](old/BR50%20Release_Notes.md).
+[BR 5.0 Release Notes](BR50%20Release_Notes.md).
 
 ## Contents
 
@@ -521,7 +521,7 @@ The refusal relies on the engines placing their locks alike: they must use the s
 <a id="copy-rename-and-move-read-a-slash-in-the-destination-both-ways"></a>
 ### 2.1 `COPY`, `RENAME` and `MOVE` read a `/` in the destination both ways
 
-Under [`OPTION 84`](old/BR50%20Release_Notes.md#option-84-slash), a name with a `/` in it has two
+Under [`OPTION 84`](BR50%20Release_Notes.md#option-84-slash), a name with a `/` in it has two
 readings: System/23 (`file/directory`) and folders. The destination of `COPY`, `RENAME` and `MOVE`
 gets both, as the source does. The first reading is used when something exists by that name or the
 folder it would go in exists; otherwise the second reading is used when its folder exists.

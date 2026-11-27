@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Font — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">config-directives</a></nav>
+<main>
+<h1>Font</h1>
+<p>The <strong>Font</strong> <code>config</code> specification is supported. See also <code>Font (Config)</code>.</p>
+<pre><code>FONT fontname 3DFONT=fontname
+</code></pre>
+<p>This supports two fonts simultaneously, one for background and captions and one font for input fields.</p>
+<p>Version <code>3.9</code>+ supports the command <code>STATUS</code> FONTS. This will report all currently installed Windows
+fonts that are acceptable in a FONT statement. Also fonts can be changed dynamically via the CONFIG
+command.</p>
+<p>Version <code>4.1</code>+ allows specific proportional or non-proportional fonts for text, labels and buttons.</p>
+<p>Multiple fonts are now supported under Windows. The default is still <code>SYSTEMPC</code>. Any installed
+non-proportional font is permitted that is named in the following BRCONFIG.SYS statement:</p>
+<pre><code>SCREEN OPENDFLT   FONT=, FONT.TEXT=, FONT.LABELS=, FONT.BUTTONS=
+</code></pre>
+<p>Where the options are  arial: modern: slant: width+   (etc.)</p>
+<p>The above settings are used initially and as OPEN #0 font defaults. When a child window is opened it
+inherits the parent window's font settings. Window #0 inherits the OPENDFLT font settings each time it
+is opened. When typeface or family is specified in an Open statement, boldness, style and underline
+revert to these defaults unless they are also specified in the Open statement.</p>
+<p>Size specifications do <strong>not</strong> revert to default values as a result of opening a window. They must be
+explicitly specified in order to change them. This is to allow for users resizing their displays and
+retaining those settings.</p>
+<p>Individual controls inherit the font settings of the window the same way windows inherit settings.</p>
+<p>The default font is the user's Windows default font. Separate fonts may be invoked for Labels, Buttons,
+and Text (data entry fields):</p>
+<pre><code>OPEN #0: &quot;Srow=5,Scol=5,Rows=25,Cols=80,FONT=Arial&quot;, Display, Outin
+(specifies a base font)
+</code></pre>
+<pre><code>OPEN #0: &quot;Rows=30,Cols=100,FONT.LABELS=Terminal,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console&quot;, Display, Outin
+</code></pre>
+<h4 id="font-qualifiers">Font Qualifiers</h4>
+<table>
+<thead>
+<tr>
+<th>Qualifier</th>
+<th>Values</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Family</strong></td>
+<td>Decor, Roman, Script, Swiss, Modern (fixed)</td>
+<td>useful in addition to the font name for systems that don't have the specified font</td>
+</tr>
+<tr>
+<td><strong>Boldness</strong></td>
+<td>Light, Bold</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Style</strong></td>
+<td>Ital, Slant</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Underline</strong></td>
+<td>Under</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Size</strong></td>
+<td>Small, Medium, Large, Max</td>
+<td>size is based entirely on font height</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Font Size Adjustment</strong> — adjusts the size of displayed text down to accommodate the horizontal space
+allocated for the text:</p>
+<ul>
+<li><strong>Width</strong> — determine the average caps + digits character width, then reduce the font size until the
+number of characters times this average fits the BR field capacity.</li>
+<li><strong>Width+</strong> — determine the average letter size considering both upper and lower case letters, then
+apply the width limitation.</li>
+<li><strong>Width-</strong> — make the font small enough to accommodate a string of capital W's.</li>
+<li><strong>NoWidth</strong> — clear the Width adjustment setting.</li>
+</ul>
+<pre><code>OPEN #0: &quot;Rows=30,Cols=100,FONT.LABELS=Terminal:bold:slant,FONT.TEXT=Arial,FONT.BUTTONS=Lucida Console&quot;, Display, Outin
+</code></pre>
+<p>The former <code>FONTSIZE=99x99</code> parameter is only supported when GUI is OFF.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/config-directives/Font.md">br_tree/00-configuration/config-directives/Font.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

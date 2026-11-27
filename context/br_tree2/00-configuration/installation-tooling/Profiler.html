@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profiler — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">installation-tooling</a></nav>
+<main>
+<h1>Profiler</h1>
+<p>The <strong>BR Profiler</strong> captures a line-by-line or timed execution profile of a running program to a
+log file, for troubleshooting performance. It's a separate tool (Luis Gomez / Vertican) distributed
+from <code>/Dll_Distr/Profiler</code> on the FTP site, not a built-in BR command beyond the <code>DEBUG PROFILE</code>
+statement that drives it.</p>
+<a id="generating"></a>
+<h2 id="generating-profiler-output">Generating profiler output</h2>
+<pre><code>DEBUG PROFILE SAMPLED &lt;filename&gt;
+DEBUG PROFILE TIMED &lt;filename&gt;
+DEBUG PROFILE STOP
+</code></pre>
+<p><code>SAMPLED</code> and <code>TIMED</code> both start capture to <code>&lt;filename&gt;</code>; <code>TIMED</code> additionally records time spent
+per line (see <a href="Profiler_File_Layout.html#time-spent-in-line">Profiler_File_Layout</a>). <code>DEBUG PROFILE STOP</code> ends capture.</p>
+<a id="viewing"></a>
+<h2 id="viewing-profiler-output">Viewing profiler output</h2>
+<p>Use <strong><code>profiler.exe</code></strong> (from the same FTP distribution) to render the captured log as readable
+text:</p>
+<pre><code>profiler.exe &lt;filename&gt;
+profiler.exe &lt;filename&gt; raw
+</code></pre>
+<a id="file-format"></a>
+<h2>File format</h2>
+<p>The captured log is a binary sequence of variable-length, typed records (module mapping, current
+line, time-in-line, backtrace, function name, GOSUB, main-routine, end-of-line markers), all
+numbers in network byte order. Full byte-level layout:
+<a href="Profiler_File_Layout.html">Profiler_File_Layout</a>.</p>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="spec.html#diagnostics">Installation &amp; tooling — Diagnostics &amp; utilities</a> — the folded category
+summary this page backs.</li>
+<li><a href="Profiler_File_Layout.html">Profiler_File_Layout</a> — the binary log record format in full detail.</li>
+<li><a href="Debugger.html">Debugger</a> — <code>DEBUG CONNECT</code>/<code>DEBUG CONSOLE OFF</code> and the rest of the <code>DEBUG</code> command
+family the profiler statements belong to.</li>
+<li><a href="../../70-commands/information/spec.html">70-commands/information</a> — BR's other built-in debugging
+commands (<code>BREAK</code>, <code>DISPLAY</code>, <code>RUN STEP</code>/<code>TRACE</code>).</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/installation-tooling/Profiler.md">br_tree/00-configuration/installation-tooling/Profiler.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

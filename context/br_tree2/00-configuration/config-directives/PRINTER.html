@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PRINTER — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">00-configuration</a> <span>/</span> <a href="_index.html">config-directives</a></nav>
+<main>
+<h1>PRINTER</h1>
+<p>Also see the Printing section.</p>
+<p>The <strong>Printer</strong> specification allows you to specify which printer to use. It translates hex character strings for the printer or for display files, allowing you to customize Business Rules! to a particular printer.</p>
+<p>1.) Multiple PRINTER translations are supported by the BRConfig.sys file as of Business Rules! release 3.30. PRINTER translations may additionally be referenced through use of the PRINTER= parameter in the OPEN statement (see &quot;OPEN display&quot; in the Statements section for more information).</p>
+<p>You can specify PRINTER specifications for up to nine named printers and one default printer in the same BRConfig.sys file. The full path name used to open the printer/display file must be specified after the word PRINTER and before the &quot;2B....&quot; specifications start. The keyword INIT can be used to specify the initialization string for each printer. This initialization string is sent to the printer/display file with every OPEN statement for that name. If no translation exists for a string for the named printer, the default translation for that string is used.</p>
+<p>The keyword PRINTER= is allowed in the open string for display and printer files. This keyword names a printer translation that is used instead of the NAME= string for performing PRINTER string replacements. For example:</p>
+<pre><code>PRINTER INIT 1B57001B2D00      !default initialization
+PRINTER 2B0045582B,1B5701      !default - expanded
+PRINTER 2B0045582D,1B5700 	    !default - CANCEL EXPANDED
+PRINTER C:\\BR\\PTEST INIT 1B2D00     !initializes the file ptest
+PRINTER C:\\BR\\PTEST 2B00554C2B,1B2D01   !set underline mode for ptest
+PRINTER C:\\BR\\PTEST 2B00554C2D,1B2D00  !cancel underline mode for ptest
+</code></pre>
+<p>2.) The PRINTER specification now provides a much easier to use and easier to read system of creating printer substitution tables. It allows translation tables to be specified for up to nine named printers and one default printer.</p>
+<h4 id="comments-and-examples">Comments and Examples</h4>
+<p>The PRINTER specification replaces all occurrences of the first hex character string with the second string. Both strings may be of varying lengths. Multiple PRINTER specifications are permitted.</p>
+<h4 id="syntax">Syntax</h4>
+<p>500px</p>
+<p>The revised syntax (incorporating all enhancements since release 3.2 for the PRINTER spec is as follows. Business Rules! continues to support the old 2B... printer substitution sequence, but ADS recommends that you utilize the new system in all new development projects and update the old system as is convenient.</p>
+<p>Diagram defaults
+1.) For default printer.
+2.) Do not reset value of LINESPP.
+3.) Substitute to null (nothing).</p>
+<h4 id="start-up-default">Start-up Default</h4>
+<p>Ignore the 2B020500hhvvll sequence.</p>
+<h4 id="parameters">Parameters</h4>
+<p>&quot;Printer name&quot; is the file name and path of the printer to which this PRINTER specification applies. The PRINTER spec will be activated whenever the specified printer name is opened with the PRINTER= parameter in an OPEN display statement. If PRINTER= is not used in the OPEN display statement but the NAME= string identifies a printer, Business Rules! will attempt to match the NAME= string to the printer name.</p>
+<p>NOTE that all of the BRConfig.sys PRINTER specs together may specify no more than nine different printer names. A tenth set of PRINTER specs that lists no printer name may be specified as the default.</p>
+<p>When the &quot;printer name&quot; parameter is not used, the PRINTER spec is assumed to apply to the default printer translation table. Business Rules! activates the default printer translation table whenever PRINTER= is not specified in the OPEN display statement and Business Rules! is unable to match the printer named in the OPEN display's NAME= string to a PRINTER specs &quot;printer name.&quot;</p>
+<p>The &quot;INIT&quot; keyword indicates that the succeeding &quot;output string&quot; should be sent whenever the specified printer is opened. For easiest reading of the BRConfig.sys file, Business Rules Corp recommends that the first PRINTER spec for each printer include the INIT string.</p>
+<p>The &quot;LPP ##&quot; parameter sets the value of Business Rules! LINESPP function. ## has to be a number from 1 to 255. For more information about the usefulness of this parameter, see &quot;LINESPP&quot; in the Functions section.</p>
+<p>The &quot;substring&quot; parameter is a PRINT string that Business Rules! should watch for and substitute with &quot;output string&quot; wherever it occurs. It must be enclosed within square brackets ([]) and followed by a comma when specified. This &quot;substring&quot; parameter is the key to the PRINTER specs easier-to-read format.</p>
+<p>It would typically consist of an English-like term that identifies the printer code being sent. A few possible examples are: _E_G for turn bold on, __P for set characters per inch to 10, and [ITAL-] for turn italics off. The same string would be used in a Business Rules! PRINT statement when the desired printer feature is to be executed.</p>
+<p>The &quot;output string&quot; parameter identifies the printer escape sequence that should be sent whenever the specified &quot;substring&quot; is included in a PRINT statement. Business Rules! allows any combination of hex codes, octal codes and literal strings (in quotes) for the &quot;output string&quot; parameter. The requirements for specifying the &quot;output string&quot; are:</p>
+<p>1.) Hexadecimal codes are specified without quotation marks. The letters A through F may be in uppercase or lowercase. Any combination of tabs, new lines, spaces and commas may be used to increase readability and will be ignored, unless they appear inside quotation marks (in which case they will be assumed to be literals). See Appendix H for a complete list of hex codes.</p>
+<p>2.) Octal codes must be specified as part of a literal string. See &quot;Literal strings&quot; below for more information.</p>
+<p>3.) Literal strings must appear within quotation marks, and may include octal codes when specified in the format shown below. See Appendix H for a complete list of octal codes.</p>
+<p>The following formats or characters, when used in a literal string, have the specified meanings:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>\###</strong></td>
+<td>Octal value (backslash followed by three digits)</td>
+</tr>
+<tr>
+<td><strong>\b</strong></td>
+<td>Backspace</td>
+</tr>
+<tr>
+<td><strong>\E or \e</strong></td>
+<td>Escape; same as CHR$(27) or octal \033</td>
+</tr>
+<tr>
+<td><strong>\f</strong></td>
+<td>Form feed</td>
+</tr>
+<tr>
+<td><strong>\l</strong></td>
+<td>Line feed</td>
+</tr>
+<tr>
+<td><strong>\n</strong></td>
+<td>Newline</td>
+</tr>
+<tr>
+<td><strong>\r</strong></td>
+<td>Return</td>
+</tr>
+<tr>
+<td><strong>\t</strong></td>
+<td>Tab</td>
+</tr>
+<tr>
+<td><strong>^x</strong></td>
+<td>Control-x (x may be any character)</td>
+</tr>
+<tr>
+<td><strong>\^</strong></td>
+<td>Caret (^)</td>
+</tr>
+<tr>
+<td><strong>\~</strong></td>
+<td>Tilde (~)</td>
+</tr>
+<tr>
+<td><strong>\:</strong></td>
+<td>Colon (:)</td>
+</tr>
+<tr>
+<td><strong>\</strong></td>
+<td>Backslash (\); same as CHR$(92)</td>
+</tr>
+<tr>
+<td><strong>\&quot;</strong></td>
+<td>Double quote mark (&quot;); same as CHR$(34)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="examples">Examples</h4>
+<p>&quot;LPP 48&quot; in the following PRINTER spec causes Business Rules! LINESPP function to be set to 48. &quot;[LPP 48]&quot; is a PRINT string that should be substituted with the &quot;\Ep48&quot; escape sequence whenever it is used. &quot;\Ep48&quot; is the escape sequence that causes the specified printer (in this case the default printer) to set lines per page to 48.</p>
+<pre><code>PRINTER LPP 48 [LPP 48],&quot;\\Ep48&quot;
+</code></pre>
+<p>A Business Rules! statement that would activate the above PRINTER spec is as follows:</p>
+<pre><code>PRINT #255:&quot;[LPP 48]&quot; ! set page length to 48 lines
+</code></pre>
+<p>The following example uses an output string that includes both a hex code and a literal string:</p>
+<pre><code>PRINTER EPSONDOT LPP 66 [COLS=132],12&quot;\\EP&quot;  ! 10 CPI
+</code></pre>
+<p>The first character in the &quot;from hex string&quot; must be 2Bh, which is the ASCII code for the &quot;+&quot; character; the second character must be less than 20h or greater than D0h.<br>
+All occurrences of the &quot;from hex string&quot; will be replaced with the &quot;to hex string.&quot;<br>
+The &quot;EPSON&quot; parameter supports the System/23 2B020500hhvvll translation for Epson printers. You may want to try this specification before any other, as it handles the translation for any printer with an Epson-compatible prom.</p>
+<p>The &quot;IBM23&quot; parameter supports the System/23 2B020500hhvvll translation for the IBM System/23 Datamaster printer. Use of this printer with a PC requires the use of a separate hardware/software product, PC23-Print.</p>
+<p>The &quot;IBMCOLOR,&quot; &quot;OKIDATA,&quot; and &quot;OKIDATA84&quot; parameters support the System/23 2B020500hhvvll translation for IBM Color, OKIDATA and OKIDATA 84 printers.</p>
+<h4 id="technical-considerations">Technical Considerations</h4>
+<p>1.) PRINTER may be specified only in the BRConfig.sys file; it is not valid with CONFIG.
+2.) A useful general definition of the PRINTER specification is as follows:</p>
+<pre><code>PRINTER 2B1B, 1B
+</code></pre>
+<p>This specification, by instructing the system to ignore the &quot;+&quot; in all sequences beginning with &quot;+ Esc&quot;, allows your program to support different printers without code changes.</p>
+<p>3.) If you write a program that specifies custom printer escape sequences, you can later change those escape sequences with the PRINTER specification -as long as the &quot;+&quot; character begins the program sequence and as long as the second character is less than 20h or greater than D0h.</p>
+<!-- br_tree-audit -->
+<blockquote>
+<p><strong>br_tree audit:</strong> Represented in br_tree → <a href="../../40-io-printing/statements/PRINTER.html">40-io-printing/statements/PRINTER.md</a>.</p>
+</blockquote>
+</main>
+<footer>Generated from <a href="../../../br_tree/00-configuration/config-directives/PRINTER.md">br_tree/00-configuration/config-directives/PRINTER.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

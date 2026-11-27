@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4165 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>4165</h1>
+<p><strong>Error:</strong> 4165</p>
+<p><strong>Description:</strong> brrestrict.sys does not permit this file</p>
+<p><strong>Details:</strong> The site's <code>brrestrict.sys</code>, beside the BR executable, lists the folders and files BR may work with, and this file is not among them - either the list <strong>excludes</strong> it explicitly or it simply does not permit it, and the log says which. The list binds every BR session, restricted or not, and governs reading, creating, changing, renaming, deleting and listing alike. An exclusion is absolute: a file the session created itself is no exception. In an AI turn the list is checked before the assistant's permission question, so a file it refuses is not asked about.</p>
+<p><strong>Raised by:</strong> <code>file_os.cpp</code></p>
+<p><strong>See also:</strong> <a href="../../00-configuration/config-directives/BRRESTRICT.SYS.html">BRRESTRICT.SYS</a> — the file list, its entries and what it governs</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/4165.md">br_tree/90-reference/error-codes/4165.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

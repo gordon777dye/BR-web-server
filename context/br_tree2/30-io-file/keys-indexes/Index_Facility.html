@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Index_Facility — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">30-io-file</a> <span>/</span> <a href="_index.html">keys-indexes</a></nav>
+<main>
+<h1>Index_Facility</h1>
+<p>Sometimes called key file processing, index file processing, or ISAM (Indexed Sequential Access Method), Business Rules! index facility is a powerful, yet easy-to-use collection of features. The major concept underlying this index facility is building a key file based on a particular field or set of fields in the master file. This key file allows you to selectively access particular records in the master file by knowing only the value of the key field -or sometimes just the first part of the key field.</p>
+<p>This section presents an introductory overview of Business Rules index facility. For more detailed information, you should also see the <code>Delete Statement|DELETE</code>, <code>OPEN internal</code>, <code>READ</code>, <code>RESTORE</code>, <code>REWRITE</code> and <code>WRITE</code> statements; the <code>Index</code> command and the <code>KLN</code>, <code>KPS</code> and <code>KREC</code> functions.</p>
+<h2 id="why-use-indexing">Why use indexing?</h2>
+<p>Business Rules index is a powerful tool that can help you accomplish the following tasks quickly and efficiently:</p>
+<p>1.) On-line maintenance.
+2.) Sequential reports by key field.
+3.) On-line queries.
+4.) File organization.</p>
+<h2 id="terminology">Terminology</h2>
+<p>The following terminology is used in discussing the index facility:</p>
+<h3 id="duplicate-keys">Duplicate keys</h3>
+<h3 id="index-command">Index command</h3>
+<p>The Index command is the instruction that tells Business Rules to begin the indexing process. This command is used both to create a new index file and to reorganize existing files. See <code>Index</code> for the complete description of its syntax. Business Rules will execute the Index command when it is issued in any one of three ways: from READY mode, from a procedure file, or with the EXECUTE statement.</p>
+<h3 id="index-file">INDEX file</h3>
+<h3 id="key-field">Key field</h3>
+<p>A key field is the section (or sections) of the master file record that identifies that record. As an example, if you wish to access a particular record by specifying a customer name, the customer name would be the key field; it would exist both in the master file and in the index file.</p>
+<p>Business Rules allows you to join up to six sections of a record (in a combined total of not more than 128 bytes) to form the key field. When more than one section of a record is used to form the key field, it is frequently called a split key.</p>
+<h3 id="key-file">Key file</h3>
+<h3 id="master-file">Master file</h3>
+<p>The master file is the data file for which the index is created. It contains a large number of unordered records that must be accessed quickly by a program.</p>
+<h3 id="multiple-index-files">Multiple Index Files</h3>
+<p>A master file can have more than one index file, each with a different key field. Using multiple index files allows you to access the master records using different key fields at different times.</p>
+<h3 id="primary-and-overflow-areas">Primary and Overflow Areas</h3>
+<p>Business Rules always searches for a key field first in the primary area and then, if needed, in the overflow area.</p>
+<h3 id="relative-record-number">Relative Record Number</h3>
+<p>The index file generally consists of two parts: a primary (or sorted) area and an overflow (or unsorted) area. A relative record number is the numeric position of a record in the master file. The first record in a master file has a relative record number of 1; the 20th record has a relative record number of 20. This number is stored in an index file along with the key field.</p>
+<h3 id="split-key">Split Key</h3>
+<h3 id="badkeys">BADKEYS</h3>
+<h2 id="btree-facility">BTree Facility</h2>
+<p>The BTREE_VERIFY statement is now operational.  Note that the keyword previously was BTREE2VERIFY.</p>
+<p>New indexes are BTREE2 indexes. To create BTREE indexes instead, specify OPTION 22 in the <code>BRConfig.sys</code> file. An existing index is always used as the kind it was made as, and <code>INDEX ... REPLACE</code> remakes it as the kind the option asks for. For more details, see New Btree Facility under 3.90 Initial Changes below.</p>
+<h2 id="techniques-for-using-multiple-index-files">Techniques for using multiple index files</h2>
+<p>Several key files may be opened and automatically maintained with each master file. The total number of key files is limited only by the operating system limit for the total number of open files.</p>
+<p>The use of multiple index files allows processing records in a master file by different key fields, such as customer number, last name, zip code, date, etc. If it is not possible or convenient to locate a record by one key, the same program can try to retrieve it by another key.</p>
+<p>Each index file requires a separate OPEN statement. When two or more OPEN statements specify the same master file for KEYED access, Business Rules automatically links each index file together so that when a record is added, deleted, or changed in the master file, every file in the group of index files is updated simultaneously. If there are any other index files that are not open in programs that could change the master file, you should run INDEX on them occasionally. At a minimum, you should update all index files every time you back up the master file. You also must replace (not reorganize with REORG) all index files after you copy the master file and remove deleted records (see the <code>COPY</code> command).</p>
+<p>To run Business Rules programs on a multi-user system, OPEN statements should include a share parameter to specify what is to occur when a program at another workstation attempts to read or write to the same file. A share parameter is required (at least for the first OPEN statement) when several key files &quot;share&quot; the same master file. NOSHR may be used to exclude other workstations, but still share a master file with a group of index files at the same workstation. For a complete description of the four share parameters, see <code>Share Specs</code> in the Definitions section; see also <code>Multi-User Programming</code>.</p>
+<p>Lines 2100 to 2400 will open four key files for a file named FILE:</p>
+<pre><code>02100 OPEN #1: &quot;name=FILE,kfname=KEY1,shr&quot;, INTERNAL,OUTIN,KEYED
+02200 OPEN #2: &quot;name=FILE,kfname=KEY2&quot;, INTERNAL,OUTIN,KEYED
+02300 OPEN #3: &quot;name=FILE,kfname=KEY3&quot;, INTERNAL,OUTIN,KEYED
+02400 OPEN #4: &quot;name=FILE,kfname=KEY4&quot;, INTERNAL,OUTIN,KEYED
+</code></pre>
+<p>In the group of related OPEN statements in lines 2100 to 2400, adding a record to the master file with a WRITE #1 statement adds a record not only to KEY1, but also adds a record to KEY2, KEY3 and KEY4 because these four key files are linked and because output is enabled by specifying OUTIN for all four. Similarly, rewriting a record with a REWRITE #3 statement updates records in KEY1, KEY2, KEY3 and KEY4 if the value in the key fields is changed.</p>
+<h3 id="open-statements">Open Statements</h3>
+<p>For each index file, there must be a separate <code>OPEN</code> statement.</p>
+<p><strong>The rules for setting up multiple index files are</strong>:</p>
+<p>1.) The master file name (specified after NAME=) must be the same for all OPEN statements.
+2.) All files must have different file numbers (selecting consecutive numbers is recommended, but not required).
+3.) All share parameters must be consistent with the share parameter from the first OPEN statement encountered.</p>
+<p>The best and easiest way to achieve this is to omit share parameters after the first OPEN statement; in this case, Business Rules uses the share parameter from the first keyed OPEN statement for all subsequent keyed OPEN statements using the same master file. Share parameters may be coded explicitly after the first OPEN statement, but some combinations of share parameters across OPEN statements may cause error code <code>4148</code> at execution time (see the table of OPEN file restrictions in <code>Multi-User Programming</code> for more information). For example, line 290 will generate error code 4148 because the SHRI parameter in line 280 conflicts with the SHR parameter in line 290.</p>
+<pre><code>00280 OPEN #1: &quot;name=FILE,kfname=KEY1,shri&quot;, INTERNAL,OUTIN,KEYED
+00290 OPEN #2: &quot;name=FILE,kfname=KEY2,shr&quot;, INTERNAL,OUTIN,KEYED
+</code></pre>
+<p>4.) The entire group of files may be opened NOSHR. This means no other workstation can access the master file or key files, but the master file is shared among the key files at this workstation. If NOSHR is desired for the group of files, you must code NOSHR on the first OPEN statement, then you must omit the share parameter for subsequent OPEN statements. For example,</p>
+<pre><code>00040 OPEN #1:&quot;name=FILE,kfname=KEY1,NOSHR&quot;, INTERNAL,OUTIN,KEYED
+00050 OPEN #2:&quot;name=FILE,kfname=KEY2&quot;, INTERNAL,OUTIN,KEYED
+</code></pre>
+<p>5.) The group of OPEN statements for keyed processing with a single master file can mix INPUT, OUTIN or OUTPUT processing with one exception. The first OPEN must be OUTPUT or OUTIN if subsequent OPEN statements use OUTPUT or OUTIN. Error code <code>0608</code> occurs when a conflicting secondary OPEN statement is executed. Keys are only updated for files opened OUTPUT or OUTIN. This feature can save system overhead on files opened with INPUT, but should be used with caution because this method can lead to index files that do not match the recently changed master file. If you use this method, index files that are not updated should be replaced (not used with REORG) as soon as possible.</p>
+<p>In the example in lines 1100 to 1400, KEY1 and KEY2 will be automatically updated because they are opened OUTIN, but KEY3 and KEY4 will not be changed in this program.</p>
+<pre><code>01100 OPEN #1: &quot;name=FILE,kfname=KEY1,shr&quot;, INTERNAL,OUTIN,KEYED
+01200 OPEN #2: &quot;name=FILE,kfname=KEY2&quot;, INTERNAL,OUTIN,KEYED
+01300 OPEN #3: &quot;name=FILE,kfname=KEY3&quot;, INTERNAL,INPUT,KEYED
+01400 OPEN #4: &quot;name=FILE,kfname=KEY4&quot;, INTERNAL,INPUT,KEYED
+</code></pre>
+<p>REWRITE #1 could change all four key fields in the master file, but KEY3 and KEY4 will not be updated because they are only opened for input.</p>
+<p>6.) New index files can be created at any time with the Index command. New index files can also be created with the OPEN statement, but only when creating a new (and empty) master file. To create a new master file and multiple new key files, you must code these four parameters: NEW (or USE or REPLACE), RECL=, KPS= and KLN= on all OPEN statements. For example:</p>
+<pre><code>05100 OPEN #1:&quot;name=MASTER,new,recl=31,kfname=KEY1,KPS=1,KLN=4,shr&quot;,INTERNAL,OUTIN,KEYED
+00520 OPEN #2: &quot;name=MASTER,new,recl=31,kfname=KEY2,KPS=9,KLN=5,shr&quot;,INTERNAL,OUTIN,KEYED
+</code></pre>
+<p>Business Rules will remember when line 5200 is executed that the file was just created. It will create the new index file, and it will link file numbers 1 and 2 for multiple key processing.</p>
+<h4 id="limit-on-number-of-open-files">Limit on Number of Open Files</h4>
+<p>The number of key files that can be opened in Business Rules is restricted by the operating system maximum of open files for any single program.</p>
+<p>Each unique master file, index file or procedure file counts as one file against this open file limit. However, opening the same file under two or more different file numbers counts only once. Also, opened window files do not count against the operating system limit on open files.</p>
+<h4 id="file-processing">File Processing</h4>
+<p>Rules for file processing with multiple key files are the same as rules for file processing with only one key file. Also, all aspects of file sharing, record locking and file name locking apply unchanged to multiple key files. The major addition is the use of different file numbers to provide access by different key fields.</p>
+<p>READ, WRITE, REWRITE, RESTORE and DELETE statements for a given file number use the key file specified in the OPEN statement for that file. When WRITE or DELETE statements make changes to any one of the group of key fields, corresponding changes are also made in all key files if they are opened OUTIN or OUTPUT. To improve performance speed, before updating any index files, REWRITE statements first compare the changed record to a memory-resident copy of the original record so that no index file changes are made when no key fields are rewritten.</p>
+<p>If a program opened four different key files under four different file numbers, then KEY=, KEY&gt;=, SEARCH= and SEARCH&gt;= could be used with any of the file numbers by following the same rules used with only one key file.</p>
+<p>There is a file pointer to keep track of the position in each index file; thus, reading sequentially by key is simply a matter of opening the file for keyed access, then using READ statements without any KEY or SEARCH parameter. By switching between READ statements with different the file numbers, a program could read sequentially by one key, then sequentially by a second key from a second key file, then come back to the first key file and pick up where the pointer was before the switch.</p>
+<p>The <code>KPS</code>(n) and <code>KLN</code>(n) functions return key starting position and key length for the key file given in the OPEN statement for file n.</p>
+<h4 id="technique-for-using-split-key-fields">Technique for Using Split Key Fields</h4>
+<p>It is not necessary for all characters in a key field to be next to each other (sometimes called adjacent or contiguous). A key field may be split into as many as six fields with a maximum combined length of 128 bytes. When split keys with up to six sections are combined with multiple index files for a single master file, the indexing capabilities are quite powerful and flexible.</p>
+<p>For details of how to create an index file with split keys see the <code>Index</code> command or see the <code>OPEN internal</code> statement.</p>
+<p>Also, to retrieve information about the individual sections of a key field, see the <code>KPS</code> and <code>KLN</code> functions.</p>
+<p>To improve execution speed on sorted reports, some programmers have chosen to add another index file with a split key. For example, if a report is supposed to be sorted on three fields, you could maintain an index file with a split key consisting of those three fields in the desired order. When a report needs to be quickly generated on demand, a program can generate it immediately by reading sequentially by key using this existing index file. A general rule is that when you are frequently generating reports on small sections of the file, use indexing. When you are generating infrequent reports on major portions of files, sorting is more efficient.</p>
+<h2 id="baseyear-dependent-indexes">Baseyear dependent indexes</h2>
+<p>INDEX key position or key length values may now specify a trailing &quot;Y&quot; character to indicate that the first two digits of the field are BASEYEAR dependent. For example:</p>
+<pre><code>INDEX masterfile   keyfile   10/23Y/55   8/6/30   REPLACE   DUPKEYS
+</code></pre>
+<p>Indicates that a date field begins in position 23 with A TWO DIGIT YEAR that is BASEYEAR dependent.</p>
+<p>If the position or length of a numerical (BH or PD) field is followed by Y, then it should also specify a B or P to indicate the storage format.  In this case it will be processed as a number with baseyear applied in accordance with the length as follows:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FIELD TYPE &amp; LENGTH</td>
+<td>ASSUMED DATA FORMAT</td>
+</tr>
+<tr>
+<td>PD 1</td>
+<td>Not Significant</td>
+</tr>
+<tr>
+<td>PD 2 or BH 1</td>
+<td>YY</td>
+</tr>
+<tr>
+<td>PD 3 or BH 2</td>
+<td>YYMM</td>
+</tr>
+<tr>
+<td>PD 4, BH 3, BH 4, DT 3,</td>
+<td></td>
+</tr>
+<tr>
+<td>DT 4, DL 4 or DH 4</td>
+<td>YYMMDD</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the specification for PD is P and the specification for BH is B in the INDEX statement, for example:</p>
+<pre><code>INDEX masterfile keyfile 10/31  2BY/10 REPLACE
+</code></pre>
+<p>This creates 'keyfile' applying BASEYEAR to the first two digits of each key.  In this example, the first part of the key is assumed to be binary in YYMM format.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/30-io-file/keys-indexes/Index_Facility.md">br_tree/30-io-file/keys-indexes/Index_Facility.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

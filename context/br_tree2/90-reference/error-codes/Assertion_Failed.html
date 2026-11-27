@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Assertion_Failed — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>Assertion_Failed</h1>
+<p><strong>Error:</strong> Assertion Failed</p>
+<p><strong>Description:</strong> Assertion Failed</p>
+<p><strong>Details:</strong> <strong>Assertion failures</strong> and <strong>GPF</strong>s are usually caused by a corrupt <code>br.exe</code> or insufficient rights to something (often C:\windows\br.ini)</p>
+<ul>
+<li>BR does NOT have FULL permissions, to create the necessary files.</li>
+<li>*<code>BRServer.dat</code></li>
+<li>*br.ini #The <code>BRServer.dat</code> is created in the location that is pointed to in the <code>BRConfig.sys</code>, the <code>BR.ini</code> is created in the windows/system32 directory.</li>
+</ul>
+<p>BR.ini used to only get created when you did a save font size position, if you don't do that it never gets created. BRServer.dat gets created every time you load <code>BR.EXE BR!</code>. In some versions of wb the previous <code>WBServer.dat</code> did not get deleted, and the new file never got made, and you would get the error too manyWBServer.dat found</p>
+<p>Error Message:   Assertion Failed: t.sessionID, file wbs\Startup.c</p>
+<p>When attempting to run WB from a workstation on a network where the user had all the necessary network rights to the network WB directories but did not have rights to the WinNT directory on the local workstation which is where the   WB.ini   file resides.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/Assertion_Failed.md">br_tree/90-reference/error-codes/Assertion_Failed.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

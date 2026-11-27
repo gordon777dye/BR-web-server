@@ -1,0 +1,2062 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.30 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<p>Status: <code>Beta</code></p>
+<p>The prior versions were <code>4.1</code> and <code>4.2</code>.</p>
+<p>As Of 08/30/2012</p>
+<h2 id="miscellaneous-enhancements">MISCELLANEOUS ENHANCEMENTS</h2>
+<h3 id="on-error-type-ignore">ON error-type IGNORE</h3>
+<p>ON error-type IGNORE now ignores the error instead of going to an Ignore label. This is effective for both ON statements and individual statement error exits. This could change the way your programs work if your Ignore statements do more than CONTINUE.</p>
+<p>The general purpose ERROR exit implies SOFOW truncation. So statements that are governed by ERROR IGNORE also do SOFLOW truncation as needed.</p>
+<h3 id="for-client--server-configurations">For client / server configurations</h3>
+<p>SPOOLPATH   @: client-pathname
+Sets the remote spool path on the client. In addition to regular spool files, this is where PDF files are created. SPOOLPATH can be set concurrently for both client and server by specifying two SPOOLPATH statements. The @: indicates remote.</p>
+<p>The client-pathname has some unique characteristics:
+Paths are assumed to be OS pathnames relative to the CLIENT_CURRENT_DIR folder, or the startup directory if CLIENT_CURRENT_DIR is not specified.
+If a full pathname is specified it must begin with a colon.  ( e.g.  @::X:\path ) Otherwise it will be preceded with the path to the client current working directory.
+Specifying a relative remote pathname is not compatible with CLIENT_CURRENT_DIR SYNC.
+The status of SPOOLPATH and REMOTESPOOLPATH settings are displayed in response to the STATUS SUBSTITUTE command.</p>
+<h3 id="chr6">CHR$(6)</h3>
+<p>CHR$(6) is a field separator that displays as a space but causes the immediately preceding data to be right justified. This applies to both Native Windows Printing and PRINT FIELDS.</p>
+<h3 id="mat2str-and-str2mat">MAT2STR and STR2MAT</h3>
+<p>MAT2STR, STR2MAT changes to trim outside of quotes, but not inside of quotes and to always quote MAT2STR when quotes are present.</p>
+<h3 id="status-users">STATUS USERS</h3>
+<p>STATUS USERS will display the WSID and name of each user logged in on the network.
+The SQL statement SHOW USERS responds with the same information for ODBC users.</p>
+<h3 id="brerr">BRERR$</h3>
+<p>BRERR$ is a new system function that display the description of BR ERR value.
+BRERR$(error-code) returns the description of that code.
+Examples:
+When ERR returns 4270, BRERR$ will return “end of file”.
+BRERR$(0875) returns “unrecognized data after field specification”</p>
+<h3 id="odbc">ODBC</h3>
+<p>For making it easier to configure ODBC with BRconfig.sys and to setup common configuration files for multiple platforms we have added:
+@LINUX
+@WINDOWS
+@MAC
+@ODBC</p>
+<p>For example, this could be important for DRIVE statements:
+@LINUX DRIVE C:,/unix/path,.,<br>
+@WINDOWS DRIVE C:,\server\path,.,\</p>
+<p>Programs compiled with older versions of BR (3.3 – 3.8) can be listed accurately.</p>
+<h3 id="grid-and-list-changes">GRID AND LIST CHANGES</h3>
+<p>In <code>list and grid</code> controls, arrays  are automatically resized when receiving data from 2D INPUT operations. This also applies to grouped arrays. Automatic resizing only applies to one dimensional arrays and does not occur when INPUTing into two dimensional arrays.</p>
+<p>Example where all arrays are one dimensional and may have the incorrect number of elements:</p>
+<pre><code>INPUT FIELDS &quot;row,col,LIST rows/cols, ROW, ALL&quot; : ( MAT Array1$, MAT Array2$, MAT Array3, MAT Array4, MAT Array5$ )
+</code></pre>
+<p>Where all arrays are one dimensional and may have the incorrect number of elements.</p>
+<h4 id="three-new-read-types">Three New Read Types</h4>
+<p>Auto Resizing applies.</p>
+<p>Selection Type must be ALL.</p>
+<p>The original 2D INPUT read types are:</p>
+<p><strong>CNT</strong> - The number of cells specified.</p>
+<p><strong>SUB</strong> - Read the Cell Subscript Values.</p>
+<p><strong>CELL</strong> - Read each cell specified.</p>
+<p><strong>ROWCNT</strong> - The number of rows specified.</p>
+<p><strong>ROWSUB</strong> - The subscripts of the specified rows.</p>
+<p><strong>ROW</strong> - Read all cells in each specified row.</p>
+<p><strong>HEADERS</strong> - The original PRINT FIELDS HEADER values.</p>
+<p>Example:</p>
+<pre><code>INPUT FIELDS &quot;row,col,LIST rows/cols, HEADERS,,NOWAIT&quot; :(MAT HEADINGS$,MAT WIDTHS, MAT FORMS$)
+</code></pre>
+<p><strong>COLCNT</strong> - The number of columns established by the header arrays.</p>
+<p>Example:</p>
+<pre><code>INPUT FIELDS &quot;row,col,LIST rows/cols, COLCNT, ALL&quot; : numeric-variable
+</code></pre>
+<p>These  are for generalized library routines to inspect passed controls.</p>
+<p><strong>SORT_ORDER</strong> - Provides a value of zero for each unsorted column and gives the ascending sequence of column sorts that have occurred. If a column has been reversed (double sorted) it's value will be negative.</p>
+<p>Example:</p>
+<pre><code>INPUT FIELDS &quot;row,col,LIST rows/cols, SORT_ORDER, ALL&quot; : numeric-array
+</code></pre>
+<p>Given the following history of sorting a four column GRID:</p>
+<pre><code>column 1 (descending most rescent)
+column 2 (ascending first sorted)
+column 3 (not sorted)
+column 4 (sorted ascending)
+</code></pre>
+<p><strong>SORT_ORDER</strong> would return</p>
+<pre><code>array(1) -&gt;  -1
+array(2) -&gt;   3
+array(3) -&gt;   0
+array(4) -&gt;   2
+</code></pre>
+<h3 id="restoring-a-user-sorted-2d-control">Restoring a User Sorted 2D Control</h3>
+<p>The syntax for sorting an array is currently:</p>
+<pre><code>PRINT FIELDS &quot;nn,nn,GRID 10/40,SORT&quot;: { column number }
+</code></pre>
+<p>This has been extended to allow a numeric array of instead of a scalar. If an array is given, it is assumed to be in the same format that SORT_ORDER returns. The new format is:</p>
+<pre><code>PRINT FIELDS &quot;nn,nn,GRID 10/40,SORT&quot;: { column-number | numeric-array }
+</code></pre>
+<p>Where the numeric-array has one element for each column left to right. BR will resort the columns in the requested order.</p>
+<p>The numeric array values indicating the order of column sorting to be performed do not need to exactly match the standard format. e.g Fractions are allowed, the values can fall within any range, and there does not need to be trailing zero elements for unsorted columns.</p>
+<h3 id="a-new-read-qualifier-is-available">A new Read Qualifier is available.</h3>
+<h3 id="masked-2d-display">Masked 2D Display</h3>
+<p>LIST and GRID support the MASK operation-</p>
+<pre><code>PRINT FIELDS &quot;row,col,LIST rows/cols,MASK&quot; :  mask_array
+</code></pre>
+<p>This restricts the rows (for both LIST and GRID) previously displayed to those corresponding to a “true” value in mask_array. A true value is represented in a umeric array as a value greater than zero. Negative values are not allowed in mask arrays. A string mask array may also be used with “T” and “F” values. The MASK stays in effect until 1) a new MASK is specified or 2) the contents of the control are changed with PRINT ( =, +, - see Output Operations in New Console.DOC).</p>
+<p>INPUT FIELDS &quot;row,col,LIST rows/cols,MASK [,NOWAIT]&quot; : mask_array
+This reads the display mask setting for a 2D control.</p>
+<p>The mask array affects only the user presentation.. not the result set. Use RANGE processing or the CHG selection type to selectively read from a 2D control.</p>
+<h2 id="new-search-field-type-filter">New Search Field Type: Filter</h2>
+<p>See <code>Filter</code></p>
+<h2 id="new-config-filter_delimiters">New Config: Filter_Delimiters</h2>
+<p>See <code>Filter_Delimiters</code></p>
+<h2 id="fields-character-by-character-keyboard-control">FIELDS CHARACTER BY CHARACTER KEYBOARD CONTROL</h2>
+<p><code>^KeyStroke and ^DataChg</code> introduced.</p>
+<h2 id="range-selection-type">RANGE SELECTION TYPE</h2>
+<p>Valid current selection types are:</p>
+<p><strong>SEL</strong> - Read one or more selected items.</p>
+<p><strong>SELONE</strong> - Select only one item.</p>
+<p><strong>ALL</strong> - Read all items in the control (except headings).</p>
+<p><strong>CUR</strong> - Current cell or row number.</p>
+<p><strong>CHG</strong> - All cells or rows who’s values have been changed by the operator.</p>
+<p>BR now supports the following additional selection types:</p>
+<p><strong>RANGE</strong> - Specifies which portion of a 2D control is to be input.</p>
+<p><strong>CELL_RANGE</strong> – A special type of output range.</p>
+<h3 id="range-input">RANGE Input</h3>
+<p>In the following examples BR will redimension the receiving arrays as needed:</p>
+<pre><code>INPUT FIELDS &quot;row, col, LIST rows/cols, CELL, RANGE&quot;: start, end, MAT Data$
+</code></pre>
+<p>This reads the specified range of cells. BR redimensions MAT Data$ as needed.  Note that CELL may now be used with LIST. Previously, LISTs were only addressable by row.</p>
+<pre><code>INPUT FIELDS &quot;row, col, LIST rows/cols, ROW, RANGE&quot;: (start:=7), (end:=11), ( MAT Array1$, MAT Array2, MAT Array3$ )
+</code></pre>
+<p>This reads the cells in rows 7 through 11. The receiving arrays are redimensioned as appropriate.</p>
+<pre><code>INPUT FIELDS &quot;row, col, GRID rows/cols, ROW, RANGE&quot;: MAT start, MAT end, ( MAT Data1$, MAT Data2$, MAT Data3 )
+</code></pre>
+<p>This reads one or more ranges of rows.</p>
+<p>A more detailed example of this is:
+100 ! create and populate a LIST control
+200 MAT START(3) : MAT END(3)
+210 READ MAT START, MAT END
+220 DATA 7,21,33
+230 DATA 11,21,38
+240 INPUT FIELDS &quot;row, col, LIST rows/cols, ROW, RANGE&quot; : MAT START, MAT END, ( MAT Array1$, MAT Array2, MAT Array3$ )</p>
+<p>This reads 12 rows of data ( row 7-11, row 21 and rows 33-38 ).</p>
+<h3 id="range-output">RANGE Output</h3>
+<p>By default, RANGE output refers to rows. The special keyword CELL_RANGE is used to denote the specification of cell ranges. Additionally, the use of scalars versus arrays for start and end values determines important characteristics of the output process.</p>
+<p>Using Scalars For Range Specification</p>
+<pre><code>PRINT FIELDS &quot;7, 8, GRID 10/75, RANGE&quot;: start, end, MAT Data$
+</code></pre>
+<p>This replaces the values in rows numbered 'start' through 'end' with the data in MAT Data$. The size of MAT Data$ must be a multiple of the number of columns in the GRID or an error is generated.</p>
+<pre><code>PRINT FIELDS &quot;7, 8, LIST 10/75, RANGE&quot;: start, end, (MAT NAME$, MAT CITY$, MAT AGE, MAT WEIGHT)
+</code></pre>
+<p>This replaces the values in ROWs numbered 'start' through 'end' with the data from MATs NAME$, CITY$, AGE and WEIGHT. The data arrays must all be dimensioned the same.</p>
+<h3 id="row-insertion-and-deletion">Row Insertion and Deletion</h3>
+<p>The number of rows being output do not need to match the number of rows being replaced. To delete a range of rows, output one or more grouped arrays with zero elements.</p>
+<p>Examples:</p>
+<pre><code>PRINT FIELDS &quot;7,8,LIST 10/75, RANGE&quot;: start, end, (MAT NAME$, MAT CITY$, MAT AGE, MAT WEIGHT)
+</code></pre>
+<p>Start=7, end=11, and the arrays have been DIMed to nine elements</p>
+<p>Result- Nine rows replace five, and the total content of the control is expanded by 4 rows.</p>
+<p>Start=7, end=11, and the arrays are DIMed to zero elements</p>
+<p>Result- Five rows are deleted, and the total size of the control is reduced by 5 rows.</p>
+<p>Start=7, end=0 (anything less than 7), and the arrays are DIMed to support three rows</p>
+<p>Result- Three rows are inserted ahead of row seven and the total content of the control is expanded by three rows</p>
+<p>Start=5000, end={any value}, the control only has 482 rows, and the source arrays are DIMed to support eleven rows</p>
+<p>Result- Eleven rows are appended to the end of the control and become rows 483 through 493.</p>
+<h3 id="outputting-ranges-of-cells">Outputting Ranges of Cells</h3>
+<p>Ranges of cells may be output in conjunction with the CELL_RANGE keyword.</p>
+<pre><code>PRINT FIELDS &quot;7,8,LIST 10/75, CELL_RANGE&quot;: start, end, (MAT NAME$, MAT CITY$, MAT AGE, MAT WEIGHT)
+</code></pre>
+<p>OR</p>
+<pre><code>PRINT FIELDS &quot;7,8,GRID 10/75, CELL_RANGE&quot;: start, end, MAT Data$
+</code></pre>
+<p>In this case, start and end specify cells instead of rows. If insertion or deletion is indicated by dimensioning the data arrays to greater or fewer elements than are being replaced, then the data must be a multiple of the number of columns. Insertion and deletion is only valid in terms
+of rows, even when cell subscripts are used to specify ranges. In such cases, if the cell subscripts are not on row boundaries, an error is generated.</p>
+<pre><code>PRINT FIELDS &quot;7,8,GRID 10/75, CELL_RANGE&quot;: start, start, Data$
+</code></pre>
+<p>In this example, the value in one cell is replaced with the content of a scalar.</p>
+<h3 id="using-arrays-for-range-specification">Using Arrays For RANGE Specification</h3>
+<p>If the start and end specifications are arrays, denoting multiple ranges, there must be a one to one correspondence between the number of rows specified and those in the data. This method implies replacement only and insertion or deletion is not allowed.</p>
+<p>The data flow that this feature was designed to support is one where the user is presented with a LIST or GRID where multiple rows have been either selected or changed before returning control to the program and the program is responding by updating something on those rows.</p>
+<p>The program begins by presenting a 2D control to the user and reading the the control with type ROWSUB or SUB. Type SUB only works for GRIDs where all colmns have the same data type. Of course the subscripts are read into a numeric array which BR redimensions as appropriate.  Then the program reads the changed or selected data with NOWAIT. (This resets the CHG flags in the control.) The program then changes either row (ROWSUB) or cell (SUB)
+data and outputs the results using the subscript array as both the start and end specification. Other scenarios are possible but this is the primary intended use.</p>
+<p>An example of this is:</p>
+<pre><code>100 ! create and populate a GRID
+150 ! Reading subscripts does not reset the CHG flags in the control
+200 INPUT FIELDS &quot;row,col,GRID rows/cols,ROWSUB,CHG&quot;: MAT Rowsubs
+205 ! BR redimensions the receiving arrays as needed. Reading the data also resets the CHG flags in the control.
+210 INPUT FIELDS &quot;row,col,GRID rows/cols,ROW,CHG,NOWAIT&quot;: ( MAT Data1$, MAT Data2, MAT Data3$ )
+220 ! process the changed rows now present in the data arrays --
+300 PRINT FIELDS &quot;row,col,GRID rows/cols,RANGE&quot;: MAT Rowsubs, MAT Rowsubs, ( MAT Data1$, MAT Data2, MAT Data3$ )
+</code></pre>
+<p>This outputs the updated rows.</p>
+<h2 id="fine-grain-field-positioning">FINE GRAIN FIELD POSITIONING</h2>
+<p>ROW/COL and ROWS/COLS in FIELDS operations may be expressed as decimal fractions.</p>
+<h2 id="logging">LOGGING</h2>
+<h2 id="csv-and-xml-parsing-enhancements">CSV AND XML PARSING ENHANCEMENTS</h2>
+<p>The <code>STR2MAT</code> and <code>MAT2STR</code> functions have been extended to ease parsing of CSV and XML data.</p>
+<p>STR2MAT function splits a string into an array.</p>
+<p>MAT2STR function joins an array into a string.</p>
+<p>STR2MAT( str$, MAT zzz$ [, [MAT] Sep$ [, flags$]] )</p>
+<p>Where Sep$ may be an array and flag$ is in the format:</p>
+<p>[ quote-type ] [ :LTRM ] | [ :TRIM ] | [ :RTRM ]</p>
+<p>Where quote-type can be Q, QUOTES, ('), or (&quot;), case insensitive. Q and QUOTES denote standard BR quote processing. The trim flags denote post processing of extracted elements and the leading colon is only present when quote-type is specified.</p>
+<p>When Sep$ is an array, then any or all of the specified values are deemed to represent a single separator with the qualification that any one separator, cannot occur more than once in a string of adjacent separators. To restate this, when elements of a Sep$ array occur adjacent to each other within the source string, they are grouped as a separator substring.</p>
+<p>Sep$ elements cannot occur more than once in a separator substring. When they do, it denotes the specification of a null element.  e.g. two successive commas or two successive occurrences of CR+LF both denote null elements. Essentially when Sep$ elements are 'consumed' by their recognition within the source string, then they cannot be re-recognized without inserting a null element into the output array.</p>
+<h3 id="quote-processing">Quote Processing</h3>
+<p>Quotation marks suppress the recognition of separators in accordance with the following rules.</p>
+<p>Standard BR Quote Processing:</p>
+<p>When examining str$ left to right, the first character (and the first character after each separator) is checked to see if is either (') or (&quot;). If it is either of those then it activates quotation processing which suppresses the recognition of separators until quotation processing is deactivated. The first character thus becomes the governing quote type until quotation processing is deactivated.</p>
+<p>The string is copied until it ends or until an odd number of successive occurrences of the governing quote type is encountered. During this processing, two adjacent occurrences of the governing quote character denote an embedded occurrence of the quote character.</p>
+<p>Examples</p>
+<pre><code>&quot;abc,def&quot; -&gt; abc,def    where the comma is not recognized as a separator and is part of the data
+abc&quot;def -&gt; abc&quot;def    naturally embedded quotes may occur anywhere within a string after the first character
+&quot;abc&quot;def&quot; -&gt; abcdef&quot;   quotation processing is deactivated by the center quote mark
+&quot;abcdef&quot; -&gt; abcdef   normal data
+&quot;abc'def&quot; -&gt; abc'def   the single quote is treated like any other character while double quotes govern
+'abc&quot;def' -&gt; abc&quot;def   double quotes are treated like any other character while single quotes govern
+&quot;abc&quot;&quot;def&quot; -&gt; abc&quot;def   pairs of governing quotes denote a single embedded quote
+&quot;abc&quot;&quot;&quot;def&quot; -&gt; abc&quot;def&quot;   the third successive occurrence deactivates quote processing which began with the first quote
+</code></pre>
+<p>MAT2STR( MAT zzz$, str$ [, sep$ [, flags$]] )</p>
+<p>Where flag$ is in the format:</p>
+<p>[ quote-type ] [ :LTRM ] | [ :TRIM ] | [ :RTRM ]</p>
+<p>Where quote-type can be Q, QUOTES, ('), or (&quot;), case insensitive. Quote-type denotes that each element should be enclosed in quotation marks. The trim flags denote pre-processing of array elements and the leading colon is only present when quote-type is specified.</p>
+<p>If Q or QUOTES is specified then BR automatically determines which quote type to apply as follows:
+First the element is unpacked. That is, if it is contained in quotes, the quotes are stripped and embedded pairs are singled. Next the element is scanned left to right for either type of quote character ( single or double ). If a quote character is encountered the element is enclosed in the alternate quote type and embedded occurrences of that quote type are doubled. If no quote character is encountered then double quotes are applied.</p>
+<p>Examples</p>
+<p>Quote Type is Q or QUOTES</p>
+<pre><code>abcdef -&gt; &quot;abcdef&quot;
+abc'def -&gt; &quot;abc'def&quot;
+abc&quot;def -&gt; 'abc&quot;def'
+abc&quot;&quot;def -&gt; ‘abc&quot;&quot;def’     embedded quotes are left intact when quotes are not active
+'abcdef -&gt; &quot;'abcdef&quot;
+</code></pre>
+<p>Quote Type is ' ( quote type single )</p>
+<pre><code>abcdef -&gt; 'abcdef'
+'abcdef -&gt; ' ' 'abcdef'   single quotes get doubled when embedded in single quotes
+&quot;abcdef -&gt; '&quot;abcdef'   leading double quote is treated normally
+</code></pre>
+<p>Quote type double mirrors quote type single.</p>
+<p>MAT2STR and STR2MAT trim outside of quotes but not inside of quotes. Also MAT2STR always adds quotes when quotes are present in the data.<br>
+When using MAT2STR on a 2 dimensional array, the first delimiter is used for individual elements and the second delimiter at the end of each row. This principle also applies to three to seven dimensions.
+Example
+Given the following two dimensional array zzz$ containing the values-
+1            2
+3            4</p>
+<p>The following statements-
+10 Sep$(1)=&quot;,&quot;
+20 Sep$(2)=hex$(&quot;0D0A&quot;) ! CRLF
+30 MAT2STR( MAT zzz$,  str$, MAT Sep$ )
+40 PRINT str$</p>
+<p>Will produce-
+1,2
+3,4</p>
+<h3 id="csv-parsing-example">CSV Parsing Example</h3>
+<p>Parsing CSV data files is now quite easy.</p>
+<p>To run the next code sample, first save the folowing text in a file named Sample_File.tab in your BR directory.</p>
+<pre><code>First, Last, Age, City
+&quot;Stas&quot;, &quot;Kalban&quot;, 99, &quot;Las Vegas&quot;
+&quot;Mike&quot;, &quot;Dugas&quot;,98, &quot;Buenos Buenos&quot;
+&quot;John&quot;, &quot;Bubon&quot;, 96, &quot;Hong Kong&quot;
+</code></pre>
+<p>This code snippet demonstrates how to open a CSV/Tab File, read in the fields from the header, and then loop through  the records:</p>
+<pre><code>01000    dim CSV_LINE$*999,CSV_FILE$*256, CSV_DELIM$*1, CSV_HEADER$*999, CSV_FIELDS$(1)*40, CSV_DATA$(1)*60
+01020    form C,&quot; &quot;
+01040    let CSV_FILE$=&quot;Sample_File.tab&quot; : let TAB$=CHR$(9)
+01060    open #(CSV_HANDLE:=10): &quot;name=&quot;&amp;CSV_FILE$&amp;&quot;, shr&quot;, display,input 
+01080    linput #CSV_HANDLE: CSV_HEADER$
+01100    let CSV_DELIM$=TAB$
+01120    if POS(CSV_HEADER$,TAB$) &lt;= 0 then 
+01140       let CSV_DELIM$=&quot;,&quot;
+01160    end if 
+01180    let STR2MAT(CSV_HEADER$, MAT CSV_FIELDS$, CSV_DELIM$, &quot;QUOTES:TRIM&quot;)
+01200    print using 1020: MAT CSV_FIELDS$
+01220    do 
+01240       linput #CSV_HANDLE: CSV_LINE$ eof Exit_Csv
+01260       let STR2MAT(CSV_LINE$,MAT CSV_DATA$,CSV_DELIM$,&quot;Q:trim&quot;)
+01280       print using 1020: MAT CSV_DATA$
+01300    loop 
+01320 Exit_Csv: !
+</code></pre>
+<p>Alternatively, you could use any other valid CSV data, as long as the input file is named Sample_File.tab</p>
+<h3 id="xml-parsing-examples">XML Parsing Examples</h3>
+<p>STR2MAT may also be used to Parse XML data.
+This is a bit more complex than parsing CSV files, but remains a powerful tool.
+The following example will parse XML$ into &quot;MAT XML_LINE$&quot;</p>
+<p>10 DIM XML$*999999,XML_LINE$(1)*32000
+20 XML$=&quot;<XML><NODE><ITEM>ITEM VALUE</ITEM></NODE></XML>&quot;
+100 LET Str2mat(XML$,Mat XML_LINE$,&quot;&gt;&quot;,&quot;TRIM&quot;)</p>
+<p>This makes the parsing of XML a bit more convenient. The following XML sample shows how the function will parse the data</p>
+<p>Input:
+<XML><NODE><ITEM>ITEM VALUE</ITEM></NODE></XML></p>
+<p>Output:
+&lt;XML
+&lt;NODE
+&lt;ITEM
+ITEM VALUE&lt;/ITEM
+&lt;/NODE
+&lt;/XML</p>
+<p>While the above technique is useful, a more complete and useful technique can be performed if the Node names are known. You may use an array of SEP$ values to parse the data.  Take the following example:</p>
+<pre><code>100    dim XML$*999999,XML_LINE$(1)*32000,SEP$(4)*32
+110    let XML$=&quot;&lt;XML&gt;&lt;NODE&gt;&lt;ITEM&gt;ITEM VALUE&lt;/ITEM&gt;&lt;ITEM2&gt;ITEM2 VALUE&lt;/ITEM2&gt;&lt;/NODE&gt;&lt;/XML&gt;&quot;
+120    read MAT SEP$
+130    data &lt;/XML&gt;,&lt;/NODE&gt;,&lt;/ITEM&gt;,&lt;/ITEM2&gt;
+140    let STR2MAT(XML$,MAT XML_LINE$,MAT SEP$,&quot;TRIM&quot;)
+150    print MAT XML_LINE$
+</code></pre>
+<p>This program would return the following results:</p>
+<p><XML><NODE><ITEM>ITEM VALUE
+<ITEM2>ITEM2 VALUE</p>
+<p>Notice that &quot;Nested Nodes&quot; are listed before the initial data, this may be used to identify the node.</p>
+<h2 id="new-dll-structure-of-business-rules">NEW DLL STRUCTURE OF BUSINESS RULES!</h2>
+<p>As of Release 4.3 Business Rules! has been restructured into the following modules:</p>
+<ul>
+<li><code>brserver.exe</code> – The BR Server module accessed by Client-Server configurations. Brserver.exe also operates as what is now viewed as the Standard Model. If it is invoked by brlistener, then it act as brserver. If it is simply executed, it acts as brcombined. However, when operating as the standard model, it needs to have brclient.dll in the same directory as brserver.</li>
+<li><code>brclient.exe</code> – The program that the user accesses in Client-Server configurations</li>
+<li><code>brclient.dll</code> – The client processing program that correlates with the brserver edition.</li>
+<li><code>npbrclient.dll</code> - The standard (non-IE) browser plugin dll</li>
+<li><code>iebrclient.dll</code> – Internet Explorer plugin dll</li>
+</ul>
+<p>Client installation is done by placing brclient.exe and brclient.dll on the client system and referencing brclient.exe in an icon. Server installation is done by placing brserver.exe and brclient.dll on the server and referencing brserver.exe in the brlistener.conf file. Exe files may be renamed as desired. The name of the released brclient.dll modules will be lengthy and must not be changed because BR relies on the DLL names for version identification.</p>
+<p>You will need one of the following possible configurations:</p>
+<ul>
+<li>
+<p>Workstation Standard Model</p>
+<ul>
+<li>Server executable</li>
+<li>Workstation Client dll</li>
+<li>Linux Terminal Support</li>
+<li>Linux Client dll ( .so )</li>
+</ul>
+</li>
+<li>
+<p>Client Server Model</p>
+<ul>
+<li>On Client Machine-
+<ul>
+<li>Client executable</li>
+<li>Workstation Client dll</li>
+</ul>
+</li>
+<li>On Server
+<ul>
+<li>Server executable</li>
+<li>Workstation Client dll</li>
+<li>BR Listener installed</li>
+<li>[ Linux Client dll for Linux terminal access ]</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>The 32 and 64 bit versions of servers and clients can be intermixed. However dlls must be the in same bit class as the modules that call them.  Put your BR bmp files ( drawsunk.bmp, startup.bmp etc. ) in the BR server executable directory.</p>
+<p>Updates will pertain to Processor DLLs while the user interfaces will remain as installed. Client DLLs will be automatically uploaded when corresponding server DLLs are accessed in the event they are not already present on the client.</p>
+<p>The client can be accessed from within a browser by initiating it with HTML which can specify an embedded window or a separate independent window. In all cases opening a window with PARENT=NONE creates a separate window.</p>
+<h3 id="br-adjunctive-files">BR Adjunctive Files</h3>
+<p>The BR executable is now considered to be where the BR server actually resides, irrespective of Drive statements and current working directories. </p>
+<p>The following files are located in the BR executable directory by default:
+BR server executable
+BRconfig.sys
+BRserial.dat
+BRserver.dat
+WBcmd.wbh - BR help files
+Server Dlls
+Client Dlls for uploading as needed
+System Image files – linedraw, etc. - typically BMPs</p>
+<h3 id="exceptions">Exceptions</h3>
+<p>If <code>WBcmd.wbh</code> doesn't exist in the BR executable directory then BR looks for it in the initial directory specified by the first drive statement. ( deprecated – will be eliminated at some point)  ONQPATH currently defaults to this initial path as well. ( this will remain )</p>
+<p>If the BRconfig file is not present in the BR executable directory then BR looks for it in the current working directory at the time of BR invokation. </p>
+<p>The SPOOLPATH :OS-fullpath  configuration statement specifies where print spool files are temporarily stored during printing.  SPOOLPATH defaults to a spool directory that runs off of the BR root of the first drive statement. If no such spool directory exists and SPOOLPATH is not specified then BR creates one.</p>
+<p>Example:</p>
+<pre><code>DRIVE   J:, C:\BR, x, \MYAPP   would result in spool files being placed in C:\BR\MYAPP\
+</code></pre>
+<p>SPOOLPATH @::client-OS-fullpath   specifies where on the client spool files are to be placed.</p>
+<p>Example:</p>
+<pre><code>SPOOLPATH  @::C:\BR\SPOOL  -or whatever other full path is desired-
+</code></pre>
+<p>The @:  tells BR that this path is on the client. The second colon says the path is independent of drive specifications.</p>
+<p>WORKPATH defaults to the BR root of the first drive statement:
+Example:</p>
+<pre><code>C:\BR\
+</code></pre>
+<p>BRconfig.sys INCLUDE statements are relative to the location of the file containing the INCLUDE statement ( the parent ).  CONFIG command INCLUDE statements are relative to the current directory at the time the command is issued.</p>
+<h3 id="licensing-restrictions">Licensing Restrictions</h3>
+<p>As of <code>4.20H</code>, <code>brserial</code> files must be specific to the first decimal position of the <code>release</code> of BR that is being used. ( e.g. 4.2x versus 4.3x )</p>
+<p>To accommodate more than one brserial level, BR first looks for its own suffix ( 42 or 43 ) before looking for a dat file. From now on it is most useful to name your brserial files either BRSERIAL.42 or BRSERIAL.43, etc.</p>
+<h2 id="client-server-reconnect-configuration-statement">CLIENT SERVER RECONNECT Configuration Statement</h2>
+<p>CLIENT_SERVER     RECONNECT_AFTER=20   RECONNECT_TIME=120</p>
+<p>BR sends idle packets between the client and the server every 2 seconds. This statement specifies that after 20 seconds of not receiving such packets BR will attempt to reconnect.  This reconnect process can last up to a maximum of 120 seconds, after which BR will issue a “lost connection” error and begin processing in unattended mode.</p>
+<p>You can change the above period lengths with the above CONFIG statement.</p>
+<p>When BR runs unattended, it normally terminates processing if the program attempts to wait for keyboard input. However, after a lost connection error, if a library program attempts to wait for keyboard input the library function is terminated, the calling statement receives control, and the lost connection error is issued again. This supports error trapping in the calling program so an orderly shutdown can be performed.</p>
+<h2 id="autoit-support">AUTOIT SUPPORT</h2>
+<p><code>AutoIt</code> is a free keyboard simulation program with very powerful automating capabilities. It can be used to access windows, read data from spreadsheets, write to display files and enter data in screens. There is a separate Window Information utility that comes with Autoit which displays what Autoit sees when windows are active. This has produced ambiguous information in the past.</p>
+<p>R99C999 (BR row &amp; col) now appears in the text field of BR labels.</p>
+<p>Individual BR input fields may be referenced in Autoit as    EditNN    where NN is the INPUT FIELDS subscript (CURFLD) of the field.</p>
+<h2 id="environment-interrogation">ENVIRONMENT INTERROGATION</h2>
+<p>ENV$(&quot;STATUS [ .sub-keyword ] ... &quot; [, mat config$ [, search-arg] ...] )</p>
+<p>ENV$ returns a string or, in the event MAT CONFIG$ is provided, ENV$ redimensions and loads it. For a list of valid keywords issue a STATUS ENV command. If an array is specified, it may be followed by one or more case insensitive substrings which are regarded as restricting search arguments.</p>
+<p>e.g.  ENV$(&quot;SERVER_PLATFORM&quot;)      returns “WINDOWS”</p>
+<p>The following program displays all STATUS information that contains the word “file”:</p>
+<pre><code>00100    dim CONFIG$(1)*100
+00120    let ENV$(&quot;STATUS&quot;,MAT CONFIG$,&quot;file&quot;)
+00140    print MAT CONFIG$
+</code></pre>
+<p>The above program produces the following output:</p>
+<pre><code>CHAINDFLT - Look for object files with source first.
+EDITOR C:\PROGRAM FILES\MILLS ENTERPRISE\MYEDITBR\MYEDITBR.EXE
+FILENAMES LOWER_CASE
+OPTION 23 is OFF - prevent data conversion errors from moving file position
+OPTION 25 is ON - make FILE$(0) be CON: if in windows
+OPTION 26 is OFF - suppress creation of .BAK files
+OPTION 29 is ON - save programs as .WB files
+OPTION 33 is 64 - locking position for large file support
+OPTION 49 is OFF - use relative path for spool file
+OPTION 51 is OFF - recover deleted records for all files
+SPOOLCMD prt.bat [SPOOLFILE] [COPIES] [PRINTER]
+Server File: :c:\wbserver.dat
+BR Config File: :C:\ADS\SYS\br.d\brconfig.sys
+Executable File: :C:\ADS\SYS\br.d\ 
+brserver-430beta+q-Win32-DebugEfence-2011-03-20.exe
+Serial File: :C:\ADS\SYS\br.d\brserial.dat
+Workfile path: :c:\ads
+Open File #  0  :CON:
+</code></pre>
+<p>If I just want the options with the word file then I would use:</p>
+<pre><code>00100    dim CONFIG$(1)*100
+00120    let ENV$(&quot;STATUS.CONFIG.OPTION&quot;,MAT CONFIG$,&quot;file&quot;)
+00140    print MAT CONFIG$
+</code></pre>
+<p>Which produces:</p>
+<pre><code>OPTION 23 is OFF - prevent data conversion errors from moving file position
+OPTION 25 is ON - make FILE$(0) be CON: if in windows
+OPTION 26 is OFF - suppress creation of .BAK files
+OPTION 29 is ON - save programs as .WB files
+OPTION 33 is 64 - locking position for large file support
+OPTION 49 is OFF - use relative path for spool file
+OPTION 51 is OFF - recover deleted records for all files 
+</code></pre>
+<p>Note that while keywords are case insensitive, they must be correctly specified, whereas search arguments are more “friendly”. For a complete list of valid keywords, issue the command:</p>
+<pre><code>STATUS ENV -p
+</code></pre>
+<p>Some of the new keywords supported are:</p>
+<ul>
+<li>ENV$(&quot;CLIENT_PLATFORM&quot;) is &quot;WINDOWS&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.BR_BUILD_TYPE&quot;) is &quot;DebugEfence&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.BR_BUILD_DATE&quot;) is &quot;2011-05-12&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.BR_BITS&quot;) is &quot;32&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.OS_BITS&quot;) is &quot;64&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.OS_VERSION_NAME&quot;) is &quot;Windows 7&quot;</li>
+<li>ENV$(&quot;CLIENT_PLATFORM.OS_VERSION_NUMBER&quot;) is &quot;6.1&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM&quot;) is &quot;LINUX&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.BR_BUILD_TYPE&quot;) is &quot;DebugEfence&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.BR_BUILD_DATE&quot;) is &quot;2011-05-13&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.BR_BITS&quot;) is &quot;64&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.OS_BITS&quot;) is &quot;&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.OS_VERSION_NAME&quot;) is &quot;#36-Ubuntu SMP Thu Jun 3 20:38:33 UTC 2010&quot;</li>
+<li>ENV$(&quot;SERVER_PLATFORM.OS_VERSION_NUMBER&quot;) is &quot;2.6.32-22-server&quot;</li>
+<li>BR_MODEL		  “CLIENT/SERVER” or “COMBINED”</li>
+</ul>
+<h2 id="sql-support">SQL SUPPORT</h2>
+<p>The following are examples of SQL connection strings which can be placed inside of brconfig.sys file or executed dynamically from BR command line:</p>
+<pre><code>CONFIG DATABASE db-ref  DSN=dsn-ref  [, USER= department | LOGIN_NAME | ? ] [, {PASSWORD= dept-password | BR_PASSWORD | ?} | PASSWORDD=encrypted-passwd ]
+</code></pre>
+<p>? indicates a login or password prompt</p>
+<p>BR_PASSWORD indicates the password used during client login. If running the standard model ( not client-server ) then this is equivalent to “?”.
+encrypted-passwd is the DB password encrypted with the key stated in OPTION 66.</p>
+<pre><code>CONFIG DATABASE db-ref CONNECTSTRING=&quot;Driver={Microsoft Access Driver (*.mdb)};DBQ=C:\inetpub\wwwroot\BegASP\Chapter.14\Contact.mdb;Uid=Admin;Pwd=abcd1234&quot;
+</code></pre>
+<p>The following will invoke the ODBC Manager to define or identify a file DSN.</p>
+<pre><code>CONFIG DATABASE ODBC-MANAGER
+</code></pre>
+<p>Here are 2 methods of opening an SQL connection and execute a query in BR:</p>
+<pre><code>1) OPEN #20: &quot;DATABASE= db-ref&quot; , SQL &quot;sql-statement&quot;, OUTIN
+2) OPEN #20: &quot;DATABASE= db-ref, Name= filename&quot; , SQL, OUTIN
+</code></pre>
+<p>In method 2, filename refers to a DISPLAY file containing an SQL statement that gets executed when a WRITE statement is processed -</p>
+<h3 id="sequence-of-operations">Sequence of Operations</h3>
+<ol>
+<li>
+<p>Begin processing with a WRITE statement.</p>
+</li>
+<li>
+<p>If the WRITE contains an IO list of values then it is used to populate the 'filename' SQL before it is executed. In this process IO list values replace question marks in the original SQL, positionally left to right.  These question marks only work with SQL arguments that refer to stored data. Question marks cannot be specified where SQL keywords or table column names appear.</p>
+</li>
+<li>
+<p>This may or may not produce a result set. If it does, the result set may be processed like a BR file opened RELATIVE. Some operations that use file positioning may be slow since the whole result set may not be in memory immediately. Simple sequential access should be fairly quick.</p>
+</li>
+<li>
+<p>Once SQL has been populated by an IOlist, it may be reused with the same values by issuing a WRITE with no IOlist.</p>
+</li>
+<li>
+<p>READ IOlist variable associations are positional with each READ accessing one row of values.</p>
+</li>
+</ol>
+<h3 id="sql-date-format-functions">SQL Date Format Functions</h3>
+<p>A$ = SQL_DATE$(BR-date-string,&quot;format-mask&quot;)    ! format date for storage</p>
+<p>B$ = BR_DATE$( SQL-date-string,&quot;format-mask&quot;)   ! unpack DB date value</p>
+<ul>
+<li>Note: SQL DATETIME fields are &quot;Packed for Storage&quot;, but &quot;DATE&quot; fields are returned as a CCYY-MM-DD string in a SQL Query.</li>
+</ul>
+<p>DATE returns &quot;BLANK&quot; for &quot;Empty or Null Date&quot;</p>
+<h3 id="sql-table-interrogation">SQL Table Interrogation</h3>
+<p>“ENV$ (STATUS)” has been extended to interrogate database connections and ODBC data sources. A program called ENVDB.BRS has been written to demonstrate how this extension works and to show how to setup linkage to a database or ODBC data source. Run the program as is to bring up the Microsoft ODBC manager. Then select a data source and look at the output from the program. This will also show you how to get and use connect strings. In this example lines 1900 and 2000 accomplish the same open as line 1800 in my environment.</p>
+<p>Try it on your Windows workstation. As long as you have one or more ODBC drivers supported you can use it without having to install a database. You can even use it to interrogate Excel files because Microsoft provides an ODBC driver for that.</p>
+<p>A sample program to demonstrate database interrogation entry is:</p>
+<pre><code>01000 ! Replace Envdb
+01020    dim DATABASES$(1)*100
+01040    dim DATABASE$*100
+01060    dim TABLES$(1)*100
+01080    dim TABLE$*100
+01100    dim COLUMNS$(1)*100
+01120    dim COLUMN$*100
+01140    dim C$*100,FLD1$*40,FLD2$*40,FLD3$*40,FLD4$*40
+01160    execute &quot;CONFIG database testdb odbc-manager&quot;
+01180 !   Execute &quot;CONFIG database testdb DSN='Accounts Payable'&quot;
+01220 !   Execute &quot;CONFIG database testdb connectstring=&quot;&quot;DSN=Excel Files;DBQ=L:\orders\Beneficial - A-PORCEL.xls;DefaultDir=L:\orders;DriverId=1046;MaxBufferSize=2048&quot;&quot;&quot;
+01230 ! *****  Open Output File
+01240    open #1: &quot;name=envdb.txt,replace&quot;,display,output 
+01420 Dump_Table: ! ***** Dump Table Layout
+01440    let OUTFD = 1
+01460    let ENV$(&quot;status.database.LIST&quot;, MAT DATABASES$)  !List of db's
+01480    for DATABASE=1 to UDIM(DATABASES$)  !For each connected database
+01500       let DATABASE$=DATABASES$(DATABASE)
+01520       let FNSHOW_DATABASE(DATABASE$, &quot;status.database.&quot;&amp;DATABASE$)
+01540    next DATABASE
+01560    end 
+01580 ! 
+01600    def FNSHOW_DATABASE(DATABASE$*100, ST_PREFIX$*100)
+01620       print #OUTFD: DATABASE$
+01640       let OUT_PREFIX$=CHR$(9)
+01660       print #OUTFD: OUT_PREFIX$&amp;&quot;DSN=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.DSN&quot;)
+01680       print #OUTFD: OUT_PREFIX$&amp;&quot;CONNECTSTRING=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.CONNECTSTRING&quot;)
+01700       print #OUTFD: OUT_PREFIX$&amp;&quot;Tables:&quot;
+01720       let ST_PREFIX$=ST_PREFIX$&amp;&quot;.TABLES&quot;
+01740       let ENV$(ST_PREFIX$&amp;&quot;.LIST&quot;, MAT TABLES$)
+01760       for TABLE = 1 to UDIM(MAT TABLES$)
+01780          let TABLE$=TABLES$(TABLE)
+01800          let FNSHOW_TABLE(TABLE$, ST_PREFIX$&amp;&quot;.&quot;&amp;TABLE$,OUT_PREFIX$&amp;CHR$(9))
+01820       next TABLE
+01840    fnend 
+01860 ! 
+01880    def FNSHOW_TABLE(TABLE$*100, ST_PREFIX$*100, OUT_PREFIX$)
+01900       print #OUTFD: OUT_PREFIX$&amp;TABLE$
+01920       let OUT_PREFIX$=OUT_PREFIX$&amp;CHR$(9)
+01940       print #OUTFD: OUT_PREFIX$&amp;&quot;Table remarks=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.REMARKS&quot;)
+01960       print #OUTFD: OUT_PREFIX$&amp;&quot;Table type=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.TYPE&quot;)
+01980       print #OUTFD: OUT_PREFIX$&amp;&quot;Columns:&quot;
+02000       let ST_PREFIX$=ST_PREFIX$&amp;&quot;.COLUMNS&quot;
+02020       let ENV$(ST_PREFIX$&amp;&quot;.LIST&quot;, MAT COLUMNS$)
+02040       for COLUMN = 1 to UDIM(MAT COLUMNS$)
+02060          let COLUMN$=COLUMNS$(COLUMN)
+02080          let FNSHOW_COLUMN(COLUMN$, ST_PREFIX$&amp;&quot;.&quot;&amp;COLUMN$,OUT_PREFIX$&amp;CHR$(9))
+02100       next COLUMN
+02120    fnend 
+02140 ! 
+02160    def FNSHOW_COLUMN(COLUMN$*100, ST_PREFIX$*100, OUT_PREFIX$)
+02180       print #OUTFD: OUT_PREFIX$&amp;COLUMN$
+02200       let OUT_PREFIX$=OUT_PREFIX$&amp;CHR$(9)
+02220       print #OUTFD: OUT_PREFIX$&amp;&quot;Column type=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.TYPE&quot;)
+02240       print #OUTFD: OUT_PREFIX$&amp;&quot;Column length=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.LENGTH&quot;)
+02260       print #OUTFD: OUT_PREFIX$&amp;&quot;Column decimals=&quot;&amp;ENV$(ST_PREFIX$&amp;&quot;.DECIMALS&quot;)
+02280    fnend
+</code></pre>
+<h2 id="br-data-encryption">BR DATA ENCRYPTION</h2>
+<p>Encryption encompasses a number of different operations.  These operations can be used independently or in combination to meet different needs.  We use industry standard encryption available through OpenSSL.  Three technologies are widely used for encrypting data. BR supports the first two listed below through its ENCRYPT and DECRYPT functions.</p>
+<h3 id="overview">Overview</h3>
+<h1 id="symmetric-key-ciphers--where-the-same-key-is-used-to-encrypt-and-decrypt-data--you-can-specify-a-key-to-encrypt-some-data-and-later-use-the-same-key-to-decrypt-the-data">Symmetric key ciphers – where the same key is used to encrypt and decrypt data.  You can specify a key to encrypt some data and later use the same key to decrypt the data.</h1>
+<h1 id="hashing-routines--one-way-routines-that-take-data-and-convert-it-to-a-hash-value--sometimes-these-are-thought-of-as-checksums-such-as-md5-sum--hash-values-are-always-the-same-length-regardless-of-how-big-the-hashed-data-is--a-10-gb-file-will-have-a-hash-result-that-is-the-same-length-as-a-200-byte-file--hashing-routines-have-a-number-of-specific-uses">Hashing routines – one way routines that take data and convert it to a hash value.  Sometimes these are thought of as checksums such as MD5 sum.  Hash values are always the same length regardless of how big the hashed data is.  A 10 gb file will have a hash result that is the same length as a 200 byte file.  Hashing routines have a number of specific uses.</h1>
+<h2 id="verify-that-data-has-not-changed">Verify that data has not changed.</h2>
+<h2 id="verifying-that-two-files-are-the-same">Verifying that two files are the same.</h2>
+<h2 id="validating-passwords--this-is-based-on-the-concept-that-if-two-values-have-the-same-hash-value-the-values-are-equal--using-this-technique-improves-security-because-it-allows-a-server-to-store-passwords-in-an-unrecoverable-format--even-the-server-software-is-unable-to-regenerate-the-original-password--it-is-only-capable-of-checking-if-the-hash-of-a-password-matches-the-stored-password-hash">Validating passwords – this is based on the concept that if two values have the same hash value the values are equal.  Using this technique improves security because it allows a server to store passwords in an unrecoverable format.  Even the server software is unable to regenerate the original password.  It is only capable of checking if the hash of a password matches the stored password hash.</h2>
+<h3 id="symmetric-key-ciphers">Symmetric Key Ciphers</h3>
+<p>There are two encryption functions in the BR language, ENCRYPT$ and DECRYPT$.</p>
+<pre><code>ENCRYPT$(Data$ [,Key$ [,Encryption-type$, [,Initialization-vector$]]])
+DECRYPT$(Data$ [,Key$ [,Encryption-type$, [,Initialization-vector$]]])
+</code></pre>
+<p>Data$ - The data to be encrypted</p>
+<p>Key$ - The secret key to be used for encryption.  If not specified this value will come from an OPTION 66 statement.</p>
+<p>Encryption-type$ - The type of encryption to be done.  If not specified, a common high strength encryption type will be employed.  This is described in more detail below, but is generally only useful for interfacing with other typically non-BR programs.</p>
+<p>Initialization-vector$ - This is an arcane part of encryption standards.  It exists to prevent attackers from being able to tell whether the unencrypted data has changed.  This is described in more detail below, but is general only needed when interfacing with other non-BR programs.</p>
+<h3 id="interfacing-with-other-programs-encryption-type-and-initialization-vector">Interfacing With Other Programs (encryption type and initialization vector)</h3>
+<p>There are a number of different types of encryption that BR supports through OpenSSL:  AES, BLOWFISH, DES, triple DES, RC4 and RC2.  Most symmetric key ciphers are block ciphers meaning that they encrypt one block at a time.  This means if you have a bit message, it is broken up into multiple blocks and each block is encrypted.  The block size can be set as (128, 192, 256) bits.  Some encryption types don't support all of these values so STATUS ENCRYPTION should be checked to see what encryption types are available in BR.  Besides block size, there are also various schemes for blocking data.  One might expect that using 256 bit blocking would simply take every 32 bytes and call it a block.  This is not done though because there is a possibility that this would cause patterns in the encrypted data.  To prevent this, there are various schemes known as codebooks which change the way data is blocked.  <a href="https://en.wikipedia.org/wiki/OpenSSL">Wikipedia</a> explains this in more detail.  If the encryption type is not specified AES:256:CBC:128 will be used.  To be compatible with other programs the entire encryption type must be specified (cipher: key length: codebook: invitialization vector length).</p>
+<p>Initialization-vector – this is used to cause the same data encrypted with the same key to have a different encrypted result.  This is significant because otherwise an attacker looking at data seeing the same encrypted result twice would know that the key and the unencrypted data have not changed.  Regardless of whether or not you are concerned about this potential security issue, the standard encryption methods require this value so interfacing with other programs may require you to use it.  It is a common practice to use a random number for this value and store the value at the beginning of (ahead of) the encrypted result.  This is what BR does if this parameter is omitted.</p>
+<p>As an example:</p>
+<pre><code>ENCRYPT$(“test”, “key”) 
+</code></pre>
+<p>Produces a string containing “random number initialization vector”&amp;”encrypted result”.</p>
+<p>If the initialization vector is explicitly specified as in:</p>
+<pre><code>ENCRYPT$(“test”, “key”, “AES:256:CBC:128”, “RANDOM”) 
+</code></pre>
+<p>the result would be simply “encrypted result”.</p>
+<p>DECRYPT$ has the same arguments as ENCRYPT$ with the exception of the first parameter which is the encrypted data.  DECRYPT$ expects to be used with the same key$, encryption-type$, and initialization-vector$ as was used to encrypt the data.  As with ENCRYPT$, if key$ is not specified, the value from the OPTION statement will be used.  If encryption-type$ is not specified, “AES:256:CBC:128” will be used.  If the initialization vector is not specified, it will be assumed that the encrypted data starts with an initialization vector.</p>
+<h3 id="hashing-routines">Hashing Routines</h3>
+<p>Three common forms of hashing are allowed in BR.  They are MD5, SHA, and SHA-1.  These are also provided through the ENCRYPT$ function specifying a null key$ value:</p>
+<pre><code>ENCRYPT$(data$, “”, “MD5”)
+ENCRYPT$(data$, “”, “SHA”)
+ENCRYPT$(data$, “”, “SHA-1”)
+</code></pre>
+<p>Hashing is also referred to as Message Digests or digests.  This is what the MD in MD5 means.  There is no way to restore data that has been hashed.   Hashing is a one way function so DECRYPT$ will yield an error.</p>
+<h3 id="asymmetric-encryption">Asymmetric Encryption</h3>
+<p>Asymmetric key encryption is also known as public/private key encryption.</p>
+<p>Public/private keys are created as a pair by a key generator.  They are a pair, and it is not possible to have two public keys for the same private key or vice versa.   With regard to public/private key pairs, what one key encrypts the other key can decrypt, and neither key can decrypt what it has encrypted.  When a private key is used to encrypt data, the result is called a signature because everyone who has the public key can decrypt it.</p>
+<p>This technique is used for:</p>
+<p>Signing (using certificates) – A private key can be used to sign data.  The result of such signing can be tested/validated with the corresponding public key.</p>
+<p>Data encryption – A public key can be used to encrypt data.  This data can then only be decrypted by the corresponding private key.</p>
+<p>Hashes and signing are different but used together.  Rather than signing a large block of data which would create a large signature, only the hash is signed to create much smaller fixed length signature data.  When verifying a large block of signed data, the data is used to create a hash value and the hash value is compared to a decrypted signature.</p>
+<p>Asymmetric encryption is not accessible through the BR ENCRYPT$, DECRYPT$ functions.  However, it is used by our SSL client server connections and HTTPS.  Certificates are most commonly used by SSL and HTTPS and are less useful for other application processes. In the Client Server model the client knows the server’s public key and the server uses its private key to encrypt and decrypt.</p>
+<p>Encryption is invoked by Business Rules HTTP support as follows:</p>
+<pre><code>CONFIG HTTPS port-number   [ LOG file-pathname ] [CERT= cert-file-basename]
+CONFIG OPTION  66   private-key-file-encryption-password
+OPEN #400: “HTTP=SERVER”, DISPLAY, OUTIN
+</code></pre>
+<p>The BRSERVER executable directory must contain two files:</p>
+<ul>
+<li>https-private.pem</li>
+<li>https-cert.pem</li>
+</ul>
+<p>These files are made by the following commands under Linux, MAC and cygwin for Windows:</p>
+<pre><code>openssl req -new -x509 -out httpserver.pem -days 10000
+</code></pre>
+<p>( this will prompt for the OPTION 66 password )</p>
+<pre><code>mv privkey.pem   https-private.pem
+mv httpserver.pem   https-cert.pem
+</code></pre>
+<p>This port specific service can then be accessed with browsers. When the specified port is accessed through a browser, BR establishes an HTTPS connection rather than an HTTP connection.</p>
+<h3 id="signing-and-certificate-processing-industry-standards">Signing and Certificate Processing Industry Standards</h3>
+<p>Certain companies are authorized by the government to act as a Certificate Authority ( CA ). These companies ( e.g. Verisign ) issue electronic certificates which can be used to issue second level certificates. Certificates can have expiration dates and the line of authority extends from a CA to any number of levels (but a chain is only as strong as its weakest link). Certificates contain a list of signatures (described below) that trace back to a CA as follows:</p>
+<p>When a company needs to obtain a certificate from a CA, it prepares its own certificate and sends it to the CA for signature. The CA provides the signature and the CA’s own public key for validating it. The text in such certificates will identify the signing authority ( CA ) and the recipient of the certificate. It also contains the public key of both the signer and the recipient.</p>
+<p>Browsers know the CA identities and their public keys. A browser can verify a CA issued cert by hashing it, decrypting the signature with the known public key and matching the decrypted signature against the hash total. </p>
+<p>Any company that is issued a certificate by a CA can sign second level certificates issued to third parties. A second level cert contains the parent (CA issued) certificate, and includes the public keys of the issuer and the recipient. The signature is essentially the encrypted hash total of ‘itself plus all of its ancestors’. Additional levels each contain the chain of certificates leading from a CA issued cert to itself.</p>
+<p>Ostensibly, a certificate cannot be counterfeited because it requires the signature of its parent which can only be produced with its parent’s private key.  By providing both public keys ( signer and recipient ) in all certs along with signatures, a non-forgeable or alterable chain is established.</p>
+<p>Example:
+CA public key – known to browser
+certificate 1 (signed by CA)
+certificate 2 (signed by second level - includes certificate 1)
+final certificate (signed by third level - includes certificate 2)
+ 
+A browser would find the CA information in the certificate and check to see if it is in the browser’s internal list.  If not it fails.  Then it verifies that certificate 1 (which ends up being part of the final certificate) has been signed by the CA.  After that it checks certificate 2 and verifies that it has been signed with certificate 1.  Finally it checks the final certificate and verifies that it has been signed with certificate 2.
+ 
+To assure the line authority of any certificate, the public keys are associated with signers, not with documents.</p>
+<h2 id="odbc-version-43">ODBC VERSION 4.3</h2>
+<p>Improved installation routines:</p>
+<ul>
+<li>Easy to use</li>
+<li>Compatible with Windows Vista/7</li>
+<li>Compatible with 64 Bit Machines (both 32 and 64 bit drivers).</li>
+<li>Easily create DNS entries from the CONTEXT using a BR program called CREATE_INI.BR. (You will need to tailor the resulting INI file to the target setting.)</li>
+<li>Installation on a client can be done from a command line avoiding the need for human interaction at the client.</li>
+</ul>
+<p>Other improvements:</p>
+<ul>
+<li>Support for 64 bit Record Locking (No 2GB Limit!).</li>
+<li>Implemented Dynamic (on the fly) Indexes.</li>
+<li>The ODBC splash screen has been removed.</li>
+</ul>
+<p>ODBC Logging:</p>
+<ul>
+<li>Set Logging to level 6 or greater.</li>
+<li>LOGGING 6, C:\ODBC-LOG.TXT</li>
+<li>Log file will provide helpful information to analyze queries.</li>
+<li>Actual SQL processed by Driver (As opposed to the SQL typed in MS-Access or MS-Excel)</li>
+<li>Indexes used by the Query. (To help determine the &quot;BEST Query&quot; for performance).</li>
+</ul>
+<p>More Robust:</p>
+<ul>
+<li>Improved Date Handling (Sort/Filter, etc).</li>
+<li>Improved Joins leverage &amp;/or create indexes for performance.</li>
+<li>Improved Group By queries</li>
+<li>Improved &quot;Like&quot; filters.</li>
+<li>Improved Multiple Filters in a single query</li>
+</ul>
+<h3 id="odbc-licensing-and-security">ODBC Licensing And Security</h3>
+<p>Licenses will be issued based on number of workstations or number of BR WSIDs.</p>
+<p>The price per user for licensing based on the number of BR WSIDs is one half of the price based on the number of ODBC workstations.</p>
+<p>The maximum license fee for ODBC is $4900.</p>
+<h4 id="enforcement">Enforcement</h4>
+<p>If the ODBC license is based on the number of BR users, then the BRSERIAL.DAT file always specifies 999 users.</p>
+<p>We assign a random number to each machine that uses the ODBC driver and another random number to each user of ODBC. These numbers are stored along with the date, encrypted in a table in the server and client registries.  Each time a session is started, the client is checked for pre-existing control numbers and if they exist then the numbers are used for the session (along with the current date). If a client reports a pre-existing number less than 14 days old that is not in the server table, then an alarm is signaled. This indicates tampering with the server table.</p>
+<p>When a control number pair is about to be added to the server table and the table is full then it is searched for an entry more than 14 days old for replacement. If no such entry exists, then a “maximum users exceeded” error message is presented.</p>
+<p>When a computer is replaced, this can leave an unusable entry in the server table for up to 14 days. If this occurs, then the user can run a program on the server that writes an encrypted header with the current date to the server table indicating that the table has been cleared in a licensed manner.  After this has been run, all entries in the table will be available for reuse.  Clients that have pre-existing control numbers will not generate the tamper error when the license file is cleared in this manner unless the client last used date is greater than the encrypted header date. This program requires a password which is an encrypted form of the current date plus the serial number. Only the dealer has the password producing program so only the dealer can obtain the current day’s password.</p>
+<p>When a client machine has more than two ODBC user entries, the entries greater than
+one are counted as separate workstations. e.g. 1 or 2 -&gt;1, 3-&gt;2, 4-&gt;3, etc.</p>
+<h3 id="new-procedure-for-utilizing-ms-access-odbc-middleware">New Procedure for Utilizing MS Access ODBC Middleware</h3>
+<p>A procedure has been established for greatly expanding the SQL capabilities of the BR ODBC driver by routing ODBC requests through MS Access. Using this technique one can create reusable queries that combine several tables. This procedure is described in the installation guide.</p>
+<h2 id="print-font-stretching">PRINT FONT STRETCHING</h2>
+<p>When we developed the PDF printing facility we encountered a problem getting PDF to print exactly like NWP and PCL.  This was partly because early in NWP development we stretched the fixed width fonts vertically for maximum legibility. So in version 4.2 we adopted a default font that was more like PCL that we could print in both NWP and PDF.</p>
+<p>However, we eventually returned to the older stretched fonts because of their superior legibility. This issue affects only fixed width fonts. This stretching can be disabled with OPTION 68.</p>
+<p>We are now using Courier New as the default font.  pdflib4-Win32.dll adds support for this stretching to our PDF capabilities.</p>
+<p>Relative Font Heights ( height to width ratios ):</p>
+<ul>
+<li>Native Courier New  1.6 	- available in PCL</li>
+<li>Native Letter Gothic  2.0	- available in PCL</li>
+<li>Stretched Fonts 2.6		- NWP and PDF only</li>
+</ul>
+<p>The 1.6, 2.0, 2.6 are ratios.  For Courier New the 1.6 means that the font is 1.6 times as high as it is wide.  PCL measures all fixed width fonts in width and calculates the height based on these ratios.  So for Courier New a 10 CPI font would be 1.6 * (1 / 10)(CPI) * 72 (points per inch) = 11.52 points.  Actually the ratio for Courier New appears to be 1.66666666.  This would mean that 1.66666666 * (1/10) * 72 = 12 points.</p>
+<h2 id="extended-date--time-functions">EXTENDED DATE / TIME FUNCTIONS</h2>
+<p>Date numeric variables can now represent time of day in the fractional space (to the right of the decimal point). The DAYS and DATE masks have been extended as follows:</p>
+<p>H#.## or H denotes hours [ with fractions ].
+M#.### or M#.# denotes minutes.
+S#.####, S or S# denotes seconds.</p>
+<p>M, to the right of H always denotes minutes, so H:M:S is sufficient.
+Either AM or PM, to the right of H denotes AM / PM output.
+The absence of AM and PM denote military hours (0 – 23).
+The maximum significant digits that can be represented in a numeric variable are 15. So if century, year, month and day are stored as a 5 digit day of century, then internally up to ten digits to the right of the decimal are available for time of day.</p>
+<p>Extended Date Mask Examples:</p>
+<pre><code>DATE( “Month dd, ccyy at H#.## hours”)  -&gt;  September 12, 2011 at 14.58 hours
+DATE( “mm/dd/yy at H:M AM”)  -&gt;  09/15/11 at 2:35 PM
+DATE( “mon dd cy at H#:M# PM”)  -&gt;  Sep 15 2011 at 02:35 PM
+</code></pre>
+<p>Example of using DATE$ to get time to 9 decimal places:</p>
+<pre><code>Date$(&quot;H#:M#:S#.#########&quot;) -&gt; 14:06:22.968419347
+</code></pre>
+<p>When storing date/time combinations on disk, you should allow for all of the significant digits that your date mask supports on each side of the decimal point. A “BH 4” form supports nine significant digits, which is suitable for day of century plus a four digit fraction. To exceed that you can use either PD 6, PD 7, PD 8 or D 8 (double floating point) to store these values on disk.  DATE() only works with day-of-century values along with an optional time fraction.</p>
+<h2 id="new-date-mask-input-processing">NEW DATE MASK INPUT PROCESSING</h2>
+<p>DATE(mask) can now be used as an INPUT FIELDS specification.</p>
+<pre><code>10 INPUT FIELDS “row, col, DATE(mask)  ,UH” : date-var
+</code></pre>
+<p>Special keyboard processing:
+Punctuation (commas, colons, slashes, semicolons, and dashes) is skipped during entry similar to PIC.
+Insert and delete are supported within subfields that are delineated by punctuation.
+Copy includes punctuation.
+Cut is Copy with redisplay of zero date.
+Paste causes BR to translate the date to DAYS format and then display the date. Excel and OpenOffice Calc application formats are supported.
+If a string is pasted, it is first converted to DAYS using the provided mask.
+If a zero DAYS value is displayed then Month, M3, Day and D3 mask positions contain dashes.</p>
+<p>A date picker has been added.</p>
+<p>A new configuration statement is provided to control the when the date picker appears:</p>
+<p>DATE   [ALWAYS]  [INVALID]  [NEVER]</p>
+<p>Additionally, the leading attribute ^DATE_PICKER is available.</p>
+<p>INVALID ( the default mode ) presents the date picker whenever the days value of the expressed date is zero.</p>
+<p>ALWAYS and ^DATE_PICKER show the picker whenever the cursor is in the field until a date is selected from the picker.  Leaving the field and reentering it actives the picker again.</p>
+<p>When in the date picker the following keys are active:
+Shift- PgUp/PgDn – Go to the previous/next month
+Ctrl- PgUp/PgDn – Go to the previous/next year</p>
+<p>A sample program to demonstrate date entry is:</p>
+<p>01000 ! Rep Date_Input</p>
+<p>01020 ! Demonstrate The New Date() Input Format</p>
+<p>01040 ! Skip Punctuation (Commas, Colons, Slashes, Semicolons, And Dashes)</p>
+<p>01060 ! Insert And Delete Within Subfields That Are Delineated By Punctuation</p>
+<p>01080 ! Continue To Support Cut And Paste Including Punctuation</p>
+<p>01100 !</p>
+<p>01120    rinput fields &quot;5,10,DATE(mm/dd/yy) ;6,10,c&quot;: DATE_VAR</p>
+<p>01140    print fields &quot;8,10,date(Month DD, CCYY)&quot;: DATE_VAR</p>
+<p>01160 !</p>
+<p>01180    rinput fields &quot;12,10,date(month dd, ccyy)&quot;: DATE_VAR</p>
+<p>01200    if NOT DATE_VAR then goto 1180</p>
+<p>01220    print fields &quot;15,10,date(yy/mm/dd)&quot;: DATE_VAR</p>
+<p>01240    print fields &quot;18,10,N 6&quot;: DATE_VAR  !Show days format</p>
+<h2 id="new-text-field-format">NEW TEXT FIELD FORMAT</h2>
+<p>10  (R)INPUT FIELDS “row, col, TEXT rows/cols[/capacity],  leading-attr,  …”:</p>
+<p>This format is similar to the C/V/G format with the ^ENTER_LF attribute except:
+No trailing space padding or trimming occurs.
+Rows and columns are specified.
+Field capacity or newlines can cause a vertical scrollbar to appear.</p>
+<p>Supported leading attributes are ^ENTER_LF (the default), ^ENTER_CRLF and ^NOWRAP.
+The TEXT keyword will imply ^ENTER_LF unless ^ENTER_CRLF is specified.</p>
+<p>^ENTER_LF (the default) causes the ENTER key to add LF characters to the data and to go to a new line left justified. The cursor will retrace the data when backspace or left-arrow is keyed, meaning the on-screen LF characters are represented by moving the cursor, instead of allowing it to rest on invisible LF characters.</p>
+<p>^ENTER_CRLF may be specified in lieu of ^ENTER_LF. When that is the case, carriage returns entered are represented in the data as carriage-return-linefeed (CRLF) character pairs.  ^NOWRAP may be specified to suppress word wrapping. When ^NOWRAP is active, data is entered on the current line until ENTER is keyed to go to the next line. Both horizontal and vertical scroll bars appear as needed.</p>
+<p>Tabs are entered into the text. Shift-tab is ignored.</p>
+<p>Home, End and the arrow keys all operate relative to the current line as opposed to operating on the text box as a whole.</p>
+<p>Depressing the Control key causes the following keys to operate in the normal string entry mode:</p>
+<ul>
+<li>
+<p>Enter – Returns control to the BR program</p>
+</li>
+<li>
+<p>Tab – Goes to the next control</p>
+</li>
+<li>
+<p>Shift-Tab – Goes to the prior control</p>
+</li>
+<li>
+<p>Home – Goes to the beginning of data or the first field</p>
+</li>
+<li>
+<p>End – Goes to the end of data or the last field</p>
+</li>
+<li>
+<p>Left-Arrow/Up-Arrow – Goes to the prior control</p>
+</li>
+<li>
+<p>Right-Arrow/Down-Arrow – Goes to the next control</p>
+</li>
+<li>
+<p><code>CurPos</code> introduced.</p>
+</li>
+</ul>
+<p>A sample program to demonstrate TEXT entry is:</p>
+<pre><code>01000 ! Rep Text
+01020 ! Test New Text Fiueld Type
+01040    dim TEXT$*300, TEXT$(1)*80
+01060    print NEWPAGE
+01080    rinput fields &quot;3,10,text 4/40/300,uh&quot;: TEXT$
+01100    print fields &quot;10,10,c&quot;: TEXT$
+01120    print TEXT$
+01140    let STR2MAT(TEXT$, MAT TEXT$, CHR$(10))
+01160    print MAT TEXT$
+</code></pre>
+<h2 id="input-across-multiple-windows">INPUT ACROSS MULTIPLE WINDOWS</h2>
+<p>10  (R)INPUT FIELDS  #121: “10, 10, C 20, UH; 10, 12, PIC(##/##/##), UH;#124,
+10, 10, C 30, UH”: aaa$, bbb$, ccc$</p>
+<p>This will input the first two fields on window #121 and the third field on window #124.  The ‘#window-number,’ prefix may appear in any row, col FIELDS specification and it overrides the window number that follows the PRINT/INPUT/RINPUT keyword.</p>
+<h2 id="config-console-changes">CONFIG CONSOLE CHANGES</h2>
+<p><code>Console</code> <code>BRConfig.sys</code> specification  introduced.</p>
+<h2 id="br-in-a-browser">BR IN A BROWSER</h2>
+<p>We have made it easy to setup BR in a Browser once you have Client Server working.
+Point your browser at ads.net/plugin for a demonstration. Located in that directory is a file called index.html which is also on the FTP site in the BETA release browser-plugin directory.  Modify this file to setup your own web page.</p>
+<p>This HTML file demonstrates activation of BR client server in a browser. It first checks to see if the plugin is installed and if not it installs it. If needed, it updates the plugin from the ads.net site. It then initiates a connection to the server just like the BR client does. See the HTML file for further instructions, including how to confine BR to a window on the launch page if desired.</p>
+<p>A new OPTION 70 is provided which will default to being ON in the Browser version.  OPTION 70 will do the same thing as 54 (exit if BR enters command console mode), but it will be configurable to:
+OPTION 70 OFF		! This can be set programmatically
+OPTION 70 ON		! Same as OPTION 54 – the default for browsers
+OPTION 70 RELAXED	! Mild security – enables some support</p>
+<p>RELAXED mode is intended to allow some debugging but still provide some security.  This means disabling commands such as COPY, DIR, etc., CONFIG commands, and preventing changes from being made to BR programs. However, the security can be defeated  because all of these activities can be performed by programs or procedures. Use ON (the default) for high security.</p>
+<h2 id="new-and-changed-error-codes">NEW AND CHANGED ERROR CODES</h2>
+<ul>
+<li>
+<p><code>0000</code> Successful completion no error</p>
+</li>
+<li>
+<p><code>0050</code> Writing to BTREE2 file failed</p>
+</li>
+<li>
+<p><code>0059</code> DEPRECATED ERROR: attempt to rewrite over key</p>
+</li>
+<li>
+<p><code>0063</code> DEPRECATED ERROR: network locking error</p>
+</li>
+<li>
+<p><code>0417</code> MSG string it too long</p>
+</li>
+<li>
+<p><code>0419</code> Invalid MSG special char specification</p>
+</li>
+<li>
+<p><code>0436</code> Bad flags for MAT2STR or STR2MAT</p>
+</li>
+<li>
+<p><code>0620</code> DEPRECATED ERROR: duplicate OPEN for standard printer output</p>
+</li>
+<li>
+<p><code>0641</code> DEPRECATED ERROR: missing protection device</p>
+</li>
+<li>
+<p><code>0635</code> Error using SSL socket</p>
+</li>
+<li>
+<p><code>0717</code> Error deleting record from BTREE2 file</p>
+</li>
+<li>
+<p><code>0727</code> DEPRECATED ERROR: FORM variable not referenced</p>
+</li>
+<li>
+<p><code>0807</code> Border characters can no longer be specified</p>
+</li>
+<li>
+<p><code>0814</code> Bad or missing trailing attribute</p>
+</li>
+<li>
+<p><code>0818</code> DEPRECATED ERROR: number too large for PIC format</p>
+</li>
+<li>
+<p><code>0865</code> DEPRECATED ERROR: invalid attribute combination</p>
+</li>
+<li>
+<p><code>0887</code> Sort column is not valid</p>
+</li>
+<li>
+<p><code>0930</code> INPUT FIELDS &quot;...RANGE&quot; bad range variables</p>
+</li>
+<li>
+<p><code>0931</code> Invalid insert or delete change with range</p>
+</li>
+<li>
+<p><code>0940</code> Value does not match boolean format</p>
+</li>
+<li>
+<p><code>0941</code> NULL boolean value used where allow null is false</p>
+</li>
+<li>
+<p><code>0945</code> The length of the date format is excessively long</p>
+</li>
+<li>
+<p><code>1008</code> Invalid keyword in shell interpreter</p>
+</li>
+<li>
+<p><code>1033</code> Scalar variable in an array group</p>
+</li>
+<li>
+<p><code>2022</code> The given encryption method does not exist</p>
+</li>
+<li>
+<p><code>2024</code> The encryption method is only valid one way</p>
+</li>
+<li>
+<p><code>2026</code> Missing encryption key</p>
+</li>
+<li>
+<p><code>2030</code> Failed processing encryption</p>
+</li>
+<li>
+<p><code>2070</code> DEPRECATED ERROR: not enough memory</p>
+</li>
+<li>
+<p><code>2080</code> DEPRECATED ERROR: insufficient dimensioned storage</p>
+</li>
+<li>
+<p><code>2090</code> DEPRECATED ERROR: not enough compilation storage</p>
+</li>
+<li>
+<p><code>2100</code> Too many active procedures</p>
+</li>
+<li>
+<p><code>2101</code> Illegal line number</p>
+</li>
+<li>
+<p><code>2102</code> GO attempted without running program</p>
+</li>
+<li>
+<p><code>2103</code> Illegal PROC parameter</p>
+</li>
+<li>
+<p><code>2104</code> No active lines to run</p>
+</li>
+<li>
+<p><code>2108</code> Program is active</p>
+</li>
+<li>
+<p><code>2109</code> No program in memory to SAVE or REPLACE</p>
+</li>
+<li>
+<p><code>2111</code> Missing lines for a program in object code</p>
+</li>
+<li>
+<p><code>2116</code> Cannot SAVE during LOAD or MERGE</p>
+</li>
+<li>
+<p><code>2120</code> DEPRECATED ERROR: not enough compilation storage</p>
+</li>
+<li>
+<p><code>2130</code> Program changed since LOAD at another workstation</p>
+</li>
+<li>
+<p><code>3031</code> DEPRECATED ERROR: 0 bytes available on disk</p>
+</li>
+<li>
+<p><code>4002</code> SQL create statement failed</p>
+</li>
+<li>
+<p><code>4003</code> SQL free statement failed</p>
+</li>
+<li>
+<p><code>4004</code> SQL prepare failed</p>
+</li>
+<li>
+<p><code>4005</code> SQL clear old results failed</p>
+</li>
+<li>
+<p><code>4006</code> SQL execute direct failed</p>
+</li>
+<li>
+<p><code>4007</code> WRITE to SQL with incorrect number of data elements</p>
+</li>
+<li>
+<p><code>4008</code> SQL describe result set columns failed</p>
+</li>
+<li>
+<p><code>4009</code> SQL bind result set columns failed</p>
+</li>
+<li>
+<p><code>4010</code> SQL fetch row failed</p>
+</li>
+<li>
+<p><code>4011</code> SQL bind parameter failure</p>
+</li>
+<li>
+<p><code>4012</code> Prepared SQL execution failure</p>
+</li>
+<li>
+<p><code>4014</code> Error converting time stamp to string value or back</p>
+</li>
+<li>
+<p><code>4114</code> DEPRECATED ERROR: invalid disk or disk drive reference</p>
+</li>
+<li>
+<p><code>4115</code> DEPRECATED ERROR: the specified database has not been opened</p>
+</li>
+<li>
+<p><code>4120</code> Invalid Y2K data found in an index field</p>
+</li>
+<li>
+<p><code>4121</code> DEPRECATED ERROR: invalid use of key file</p>
+</li>
+<li>
+<p><code>4123</code> Corrupted BTREE index</p>
+</li>
+<li>
+<p><code>4128</code> DEPRECATED ERROR: invalid file name</p>
+</li>
+<li>
+<p><code>4135</code> DEPRECATED ERROR: volume ID invalid</p>
+</li>
+<li>
+<p><code>4137</code> DEPRECATED ERROR: not enough storage space to create file</p>
+</li>
+<li>
+<p><code>4138</code> Can't rename between client and server</p>
+</li>
+<li>
+<p><code>4140</code> DEPRECATED ERROR: shared memory problem</p>
+</li>
+<li>
+<p><code>4141</code> DEPRECATED ERROR: shared memory problem</p>
+</li>
+<li>
+<p><code>4142</code> DEPRECATED ERROR: too many opened file names</p>
+</li>
+<li>
+<p><code>4143</code> DEPRECATED ERROR: out of shared memory</p>
+</li>
+<li>
+<p><code>4144</code> DEPRECATED ERROR: network semaphore error</p>
+</li>
+<li>
+<p><code>4145</code> Time out while waiting for input from user or ASYNC file I/O</p>
+</li>
+<li>
+<p><code>4147</code> A file has been opened too many times at the share level</p>
+</li>
+<li>
+<p><code>4149</code> Different version of BR running with locking</p>
+</li>
+<li>
+<p><code>4159</code> DEPRECATED ERROR: volume not on line</p>
+</li>
+<li>
+<p><code>4160</code> Out of internal file handles</p>
+</li>
+<li>
+<p><code>4174</code> Attempted file reservation on non-local file</p>
+</li>
+<li>
+<p><code>4175</code> Multiple wbserver files detected</p>
+</li>
+<li>
+<p><code>4177</code> DEPRECATED ERROR: windows shell call without command</p>
+</li>
+<li>
+<p><code>4179</code> Failed to lock in progress on wbserver.dat</p>
+</li>
+<li>
+<p><code>4180</code> Bad drive statement</p>
+</li>
+<li>
+<p><code>4185</code> Setting the directory failed on the client side</p>
+</li>
+<li>
+<p><code>4194</code> REWRITE check for null bytes failed</p>
+</li>
+<li>
+<p><code>4195</code> READ check for null bytes failed</p>
+</li>
+<li>
+<p><code>4196</code> WRITE check for null bytes failed</p>
+</li>
+<li>
+<p><code>4200</code> DEPRECATED ERROR: DOS/Windows/Novell error 0</p>
+</li>
+<li>
+<p><code>4201</code> DEPRECATED ERROR: DOS/Windows/Novell error 1</p>
+</li>
+<li>
+<p><code>4202</code> DEPRECATED ERROR: DOS/Windows/Novell error 2</p>
+</li>
+<li>
+<p><code>4203</code> Path does not exist or is not a directory</p>
+</li>
+<li>
+<p><code>4204</code> Too many file handles open on the system level</p>
+</li>
+<li>
+<p><code>4205</code> Access is denied</p>
+</li>
+<li>
+<p><code>4206</code> Invalid file descriptor</p>
+</li>
+<li>
+<p><code>4207</code> DEPRECATED ERROR: DOS/Windows/Novell error 7</p>
+</li>
+<li>
+<p><code>4208</code> DEPRECATED ERROR: DOS/Windows/Novell error 8</p>
+</li>
+<li>
+<p><code>4209</code> DEPRECATED ERROR: DOS/Windows/Novell error 9</p>
+</li>
+<li>
+<p><code>4210</code> DEPRECATED ERROR: DOS/Windows/Novell error 10</p>
+</li>
+<li>
+<p><code>4211</code> DEPRECATED ERROR: DOS/Windows/Novell error 11</p>
+</li>
+<li>
+<p><code>4212</code> DEPRECATED ERROR: DOS/Windows/Novell error 12</p>
+</li>
+<li>
+<p><code>4213</code> DEPRECATED ERROR: DOS/Windows/Novell error 13</p>
+</li>
+<li>
+<p><code>4214</code> DEPRECATED ERROR: DOS/Windows/Novell error 14</p>
+</li>
+<li>
+<p><code>4215</code> Invalid drive reference</p>
+</li>
+<li>
+<p><code>4216</code> Cannot remove directory</p>
+</li>
+<li>
+<p><code>4217</code> DEPRECATED ERROR: DOS/Windows/Novell error 17</p>
+</li>
+<li>
+<p><code>4218</code> DEPRECATED ERROR: DOS/Windows/Novell error 18</p>
+</li>
+<li>
+<p><code>4219</code> I/O error on write protected floppy</p>
+</li>
+<li>
+<p><code>4220</code> DEPRECATED ERROR: DOS/Windows/Novell error 20</p>
+</li>
+<li>
+<p><code>4221</code> DEPRECATED ERROR: DOS/Windows/Novell error 21</p>
+</li>
+<li>
+<p><code>4222</code> DEPRECATED ERROR: DOS/Windows/Novell error 22</p>
+</li>
+<li>
+<p><code>4223</code> DEPRECATED ERROR: DOS/Windows/Novell error 23</p>
+</li>
+<li>
+<p><code>4224</code> File is too large for locking mode</p>
+</li>
+<li>
+<p><code>4225</code> DEPRECATED ERROR: DOS/Windows/Novell error 25</p>
+</li>
+<li>
+<p><code>4226</code> DEPRECATED ERROR: DOS/Windows/Novell error 26</p>
+</li>
+<li>
+<p><code>4227</code> DEPRECATED ERROR: DOS/Windows/Novell error 27</p>
+</li>
+<li>
+<p><code>4228</code> DEPRECATED ERROR: DOS/Windows/Novell error 28</p>
+</li>
+<li>
+<p><code>4229</code> DEPRECATED ERROR: DOS/Windows/Novell error 29</p>
+</li>
+<li>
+<p><code>4230</code> DEPRECATED ERROR: DOS/Windows/Novell error 30</p>
+</li>
+<li>
+<p><code>4231</code> DEPRECATED ERROR: DOS/Windows/Novell error 31</p>
+</li>
+<li>
+<p><code>4232</code> DEPRECATED ERROR: DOS/Windows/Novell error 32</p>
+</li>
+<li>
+<p><code>4233</code> DEPRECATED ERROR: DOS/Windows/Novell error 33</p>
+</li>
+<li>
+<p><code>4234</code> DEPRECATED ERROR: DOS/Windows/Novell error 34</p>
+</li>
+<li>
+<p><code>4235</code> DEPRECATED ERROR: DOS/Windows/Novell error 35</p>
+</li>
+<li>
+<p><code>4236</code> DEPRECATED ERROR: DOS/Windows/Novell error 36</p>
+</li>
+<li>
+<p><code>4237</code> DEPRECATED ERROR: DOS/Windows/Novell error 37</p>
+</li>
+<li>
+<p><code>4238</code> DEPRECATED ERROR: DOS/Windows/Novell error 38</p>
+</li>
+<li>
+<p><code>4239</code> Disk is full</p>
+</li>
+<li>
+<p><code>4240</code> DEPRECATED ERROR: DOS/Windows/Novell error 40</p>
+</li>
+<li>
+<p><code>4241</code> DEPRECATED ERROR: DOS/Windows/Novell error 41</p>
+</li>
+<li>
+<p><code>4242</code> DEPRECATED ERROR: DOS/Windows/Novell error 42</p>
+</li>
+<li>
+<p><code>4243</code> DEPRECATED ERROR: DOS/Windows/Novell error 43</p>
+</li>
+<li>
+<p><code>4244</code> DEPRECATED ERROR: DOS/Windows/Novell error 44</p>
+</li>
+<li>
+<p><code>4245</code> DEPRECATED ERROR: DOS/Windows/Novell error 45</p>
+</li>
+<li>
+<p><code>4246</code> DEPRECATED ERROR: DOS/Windows/Novell error 46</p>
+</li>
+<li>
+<p><code>4247</code> DEPRECATED ERROR: DOS/Windows/Novell error 47</p>
+</li>
+<li>
+<p><code>4248</code> DEPRECATED ERROR: DOS/Windows/Novell error 48</p>
+</li>
+<li>
+<p><code>4249</code> DEPRECATED ERROR: DOS/Windows/Novell error 49</p>
+</li>
+<li>
+<p><code>4250</code> DEPRECATED ERROR: DOS/Windows/Novell error 50</p>
+</li>
+<li>
+<p><code>4251</code> DEPRECATED ERROR: DOS/Windows/Novell error 51</p>
+</li>
+<li>
+<p><code>4252</code> DEPRECATED ERROR: DOS/Windows/Novell error 52</p>
+</li>
+<li>
+<p><code>4253</code> DEPRECATED ERROR: DOS/Windows/Novell error 53</p>
+</li>
+<li>
+<p><code>4254</code> DEPRECATED ERROR: DOS/Windows/Novell error 54</p>
+</li>
+<li>
+<p><code>4255</code> DEPRECATED ERROR: DOS/Windows/Novell error 55</p>
+</li>
+<li>
+<p><code>4256</code> DEPRECATED ERROR: DOS/Windows/Novell error 56</p>
+</li>
+<li>
+<p><code>4257</code> DEPRECATED ERROR: DOS/Windows/Novell error 57</p>
+</li>
+<li>
+<p><code>4258</code> DEPRECATED ERROR: DOS/Windows/Novell error 58</p>
+</li>
+<li>
+<p><code>4259</code> DEPRECATED ERROR: DOS/Windows/Novell error 59</p>
+</li>
+<li>
+<p><code>4260</code> DEPRECATED ERROR: DOS/Windows/Novell error 60</p>
+</li>
+<li>
+<p><code>4261</code> Printer queue full</p>
+</li>
+<li>
+<p><code>4262</code> DEPRECATED ERROR: DOS/Windows/Novell error 62</p>
+</li>
+<li>
+<p><code>4263</code> DEPRECATED ERROR: DOS/Windows/Novell error 63</p>
+</li>
+<li>
+<p><code>4264</code> DEPRECATED ERROR: DOS/Windows/Novell error 64</p>
+</li>
+<li>
+<p><code>4265</code> DEPRECATED ERROR: DOS/Windows/Novell error 65</p>
+</li>
+<li>
+<p><code>4266</code> DEPRECATED ERROR: DOS/Windows/Novell error 66</p>
+</li>
+<li>
+<p><code>4267</code> DEPRECATED ERROR: DOS/Windows/Novell error 67</p>
+</li>
+<li>
+<p><code>4268</code> DEPRECATED ERROR: DOS/Windows/Novell error 68</p>
+</li>
+<li>
+<p><code>4269</code> DEPRECATED ERROR: DOS/Windows/Novell error 69</p>
+</li>
+<li>
+<p><code>4270</code> End of file</p>
+</li>
+<li>
+<p><code>4271</code> Incomplete record</p>
+</li>
+<li>
+<p><code>4272</code> Key not found</p>
+</li>
+<li>
+<p><code>4273</code> Help keyword or topic not found</p>
+</li>
+<li>
+<p><code>4274</code> DEPRECATED ERROR: DOS/Windows/Novell error 74</p>
+</li>
+<li>
+<p><code>4275</code> DEPRECATED ERROR: DOS/Windows/Novell error 75</p>
+</li>
+<li>
+<p><code>4276</code> Lock does not exist</p>
+</li>
+<li>
+<p><code>4277</code> DEPRECATED ERROR: DOS/Windows/Novell error 77</p>
+</li>
+<li>
+<p><code>4278</code> DEPRECATED ERROR: DOS/Windows/Novell error 78</p>
+</li>
+<li>
+<p><code>4279</code> DEPRECATED ERROR: DOS/Windows/Novell error 79</p>
+</li>
+<li>
+<p><code>4280</code>  DEPRECATED ERROR: DOS/Windows/Novell error 80</p>
+</li>
+<li>
+<p><code>4281</code> DEPRECATED ERROR: DOS/Windows/Novell error 81</p>
+</li>
+<li>
+<p><code>4282</code> Data does not match LINK=</p>
+</li>
+<li>
+<p><code>4283</code> Updating previous/next link failed</p>
+</li>
+<li>
+<p><code>4284</code> DEPRECATED ERROR: DOS/Windows/Novell error 84</p>
+</li>
+<li>
+<p><code>4285</code> DEPRECATED ERROR: DOS/Windows/Novell error 85</p>
+</li>
+<li>
+<p><code>4286</code> DEPRECATED ERROR: DOS/Windows/Novell error 86</p>
+</li>
+<li>
+<p><code>4287</code> DEPRECATED ERROR: DOS/Windows/Novell error 87</p>
+</li>
+<li>
+<p><code>4288</code> DEPRECATED ERROR: DOS/Windows/Novell error 88</p>
+</li>
+<li>
+<p><code>4289</code> DEPRECATED ERROR: DOS/Windows/Novell error 89</p>
+</li>
+<li>
+<p><code>4290</code> DEPRECATED ERROR: DOS/Windows/Novell error 90</p>
+</li>
+<li>
+<p><code>4291</code> DEPRECATED ERROR: DOS/Windows/Novell error 91</p>
+</li>
+<li>
+<p><code>4292</code> DEPRECATED ERROR: DOS/Windows/Novell error 92</p>
+</li>
+<li>
+<p><code>4293</code> DEPRECATED ERROR: DOS/Windows/Novell error 93</p>
+</li>
+<li>
+<p><code>4294</code> DEPRECATED ERROR: DOS/Windows/Novell error 94</p>
+</li>
+<li>
+<p><code>4295</code> DEPRECATED ERROR: DOS/Windows/Novell error 95</p>
+</li>
+<li>
+<p><code>4296</code> DEPRECATED ERROR: DOS/Windows/Novell error 96</p>
+</li>
+<li>
+<p><code>4297</code> DEPRECATED ERROR: DOS/Windows/Novell error 97</p>
+</li>
+<li>
+<p><code>4298</code> DEPRECATED ERROR: DOS/Windows/Novell error 98</p>
+</li>
+<li>
+<p><code>4299</code> Cannot copy or rename file to itself</p>
+</li>
+<li>
+<p><code>4300</code> Shell call return value</p>
+</li>
+<li>
+<p><code>4301</code> DEPRECATED ERROR: DOS/Windows/Novell error 101</p>
+</li>
+<li>
+<p><code>4302</code> DEPRECATED ERROR: DOS/Windows/Novell error 102</p>
+</li>
+<li>
+<p><code>4303</code> DEPRECATED ERROR: DOS/Windows/Novell error 103</p>
+</li>
+<li>
+<p><code>4304</code> DEPRECATED ERROR: DOS/Windows/Novell error 104</p>
+</li>
+<li>
+<p><code>4305</code> DEPRECATED ERROR: DOS/Windows/Novell error 105</p>
+</li>
+<li>
+<p><code>4306</code> DEPRECATED ERROR: DOS/Windows/Novell error 106</p>
+</li>
+<li>
+<p><code>4307</code> DEPRECATED ERROR: DOS/Windows/Novell error 107</p>
+</li>
+<li>
+<p><code>4308</code> DEPRECATED ERROR: DOS/Windows/Novell error 108</p>
+</li>
+<li>
+<p><code>4309</code> DEPRECATED ERROR: DOS/Windows/Novell error 109</p>
+</li>
+<li>
+<p><code>4310</code> DEPRECATED ERROR: DOS/Windows/Novell error 110</p>
+</li>
+<li>
+<p><code>4311</code> DEPRECATED ERROR: DOS/Windows/Novell error 111</p>
+</li>
+<li>
+<p><code>4312</code> DEPRECATED ERROR: DOS/Windows/Novell error 112</p>
+</li>
+<li>
+<p><code>4313</code> DEPRECATED ERROR: DOS/Windows/Novell error 113</p>
+</li>
+<li>
+<p><code>4314</code> DEPRECATED ERROR: DOS/Windows/Novell error 114</p>
+</li>
+<li>
+<p><code>4315</code> DEPRECATED ERROR: DOS/Windows/Novell error 115</p>
+</li>
+<li>
+<p><code>4316</code> DEPRECATED ERROR: DOS/Windows/Novell error 116</p>
+</li>
+<li>
+<p><code>4317</code> DEPRECATED ERROR: DOS/Windows/Novell error 117</p>
+</li>
+<li>
+<p><code>4318</code> DEPRECATED ERROR: DOS/Windows/Novell error 118</p>
+</li>
+<li>
+<p><code>4319</code> DEPRECATED ERROR: DOS/Windows/Novell error 119</p>
+</li>
+<li>
+<p><code>4320</code> Unknown system error see SYSERR function</p>
+</li>
+<li>
+<p><code>4321</code> DEPRECATED ERROR: DOS/Windows/Novell error 121</p>
+</li>
+<li>
+<p><code>4322</code> DEPRECATED ERROR: DOS/Windows/Novell error 122</p>
+</li>
+<li>
+<p><code>4323</code> DEPRECATED ERROR: DOS/Windows/Novell error 123</p>
+</li>
+<li>
+<p><code>4324</code> DEPRECATED ERROR: DOS/Windows/Novell error 124</p>
+</li>
+<li>
+<p><code>4325</code> DEPRECATED ERROR: DOS/Windows/Novell error 125</p>
+</li>
+<li>
+<p><code>4326</code> DEPRECATED ERROR: DOS/Windows/Novell error 126</p>
+</li>
+<li>
+<p><code>4327</code> DEPRECATED ERROR: DOS/Windows/Novell error 127</p>
+</li>
+<li>
+<p><code>4328</code> DEPRECATED ERROR: DOS/Windows/Novell error 128</p>
+</li>
+<li>
+<p><code>4329</code> DEPRECATED ERROR: DOS/Windows/Novell error 129</p>
+</li>
+<li>
+<p><code>4330</code> DEPRECATED ERROR: DOS/Windows/Novell error 130</p>
+</li>
+<li>
+<p><code>4331</code> DEPRECATED ERROR: DOS/Windows/Novell error 131</p>
+</li>
+<li>
+<p><code>4332</code> DEPRECATED ERROR: DOS/Windows/Novell error 132</p>
+</li>
+<li>
+<p><code>4333</code> DEPRECATED ERROR: DOS/Windows/Novell error 133</p>
+</li>
+<li>
+<p><code>4334</code> DEPRECATED ERROR: DOS/Windows/Novell error 134</p>
+</li>
+<li>
+<p><code>4335</code> DEPRECATED ERROR: DOS/Windows/Novell error 135</p>
+</li>
+<li>
+<p><code>4336</code> DEPRECATED ERROR: DOS/Windows/Novell error 136</p>
+</li>
+<li>
+<p><code>4337</code> DEPRECATED ERROR: DOS/Windows/Novell error 137</p>
+</li>
+<li>
+<p><code>4338</code> DEPRECATED ERROR: DOS/Windows/Novell error 138</p>
+</li>
+<li>
+<p><code>4339</code> DEPRECATED ERROR: DOS/Windows/Novell error 139</p>
+</li>
+<li>
+<p><code>4340</code> Unknown curl error - use -e to return OS error</p>
+</li>
+<li>
+<p><code>4341</code> DEPRECATED ERROR: DOS/Windows/Novell error 141</p>
+</li>
+<li>
+<p><code>4342</code> DEPRECATED ERROR: DOS/Windows/Novell error 142</p>
+</li>
+<li>
+<p><code>4343</code> DEPRECATED ERROR: DOS/Windows/Novell error 143</p>
+</li>
+<li>
+<p><code>4344</code> DEPRECATED ERROR: DOS/Windows/Novell error 144</p>
+</li>
+<li>
+<p><code>4345</code> DEPRECATED ERROR: DOS/Windows/Novell error 145</p>
+</li>
+<li>
+<p><code>4346</code> DEPRECATED ERROR: DOS/Windows/Novell error 146</p>
+</li>
+<li>
+<p><code>4347</code> DEPRECATED ERROR: DOS/Windows/Novell error 147</p>
+</li>
+<li>
+<p><code>4348</code> DEPRECATED ERROR: DOS/Windows/Novell error 148</p>
+</li>
+<li>
+<p><code>4349</code> DEPRECATED ERROR: DOS/Windows/Novell error 149</p>
+</li>
+<li>
+<p><code>4350</code> DEPRECATED ERROR: DOS/Windows/Novell error 150</p>
+</li>
+<li>
+<p><code>4351</code> DEPRECATED ERROR: DOS/Windows/Novell error 151</p>
+</li>
+<li>
+<p><code>4352</code> DEPRECATED ERROR: DOS/Windows/Novell error 152</p>
+</li>
+<li>
+<p><code>4353</code> DEPRECATED ERROR: DOS/Windows/Novell error 153</p>
+</li>
+<li>
+<p><code>4354</code> DEPRECATED ERROR: DOS/Windows/Novell error 154</p>
+</li>
+<li>
+<p><code>4355</code> DEPRECATED ERROR: DOS/Windows/Novell error 155</p>
+</li>
+<li>
+<p><code>4356</code> DEPRECATED ERROR: DOS/Windows/Novell error 156</p>
+</li>
+<li>
+<p><code>4357</code> DEPRECATED ERROR: DOS/Windows/Novell error 157</p>
+</li>
+<li>
+<p><code>4358</code> DEPRECATED ERROR: DOS/Windows/Novell error 158</p>
+</li>
+<li>
+<p><code>4359</code> DEPRECATED ERROR: DOS/Windows/Novell error 159</p>
+</li>
+<li>
+<p><code>4360</code> DEPRECATED ERROR: DOS/Windows/Novell error 160</p>
+</li>
+<li>
+<p><code>4361</code> DEPRECATED ERROR: DOS/Windows/Novell error 161</p>
+</li>
+<li>
+<p><code>4362</code> DEPRECATED ERROR: DOS/Windows/Novell error 162</p>
+</li>
+<li>
+<p><code>4363</code> DEPRECATED ERROR: DOS/Windows/Novell error 163</p>
+</li>
+<li>
+<p><code>4364</code> DEPRECATED ERROR: DOS/Windows/Novell error 164</p>
+</li>
+<li>
+<p><code>4365</code> DEPRECATED ERROR: DOS/Windows/Novell error 165</p>
+</li>
+<li>
+<p><code>4366</code> DEPRECATED ERROR: DOS/Windows/Novell error 166</p>
+</li>
+<li>
+<p><code>4367</code> DEPRECATED ERROR: DOS/Windows/Novell error 167</p>
+</li>
+<li>
+<p><code>4368</code> DEPRECATED ERROR: DOS/Windows/Novell error 168</p>
+</li>
+<li>
+<p><code>4369</code> DEPRECATED ERROR: DOS/Windows/Novell error 169</p>
+</li>
+<li>
+<p><code>4370</code> DEPRECATED ERROR: DOS/Windows/Novell error 170</p>
+</li>
+<li>
+<p><code>4371</code> DEPRECATED ERROR: DOS/Windows/Novell error 171</p>
+</li>
+<li>
+<p><code>4372</code> DEPRECATED ERROR: DOS/Windows/Novell error 172</p>
+</li>
+<li>
+<p><code>4373</code> DEPRECATED ERROR: DOS/Windows/Novell error 173</p>
+</li>
+<li>
+<p><code>4374</code> DEPRECATED ERROR: DOS/Windows/Novell error 174</p>
+</li>
+<li>
+<p><code>4375</code> DEPRECATED ERROR: DOS/Windows/Novell error 175</p>
+</li>
+<li>
+<p><code>4376</code> DEPRECATED ERROR: DOS/Windows/Novell error 176</p>
+</li>
+<li>
+<p><code>4377</code> DEPRECATED ERROR: DOS/Windows/Novell error 177</p>
+</li>
+<li>
+<p><code>4378</code> DEPRECATED ERROR: DOS/Windows/Novell error 178</p>
+</li>
+<li>
+<p><code>4379</code> DEPRECATED ERROR: DOS/Windows/Novell error 179</p>
+</li>
+<li>
+<p><code>4380</code> DEPRECATED ERROR: DOS/Windows/Novell error 180</p>
+</li>
+<li>
+<p><code>4381</code> DEPRECATED ERROR: DOS/Windows/Novell error 181</p>
+</li>
+<li>
+<p><code>4382</code> DEPRECATED ERROR: DOS/Windows/Novell error 182</p>
+</li>
+<li>
+<p><code>4383</code> DEPRECATED ERROR: DOS/Windows/Novell error 183</p>
+</li>
+<li>
+<p><code>4384</code> DEPRECATED ERROR: DOS/Windows/Novell error 184</p>
+</li>
+<li>
+<p><code>4385</code> DEPRECATED ERROR: DOS/Windows/Novell error 185</p>
+</li>
+<li>
+<p><code>4386</code> DEPRECATED ERROR: DOS/Windows/Novell error 186</p>
+</li>
+<li>
+<p><code>4387</code> DEPRECATED ERROR: DOS/Windows/Novell error 187</p>
+</li>
+<li>
+<p><code>4388</code> DEPRECATED ERROR: DOS/Windows/Novell error 188</p>
+</li>
+<li>
+<p><code>4389</code> DEPRECATED ERROR: DOS/Windows/Novell error 189</p>
+</li>
+<li>
+<p><code>4390</code> DEPRECATED ERROR: DOS/Windows/Novell error 190</p>
+</li>
+<li>
+<p><code>4391</code> DEPRECATED ERROR: DOS/Windows/Novell error 191</p>
+</li>
+<li>
+<p><code>4392</code> DEPRECATED ERROR: DOS/Windows/Novell error 192</p>
+</li>
+<li>
+<p><code>4393</code> DEPRECATED ERROR: DOS/Windows/Novell error 193</p>
+</li>
+<li>
+<p><code>4394</code> DEPRECATED ERROR: DOS/Windows/Novell error 194</p>
+</li>
+<li>
+<p><code>4395</code> DEPRECATED ERROR: DOS/Windows/Novell error 195</p>
+</li>
+<li>
+<p><code>4396</code> DEPRECATED ERROR: DOS/Windows/Novell error 196</p>
+</li>
+<li>
+<p><code>4397</code> DEPRECATED ERROR: DOS/Windows/Novell error 197</p>
+</li>
+<li>
+<p><code>4398</code> DEPRECATED ERROR: DOS/Windows/Novell error 198</p>
+</li>
+<li>
+<p><code>4399</code> File name is not a UNC path</p>
+</li>
+<li>
+<p><code>4501</code> OS function failure</p>
+</li>
+<li>
+<p><code>4513</code> Bad data on OS function</p>
+</li>
+<li>
+<p><code>4514</code> No memory on OS function</p>
+</li>
+<li>
+<p><code>4521</code> Device not ready</p>
+</li>
+<li>
+<p><code>4522</code> Bad system command</p>
+</li>
+<li>
+<p><code>4526</code> Not a dos disk</p>
+</li>
+<li>
+<p><code>4591</code> A shell call timed out</p>
+</li>
+<li>
+<p><code>4596</code> Process signaled</p>
+</li>
+<li>
+<p><code>4597</code> Process stopped</p>
+</li>
+<li>
+<p><code>4598</code> Process was terminated in an unknown manner</p>
+</li>
+<li>
+<p><code>4614</code> Invalid standard handle</p>
+</li>
+<li>
+<p><code>4616</code> PDF library initialization failed</p>
+</li>
+<li>
+<p><code>4618</code> An error that aborts further reconnect attempts has occurred</p>
+</li>
+<li>
+<p><code>4620</code> Client server connection failure</p>
+</li>
+<li>
+<p><code>4890</code> Temporary index creation failure</p>
+</li>
+<li>
+<p><code>6201</code> Spooling error while executing lp or lpr</p>
+</li>
+<li>
+<p><code>6213</code> Unknown windows printing error</p>
+</li>
+<li>
+<p><code>6214</code> Printing windlg find resource error</p>
+</li>
+<li>
+<p><code>6215</code> Printing windlg initialization error</p>
+</li>
+<li>
+<p><code>6216</code> Printing windlg load resource error</p>
+</li>
+<li>
+<p><code>6217</code> Printing windlg load string failure</p>
+</li>
+<li>
+<p><code>6218</code> Printing windlg lock resource failure</p>
+</li>
+<li>
+<p><code>6219</code> Printing windlg no memory</p>
+</li>
+<li>
+<p><code>6220</code> Printing windlg failed to lock memory</p>
+</li>
+<li>
+<p><code>6221</code> Printing windlg no hisntance</p>
+</li>
+<li>
+<p><code>6222</code> Printing windlg no hook</p>
+</li>
+<li>
+<p><code>6223</code> Printing windlg no template</p>
+</li>
+<li>
+<p><code>6224</code> Printing windlg struct size</p>
+</li>
+<li>
+<p><code>6225</code> Printing windlg create IC failure</p>
+</li>
+<li>
+<p><code>6226</code> Printing windlg default different</p>
+</li>
+<li>
+<p><code>6227</code> Printing windlg drag and drop mismatch</p>
+</li>
+<li>
+<p><code>6228</code> Printing windlg print dev mode failure</p>
+</li>
+<li>
+<p><code>6229</code> Printing windlg error initializing printer</p>
+</li>
+<li>
+<p><code>6230</code> Printing windlg error loading driver</p>
+</li>
+<li>
+<p><code>6231</code> Printing windlg no default printer</p>
+</li>
+<li>
+<p><code>6232</code> Printing windlg no devices</p>
+</li>
+<li>
+<p><code>6233</code> Printing windlg parse failure</p>
+</li>
+<li>
+<p><code>6234</code> Printing windlg printer not found</p>
+</li>
+<li>
+<p><code>6235</code> Printing windlg return default failure</p>
+</li>
+<li>
+<p><code>6236</code> Printing windlg setup failure</p>
+</li>
+<li>
+<p><code>6240</code> Failed opening printer DC</p>
+</li>
+<li>
+<p><code>6242</code> Invalid parametrized substitution format</p>
+</li>
+<li>
+<p><code>6243</code> Parameter count does not match using parametrized substitutions</p>
+</li>
+<li>
+<p><code>6244</code> Parametrized substitution result is too long</p>
+</li>
+<li>
+<p><code>6245</code> Unsupported escape sequence for printing</p>
+</li>
+<li>
+<p><code>6246</code> Passthrough printing error</p>
+</li>
+<li>
+<p><code>6247</code> Invalid NWP color specification</p>
+</li>
+<li>
+<p><code>6248</code> Invalid NWP picture specification or the image is not found</p>
+</li>
+<li>
+<p><code>6250</code> Invalid PDF import specification</p>
+</li>
+<li>
+<p><code>6252</code> Print PDF requires either READER or an output file name</p>
+</li>
+<li>
+<p><code>6254</code> Creating a new PDF document failed</p>
+</li>
+<li>
+<p><code>6255</code> Adding a page to a PDF document failed</p>
+</li>
+<li>
+<p><code>6256</code> Ending a PDF document failed</p>
+</li>
+<li>
+<p><code>6257</code> Adding an image to a PDF document failed</p>
+</li>
+<li>
+<p><code>6270</code> Spooling error</p>
+</li>
+<li>
+<p><code>6272</code> Bad initializer for PJL mode</p>
+</li>
+<li>
+<p><code>7600</code> Invalid or missing key start position</p>
+</li>
+<li>
+<p><code>7601</code> Invalid key length</p>
+</li>
+<li>
+<p><code>7602</code> Bad key</p>
+</li>
+<li>
+<p><code>7603</code> Duplicate keys found</p>
+</li>
+<li>
+<p><code>7604</code> Missing parameters for INDEX</p>
+</li>
+<li>
+<p><code>7605</code> Invalid index parameter</p>
+</li>
+<li>
+<p><code>7606</code> INDEX records in does not match records out</p>
+</li>
+<li>
+<p><code>7607</code> Not enough memory for INDEX</p>
+</li>
+<li>
+<p><code>7609</code> Attempt to INDEX a file that is not an internal file</p>
+</li>
+<li>
+<p><code>7610</code> Invalid INDEX file name</p>
+</li>
+<li>
+<p><code>7611</code> INDEX file already exists</p>
+</li>
+<li>
+<p><code>7612</code> Invalid INDEX work path</p>
+</li>
+<li>
+<p><code>7636</code> INDEX interrupted by user</p>
+</li>
+<li>
+<p><code>7699</code> Bad internal record size for INDEX</p>
+</li>
+<li>
+<p><code>7801</code> Invalid sort keyword</p>
+</li>
+<li>
+<p><code>7804</code> Syntax error in SORT - FILE specification</p>
+</li>
+<li>
+<p><code>7805</code> Syntax error in SORT - RECORD specification</p>
+</li>
+<li>
+<p><code>7806</code> Syntax error in SORT - ALTS specification</p>
+</li>
+<li>
+<p><code>7807</code> Syntax error in SORT - MASK specification</p>
+</li>
+<li>
+<p><code>7809</code> Syntax error in SORT - SUM specification</p>
+</li>
+<li>
+<p><code>7810</code> Attempt to SORT a file that is not an internal file</p>
+</li>
+<li>
+<p><code>7811</code> Not enough memory for SORT</p>
+</li>
+<li>
+<p><code>7812</code> Invalid SORT output file type</p>
+</li>
+<li>
+<p><code>7821</code> ALTS value is too large</p>
+</li>
+<li>
+<p><code>7823</code> Missing MASK specification</p>
+</li>
+<li>
+<p><code>7825</code> Too many RECORD statements</p>
+</li>
+<li>
+<p><code>7828</code> SORT specifications out of order</p>
+</li>
+<li>
+<p><code>7829</code> RECORD specification too long or too many RECORD specifications</p>
+</li>
+<li>
+<p><code>7830</code> RECORD lower limit is greater than upper limit</p>
+</li>
+<li>
+<p><code>7831</code> Output file record length is too short</p>
+</li>
+<li>
+<p><code>7832</code> Output file not empty</p>
+</li>
+<li>
+<p><code>7853</code> SORT control file not found</p>
+</li>
+<li>
+<p><code>8001</code> DEPRECATED ERROR: number too long</p>
+</li>
+<li>
+<p><code>8002</code> Window too small for input</p>
+</li>
+<li>
+<p><code>9000</code> Out of memmory</p>
+</li>
+<li>
+<p><code>9001</code> work stack is full</p>
+</li>
+<li>
+<p><code>9002</code> RPN stack is full</p>
+</li>
+<li>
+<p><code>9003</code> Flow stack is full</p>
+</li>
+<li>
+<p><code>9004</code> FOR/NEXT stack is full</p>
+</li>
+<li>
+<p><code>9005</code> RPN stack is empty</p>
+</li>
+<li>
+<p><code>9006</code> Too many nested IF, FOR/NEXT or DO/LOOP structures</p>
+</li>
+<li>
+<p><code>9100</code> DEPRECATED ERROR: compiler error</p>
+</li>
+<li>
+<p><code>9111</code> Code byte count is incorrect</p>
+</li>
+<li>
+<p><code>9112</code> Source byte count is incorrect</p>
+</li>
+<li>
+<p><code>9201</code> Invalid access for opening a file</p>
+</li>
+<li>
+<p><code>9203</code> Invalid create for opening a file</p>
+</li>
+<li>
+<p><code>9301</code> Invalid number of RPN entries</p>
+</li>
+<li>
+<p><code>9302</code> Function error</p>
+</li>
+<li>
+<p><code>9303</code> Invalid function</p>
+</li>
+<li>
+<p><code>9304</code> User defined function error</p>
+</li>
+<li>
+<p><code>9305</code> User defined function error</p>
+</li>
+<li>
+<p><code>9306</code> User defined function stacking error</p>
+</li>
+<li>
+<p><code>9307</code> No editor defined or invalid ON error statement</p>
+</li>
+<li>
+<p><code>9308</code> Utility open file channel is not open</p>
+</li>
+<li>
+<p><code>9309</code> Corrupt .BR/.WB program file encountered</p>
+</li>
+<li>
+<p><code>9310</code> Variable index outside of variable table</p>
+</li>
+<li>
+<p><code>9400</code> DEPRECATED ERROR: output file corrupted</p>
+</li>
+<li>
+<p><code>9401</code> BTREE verification failed</p>
+</li>
+<li>
+<p><code>9502</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9503</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9504</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9505</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9506</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9507</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9508</code> DEVELOPMENT ERROR: Actual error code not assigned yet</p>
+</li>
+<li>
+<p><code>9985</code> DEPRECATED ERROR: work file missing</p>
+</li>
+<li>
+<p><code>9987</code> No source exists for the given file</p>
+</li>
+<li>
+<p><code>9988</code> DEPRECATED ERROR: source line greater than 800 bytes</p>
+</li>
+<li>
+<p><code>9990</code> This version was made without HTTP support</p>
+</li>
+<li>
+<p><code>9992</code> DEF statement compiler error</p>
+</li>
+<li>
+<p><code>9994</code> Line reference indicates library, but no libraries active</p>
+</li>
+<li>
+<p><code>9995</code> DEPRECATED ERROR: RPN stack failure</p>
+</li>
+<li>
+<p><code>9996</code> Library program not found or internal line not found</p>
+</li>
+<li>
+<p><code>9997</code> Unbalanced parenthesis or flow stack error</p>
+</li>
+<li>
+<p><code>9998</code> Corrupt DIM source</p>
+</li>
+</ul>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/4.30.md">br_tree/90-reference/limits-constants/4.30.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

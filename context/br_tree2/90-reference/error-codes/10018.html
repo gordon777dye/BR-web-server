@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10018 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>10018</h1>
+<p><strong>Error:</strong> 10018</p>
+<p><strong>Description:</strong> Wbserver other error</p>
+<p>Thought I would share.   Had an odd one today where a client running BR off
+a drive share couldn't get in BR because they got an error 10018 creating
+wbserver.</p>
+<p>Thought it was likely a permission issue but was not getting a 4205 error.</p>
+<p>Oddly I could create a file in the folder manually as that user.  So it
+was not a permission issue.</p>
+<p>Turned out after a length discussion with the System Admin that he had
+established a quota for their users on their drive shares and she was close
+to exceeding that quota.   So it was not letting that user create
+wbserver.dat on that share because it exceeded her quota.   Increased her
+quota and the error went away.</p>
+<p>So if anyone else ever receives this error.  Now you know where to look!</p>
+<p>END POST CONTENTS  #########</p>
+<p>If you want to view or reply to the topic, click the following link:
+<a href="http://brforum.brulescorp.com/viewtopic.php?f=18&amp;t=935">http://brforum.brulescorp.com/viewtopic.php?f=18&amp;t=935</a></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/10018.md">br_tree/90-reference/error-codes/10018.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

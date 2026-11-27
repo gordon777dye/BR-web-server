@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0768 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>0768</h1>
+<p><strong>Error:</strong> 0768</p>
+<p><strong>Description:</strong> This BR license does not include HTTP</p>
+<p><strong>Name:</strong> <code>BREHTTPNOLICENSE</code></p>
+<p><strong>Details:</strong> The BR is built with HTTP support, but its licence allows no HTTP clients.</p>
+<p><strong>SYSERR$:</strong> The licence count.</p>
+<p><strong>Setup documentation:</strong> <a href="../../60-integration/web/HTTP_SERVER.html#tls">HTTP_SERVER.md §3.1 Prerequisites</a></p>
+<blockquote>
+<p>Without HTTP support the OPEN fails with 9990; without an HTTP licence, 0768.</p>
+</blockquote>
+<p><strong>Fix:</strong> Obtain a licence that includes HTTP. <code>STATUS LICENSE</code> lists the HTTP licence.</p>
+<p>Available as of BR! <code>5.02</code>.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/0768.md">br_tree/90-reference/error-codes/0768.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

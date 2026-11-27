@@ -177,13 +177,13 @@ Two kinds of content, both load-bearing:
     a growing list, not exhaustive, the same as the rest of this file. Full directive reference,
     both known Lexi distributions (classic SageAX zip vs. the VS Code extension bundle), and the
     headless invocation mechanism:
-    [`br_tree/00-configuration/installation-tooling/Lexi.md`](../br_tree/00-configuration/installation-tooling/Lexi.md).
+    [`br_tree/00-configuration/installation-tooling/legacy_lexi.md`](../br_tree/00-configuration/installation-tooling/legacy_lexi.md).
 
   **If a program won't compile in base BR (or `brls` rejects it) and it uses any of the above
   `#`-prefixed or `&=`/`/* */` syntax, the fix is not to remove the construct — check whether the
   app is meant to be run through Lexi first.** A common, real deployment of Lexi is bundled inside
   the "BR Language Server" VS Code extension (`crs-dev.vslang-br`), which runs Lexi automatically
-  on save; see [`br_tree` — Lexi](../br_tree/00-configuration/installation-tooling/Lexi.md) for a
+  on save; see [`br_tree` — Legacy Lexi](../br_tree/00-configuration/installation-tooling/legacy_lexi.md) for a
   verified (not guessed) description of how that pipeline actually invokes Lexi and compiles the
   result, and [`BR_launch.md`](BR_launch.md#the-lexi-preprocessor) for running the same thing
   headlessly. If a program has none of this syntax, it's likely plain BR and none of this
@@ -509,11 +509,20 @@ overflowed or errored upstream, not that the program is genuinely waiting on the
   **check any small failing program for a variable named `CNT` first**; renaming it to anything else
   (`FCOUNT`, `XCOUNT`, etc.) fixes it immediately, no other change needed.
 
+- **`WAIT=` on a `READ` is accepted and does nothing.** `READ #1,USING F,REC=1,WAIT=1: X$ LOCKED L`
+  loads in BR and passes `brls`, and a read of a record another session has locked still waits the
+  **channel's** time, the `WAIT=` its `OPEN` gave (15 seconds when none did), before error 0061. Put
+  the wait in the open string instead: `OPEN #1: "NAME=X,SHR,WAIT=1",INTERNAL,OUTIN,RELATIVE`. The
+  wait is kept per channel at `OPEN` (`uf->ufwait`); only `INPUT`/`LINPUT` have a `WAIT=` of their
+  own. *Measured* 2026-11-09 with two BR 5.0 sessions: with `WAIT=1` on the `READ`, the read blocked
+  11 seconds, until the other session let go; with `WAIT=1` on the `OPEN`, it took the `LOCKED`
+  branch after one second (`br/aiaccess/h_lock.py` in the BR repository).
+
 ---
 
 ## 6. When something silently fails: how to actually debug it
 
-Moved to [`APP-DEV-GUIDE.md`](APP-DEV-GUIDE.md#when-something-silently-fails-how-to-actually-debug-it)
+Moved to [`APP-DEV-GUIDE.md`](APP-DEV-GUIDE.md#64-when-something-silently-fails-how-to-actually-debug-it)
 (§6, *Running BR*) — the debugging loop is about *running* BR, so it lives beside the headless
 invocation, `UNATTENDED` logging, and the operational hazards it depends on. Read it before chasing
 any gotcha in this file: several of them cost real time only because the failing construct looked

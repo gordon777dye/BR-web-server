@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IOERR — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">error-codes</a></nav>
+<main>
+<h1>IOERR</h1>
+<p>The <strong>IOErr</strong> <code>Error Conditions|error condition</code> may be specified at the end of a program statement, in the Exit statement, and with the ON error statement.</p>
+<p>IOErr does not trap error <code>4152</code>.</p>
+<h4 id="error-traps">Error Traps:</h4>
+<p>IOERR traps all errors that occur in I/O statements, including some errors, which are more specifically trapped by other error conditions. One exception to this rule is that IOERR does not trap <code>PAGEOFLOW</code> errors.</p>
+<p>In a list of error conditions, IOErr should be placed after <code>LOCKED</code>, as IOERR traps the same errors that LOCKED trap, plus others. Similarly, IOErr should be listed before ERROR in a program statement, as ERROR will trap all the errors that IOErr traps. When error processing is handled at the ON Error statement level, however, Business Rules automatically invokes the error action which is most specific to the error which has occurred.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/error-codes/IOERR.md">br_tree/90-reference/error-codes/IOERR.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

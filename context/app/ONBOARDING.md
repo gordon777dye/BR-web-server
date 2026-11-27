@@ -9,6 +9,38 @@ Please document any errors in ERRORS.md. This includes any inaccuracies *or ambi
 
 ---
 
+## Contents
+
+- [Prerequisite — the only thing YOU have to do](#prerequisite)
+- [Instructions to AI — the principle: add a layer, don't edit the language](#principle)
+- [Target shape when finished](#target-shape)
+- [Procedure](#procedure)
+  - [STEP 1 — BR launch entries](#step-1)
+  - [STEP 2 — Audit source currency](#step-2)
+  - [STEP 3 — Locate or create `filelay/`](#step-3)
+  - [STEP 4 — Data model](#step-4)
+  - [STEP 5 — Blessed exemplars](#step-5)
+  - [STEP 6 — Conventions sheet](#step-6)
+  - [STEP 7 — Architecture map](#step-7)
+  - [STEP 8 — Wire the app layer into the entry point](#step-8)
+  - [STEP 9 — Build a test data environment](#step-9)
+  - [STEP 10 — Build the application's test suite](#step-10)
+  - [STEP 11 — Survey brls vs real BR](#step-11)
+- [Done criteria](#done-criteria)
+- [The feedback loop (why this works)](#feedback-loop)
+- [Maintenance](#maintenance)
+- [Appendix A — the `filelay` file format](#appendix-a)
+  - [Anatomy](#filelay-anatomy)
+  - [Header lines](#filelay-header)
+  - [Divider](#filelay-divider)
+  - [Field definition lines](#filelay-fields)
+  - [Comments, blanks, and end-of-file](#filelay-comments)
+  - [Subscript numbers](#filelay-subscripts)
+  - [Conversion checklist (other dictionary → filelay)](#filelay-conversion)
+
+---
+
+<a id="prerequisite"></a>
 ## Prerequisite - The only thing YOU have to do
 
 **The user should place a copy** of the application's `brconfig.sys` into context/`dev/tools/`. The resulting 
@@ -26,6 +58,7 @@ best done by an AI model.
 
 ---
 
+<a id="principle"></a>
 ## Instructions to AI -The principle: add a layer, don't edit the language
 
 `context/` ships in three layers. **Only the third is app-specific; leave the other two alone.**
@@ -57,12 +90,13 @@ brevity as it ascends. (Language facts still ascend into `topics.json`; app fact
 
 ---
 
+<a id="target-shape"></a>
 ## Target shape when finished
 
 ```
 context/app/
   ONBOARDING.md         # this sheet (stays)
-  env.cmd               # STEP 1 — sets the BR launch environment variables
+  env.cmd, env.ps1      # STEP 1 — set the BR launch environment variables (cmd, PowerShell)
   onboarding/setx.cmd   # STEP 1 — saves the same variables in the user's Windows profile
   data-model.md         # STEP 4 — generated from the app's filelay/ folder
   data-model-index.json
@@ -70,9 +104,10 @@ context/app/
   examples/             # optional, created as needed — one-off technique demos, NOT house style
   conventions.md        # STEP 6 — house style, derived from the app's own source
   architecture.md       # STEP 7 — module map + core data flows
-  test/                 # STEP 9 — de-identified sample data, one sub-folder per data folder
-  BR_test.md            # STEP 10 — real-BR LOAD/SAVE survey of this app's tree
-  BRLS_test.md          # STEP 10 — brls's own parse/sema survey of the same tree
+  test/                 # STEP 9 — de-identified sample data, one sub-folder per data folder (optional)
+  tests/                # STEP 10 — the app's test suite: screen tests, function tests, endtest stub
+  BR_test.md            # STEP 11 — real-BR LOAD/SAVE survey of this app's tree
+  BRLS_test.md          # STEP 11 — brls's own parse/sema survey of the same tree
 ```
 
 `context/dev/BR_launch.md` (referenced by STEP 1 — BR launch env, canonical invocations, run/build commands) is a
@@ -83,6 +118,7 @@ language keyword router.
 
 ---
 
+<a id="procedure"></a>
 ## Procedure
 
 Do them in order. Each step's prerequisites come before it:
@@ -93,10 +129,14 @@ Do them in order. Each step's prerequisites come before it:
   STEP 2 decompiles it.
 - **STEP 3 (locate/create `filelay/`)** gates STEP 4. `extract-schema.exe` only parses `filelay/`,
   so STEP 4 has nothing to read until STEP 3 confirms or creates it.
+- **STEP 9 (test data) is optional on a developer's own copy, and required at a customer site.**
+  Ask the user before starting it. **STEP 10 (test suite)** comes after it, because the tests run
+  on STEP 9's data, or on the main data when STEP 9 was skipped.
 
 The data model (STEP 4) and exemplars (STEP 5) deliver most of the value: correct file I/O and
 demonstrated style.
 
+<a id="step-1"></a>
 ### STEP 1 — BR launch entries (fully automated)
 Create 2 of the 4 files to be used by AI for application development.
 
@@ -192,6 +232,29 @@ their own location, so write them exactly as shown; nothing in them is specific 
    set "BR_AI_USER=%BR_CONTEXT_KIT%\dev\tools\brconfig.ai_user"
    set "BRLS_EXE=%BR_CONTEXT_KIT%\dev\tools\brls.exe"
    ```
+   And beside it `context/app/env.ps1`, the same variables for PowerShell. An agent whose shell
+   cannot run `cmd /c "...env.cmd && ..."` reliably (quoting from a Bash tool, measured) uses this
+   instead, dot-sourced in the same command: `. context\app\env.ps1; & $env:BR_MCP_DRIVER ...`.
+   ```powershell
+   # Sets the BR launch environment variables listed in context\dev\BR_launch.md,
+   # the same ones env.cmd sets, for PowerShell. Generated by ONBOARDING.md STEP 1.
+   # The paths are built from this script's own location, so they are absolute and
+   # work from any current folder.
+   #
+   # In PowerShell, dot-sourced, in the same command as the program that needs them:
+   #   . context\app\env.ps1; & $env:BR_MCP_DRIVER uitest --suite
+
+   $kit = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+   $env:BR_CONTEXT_KIT = $kit
+   $env:APP_ROOT = (Resolve-Path (Join-Path $PSScriptRoot '..\..')).Path
+
+   $env:BR_EXE = "$kit\dev\tools\brserver-x64-Release.exe"
+   $env:BR_MCP_DRIVER = "$kit\dev\ai_access\br_mcp_driver.exe"
+   $env:BR_CONFIG = "$kit\dev\tools\brconfig.sys"
+   $env:BR_AI_UTIL = "$kit\dev\tools\brconfig.ai_util"
+   $env:BR_AI_USER = "$kit\dev\tools\brconfig.ai_user"
+   $env:BRLS_EXE = "$kit\dev\tools\brls.exe"
+   ```
 2. Write `context/app/onboarding/setx.cmd`:
    ```bat
    @echo off
@@ -252,8 +315,9 @@ by Lexi, typically via the "BR Language Server" VS Code extension compiling on s
 `LOAD ... source`/`SAVE` directly, though the mtime relationship the audit checks still holds
 either way) and STEP 6 below (record it in `conventions.md` if confirmed).
 
-When STEP 1 regenerates brconfig.ai_user and brconfig.ai_util from a changed brconfig.sys, append the include subs.txt line from step 9 to them again.
+When STEP 1 regenerates brconfig.ai_user and brconfig.ai_util from a changed brconfig.sys, append the include subs.txt line from step 9 to them again, and make brconfig.ai_test again from the new brconfig.ai_user (STEP 10).
 
+<a id="step-2"></a>
 ### STEP 2 — Audit source currency (`.brs` vs `.br` and `.wbs` vs `.wb` ) ◆ automated; no user decision
 Typically AI models have trouble with this one because they don't understand how BR DRIVE statements work. 
 Get familiar with the DRIVE statement, examine the first drive statement and thereby learn what 
@@ -297,6 +361,7 @@ If decompiling: After identifying a missing or stale .brs file refresh it by run
 
 Or put the LIST commands into a procedure (batch) file and execute it with "PROC <batch-file-pathname>". 
 
+<a id="step-3"></a>
 ### STEP 3 — Locate or create `filelay/` ◆ prerequisite for STEP 4
 STEP 4 does **not** inspect the app's actual data files to learn their layout. `extract-schema.exe`
 only parses the plain-text **`filelay/`** directory (described in Appendix A): one 
@@ -336,6 +401,7 @@ key composition of every field. If `filelay/`doesn't exist, STEP 4 has nothing t
    stop and report the discrepancy to the user. A solid `filelay/` folder is required to proceed. If
    the user tells you to ignore the discrepancy then do so.
 
+<a id="step-4"></a>
 ### STEP 4 — Data model (automated) ◆ highest ROI
 The LLM cannot write valid `OPEN` / `READ…USING` / `KEY=` without the real field layouts and key
 composition. This step is deterministic.
@@ -363,6 +429,7 @@ path STEP 3 found or created.
   list of problems otherwise).
 - **Re-run both** whenever `filelay/` changes — they are generated, never hand-edited.
 
+<a id="step-5"></a>
 ### STEP 5 — Blessed exemplars ◆ the real way style is learned
 An LLM learns style far better from a few gold-standard *real programs* than from prose about style.
 
@@ -375,6 +442,7 @@ An LLM learns style far better from a few gold-standard *real programs* than fro
 3. Choose files that are **minimal but complete** and genuinely typical — not the biggest or most
    clever. These are few-shot examples; their style is what the model will imitate.
 
+<a id="step-6"></a>
 ### STEP 6 — Conventions sheet (derived, not guessed)
 A 1–2 page `context/app/conventions.md` that **names** the rules the exemplars embody, so the model can
 apply them to code it hasn't seen.
@@ -391,11 +459,13 @@ apply them to code it hasn't seen.
 > library function names into a "standard API" list — that manufactures a surface the model will
 > call incorrectly. Teach usage by whole-file exemplar instead.
 
+<a id="step-7"></a>
 ### STEP 7 — Architecture map/res
 `context/app/architecture.md` — the directory taxonomy, entry points, and 2–3 **core data flows**
 (e.g. order → allocation → ship → EDI). Make them short, like a module table in 
 your AI agent's memory file (`CLAUDE.md` or `AGENTS.md`).
 
+<a id="step-8"></a>
 ### STEP 8 — Wire the app layer into the entry point and update either CLAUDE.md or AGENTS.md
 
 1. Go to the app root and run the /init command to be sure either 
@@ -410,7 +480,21 @@ your AI agent's memory file (`CLAUDE.md` or `AGENTS.md`).
 6. Advise the user that the first prompt after onboarding and restarting should be: 
   "Which documents did you read in full during initialization?"
 
-### STEP 9 — Build a test data environment ◆ automated; protects production data
+<a id="step-9"></a>
+### STEP 9 — Build a test data environment ◆ optional on a developer's copy; required at a customer site
+
+**Ask the user first whether to build it.** It takes the longest of any step, and on a
+developer's own copy of an application, whose data is already a copy, it can be skipped. If the
+user skips it, **warn them, in these words or close to them:**
+
+> STEP 9 is required at a customer site. Without it, every AI run and every test reads and writes
+> the application's main data, and the real names in it go into the scripts, baselines and test
+> output, and to the model. Skip it only when this data is a copy nobody depends on.
+
+Then fill in the "Test data is" line in `context/README.md` with "the main data (STEP 9 skipped
+on <date>)", leave `subs.txt` and the `include subs.txt` lines out, and go on to STEP 10, which
+treats the main data as the test data. When STEP 9 is done, fill in that line with
+`context/app/test/`.
 
 Programs under development or debugging must never run against live data. This step builds a
 small, de-identified copy of the application's data under `context/app/test/`, and points the
@@ -632,13 +716,189 @@ and prints `FILE$(n)` for each to a debug file. When an `OPEN` fails, the LOGGIN
 `STATUS SUBSTITUTE` lists the active entries. If any data file resolves to production, or any
 other path is changed, stop and fix `subs.txt` before going on.
 
-### STEP 10 — Survey brls vs real BR ⏱ typically long-running (30–60 minutes)
+**8. Free the test data for the assistant, where the site uses `brrestrict.sys`.** A `WORK` line
+there names a tree a restricted session may change, and that an AI turn does not ask about. Name
+`context\app\test` and nothing else:
+
+```
+WORK :C:\ADS\qsmrp\context\app\test
+```
+
+Where `brrestrict.sys` lists areas, the `WORK` tree must be inside one of them. Never name the main
+data, even with STEP 9 skipped: a `WORK` tree lets the assistant overwrite what is in it without
+anybody being asked. Add the `WORK` line and nothing else: **areas in `brrestrict.sys` limit every
+BR session run from that executable, the users' own included**, so an area line here could stop
+the application reaching its programs or data. A file holding only `WORK` lines limits nothing. See
+[`dev/ai_access/AI-Restricted-Operations.md`](../dev/ai_access/AI-Restricted-Operations.md#work-trees).
+The file is the site administrator's: ask the user before writing it.
+
+<a id="step-10"></a>
+### STEP 10 — Build the application's test suite ◆ needs the user to choose programs and check drafts
+
+This step gives the application tests of its own, in `context/app/tests/`, that one command runs
+unattended: screen tests of its programs, and function tests of its libraries. Each test runs in a
+BR of its own and passes or fails by itself. How each kind of test is written is in
+[`dev/BR_testing.md`](../dev/BR_testing.md) §3.1 and §4, and every step a script can take is in
+[`dev/ai_access/README.md`](../dev/ai_access/README.md#4-uitest-a-screen-test-script) §4; read
+both before starting.
+
+**Which data the tests use.** Look at the "Test data is" line in `context/README.md`, which STEP 9
+fills in.
+- **STEP 9 built `context/app/test/`:** the tests run on it, because `brconfig.ai_test` (part 1)
+  is made from `brconfig.ai_user`, which includes `subs.txt`.
+- **STEP 9 was skipped:** the tests run on the application's main data, as its test data. Tell
+  the user once more, before the first test runs, that every test reads that data and that the
+  scripts and baselines will hold whatever names it contains. A test that changes data changes it
+  for good, because `--restore` (part 4) restores one folder and the main data is many: write
+  tests that only read - inquiries, reports, function tests - and add one that writes only when
+  the user agrees.
+
+**1. Write the test configuration, `context/dev/tools/brconfig.ai_test`.** Copy
+`brconfig.ai_user` and append the lines below. It must stay in `context/dev/tools/` beside the
+others: BR resolves each `include` against the folder the configuration is in, and a copy anywhere
+else loads no `subs.txt`, saying so only at log level 8.
+- **A stub for the program a finished program goes to.** Most programs end by chaining to the
+  application's menu, and the menu waits for input, or for a login, so BR never ends and the test
+  fails. Find the target in the source (`CHAIN` statements, in every spelling the source uses:
+  QSMRP has `chain "Menu"`, `"MENU/Cnp"`, `"MENU/CNP"`) and turn it into the stub of part 2:
+  ```
+  SUBSTITUTE menu/cnp context\app\tests\endtest
+  ```
+- **Print that a test can compare, and no print window.** Print preview and a printer-selection
+  dialog wait for a person. Read the printer `SUBSTITUTE` lines in `brconfig.sys`, and send any
+  that ends in a preview or a `select` to plain printing instead; keep a copy of every print file
+  for `expect print`:
+  ```
+  PRINTDIR context\scratch\print +CHANNEL RAW
+  SUBSTITUTE preview: DIRECT:
+  SUBSTITUTE /select /default
+  ```
+- **`OPTION 83`, if the programs under test run shell commands** (`EXECUTE "SYSTEM ..."`). While a
+  test is attached BR asks the person before each one, and a script may not answer.
+
+Paths handed to BR resolve from BR's start folder: give them the prefix STEP 1 recorded in
+`context/README.md`. When STEP 1 regenerates `brconfig.ai_user`, make `brconfig.ai_test` again.
+
+**2. Write the stub, `context/app/tests/endtest.brs`,** a program of one statement:
+```
+00010 ! test stub for the main menu: a program under test that chains to the
+00020 ! menu ends the session here instead, so the test ends cleanly
+00030    execute "system"
+```
+Check it with `brls -check -sema`. Confirm the stub is reached: a test of any program that ends
+by chaining to the menu must end with BR's exit code 0.
+
+**3. Name the application's own error window, in `context/app/tests/uitest.settings`.** A
+program with an `on error goto` block shows its own window when an error happens, and BR reports
+nothing on the channel, so `expect no error` cannot see it. Find the application's shared error
+routine in the source, and the text its window always shows, and write it as a `trap`:
+```
+# QSMRP's shared Trap: block shows "Error nnnn occurred at line nnnnn" in its own
+# window, which BR does not report on the channel.
+trap "occurred at line"
+```
+If the programs have no error routine of their own, leave the file out.
+
+**4. Snapshot the test data,** when STEP 9 built it, with no BR using the files:
+```
+"$BR_MCP_DRIVER" testdata snapshot context\app\test
+```
+The snapshot is `context\app\test.snapshot`, as large as the folder. `--restore` puts the data
+back from it before every test, so each one starts from the same data. With STEP 9 skipped there
+is no snapshot (see "Which data the tests use").
+
+**5. Choose the first tests with the user.** Propose four to six, using `architecture.md` and the
+data model, and ask the user to confirm or change the list:
+- an **inquiry** screen: what a customer or item shows, read from the test data;
+- a **report**: its print, compared with a baseline;
+- a **library function** with no screen: a function test;
+- an **entry or maintenance** screen, only with a snapshot (part 4): what it saves, read back
+  from the file;
+- the screen a **missing record** leads to (an unknown key, an empty list).
+
+**6. Write each screen test as a pair** in `context/app/tests/`: `<name>.prc`, which starts the
+program, and `<name>.uis`, the script. Give each procedure a port no other test uses, and a log
+of its own, first, so that a failure can be read from that run's lines alone (`uitest` quotes it):
+```
+! uitest --suite: custlist - arp\custlist, the customer list report
+CONFIG LOGGING 10, context\app\tests\results\custlist-br.log
+PROCERR RETURN
+LET X=MSG("harness",8783)
+LET X=MSG("grant",300)
+! the report prints the run date: fix it
+DATE 03/15/24
+TIME 09:30:00
+RUN arp\custlist
+SYSTEM
+```
+Fix the date and time, as here, for a report that prints them.
+
+**If the program quits at once** - `uitest` says the channel opened and BR then ended - it is
+probably checking that the menu started it. Find the check near the program's start and satisfy it
+in the procedure before `RUN`, as [`dev/BR_testing.md`](../dev/BR_testing.md#uitest-app) §4.2
+describes (QSMRP's `arp\custafm` needs `LET SETENV("LOGNAME","root")`). Ask the user when the check
+needs something only the menu can give.
+
+**To see an unfamiliar screen,** run a short script with `screen` after each key before writing
+any `expect` lines. Then draft the script by recording it while the user drives the program
+once:
+```
+"$BR_MCP_DRIVER" uitest --record context\app\tests\<name>.uis --start context\app\tests\<name>.prc --config context\dev\tools\brconfig.ai_test
+```
+When the keys are already known, `--feed "CH620{F10}{F9}{F9}"` sends them instead of the user.
+Then make the draft a test:
+- **Correct every `press`.** The draft says `ENTER` for every key a person typed, because the
+  channel does not report keys; ask the user which key it was (`F10`, `F9`...).
+- **Keep the `expect` lines that matter** - the title, the values the test is about - and drop
+  the rest.
+- **Add what a screen cannot prove:** `expect screen <name>.txt` for the whole screen, `record`
+  steps for the file behind it, `expect print <name>.txt` for a report, with `mask "<regexp>"` for
+  a clock or a workstation number.
+- **End the script by taking the program to its end**, then `expect no error` and `wait end`.
+
+Take every expected value from the data the test runs on, never from production names: STEP 9's
+names are de-identified.
+
+**7. Write a function test for one library,** `context/app/tests/<name>.test.brs`, with the kit's
+assertion library ([`dev/BR_testing.md`](../dev/BR_testing.md#function) §3.1):
+```
+00010 ! Function tests for glp\fy_calcs, the fiscal period calculations.
+00020    library "context\dev\ai_access\brtest": fnTestNum,fnTestDone
+00030    library "glp\fy_calcs": FNDEFINE,FNCCYY
+00040    let FNDEFINE
+00050    let fnTestNum(FNCCYY(99),1999,"FNCCYY(99)")
+00060    let fnTestDone
+```
+State what each result should be from what the function is for, as the user describes it, not
+from what it returns today.
+
+**8. Run the suite until every test passes.** Check every program with `brls -check -sema` first.
+With STEP 9's data:
+```
+"$BR_MCP_DRIVER" uitest --suite --restore context\app\test --config context\dev\tools\brconfig.ai_test
+```
+With STEP 9 skipped, leave out `--restore context\app\test`. The first run writes each baseline
+(`expect screen`, `expect print`) and says so: look at each one, and show the user. The results,
+each test's whole output and a picture at each failure, are in `context\app\tests\results\`.
+- **A failure in the test** (a wrong key, an expected value the data does not hold): fix the
+  script.
+- **A failure in the program:** keep the test as it is, say in its header comment that it is
+  expected to fail and why, report it to the user, and record it in `context/ERRORS.md` if it is
+  in BR or the kit. Measured in QSMRP: `arp\custlist`'s test found the program freeing its work
+  file through a channel opened `INPUT`, which BR refuses with error 4151; the program was fixed,
+  and the test passes.
+
+Run it again after a change to a program, a library or the configuration; it is meant to be run
+often.
+
+<a id="step-11"></a>
+### STEP 11 — Survey brls vs real BR ⏱ typically long-running (30–60 minutes)
 
 brls's own diagnostic rejections (which findings mean "BR will actually reject this") are calibrated
 against BR itself, not asserted — but that calibration was checked against the programs brls was
 developed on, not necessarily against *your* application's source. We need to check each app-specific 
 construct BR happens to tolerate, or reject, to be sure our language server handles all code patterns. 
-STEP 10 checks that calibration for your app specifically. 
+STEP 11 checks that calibration for your app specifically. 
 
 `context/dev/tools/loadsave.exe` and `context/dev/tools/lscheck.exe` are two independent survey
 programs, prebuilt and deployed the same way `brls.exe` is (`context/lsp/brls/build.ps1`) — nothing to
@@ -694,9 +954,10 @@ If the counts already match, no `ERRORS.md` entry is needed for this step.
 
 ---
 
+<a id="done-criteria"></a>
 ## Done criteria
 
-- [ ] `context/app/env.cmd` and `context/app/onboarding/setx.cmd` written (STEP 1). The user was
+- [ ] `context/app/env.cmd`, `context/app/env.ps1` and `context/app/onboarding/setx.cmd` written (STEP 1). The user was
       asked whether the kit will be used in more than one repo on this machine: if not, `setx.cmd`
       was run and the user told to restart VS Code; if so, it was not run. Either way, the "BR
       environment variables are" line in `context/README.md` is filled in.
@@ -715,20 +976,29 @@ If the counts already match, no `ERRORS.md` entry is needed for this step.
       always-load; data-model/exemplars/architecture on-demand); `topics.json` left as the language router.
 - [ ] `context/br_tree/` and `context/dev/` are **unchanged**, except the `APP-DEV-GUIDE.md` pointer
       rows, `dev/tools/subs.txt`, and the `include subs.txt` line in each `dev/tools/brconfig.*`.
-- [ ] STEP 9 test environment built: `context/app/test/` has one sub-folder per data folder, each
+- [ ] STEP 9 either skipped, with the user warned that it is required at a customer site and the
+      "Test data is" line in `context/README.md` saying the main data is the test data; or built:
+      `context/app/test/` has one sub-folder per data folder, each
       file sampled (greater of 10 % or 100 records) with its key files rebuilt, name fields
       de-identified per the user-confirmed `DEIDENTIFY.md`, the rest of each data folder copied
       whole, `dev/tools/subs.txt` written as protect / redirect / restore, and the step 7 checks
       passed: data names resolve inside `context\app\test\`, and protected paths and programs don't.
-- [ ] STEP 10 ran to completion: `context/app/BR_test.md` and context/app/BRLS_test.md` both exist; their summary
+- [ ] STEP 10 test suite built: `context/dev/tools/brconfig.ai_test` with the menu stub and print
+      settings; `context/app/tests/` holds `endtest.brs`, `uitest.settings` when the app has its
+      own error window, and the tests the user chose, each draft's keys corrected; a snapshot of
+      `context/app/test` when STEP 9 built it; and `uitest --suite` passes every test, except any
+      the user agreed is failing because of the program, each marked so in its header.
+- [ ] STEP 11 ran to completion: `context/app/BR_test.md` and context/app/BRLS_test.md` both exist; their summary
       counts were compared, and any discrepancy is recorded in `context/ERRORS.md` (not silently
       fixed or ignored).
 
+<a id="feedback-loop"></a>
 ## The feedback loop (why this works)
 With STEP 4 (real schema) plus a compile pass in BR itself (`.brs` → `.br`), generated code is
 **verifiable**: it can be checked against the actual files and the grammar before it ships. "Style"
 then includes "compiles against our data model," not just "looks right."
 
+<a id="maintenance"></a>
 ## Maintenance
 - If a data file is added or its layout changes, update `filelay/` (STEP 3) first, then re-run STEP 4.
 - Re-run STEP 4 after any `filelay/` change.
@@ -740,6 +1010,7 @@ then includes "compiles against our data model," not just "looks right."
 
 ---
 
+<a id="appendix-a"></a>
 # Appendix A — the `filelay` file format
 
 STEP 4 consumes a **`filelay/`** directory: one plain-text layout file per data file, describing its
@@ -747,6 +1018,7 @@ keys and field record layout. If your application's data dictionary is in some o
 to this format and place the results in `filelay/`. This appendix is the complete spec.
 (Source: FileIO Library, `br_tree/50-libraries/fileio/`.)
 
+<a id="filelay-anatomy"></a>
 ## Anatomy
 
 Each layout file has three parts in order: a **header** (data file + keys + optional `recl`), a
@@ -771,12 +1043,13 @@ recl=127                                   ← optional record length (column 1)
 
  ! comment lines start with ! and are ignored anywhere
  COST,           Default Cost,                BH 3.2,              ,53 -  55, 2
- EFFDATE,        Effective Date,              BH 3,    Date(julian),56 -  58, 3
+ EFFDATE,        Effective Date,              BH 3,    Date(days)  ,56 -  58, 3
  DESCRIPTION$,   Description of Price Rule,   C 30,                ,59 -  88, 4 $
  #eof#                                         ← optional; everything after is ignored
  additional comments...
 ```
 
+<a id="filelay-header"></a>
 ## Header lines
 
 **Line 1 — `<data-file>, <PREFIX_>, <version>`**
@@ -795,8 +1068,21 @@ recl=127                                   ← optional record length (column 1)
   - A single field → simple key.
   - Multiple fields joined by **`/`** → composite key, concatenated in the given order. FileIO derives
     the BR `KPS=`/`KLN=` (position/length) from the fields' positions, so order matters.
-  - Suffix **`-{U|B|P|Y}`** on a field name → that segment is **case-insensitive** (BR's `U` 
-    or `BY` key modifier). Example: VendorName(1:8)-U/FiscalYear-BY
+  - A suffix on a field name sets that segment's BR key modifier, which FileIO carries into `KLN=`:
+    - **`-U`** → the segment is **case-insensitive**: BR keeps it upper-cased in the index. The only
+      suffix that also changes the key FileIO builds for a read.
+    - **`-Y`** → the field starts with a **two-digit year**, which BR compares using `BASEYEAR`.
+    - **`-YB`** or **`-YP`** → the same, for a year stored as a number: **`B`** for a binary (`BH`)
+      field, **`P`** for packed decimal (`PD`). `B` and `P` are not suffixes on their own; they go
+      with `Y`. (BR accepts either alone, but all it does then is exempt the segment from the file's
+      `COLLATE` translation.) BR takes the date's format from the field's length: `PD 2` or `BH 1` is YY;
+      `PD 3` or `BH 2` is YYMM; `PD 4`, `BH 3`, `BH 4`, `DT 3`, `DT 4`, `DL 4` or `DH 4` is YYMMDD.
+    - BR reads these letters in any order and either case, so `-BY` and `-PY` are the same as `-YB`
+      and `-YP`; this app writes `-YB`.
+    - A `-Y` segment without `B` or `P` is a text date: it must hold digits, `/` or spaces, or BR
+      gives error 4120 ("invalid data for year 2000 key").
+    - Example: `VendorName(1:8)-U/FiscalYear-YB`. (Sources: `br_tree/30-io-file/keys-indexes/`,
+      `INDEX.md` and `Index_Facility.md`; BR's own source, `getkeyflags` and `process_key_flags`.)
   - Subscript name may be followed by `(<start>:<end>)` to denote a BR substring.
 - As many keys as you like; parsing stops at the first non-key header line.
 
@@ -804,6 +1090,7 @@ recl=127                                   ← optional record length (column 1)
 computed from the field FORM specs. Start it in column 1, for the reason given under
 [Divider](#divider).
 
+<a id="filelay-divider"></a>
 ## Divider
 
 A line of `=` characters separates the header from the fields. The line itself is skipped, but it is
@@ -819,6 +1106,7 @@ routine) test the first characters as they stand:
 every such layout on its `indented recl=/divider` output line so it can be fixed. An indented divider
 also gives `total fields: 0` and a `no-field-parse` entry.
 
+<a id="filelay-fields"></a>
 ## Field definition lines
 
 One line per field, in **on-disk order**. Comma-separated columns.
@@ -829,11 +1117,12 @@ Note that only the first 3 columns are required.
 | 1 | **Subscript name** | Append `$` for string fields; nothing for numeric. Gets the header `PREFIX_` in code. Must be unique and stable (see versioning). |
 | 2 | **Description** | Human label; also DataCrawler column heading and ScreenIO default caption. Keep ≤ ~80 chars. |
 | 3 | **FORM spec** | A BR FORM type + size, e.g. `C 4`, `BH 3.2`, `PD 5`, `N 6`. Type **`X`** = filler: the field is ignored except that its length still advances the disk position of later fields. Full FORM type list: `br_tree/30-io-file/form-spec/`. |
-| 4 | **Disk date format** *(optional)* | `DATE(Julian)`, `DATE(cymd)`, `DATE(ymd)`, `DATE(mdy)`, etc. — marks the field as a date in that storage format (enables DataCrawler/ScreenIO/CSV date handling; your program still unpacks it). **Any col-4 text that isn't `DATE(...)` is treated as a comment and ignored.** **`Julian` here means a BR day number** — the value `DAYS()` returns — not an astronomical Julian day number and not a `YYDDD` ordinal date. `DATE(days)` means the same with this kit's FileIO, but ScreenIO recognizes only `Julian`, so use `DATE(Julian)` for any field a ScreenIO screen shows. `DATE(serial)` is **not** a day number here. Any other text inside `DATE(...)` is taken as a `DAYS()` mask. Details: [FileIO — Disk date formats](../br_tree/50-libraries/fileio/spec.md#disk-date-formats). |
+| 4 | **Disk date format** *(optional)* | `DATE(days)`, `DATE(cymd)`, `DATE(ymd)`, `DATE(mdy)`, etc. — marks the field as a date in that storage format (enables DataCrawler/ScreenIO/CSV date handling; your program still unpacks it). **Any col-4 text that isn't `DATE(...)` is treated as a comment and ignored.** The `DAYS()` specification refers to BR's DAYS() system function, which returns the number of days since December 31, 1899; not a `YYDDD` ordinal date. `DATE(days)` means the same with this kit's FileIO or Screenio. `DATE(serial)` is **not** a day number here. Any other text inside `DATE(...)` is taken as a `DAYS()` mask. Details: [FileIO — Disk date formats](../br_tree/50-libraries/fileio/spec.md#disk-date-formats). |
 | 5 | **Positions** *(recommended)* | `start - end`, the 1-based inclusive byte range of the field in the record, e.g. `13 - 49`. Documentation for humans and for cross-checking the FORM sizes; it is one of the "comments" columns the parser ignores. **Column 4 must be present (empty if the field is not a date) so this lands in column 5.** |
 | 6 | **Subscript** *(recommended)* | The subscript number FileIO assigns to the field on OPEN, followed by ` $` for a string field, e.g. `4 $` or `2` — see [Subscript numbers](#subscript-numbers). **Gap rows (`X`) have none.** Also documentation only. |
 | 7+ | **Comments** | Ignored. |
 
+<a id="filelay-comments"></a>
 ## Comments, blanks, and end-of-file
 
 - A line whose first non-space character is **`!`** is a comment — allowed anywhere, ignored.
@@ -841,6 +1130,7 @@ Note that only the first 3 columns are required.
 - An optional **`#eof#`** line after the last field ends parsing; anything below it is ignored (free
   space for notes).
 
+<a id="filelay-subscripts"></a>
 ## Subscript numbers
 
 Column 6 records the subscript number FileIO assigns each named field when the file is OPENed, so
@@ -863,6 +1153,7 @@ migrated to the FileIO subscript names.
   column carries the subscript numbers the existing code uses, not the FileIO-assigned ones, because
   its purpose is interpreting that code. Say so in such a file when you do this.
 
+<a id="filelay-conversion"></a>
 ## Conversion checklist (other dictionary → filelay)
 
 1. One file per data file, in a `filelay/` directory; header first.

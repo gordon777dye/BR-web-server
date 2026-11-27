@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File &amp; directory commands — BR reference</title>
+<meta name="keywords" content="DIR, COPY, MOVE, RENAME, MKDIR, RMDIR, CHDIR, FREE, PROTECT, DROP, TYPE, SEARCH">
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">70-commands</a> <span>/</span> <a href="_index.html">file-directory</a></nav>
+<main>
+<h1 id="file--directory-commands">File &amp; directory commands</h1>
+<p>OS-level file and directory operations, runnable interactively or from a procedure / <code>EXECUTE</code>.
+For opening files inside a program see
+<a href="../../30-io-file/statements/spec.html">30-io-file/statements</a>. Each command has a short abbreviation
+(in parentheses below). Options follow a leading dash and may be combined (<code>-AW</code>); a <code>-&lt;n&gt;</code> record
+length, when combined into one word, must come <strong>last</strong> in it (<code>-D124</code>, not <code>-124D</code>) — as a word of
+its own it may stand anywhere (<code>-124 -D</code>). In BR 5.0 each command lists its own options when given
+<a href="../program-management/spec.html#command-help"><code>-?</code></a> alone (<code>COPY -?</code>).</p>
+<p><a id="paging"></a><strong><code>-P</code> pauses after each screenful</strong> of <code>DIR</code>, <code>COPY</code>, <code>MOVE</code>, <code>RENAME</code>, <code>DROP</code>, <code>FREE</code>,
+<code>TYPE</code> and <code>SEARCH</code>. At the pause, the break key ends the command, PgDn (BR 5.03) shows the next screen
+starting with the last line shown, a digit 2 to 9 (BR 5.03; <code>TYPE</code> since 5.0) the next that many lines
+before pausing again, and any other key the next screenful.</p>
+<p><strong>Patterns in file names (BR 5.0).</strong> The name parameter of <code>DIR</code> (<code>&lt;filename&gt; | &lt;glob&gt;</code>), <code>COPY</code>, <code>MOVE</code> and
+<code>RENAME</code> (<code>&lt;from&gt;</code>), and <code>TYPE</code>, <code>DROP</code> and <code>FREE</code> (<code>&lt;file&gt;</code>) may be a glob pattern (<code>*</code>, <code>?</code>, <code>[ ]</code>, <code>{a,b}</code>,
+<code>**</code>) that names several files. The other parameters take none: <code>&lt;to&gt;</code> is a name or a folder (for <code>COPY</code>,
+<code>MOVE</code> and <code>RENAME</code> a <code>*</code> in it is applied to each file's own name), the <code>&lt;file&gt;</code> after <code>PRINT</code> or <code>&gt;</code> is the
+redirect target, and <code>CHDIR</code>, <code>MKDIR</code>, <code>RMDIR</code> and <code>PROTECT</code> take no pattern. The pattern syntax, when a name
+counts as a glob and how matches are handled are in <a href="filename-patterns.html#globs">filename-patterns.md</a>.
+<code>COPY</code>, <code>MOVE</code>, <code>RENAME</code>, <code>TYPE</code> and <code>SEARCH</code> also take <strong>several</strong> <code>&lt;from&gt;</code> (<code>&lt;file&gt;</code>) separated by commas or blanks,
+the last name of the first three being <code>&lt;to&gt;</code>; see <a href="filename-patterns.html#glob-several">filename-patterns.md</a>.</p>
+<a id="syntax"></a>
+<h2>Syntax</h2>
+<pre><code class="language-bnf">CHDIR [&lt;drive&gt;':'] ['\']&lt;path&gt; [-N]     -- CD / CH; no arg = show current dir
+MKDIR [&lt;drive&gt;':']&lt;path&gt;                -- MK
+RMDIR [&lt;drive&gt;':']&lt;path&gt;                -- RM; directory must be empty
+DIR  [&lt;drive&gt;':'][&lt;path&gt;][&lt;filename&gt; | &lt;glob&gt;] [-AOLPWUCB] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]   -- DI
+COPY   &lt;from&gt; [[','] &lt;from&gt;]... { &lt;to&gt; | PRN: | AUX: } [-DFNPRSV] [-&lt;new_recl&gt;] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]  -- COP; -R the folders below
+MOVE   &lt;from&gt; [[','] &lt;from&gt;]... &lt;to&gt; [-FNPRV] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]  -- MO; renames when it can, else copies and frees
+RENAME &lt;from&gt; [[','] &lt;from&gt;]... &lt;to&gt; [-DNPVF] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]  -- REN; renames or moves (wildcards ok); -D a folder
+TYPE &lt;file&gt; [[','] &lt;file&gt;]... [-P] [PRINT | '&gt;'['&gt;'] &lt;file&gt;] -- TY; dump 1 or more files to screen/printer/file - concatenate
+SEARCH [-I~WBR] &lt;pattern&gt; &lt;file&gt; [[','] &lt;file&gt;]... [-PCLN] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]  -- SE; lines that match: name:line: text
+DROP &lt;file&gt; [-NPV] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]   -- DR; empties contents, keeps the name (size→0)
+FREE &lt;file&gt; [-NPRV] [PRINT | '&gt;'['&gt;'] &lt;file&gt;]  -- no abbreviation; deletes the file (unrecoverable); -R the folders below
+PROTECT &lt;file-ref&gt; ',' { RESERVE | RELEASE | READ | WRITE }   -- PROT; reserve a path / set read-only
+</code></pre>
+<a id="semantics"></a>
+<h2>Semantics</h2>
+<p><a id="chdir"></a><a id="mkdir"></a><a id="rmdir"></a><strong>CHDIR / MKDIR / RMDIR</strong> navigate/create/remove directories.
+<code>CHDIR</code> with no path just <em>shows</em> the current directory. A leading <code>\</code> means an absolute path from
+the root; without it the path is appended to the current directory. <code>drive:</code> <strong>alone</strong> changes the
+current drive; <code>drive:\path</code> changes the current directory <em>on</em> that drive without switching to it.
+Relative forms work: <code>\</code> → root, <code>..</code> → parent, <code>..\..</code> → grandparent. <code>-N</code> suppresses the
+&quot;new directory&quot; echo (useful under <code>PROC NOECHO</code>). An invalid path raises error <strong>4152</strong>.</p>
+<p><a id="dir"></a><strong>DIR</strong> lists files (wildcards <code>*</code>/<code>?</code>), with file size, date and time. <code>&gt;file</code>
+redirects (<code>&gt;&gt;</code> appends), <code>PRINT</code> to the printer (mutually exclusive with <code>&gt;</code>).</p>
+<p><strong>BR 5.0 listing.</strong> Sorted by name; one line per entry: <code>yyyy-mm-dd hh:mm</code>, the size in bytes with
+commas (<code>&lt;DIR&gt;</code> for a folder), and the long name, in double quotes if it has a space or a comma.
+No 8.3 names, and <code>.</code> and <code>..</code> are not listed. A <code>Directory of</code> heading comes first and a summary
+last (files and folders counted separately, space in KB/MB/GB/TB). Options:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-T</code></td>
+<td>sort by date and time, newest first</td>
+</tr>
+<tr>
+<td><code>-S</code></td>
+<td>sort by size, largest first</td>
+</tr>
+<tr>
+<td><code>-R</code></td>
+<td>reverse whichever order applies; ties go by name</td>
+</tr>
+<tr>
+<td><code>-A</code></td>
+<td>attributes: names on Windows (<code>ReadOnly Hidden System Archive</code>); permission string, owner and group on Unix</td>
+</tr>
+<tr>
+<td><code>-L</code></td>
+<td>the permission string as well (Unix); on Windows the same as no option</td>
+</tr>
+<tr>
+<td><code>-N</code></td>
+<td>no <code>Directory of</code> heading</td>
+</tr>
+<tr>
+<td><code>-B</code></td>
+<td>names only, one per line, quoted as in the listing</td>
+</tr>
+<tr>
+<td><code>-W</code></td>
+<td>names only, across the rows, as many columns as the window holds; <code>\</code> after a folder, <code>*</code> after an executable</td>
+</tr>
+<tr>
+<td><code>-C</code></td>
+<td>the same, down the columns</td>
+</tr>
+<tr>
+<td><code>-M</code></td>
+<td>machine format: <code>bytes,yyyy-mm-dd,hh:mm:ss,type,attributes,owner,group,name</code>, no heading or summary, every field before the name in a fixed column, size right-aligned in 15 with no commas, type <code>D</code> or <code>F</code>, attributes <code>RHSA</code>/<code>-</code> on Windows or <code>rwxr-x---</code> on Unix, owner and group empty on Windows, name last and quoted by the CSV rule</td>
+</tr>
+<tr>
+<td><code>-ddd</code></td>
+<td>only entries changed <em>ddd</em> or fewer calendar days ago (today is day 0)</td>
+</tr>
+<tr>
+<td><code>+ddd</code></td>
+<td>only entries changed <em>ddd</em> or more calendar days ago; with <code>-ddd</code>, a range, both ends inclusive: <code>-30 +7</code> is days 7 to 30</td>
+</tr>
+<tr>
+<td><code>-P</code></td>
+<td>pause per screen</td>
+</tr>
+<tr>
+<td><code>-O</code></td>
+<td>the pre-5.0 listing, below</td>
+</tr>
+</tbody>
+</table>
+<p>An option <code>DIR</code> does not know is error <strong>1006</strong>. A name matching nothing is <strong>4152</strong>; one whose
+matches the day filters all remove lists nothing, without an error.</p>
+<p><strong><code>-O</code>, or <code>OPTION 8</code>, gives the pre-5.0 listing</strong> and the pre-5.0 meaning of every other option
+given with it: 8.3 name and extension, size switching to KB/MB, <code>mm/dd/yy</code> and a 12-hour time, the
+long name, and a summary in kilobytes; <code>-A</code> archive-bit files only (DOS; ignored on Linux), <code>-O</code>
+sort alphabetically, <code>-P</code> pause per screen, <code>-W</code> wide four-column (sorted, long names; like <code>-C</code>
+but across not down), <code>-U</code> unadorned (no extended names), <code>-C</code> columnar sorted with a trailing <code>\</code>
+on directories and <code>*</code> on executables, <code>-L</code> long names + permissions (Linux), <code>-B</code> bare long name,
+<code>-N</code> no screen output. Options meant for other commands are accepted and ignored, as before.</p>
+<p><a id="dir-glob"></a><strong>Glob patterns (BR 5.0), shown for DIR.</strong> The name may be a glob, in any part of the path.
+<code>*</code> and <code>?</code> are as above; the additions are:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>[abc]</code> <code>[a-z]</code></td>
+<td>one character of the set or range</td>
+</tr>
+<tr>
+<td><code>[^abc]</code></td>
+<td>one character not in the set (<code>[!abc]</code> too, but <code>!</code> starts a comment unless the name is quoted)</td>
+</tr>
+<tr>
+<td><code>{a,b,c}</code></td>
+<td>any one alternative; alternatives may be patterns and may nest</td>
+</tr>
+<tr>
+<td><code>**</code> (a whole path part)</td>
+<td>any number of directories, including none</td>
+</tr>
+</tbody>
+</table>
+<p><code>DIR src\**\*.cpp</code> lists every <code>.cpp</code> in <code>src</code> and below; <code>DIR data\20*\*.rpt</code> allows <code>*</code> and <code>?</code>
+in a directory part. The listing has a <code>Directory of</code> heading per directory that has a match, directories
+in name order, and one total. Each directory's entries are sorted on their own (by name, or by
+<code>-T</code>/<code>-S</code>); with <code>-N</code>, and always with <code>-M</code>, there are no headings, each name is given whole, and
+the listing is sorted as one. Under <code>-O</code>, <code>-O</code> sorts within each directory. Rules:</p>
+<ul>
+<li>A last part with only <code>*</code> and <code>?</code> is unchanged (including <code>DIR name</code> meaning <code>name.*</code>); a pattern
+using any new form is taken as written, with no <code>.*</code> added.</li>
+<li>Case follows <code>FILENAMES SEARCH</code>. A leading dot is not special; <code>.</code> and <code>..</code> are never listed.</li>
+<li>No escape character (<code>\</code> is the separator): put <code>[</code>, <code>{</code>, <code>}</code> in a set to match them (<code>[[]</code>). An
+unclosed <code>[</code> or <code>{</code>, and <code>{}</code> with no comma, are literal, and a file named exactly as the pattern is
+still found.</li>
+<li>A comma inside braces is part of the name (<code>DIR *.{brs,prc}</code>); outside braces it separates names.</li>
+<li>A name that ends with <code>\</code> or <code>/</code> matches folders only: <code>DIR src\*\</code> lists the folders in <code>src</code>,
+<code>DIR src\**\</code> every folder below it. <code>DIR src\</code>, with no pattern before the separator, lists what is
+in <code>src</code>. For <code>COPY</code> and <code>FREE</code>, which take folders only with <code>-R</code>, <code>src\</code> is the folder <code>src</code>
+itself; without <code>-R</code> such a name matches nothing. <code>MOVE src\ to</code> is <code>MOVE src to</code>, a
+<a href="#move-folder">folder named on its own</a>.</li>
+<li><code>**</code> descends at most 40 levels. No match is error <strong>4152</strong>.</li>
+<li><code>COPY</code>, <code>RENAME</code>, <code>FREE</code>, <code>DROP</code> and <code>TYPE</code> take the same patterns for the files they act on, directory
+by directory in name order. With a directory target, files from several directories (<code>**</code>) all go into
+it without their sub-directories; with <a href="#copy-recursive"><code>COPY -R</code></a> each keeps its place. <code>MKDIR</code>, <code>RMDIR</code> and <code>CHDIR</code> take no pattern.</li>
+</ul>
+<p><a id="copy"></a><strong>COPY</strong> duplicates one or more files (same/different disk, or rename-in-place with
+a new name), and can copy to a device. Options: <code>-D</code> omit deleted records (internal files — <strong>rebuild indexes after</strong>), <code>-N</code>
+no action log, <code>-P</code> pause per screen, <code>-S</code> copy an <strong>open</strong> file (must be opened <code>SHR</code>/<code>SHRI</code> else
+error <strong>4148</strong>), <code>-V</code> verify each action, <code>-F</code> overwrite without asking (see
+<a href="#overwrite">overwrite</a>), <code>-&lt;n&gt;</code> set the new internal-file record length (space-padded; last within
+a combined option word). <strong><code>-A</code> is accepted and has no effect</strong>: it was documented as copying only
+archive-bit files and then clearing the bit, but BR 5.0 collects the files without looking at the
+bit and clears nothing. <strong><code>-C</code></strong> (ask for another diskette when the disk fills) <strong>was removed in BR
+5.0</strong>; the letter is still accepted, and does nothing for <code>COPY</code>. Device targets <code>PRN:</code>/<code>AUX:</code>/<code>COM1:</code>/<code>LPT1:</code>… send to a
+printer (on Linux these need a <code>SUBSTITUTE</code> mapping in <a href="../../00-configuration/config-directives/spec.html">BRConfig.sys</a>);
+copying <em>to</em> <code>PRN:</code>/<code>WIN:</code> is illegal — use <code>TYPE</code> with redirection. As of 4.2 a print file copies
+unaltered to a <code>DIRECT:</code> device. <strong>Destination wildcards truncate</strong>: <code>COPY src\* dest\*</code> strips the
+extension, <code>dest\*.*</code> keeps one dot, <code>dest\*.*.*</code> keeps two — prefer a bare <code>dest</code>.
+<em>Client/server:</em> <code>@:</code> denotes the client (<code>COPY file @:file</code> sends to the client's current
+directory; <code>@:file file</code> pulls from it; <code>@::</code> for client absolute paths).</p>
+<p><a id="copy-recursive"></a><strong><code>COPY &lt;from&gt; &lt;to&gt; -R</code> (BR 5.0)</strong> lets <em>from</em> match folders as well as
+files, and copies a folder that matches whole, with everything in it at every level. What matches is
+decided as without <code>-R</code>: <code>*</code> looks in one folder, <code>**</code> searches the folders below
+(<a href="#dir-glob">glob patterns</a>). Each file and folder keeps its place below the fixed part of <em>from</em> -
+the folders before the first pattern, or before the last part - and goes to that place below the
+folder <em>to</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Copies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>COPY src backup -R</code></td>
+<td>the folder <code>src</code>, whole, as <code>backup\src</code></td>
+</tr>
+<tr>
+<td><code>COPY src\* backup -R</code></td>
+<td>everything in <code>src</code>, as <code>backup\...</code></td>
+</tr>
+<tr>
+<td><code>COPY src\*.brs backup -R</code></td>
+<td>the <code>.brs</code> files in <code>src</code>, and any folder in <code>src</code> named <code>*.brs</code>, whole</td>
+</tr>
+<tr>
+<td><code>COPY src\**\*.brs backup -R</code></td>
+<td>every <code>.brs</code> file and <code>*.brs</code> folder below <code>src</code>; <code>src\lib\b.brs</code> is <code>backup\lib\b.brs</code></td>
+</tr>
+</tbody>
+</table>
+<p><em>to</em> is a folder, made with the folders below it as they are needed; a folder copied whole is made
+even when empty. A <em>to</em> that is a file is <strong>4150</strong>, a <em>to</em> with a wildcard <strong>600</strong>, and a <em>to</em>
+inside a folder being copied <strong>4299</strong>. An entry inside a folder already taken is copied once, as
+part of it. Entries come in name order, each folder before what is in it, down to 40 levels. The
+other options and the <a href="#overwrite">overwrite</a> rules apply to each file as without <code>-R</code>. <code>RENAME</code> and
+<code>DROP</code> refuse <code>-R</code> with <strong>1006</strong>.</p>
+<p><a id="move"></a><strong><code>MOVE &lt;from&gt; &lt;to&gt;</code> (BR 5.0)</strong> moves each file <em>from</em> matches, and with <code>-R</code> each
+folder, to <em>to</em>: renamed when the system can do the whole of it in one step, otherwise - <em>to</em> on
+another drive, share or file system, or across the client (<code>@:</code>) and the server - copied and then
+freed. What matches and where it goes are as for <a href="#copy"><code>COPY</code></a> and <a href="#copy-recursive"><code>COPY -R</code></a>:
+without <code>-R</code> files only, into a folder or under a name; with <code>-R</code> a matched folder is moved whole and
+each entry keeps its place below the fixed part of <em>from</em>. Each match is moved completely before the
+next; a folder being copied is moved entry by entry the same way, so what in it can be renamed is. A
+folder moved onto one that exists is merged into it, and the one left behind is removed once empty.
+A file onto one that exists follows the <a href="#overwrite">overwrite</a> rules, and a file left where it is
+keeps its folder there. A folder moved into itself is <strong>4299</strong>. Options <code>-R</code>, <code>-F</code>, <code>-V</code>
+(<code>Move? (y/n/all)</code>), <code>-N</code>, <code>-P</code> and the redirections; <code>-D</code>, <code>-S</code> and a record length are refused with
+<strong>1006</strong>. Abbreviation <code>MO</code>.</p>
+<p><a id="move-folder"></a><strong>A folder named on its own</strong> - one folder, no wildcards (BR 5.01) - is moved
+as itself, with or without <code>-R</code>. To a name nothing has yet, it takes that name: a rename, or copied
+under that name and freed. Into a folder that exists, it goes under its own name, merged with a
+folder of that name already there. Onto an existing file it is <strong>4150</strong>. A wildcard pattern matches
+folders only with <code>-R</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MOVE cc ..</code>, <code>MOVE cc/ ..</code></td>
+<td><code>..\cc</code>, with everything in it</td>
+</tr>
+<tr>
+<td><code>MOVE src dest</code> (<code>dest</code> exists)</td>
+<td><code>dest\src</code>; merged with a <code>dest\src</code> already there</td>
+</tr>
+<tr>
+<td><code>MOVE src newname</code></td>
+<td><code>src</code> renamed <code>newname</code></td>
+</tr>
+<tr>
+<td><code>MOVE src aa/bb</code></td>
+<td><code>aa\bb\src</code> when <code>aa\bb</code> exists (<a href="../../30-io-file/file-model/spec.html#slash"><code>/</code> in a file name</a>)</td>
+</tr>
+<tr>
+<td><code>MOVE src other</code> (<code>other</code> is a file)</td>
+<td>error <strong>4150</strong></td>
+</tr>
+<tr>
+<td><code>MOVE src src\sub</code></td>
+<td>error <strong>4299</strong></td>
+</tr>
+<tr>
+<td><code>MOVE src .</code></td>
+<td>nothing moves</td>
+</tr>
+<tr>
+<td><code>MOVE x.dat dest</code></td>
+<td><code>dest\x.dat</code></td>
+</tr>
+<tr>
+<td><code>MOVE src dest -R</code></td>
+<td><code>dest\src</code></td>
+</tr>
+<tr>
+<td><code>MOVE src* dest</code></td>
+<td>error <strong>4152</strong>: wildcards match folders only with <code>-R</code></td>
+</tr>
+</tbody>
+</table>
+<p><a id="rename"></a><strong>RENAME</strong> renames or moves one or more files (wildcards ok — <code>RENAME C:*.* C:\DIR\*.*</code> moves a whole group keeping each original name). Options: <code>-N</code> (no action log), <code>-P</code>
+(pause per screen), <code>-V</code> (verify each rename), <strong><code>-F</code></strong> (force-delete an existing target when needed to
+complete the rename); <code>PRINT</code> / <code>&gt;</code> / <code>&gt;&gt;</code> redirect the log.</p>
+<p><a id="rename-folder"></a><strong><code>RENAME &lt;from&gt; &lt;to&gt; -D</code> renames a folder (BR 5.0)</strong>, with everything in
+it. <em>from</em> is one folder, with no wildcards; a <em>from</em> that is not a folder is error <strong>4203</strong>. As
+with a file, a <em>to</em> that is a folder already gets <em>from</em> put inside it under its own name; any other
+<em>to</em> that exists is refused with <strong>4150</strong> and never replaced, so <code>-F</code> does nothing with <code>-D</code>. A <em>to</em>
+that is the folder itself under another name (a change of case) renames it, rather than putting it
+inside itself. <code>-V</code> asks <code>Rename? (y/n)</code>. Without <code>-D</code>, <code>RENAME</code> acts on files only.</p>
+<p><a id="rename-filesystem"></a><strong>One file system only (BR 5.0).</strong> A <em>to</em> on another drive, share
+or mounted file system, or on the other side of the client (<code>@:</code>) and the server, is refused with
+error <strong>4138</strong>, and both names are left as they are; use <code>COPY</code> and then <code>FREE</code>. This holds for
+files and for <code>-D</code>. With <code>-F</code>, a file that already has the new name is removed only if the rename
+succeeds.</p>
+<p><a id="overwrite"></a><strong>Onto a file that exists (BR 5.0).</strong> <code>COPY</code> and <code>RENAME</code> ask before replacing
+one: <code>Overwrite &lt;full target name&gt;? (y/n/all)</code> on a line of its own. <code>Y</code> overwrites, <code>N</code> leaves that
+file and goes on to the next, <code>A</code> overwrites it and every later one in the command without asking,
+and Esc stops the command. <strong><code>-F</code></strong> overwrites without asking, on <code>COPY</code> as well as <code>RENAME</code>. Nobody
+is asked in <code>UNATTENDED</code> mode or while an assistant holds the prompt: the command stops with error
+<strong>4150</strong> (file already exists), and <code>-F</code> is the way past it. A target that is the source itself under
+another name (a change of case, a relative or 8.3 short name, a hard link) is not another file, so
+nothing is asked or refused: <code>RENAME</code> goes ahead, and <code>COPY</code> becomes a <code>RENAME</code>, since there is no
+second file to make. The file is left under the second name exactly as written, so <code>RENAME abc.txt abc.txt</code> turns <code>Abc.txt</code> into <code>abc.txt</code>. <a href="../../00-configuration/config-directives/OPTION_(Config).html"><code>OPTION 6</code></a>
+restores the earlier behaviour: <code>COPY</code> replaces the file silently and <code>RENAME</code> refuses it with <strong>4150</strong>
+unless <code>-F</code>.</p>
+<p><a id="type"></a><strong>TYPE</strong> sends a file's contents to the
+screen, a printer, or another file. <strong><code>-P</code></strong> pauses after each screenful; at the pause a digit
+from 2 to 9 shows the next that many lines before pausing again (BR 5.0), PgDn the next screen starting
+with the last line shown (BR 5.03), and any other key the next screenful. <strong>MKDIR</strong> subdirectory names follow file-name rules, and the same
+name may exist under different parent directories.</p>
+<ul>
+<li><strong><code>TYPE &lt;name&gt; [-P] [&gt;file|&gt;&gt;file|PRINT]</code></strong>: <code>name</code> may hold wildcards, and then every file it names is typed, one
+after the other, into the <strong>one</strong> redirect, so <code>TYPE *.txt &gt; all.txt</code> joins them (<code>&gt;&gt;</code> appends to an existing file).
+Written to a file the bytes are copied as they are, so a file that holds a blob comes through whole; only on the
+screen are trailing nulls and Ctrl-Z trimmed.</li>
+<li><strong>Printer escape sequences (4.2+).</strong> <code>TYPE</code> translates the printer escape sequences in a print file for the
+<em>destination</em>, matched as the destination's printer name is at <code>OPEN</code> time (as <code>NAME=PRN:/printer</code>). To a display
+file the printer type can be named with <code>PRINTER_TYPE=&lt;type&gt;</code>, matched against the second parameter of the
+configuration's <code>PRINTER</code> statements: <code>TYPE PRT\report &gt;PREVIEW:/HP4</code> translates the HP4 sequences in <code>report</code> for the
+preview, and <code>TYPE PRT\report-file1 &gt;report-file2 PRINTER_TYPE=HP4</code> copies file1 to file2 interpreting them. In contrast
+<code>COPY PRT\EDITLIST.255 DIRECT:/HP4</code> sends a print file to a printer unaltered.</li>
+</ul>
+<p><a id="search"></a><strong><code>SEARCH</code> (BR 5.03)</strong> (<code>SE</code>) shows the lines of text files that contain a pattern, each as
+<code>name:line: text</code>, a small BR form of <code>grep</code>:</p>
+<pre><code>SEARCH apple notes.txt
+SEARCH -I &quot;apple pie&quot; data\*.txt,old\*.txt &gt;hits.txt
+SEARCH /^ *PRINT/ src\**\*.brs &gt;lines$
+SEARCH -IWR print src\ -L
+SEARCH -~ todo notes.txt -C
+</code></pre>
+<ul>
+<li><strong>The pattern</strong> comes first, after any attributes: a word (<code>apple</code>), a quoted literal (<code>&quot;apple pie&quot;</code>,
+<code>'say &quot;hi&quot;'</code>; two of the quote that opened it stand for one, <code>&quot;say &quot;&quot;hi&quot;&quot;&quot;</code>), or a regular expression
+between slashes (<code>/^apple/</code>, ECMAScript syntax: see <a href="ECMA_REGEX.html">Regular expressions</a>, or
+<code>HELP COMMANDS REGEX</code>). A pattern may hold blanks, commas and quotes, and a regex may hold a <code>!</code>,
+which elsewhere on the line starts a remark; inside <code>/.../</code>, <code>\/</code> is a <code>/</code>. An unterminated quote or regex is error 1003, and a regex that does not compile
+is <a href="../../90-reference/error-codes/1009.html">error 1009</a>.</li>
+<li><strong>Attributes</strong>, before the pattern, decide what matches; they may be combined (<code>-I~WB</code>):
+<ul>
+<li><strong><code>-I</code></strong> ignores the case of ASCII letters, for both forms.</li>
+<li><strong><code>-~</code></strong> selects the lines that do <strong>not</strong> match.</li>
+<li><strong><code>-W</code></strong> whole word: a match may not touch a word character (a letter, a digit, <code>_</code> or <code>$</code>) on either
+side, so <code>-W PRINT</code> finds <code>PRINT X</code> and <code>(PRINT)</code> but not <code>PRINTER</code> or <code>PRINT$</code>. A match that fails
+is passed over and the search goes on in the same line, so <code>PRINTER PRINT</code> is found.</li>
+<li><strong><code>-B</code></strong> blank-tolerant: in each line a run of blanks and tabs counts as one blank, and blanks at
+either end are ignored; a literal pattern is treated the same way, so <code>-B &quot;IF X&quot;</code> finds <code>IF   X</code>
+and <code>IF&lt;tab&gt;X</code>. A regex sees the normalised line. The line shown is the line as it is.</li>
+<li><strong><code>-R</code></strong> a folder that a name matches is searched whole, with the folders below it, as <code>COPY -R</code>
+takes it; without <code>-R</code> a name ending in <code>\</code> names folders only and finds nothing (4152).</li>
+</ul>
+</li>
+<li><strong>Options</strong>, after the names, decide how the result is shown:
+<ul>
+<li><strong><code>-C</code></strong> only a count of matching lines per file, <code>name:count</code>, a file with none included.</li>
+<li><strong><code>-L</code></strong> only the name of each file with a match.</li>
+<li><strong><code>-N</code></strong> no <code>name:line:</code> prefix: the lines alone (with <code>-C</code>, the counts alone).</li>
+<li><strong><code>-P</code></strong> pauses; see Output below.
+An attribute after the names, an option before the pattern, <code>-L</code> with <code>-C</code> or <code>-N</code>, or any other letter
+(<code>-V</code>, <code>-F</code>, a record length) is error 1006.</li>
+</ul>
+</li>
+<li><strong>The files</strong> are named as for <code>TYPE</code>: one or more names, separated by commas or blanks, each of which
+may be a pattern, with the rules of <a href="filename-patterns.html#glob-several">filename-patterns.md</a>: a name
+that matches nothing is skipped unless none match (4152), and a file that two names match is searched
+once. The file the output is redirected to is never searched, so <code>SEARCH x *.txt &gt;hits.txt</code> does not
+read its own results.</li>
+<li><strong>Each line is cleaned before it is compared</strong>: only displayable ASCII (32 to 126) and the tab are
+kept, and every other byte is removed, bytes above 127 among them, so a pattern holding an accented
+letter never matches. The line shown is the cleaned line, so a binary file sends no stray bytes to the
+screen or a redirect. Line numbers count the file's own lines. A UTF-8 byte-order mark at the start of
+a file is ignored.</li>
+<li><strong>An internal file</strong> is searched record by record: the header is skipped (the record length is read
+from it), each record is a line, numbered by its record number, a deleted record is not searched, and
+trailing blanks are removed. Numeric fields (<code>PD</code>, <code>B</code> and the like) clean away to nothing or to stray
+characters, so search the character fields.</li>
+<li><strong>No match</strong> is no output and no error.</li>
+<li><strong>Output</strong> goes to the screen, wrapped as <code>TYPE</code> wraps, or to <code>&gt;file</code> or <code>&gt;&gt;file</code>, which get each line
+whole however long, or to <code>PRINT</code> or
+<code>&gt;name$</code>, which fills a string array a line to an element, growing it as
+<a href="filename-patterns.html#glob-matches">filename-patterns.md</a> describes. With <code>&gt;name$</code> the array's size
+is the number of lines found. <strong><code>-P</code></strong>, after the names, pauses after each screenful: a digit 2 to 9
+shows the next that many lines, PgDn the next screen starting with the last line shown, and any other
+key the next screenful.</li>
+<li>A regular expression is not tried on a line longer than 4,096 characters, nor on a line the regex
+engine gives up on (a pattern such as <code>(a*)*b</code> can be too complex for it); the first such line in
+each file is reported on the screen, and the search goes on.</li>
+<li>A restricted session may run it.</li>
+</ul>
+<p><a id="drop-free"></a><a id="drop"></a><a id="free"></a><strong>DROP</strong> empties a file's contents — freeing all allocated space and leaving
+only the header record for internal files — but keeps the name (size→0). <strong>FREE</strong> deletes the
+file(s) outright (unrecoverable). Both take <code>-N</code>/<code>-P</code>/<code>-V</code> and accept wildcards (use <code>-V</code> to
+verify); <code>-A</code> is accepted and has no effect, as on <code>COPY</code>. <strong><code>FREE &lt;name&gt; -R</code></strong> (BR 5.0) deletes
+what <em>name</em> matches, as <a href="#copy-recursive"><code>COPY -R</code></a> reads <em>from</em>, and frees a folder that matches
+whole: its files, then its folders, deepest first. <code>FREE old -R</code> removes the folder <code>old</code> and
+everything in it. Under <code>-V</code> each file is asked about, and a folder that still has a file in it is
+kept. A procedure can <code>FREE</code> itself as its last line; a <code>.$$$</code>-named procedure self-deletes
+after running. <em>(The same-named <code>DROP</code>/<code>FREE</code> <strong>CLOSE parameters</strong> inside a program are a separate
+file operation — <a href="../../30-io-file/statements/spec.html#close">30-io-file/statements</a>.)</em></p>
+<p><a id="protect"></a><strong><code>PROTECT &lt;file&gt; {RESERVE|RELEASE|READ|WRITE}</code></strong> (<code>PROT</code>) turns on or off one of two kinds of file
+protection; exactly one of the four words is required. The file name ends at the first blank or comma, so
+<code>PROTECT CUSTOMER.FIL RESERVE</code> and <code>PROTECT CUSTOMER.FIL, RESERVE</code> are the same. A name containing <code>*</code> is
+accepted and ignored.</p>
+<p><strong>Multi-user protection: <code>RESERVE</code> and <code>RELEASE</code>.</strong></p>
+<ul>
+<li>
+<p><code>RESERVE</code> reserves the file's full path name for <strong>this workstation's exclusive use</strong>: before every
+<code>OPEN</code> BR consults a table of reservations, and an <code>OPEN</code> by another workstation fails with error <strong>4148</strong>
+(file sharing rules violated) without touching the disk. The reservation holds even when the file is not
+open, and it reserves the <em>name</em>, so it can be made for a file that does not exist, or kept after <code>FREE</code> has
+deleted the file, which lets you reserve a name, delete the file, and rename the contents of another file
+to it. Reserving a file this workstation has already reserved is not an error.</p>
+</li>
+<li>
+<p><code>RELEASE</code> removes a reservation, and only the workstation that made it can. All of a workstation's
+reservations are released when it leaves BR. <code>STATUS ALL</code> lists the ones issued from this workstation.</p>
+</li>
+<li>
+<p>Alternatives when the file is open: <code>CLOSE</code> with <code>RELEASE</code> (to release) and <code>OPEN</code> with <code>RESERVE</code> (to reserve).</p>
+</li>
+<li>
+<p>It differs from locking with <code>NOSHR</code> in two ways: <code>PROTECT</code> keeps the file locked while it is not open, and
+it does <strong>not</strong> stop other opens by the same workstation.</p>
+</li>
+<li>
+<p>The multi-user purge idiom (remove deleted records and rebuild the index while nobody else can open the file),
+as a procedure:</p>
+<pre><code class="language-text">PROCERR RETURN
+PROTECT CUSTMAST,RESERVE
+PROCERR STOP
+SKIP DONE IF ERR &lt;&gt; 0
+COPY CUSTMAST WORK[WSID] -D
+FREE CUSTMAST
+RENAME WORK[WSID] CUSTMAST
+INDEX CUSTMAST,CUSTMAST.KEY,1,4,REPLACE
+PROTECT CUSTMAST,RELEASE
+:DONE
+CHAIN &quot;MENU&quot;
+</code></pre>
+<p>Without the <code>RESERVE</code>, another workstation could open the file during the <code>COPY</code> and the <code>FREE</code> and <code>RENAME</code>
+would fail. <code>SKIP</code> tests <code>ERR</code> only for zero or not because <code>PROCERR RETURN</code> forces it to zero. See also
+<a href="../../30-io-file/file-model/spec.html">30-io-file/file-model</a>.</p>
+</li>
+</ul>
+<p><strong>Read protection: <code>READ</code> and <code>WRITE</code>.</strong> <code>READ</code> makes the file read-only (the file must exist, and it is refused
+while the file is open for output): every workstation, <strong>including the one that issued it</strong>, can read the data
+but not change it. <code>WRITE</code> removes that and allows reading and writing again. The operating system's permissions
+decide whether either succeeds. Unlike a reservation, read protection stays on the file after the workstation
+leaves BR, and it works on single-user systems too.</p>
+<p>Unlike <code>RESERVE</code> and <code>RELEASE</code>, which touch only BR's own table, <code>READ</code> and <code>WRITE</code> <strong>change the file's real
+operating-system permissions</strong>, so they take effect for every program, not just BR, and they are not reversed
+by anything but <code>WRITE</code> (or a change made outside BR). Exactly what is set, from the source:</p>
+<ul>
+<li><strong>Windows:</strong> <code>READ</code> sets the file's attributes to <em>archive + read-only</em>; <code>WRITE</code> sets them to <em>archive</em> only.
+The whole attribute set is <strong>replaced</strong>, not edited, so any other attribute the file had (hidden, system)
+is cleared by either word.</li>
+<li><strong>Unix:</strong> <code>READ</code> does <code>chmod 0444</code> (read-only for owner, group and everyone); <code>WRITE</code> does <code>chmod 0666</code>
+(read and write for all three). The file's previous mode is not remembered, so <code>WRITE</code> on a file that
+was <code>0640</code> leaves it <code>0666</code>, <strong>widening access to group and public</strong>, and execute bits are dropped by both.</li>
+<li><code>READ</code> first opens the file once to check that it exists and is not open for output; a failure comes back as
+an ordinary file error. <code>PROTECT</code> is refused in a restricted session.</li>
+</ul>
+<a id="examples"></a>
+<h2>Examples</h2>
+<pre><code class="language-text">CHDIR \DATA\REPORTS
+DIR *.BR -C
+DIR DATA\*.{BRS,PRC}               ! glob (5.0): alternatives
+DIR SRC\**\*.CPP -O               ! glob (5.0): every .CPP below SRC, sorted per directory
+COPY CUST.FIL TEMP[WSID].FIL -D     ! copy omitting deleted records
+RENAME TEMP[WSID].FIL CUST.FIL
+COPY A:SAMPLE.* B: -D               ! copy group; drop deleted recs
+FREE *.BAK -V
+TYPE README.TXT PRINT
+</code></pre>
+<a id="see-also"></a>
+<h2>See also</h2>
+<ul>
+<li><a href="../program-management/spec.html">program-management</a> — these commands inside procedures / <code>EXECUTE</code></li>
+<li><a href="../../30-io-file/statements/spec.html">30-io-file/statements</a> — in-program <code>OPEN</code>/<code>CLOSE … FREE/DROP</code></li>
+<li><a href="../../30-io-file/file-model/spec.html">30-io-file/file-model</a> — <code>[WSID]</code> per-workstation names, <code>PROTECT</code></li>
+<li><a href="filename-patterns.html">filename-patterns</a> — glob patterns, <code>/</code> in names and Tab completion in full</li>
+<li>Client-side <strong>OPEN/SAVE file browser</strong> (<code>OPEN #99: &quot;NAME=OPEN|SAVE:dir[mask],…&quot;</code>) →
+<a href="../../30-io-file/statements/spec.html">30-io-file/statements</a></li>
+</ul>
+<p><em>(Backing keyword pages — <code>CHDIR</code>, <code>COPY</code>, <code>Copy_option</code>, <code>DIR</code>, <code>Dir_option</code>,
+<code>Directory_Management_Commands</code>, <code>Drop</code>, <code>Drop_options</code>, <code>FREE</code>, <code>Free_option</code>,
+<code>File_Management_Commands</code>, <code>File_Browser</code>, and the misfiled <code>Delete_(command)</code> — were folded into
+this spec and pruned. The 2b redirect-collision pages <code>MkDir</code> and
+<code>Rename</code> were likewise folded here and pruned; verbatim wikitext remains on the BR wiki.)</em></p>
+</main>
+<footer>Generated from <a href="../../../br_tree/70-commands/file-directory/spec.md">br_tree/70-commands/file-directory/spec.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

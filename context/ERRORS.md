@@ -3,75 +3,83 @@
 Please record any context kit errors here that are found in the course of its use.
 ---
 
-## 2026-10-24 — found while building brweb's web_server 2.11
+## 2026-11-09 — ONBOARDING STEP 9 rebuilds ISAM key files as B-tree
 
-1. **Multiplying by `INF` raises error 0006 ("Division by zero"). The kit doesn't say so.**
-   `br_tree/10-language/.../spec.md` defines `INF` only as the "largest representable number
-   (`1.0E+307`)", and `essentials.md` shows it only as a string-slice bound (`X$(INF:0)`). On BR
-   5.01 (Debug build, `WBVERSION$` = 5.01), every multiplication involving `INF` stopped with
-   error 0006: `INF*1`, `INF*0`, `0*INF` and `300+INF*0`. Addition worked: `300+INF` gave
-   `E+307`. The message names division, so it misleads. Found in a real program, where
-   `POST$(1:300+INF*SGN(FLAG))` stopped an unattended server. The probe is
-   `context/scratch/mini_inf0.brs`, with its output in `mini_inf0.txt`. Suggest an `essentials.md`
-   §4 entry: use `INF` only as a bound or in comparisons, never in multiplication.
+**Where:** [`app/ONBOARDING.md`](app/ONBOARDING.md) STEP 9, "Rebuild every key file of the data
+file … with BR's `INDEX` command", and the procedure it produced,
+`context/scratch/step9/index.prc`.
 
-## 2026-10-25 — found while building brweb's web_server 2.13
+**What is wrong:** the step gives `INDEX` the positions, lengths and modifiers of the production
+key file but not its **type**. `INDEX` builds a B-tree unless it is given `ISAM` (or `OPTION 5` is
+on), so every production ISAM key file came out B-tree in the test area. In QSMRP that was 4 of
+439: `ard\taxmast.key`, `cnd\terms.key`, `cod\element.key`, `ind\prodclas.key`. The type is byte 8
+of the key file's header: 4 is ISAM, 7 is B-tree.
 
-1. **`brls -check -sema` passes a string comparison with `=` inside an assignment, and real BR
-   refuses it (error 1026, "invalid expression").** `essentials.md` §1 says bare `=` is the
-   is-equal operator everywhere except as the assignment itself, and gives
-   `LET X = A OR B AND C` as assigning a whole condition. That holds for numbers but not for
-   strings. On BR 5.01 (Debug build), `LOAD … source` gave:
+**What it breaks, silently:** a program that opens such a file with `ISAM` in its open string fails
+the open. `arp\arinq` opens `TERMS` through its own `FNOPEN_KEYED`, whose open string ends `Isam,
+Shr` and whose `error` clause swallows the failure, so `TERMS` stays 0 and the next keyed read of
+it is error 702 at line 56506, shown in the house `Trap:` window. Found by a `uitest` of `arinq`;
+the same program works against the data `subs.txt` redirects.
 
-   | Line | BR | brls 0.1.0-dev |
-   |---|---|---|
-   | `let B = (A$ = "x")` | error 1026 | clean |
-   | `let B = (A$(1:1) = "x")` | error 1026 | clean |
-   | `let B = (N = 1)` | loads | clean |
-   | `let B = (A$ == "x")` | loads | clean |
+**Fixed in the test area** (2026-11-09): the four were rebuilt with `INDEX … REPLACE DUPKEYS ISAM`,
+under a configuration without `include subs.txt` and the test area's own paths, as STEP 9 ran.
+All 31 ISAM key files now match their originals' type. `index.prc` lines 67, 193, 276 and 277 now
+carry `ISAM`.
 
-   Found in a real program, where `let URL_PREPARED = (URL$(1:1) = BACKSLASH$)` passed brls and
-   stopped the compile. (VS Code's separate br-lsp did flag it.) The probes are
-   `context/scratch/mini_streq_a.brs` to `_d.brs`. Suggest a brls error for a bare `=` string
-   comparison in an expression that is not a condition, and an `essentials.md` §1 note to use
-   `==` there.
+**Suggested fix to the step:** read each production key file's type along with its positions, and
+add `ISAM` to the `INDEX` line when it is 4.
 
-## 2026-10-25 — found while building brweb's web_server 2.15
+## 2026-11-09 — `brls -check -sema` passes a comparison BR will not load
 
-1. **An optional (local) string parameter declared longer than about 32,000 characters makes
-   every call to the function fail, with a meaningless error number.** `essentials.md` §2 and §4
-   document the 32,767 limit only for a string *passed* by value (error 0004 at the call). They
-   also present unpassed optional parameters as the way to get scratch locals, with no size
-   caveat. On BR 5.01 (Debug build, `workstack 500000`), `DEF FNINNER(&V$;P,S$*n)`, called from
-   another function, gave:
+**Where:** `dev/tools/brls.exe` (`brls -version` for the build).
 
-   | `n` | Result |
-   |---|---|
-   | 10,000 | works |
-   | 32,000 | works |
-   | 40,000 | error 25436 |
-   | 100,000 | error 30972; in web_server, 30969 |
+**What is wrong:** `brls -check -sema` reports no error for
 
-   None of those numbers is in `br_tree/90-reference/error-codes/` or `error-reference.md`, and
-   the log calls them "Unknown BR error code". Found when a `STACK$*100000` local stopped
-   web_server's new `FNJSON_UNBALANCED`. A global `DIM` of the same size works. The probes are
-   `context/scratch/mini_bigloc_a.brs` to `_d.brs`. Suggest an `essentials.md` §2 note: keep
-   optional string locals at 32,000 or less, and use a global for anything larger.
+```
+00010    let M$="B"
+00020    let P=12+(M$="B")
+```
 
-## 2026-10-26 — found while bringing brweb's kit up to the qsmrp kit's level
+and BR 5.0's `LOAD … source` rejects line 20 with **error 1026, "invalid expression"**, reported at
+`line 0`, so nothing points at the line. Outside `IF`/`WHILE`/`UNTIL`, `=` is assignment, and a
+string assignment inside a numeric expression does not parse; the comparison is `==`
+(`12+(M$=="B")`), which is how QSMRP's own code writes it (`glp\fy_calcs`: `(METHOD$=="B")`).
+Found while writing `context\app\tests\fy_calcs.test.brs`. A one-line reproduction:
+`context\scratch\brtest\mini\m1.brs`. The two neighbouring forms tried at the same time load
+in BR and pass in brls, correctly: `if P<>1 or not P then …` and `fnX(B=0)` as an argument.
 
-1. **ONBOARDING STEP 1 says to fill in a README line that the README doesn't have.** STEP 1 step 4
-   and the closing checklist both say to fill in the "BR environment variables are" line at the
-   end of the AI Model Rules in `context/README.md`. The kit's `README.md` has no such line; the
-   two fill-in lines it does have are the source-masters line and the "BR starts in" line. brweb's
-   README now has the line, added by hand. Suggest adding a
-   `- BR environment variables are ___________. (completed in ONBOARDING STEP 1)` line to the
-   kit's README.
-2. **`env.cmd` and `setx.cmd` in ONBOARDING STEP 1 are written with LF line endings in the qsmrp
-   kit's own copies.** cmd can mis-handle `goto` labels in LF-only batch files, and `setx.cmd`
-   depends on `goto failed`. brweb's copies are CRLF. Suggest the step say to write them with CRLF.
-3. **`BR_launch.md` gives one install's paths as if they were the kit's.** "The procedure has to
-   sit in BR's start folder" says "For this application the first `DRIVE` is
-   `DRIVE m:,c:\ads,xxx,\qsmrp`, so that folder is `C:\ADS\qsmrp`". In any other app (brweb starts
-   in `C:\ADS_test\gabriel\brweb`) that sentence is wrong. Suggest pointing to the "BR starts in"
-   line in `context/README.md` instead.
+## 2026-11-10 — `BR_testing.md` describes `brconfig.ai_test` as one line, and its app-test command omits it
+
+**Where:** [`dev/BR_testing.md`](dev/BR_testing.md) §4.2 ("`brconfig.ai_test` … is
+`brconfig.ai_user` plus one line") and §4, the command for an application's own test
+(`uitest --start context\app\tests\trial_bal.prc context\app\tests\trial_bal.uis`).
+
+**What is wrong:** `context/dev/tools/brconfig.ai_test` is `brconfig.ai_user` plus **four**
+directives: the `SUBSTITUTE menu/cnp` stub, and also `PRINTDIR context\scratch\print +CHANNEL RAW`,
+`SUBSTITUTE preview: DIRECT:` and `SUBSTITUTE /select /default`. The last three are what let a
+report test run at all: without them QSMRP's `Prn:/10`–`/60` classes go to print preview or a
+printer-selection dialog, which no script can answer, and `expect print` finds no capture.
+
+**Why it matters:** the §4 command for an app test gives no `--config`, so it runs on
+`$BR_AI_USER`. A model writing a report test from §4 and §4.3 adds `CONFIG PRINTDIR` to the
+procedure as §4.3 says, and the run still stops at the preview window. `context/app/tests/custlist`
+passes only because the suite is run with `--config context\dev\tools\brconfig.ai_test`
+(ONBOARDING STEP 10), which `BR_testing.md` never shows for a single test.
+
+**Suggested fix:** list all four lines in §4.2, and put `--config context\dev\tools\brconfig.ai_test`
+in every `context\app\tests\` command in `BR_testing.md`.
+
+## 2026-11-16 — Broken link in the `PRINTER` config-directive page
+
+**Where:** [`br_tree/00-configuration/config-directives/PRINTER.md`](br_tree/00-configuration/config-directives/PRINTER.md)
+line 134, the "br_tree audit" note.
+
+**What is wrong:** the link is written `(<../br_tree/40-io-printing/statements/PRINTER.md>)`, as
+if the page sat one folder below `context/`. From `00-configuration/config-directives/` it
+resolves to `00-configuration/br_tree/40-io-printing/…`, which does not exist. The page it means
+does exist, at `br_tree/40-io-printing/statements/PRINTER.md`.
+
+**Suggested fix:** `(../../40-io-printing/statements/PRINTER.md)`.
+
+**Found by:** `dev/tools/gen_brtree_html.exe`, whose link check reports it as the only link or
+`#anchor` in br_tree that does not resolve.

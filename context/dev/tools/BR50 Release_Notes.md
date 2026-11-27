@@ -39,8 +39,8 @@ Deeper reference material stays in its own document; this page links to it rathe
 - [2. Security](#security)
   - [2.1 The debugger connection is now encrypted and authenticated](#the-debugger-connection-is-now-encrypted-and-authenticated)
   - [2.2 The debugger port no longer accepts connections from the network](#the-debugger-port-no-longer-accepts-connections-from-the-network)
-  - [2.3 Restricted sessions](#restricted-sessions)
-  - [2.4 Where a restricted session may be: the file list](#the-restricted-session-read-list)
+  - [2.3 Where a session may be: the BRrestrict.sys file list](#the-restricted-session-read-list)
+  - [2.4 Restricted sessions](#restricted-sessions)
   - [2.5 UI regression scripts](#ui-regression-scripts)
   - [2.6 Starting a disposable restricted session](#starting-a-disposable-restricted-session)
   - [2.7 Calling an assistant from a program](#calling-an-assistant-from-a-program)
@@ -989,12 +989,135 @@ encrypted and authenticated (below), and it is still bound to loopback: the firs
 endpoint off the machine to reach at all, which is a stronger statement than any check made after
 something has already connected.
 
+<a id="the-restricted-session-read-list"></a>
+### 2.3 Where a session may be: the BRrestrict.sys file list
+
+A site can install a **file list** naming the folders and files BR may work with. It binds **every
+BR session**, restricted or not — an ordinary user's session, a `DEVELOP` session, a session with
+an assistant attached, and a restricted session alike. Reading, creating, changing, renaming,
+deleting and listing are all confined to what the list permits, less what it excludes. This
+matters most where a model is driving a session: what a session can read is what the model can be
+shown, and what it prints leaves the site with the model's next request.
+
+**With no file list installed nothing is limited by it** — every session reaches whatever the
+account can. The feature costs an existing site nothing until it chooses to use it. **All folders
+on a client machine are likewise open until a list is installed on that machine**: each side reads
+its own, and a server's list does not limit a client.
+
+**The list is `brrestrict.sys`, in the directory of the BR executable.** It is not a configuration
+statement and not a command-line argument, so a session cannot choose its own: the only way to
+change what a session may reach is to change the installation it runs from.
+
+One entry a line:
+
+```
+# where BR may work
+Q:\data                            a directory: it and everything under it
+Q:\rates.dat                       one file
+Q:\data\*.rpt                      the .rpt files in data
+Q:\data\**\*.rpt                   and in every directory under it
+!Q:\data\payroll                   an exception inside a permitted tree
+:C:\ADS\shared                     a native path, marked by the leading colon
+```
+
+Anything the list does not reach is refused with **error 4165**, *brrestrict.sys does not permit
+this file*.
+
+**Entries can be given per user.** A line of its own beginning `@` qualifies every entry that
+follows it, until the next one:
+
+```
+Q:\common                          everybody: no heading yet, so @all applies
+@payroll                           only when the session's login name is payroll
+Q:\wages
+!Q:\wages\archive
+@all                               and back to everybody
+Q:\reports
+```
+
+`@all` is the default, so a list without any `@` line applies to every user, and `@<username>`
+matches the login name without regard to case — as `brconfig.sys` matches its own `@<username>`.
+Entries under a heading that does not match this session are not loaded at all. Note that this is
+a **section** heading governing the lines below it, where `brconfig.sys`'s `@` qualifies the rest
+of its own line; a file list is usually a run of entries per user, so the name is written once
+above them. An `@` line that names nobody switches the entries below it off rather than leaving the
+previous heading open.
+
+**It governs every operation on a named file**, not reading alone: an `OPEN` for input or output,
+`INDEX`, `SORT`, `COPY`, `SAVE`, `REPLACE`, `FREE`, `DROP`, `RENAME`, `PROTECT`, `MKDIR`, `RMDIR`,
+and `DIR` or any other directory listing. So no session can see out of the folders the list names,
+or put anything into a folder it cannot see. Inside the list, a session that is not restricted may
+change any file; a restricted session is further held to the files it created — see
+[Restricted sessions](#restricted-sessions). Error 4165 and error 4153 answer different questions —
+4165 is *the site does not let this session near that file*, 4153 is *this restricted session did
+not create that file* — and the list is tested first, being the outer boundary. In an AI turn it is
+also tested before the assistant's permission question, so a file the list refuses is refused, not
+asked about.
+
+**It governs BR's file operations, not the operating system.** What an operating-system command
+run from a session that is not restricted does is outside the list. A restricted session cannot
+run one.
+
+- **Entries are BR names**, resolved through the session's `DRIVE` statements, **unless they begin
+  with a colon**, which is BR's mark for a native path everywhere else and is the mark here too.
+  The drive mapping is fixed when the list is read, so a mapping added later cannot move an entry.
+  On the client, entries are native names either way, because client file names are not subject to
+  `DRIVE` statements. None of BR's other filename conventions apply — in particular not the
+  `<filename>/<parent-path>` form an open string accepts; a forward slash in an entry is an
+  ordinary path separator.
+- **`#` begins a comment**, and `!` does **not** — `!` marks an exclusion, as in a `.gitignore`.
+  This is the one place where BR's own comment character does not apply, and it is deliberate: a
+  line meant as a comment but read as an exclusion excludes nothing and is logged, while an
+  exclusion read as a comment would silently leave a file permitted.
+- **An exclusion overrides every permit**, whatever order the lines are in, and the session's own
+  files are no exception to it. To allow something inside an excluded area, narrow the permit
+  instead of adding one.
+- **`*` and `?` stay within one name and `**` crosses**, which is POSIX glob under `FNM_PATHNAME`
+  plus `.gitignore`'s `**`. So `data\*.rpt` is the files in `data` itself, and `data\**\*.rpt`
+  reaches every directory under it, `data` included. There are no bracket expressions and no
+  backslash escape.
+- **Whatever an entry names, it takes the tree under it if it is a directory** — by pattern as
+  well as exactly, so `Q:\*\data` is each application's data directory and its contents.
+- **Names are compared without regard to case on every platform**, Linux and macOS included, so a
+  list written and tested on Windows means the same thing on the server it is deployed to.
+- **An entry for something not there yet applies straight away, by name.** The list is read once
+  per session, and an entry naming a path that does not exist then is matched by name until it
+  does — so an exclusion for a nightly export directory, or for a volume not yet mounted, is in
+  force from the start, including against the create that would make it.
+
+**Everything BR uses has to be in the list.** A site that installs one has to name its program and
+procedure directories, and the work, spool and print directories, as it names its data. Exempting
+them could not be made safe, because `WORKPATH`, `SPOOLPATH` and `PRINTDIR` are configuration
+statements any session may set. They can be named narrowly rather than by opening their directory
+— `:C:\ADS\w*.wrk` permits the work files in `C:\ADS` and nothing else there.
+
+**One thing is reachable whatever the list says: the session's configuration file and its
+`INCLUDE`s**, which are read before the list comes into force. Everything after that is governed:
+the startup command, the procedure it names, the program that procedure loads, and every operation
+from then on. The client reads its own list when the session starts.
+
+`EXISTS` reports nothing about a file outside the list, and a listing of a permitted folder still
+shows the names of excluded things inside it — the exclusion stops them being opened or listed,
+not named.
+
+**Every name is resolved to the file it actually reaches before it is compared**, and so is every
+entry in the list. A junction, a symbolic link, `..`, a relative path and an 8.3 short name
+therefore cannot widen or evade the list — in particular, **a junction inside a permitted
+directory does not make its target reachable**. The same resolution means a directory may be named
+in the list by any of its paths.
+
+Each entry, and every refusal, is written to the log as a security event naming the resolved
+path, so an administrator can read back from the log exactly what the list was taken to mean.
+
+The full reference is `AI-Restricted-Operations.md`, *Files: where the session may be*.
+
 <a id="restricted-sessions"></a>
-### 2.3 Restricted sessions
+### 2.4 Restricted sessions
 
 A session can be started **restricted** — see
 [Starting a disposable restricted session](#starting-a-disposable-restricted-session). It is
-restricted from before it reads its configuration file until it ends, and throughout:
+restricted from before it reads its configuration file until it ends. Like every session it
+reaches only what the [file list](#the-restricted-session-read-list) permits, and throughout:
 
 - **the session may change only files it created itself** — **error 4153** otherwise. It may
   create files freely, and may then rewrite, empty, rename, copy over and delete them for as long
@@ -1019,120 +1142,6 @@ restricted from before it reads its configuration file until it ends, and throug
   `DATABASE` is refused as a whole for now. SQL is a write path the file rules above do not
   reach, so a connection would let a restricted session change data freely; the consequence is
   that such a session cannot report from a database, and a narrower rule is intended.
-
-<a id="the-restricted-session-read-list"></a>
-### 2.4 Where a restricted session may be: the file list
-
-A restricted session could always reach anything the account could. The rules above govern what it
-may **change**; a site that needs to govern what it may **see and touch at all** can now install a
-file list. This matters most where a model is driving the session: what such a session can read is
-what the model can be shown, and what it prints leaves the site with the model's next request.
-
-**With no file list installed nothing changes** — a restricted session reaches whatever the account
-can, as before. The feature costs an existing site nothing until it chooses to use it. **All
-folders on a client machine are likewise unrestricted until a list is installed on that machine**:
-each side reads its own, and restricting a server does not restrict a client.
-
-**The list is `brrestrict.sys`, in the directory of the BR executable.** It is not a configuration
-statement and not a command-line argument, so a session cannot choose its own: the only way to
-change what a session may reach is to change the installation it runs from.
-
-One entry a line:
-
-```
-# what a disposable reporting session may reach
-Q:\data                            a directory: it and everything under it
-Q:\rates.dat                       one file
-Q:\data\*.rpt                      the .rpt files in data
-Q:\data\**\*.rpt                   and in every directory under it
-!Q:\data\payroll                   an exception inside a permitted tree
-:C:\ADS\shared                     a native path, marked by the leading colon
-```
-
-Anything the list does not reach is refused with **error 4165**, *restricted session:
-brrestrict.sys does not permit this file*.
-
-**Entries can be given per user.** A line of its own beginning `@` qualifies every entry that
-follows it, until the next one:
-
-```
-Q:\common                          everybody: no heading yet, so @all applies
-@payroll                           only when the session's login name is payroll
-Q:\wages
-!Q:\wages\archive
-@all                               and back to everybody
-Q:\reports
-```
-
-`@all` is the default, so a list without any `@` line behaves exactly as before, and
-`@<username>` matches the login name without regard to case — as `brconfig.sys` already matches
-its own `@<username>`. Entries under a heading that does not match this session are not loaded at
-all. Note that this is a **section** heading governing the lines below it, where `brconfig.sys`'s
-`@` qualifies the rest of its own line; a file list is usually a run of entries per user, so the
-name is written once above them. An `@` line that names nobody switches the entries below it off
-rather than leaving the previous heading open.
-
-**It governs every operation on a named file**, not reading alone: an `OPEN` for input or output,
-`INDEX`, `SORT`, `COPY`, `SAVE`, `REPLACE`, `FREE`, `DROP`, `RENAME`, `PROTECT`, `MKDIR`, `RMDIR`,
-and `DIR` or any other directory listing. So a restricted session cannot see out of the folders
-the list names, and cannot put anything into a folder it cannot see. Error 4165 and error 4153
-answer different questions — 4165 is *the site does not let this session near that file*, 4153 is
-*this session did not create that file* — and the list is tested first, being the outer boundary.
-
-- **Entries are BR names**, resolved through the session's `DRIVE` statements, **unless they begin
-  with a colon**, which is BR's mark for a native path everywhere else and is the mark here too.
-  The drive mapping is fixed when the list is read, so a mapping added later cannot move an entry.
-  On the client, entries are native names either way, because client file names are not subject to
-  `DRIVE` statements. None of BR's other filename conventions apply — in particular not the
-  `<filename>/<parent-path>` form an open string still accepts; a forward slash in an entry is an
-  ordinary path separator.
-- **`#` begins a comment**, and `!` does **not** — `!` marks an exclusion, as in a `.gitignore`.
-  This is the one place where BR's own comment character does not apply, and it is deliberate: a
-  line meant as a comment but read as an exclusion excludes nothing and is logged, while an
-  exclusion read as a comment would silently leave a file permitted.
-- **An exclusion overrides every permit**, whatever order the lines are in. To allow something
-  inside an excluded area, narrow the permit instead of adding one.
-- **`*` and `?` stay within one name and `**` crosses**, which is POSIX glob under `FNM_PATHNAME`
-  plus `.gitignore`'s `**`. So `data\*.rpt` is the files in `data` itself, and `data\**\*.rpt`
-  reaches every directory under it, `data` included. There are no bracket expressions and no
-  backslash escape.
-- **Whatever an entry names, it takes the tree under it if it is a directory** — by pattern as
-  well as exactly, so `Q:\*\data` is each application's data directory and its contents.
-- **Names are compared without regard to case on every platform**, Linux and macOS included, so a
-  list written and tested on Windows means the same thing on the server it is deployed to.
-- **An entry for something not there yet applies when it appears.** The list is read once at
-  startup, and an entry naming a path that does not exist then is kept rather than discarded — so
-  an exclusion for a nightly export directory, or for a volume not yet mounted, is not one that
-  quietly never applies.
-
-**BR's own working files are inside the rule.** A site that installs a list has to name the work,
-spool and print directories in it as it names its data. Exempting them could not be made safe,
-because `WORKPATH`, `SPOOLPATH` and `PRINTDIR` are configuration statements a restricted session is
-permitted to set. They can be named narrowly rather than by opening their directory —
-`:C:\ADS\w*.wrk` permits the work files in `C:\ADS` and nothing else there.
-
-Two things are reachable whatever the list says:
-
-- **the files the session created itself**, wherever it put them — it wrote the content, and a
-  session that could not read back its own sort output or its own index would be no use;
-- **the session's configuration file and its `INCLUDE`s**, which are read before the list comes
-  into force. Everything after that is governed: the startup command, the procedure it names, the
-  program that procedure loads, and every operation from then on.
-
-`EXISTS` reports nothing about a file outside the list, and a listing of a permitted folder still
-shows the names of excluded things inside it — the exclusion stops them being opened or listed,
-not named.
-
-**Every name is resolved to the file it actually reaches before it is compared**, and so is every
-entry in the list. A junction, a symbolic link, `..`, a relative path and an 8.3 short name
-therefore cannot widen or evade the list — in particular, **a junction inside a permitted
-directory does not make its target reachable**. The same resolution means a directory may be named
-in the list by any of its paths.
-
-Each entry, and every refusal, is written to the log as a security event naming the resolved
-path, so an administrator can read back from the log exactly what the list was taken to mean.
-
-The full reference is `AI-Restricted-Operations.md`, *Files: where the session may be*.
 
 <a id="ui-regression-scripts"></a>
 ### 2.5 UI regression scripts
@@ -1812,7 +1821,7 @@ traps by number.
 | 4162 | `BREHARNESSFOREIGN` | A process belonging to another Windows user reached for the channel |
 | 4163 | `BREHARNESSUNCLAIMED` | Nobody connected to the channel within its time window, and it closed itself |
 | 4164 | `BREHARNESSNOTDEVELOP` | `MSG("harness", <port>, "DEVELOP")` in a session that may not change to DEVELOP mode |
-| 4165 | `BRERESTRICTEDLIST` | A restricted session asked for a file `brrestrict.sys` does not permit |
+| 4165 | `BRERESTRICTEDLIST` | A session asked for a file `brrestrict.sys` does not permit |
 | **4166** | `BREGRANTNOTRAISED` | A line the assistant sent ran `MSG("grant", n)` with any `n` but 0. See [An assistant cannot extend its own grant](#an-assistant-cannot-extend-its-own-grant) |
 | **4167** | `BREAINOTPERMITTED` | In permission mode, the operator answered `N` - or there was nobody to ask, in `UNATTENDED`. See [A turn asks you before anything destructive](#a-turn-without-a-grant-asks-before-anything-destructive) |
 | 4168 | `BREAIOPERATIONREFUSED` | The session reached for the operating system while an assistant was attached - `SYSTEM` with a command, a spool command, a gated `CONFIG` operation, or `Ctrl-]`. Refused to you as well as to the assistant |

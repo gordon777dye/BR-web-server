@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3.83 — BR reference</title>
+<link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<nav class="crumbs"><a href="../../_index.html">BR reference</a> <span>/</span> <a href="../_index.html">90-reference</a> <span>/</span> <a href="_index.html">limits-constants</a></nav>
+<main>
+<h2 id="y2k-initiatives">Y2K INITIATIVES</h2>
+<p>The following changes have been made to Release 3.8 and subsequent versions of <code>Business Rules!</code>:</p>
+<p>New Data Types:</p>
+<p>Three new FORM data types are now supported for working with date fields:</p>
+<p>DT 3 or DT 4
+DL 3 or DL 4
+DH 3 or DH 4</p>
+<p>These utilize binary storage formats corresponding to B, BL and BH.  They also perform days() processing utilizing the &quot;current&quot; default date format (mdy/ ymd/ dmy etc.).  These formats are intended to reduce the number of changes required for Y2K compliance, and to ease <code>ODBC</code> access to dates stored in 'day of century' format.   However, <code>ODBC</code> also has a much more comprehensive date identification scheme.</p>
+<p>The DAYS() function now permits four digit years even if C is not specified in the mask statement.</p>
+<p>When days() or DH is used to store a date, normal sorting and indexing becomes Y2K compliant.  The days() function, and the date formats enable BASEYEAR processing when the values are stored in binary fields.  These can subsequently be indexed as character fields so long as they were stored in high-to-low order.</p>
+<p>Index and Sort:</p>
+<p>To assist with the conversion of legacy applications, INDEX and SORT have been extended to apply the BASEYEAR specification to other storage formats.</p>
+<p>INDEX key position or key length values may now specify a trailing &quot;Y&quot; character to indicate that the first two digits of the field are BASEYEAR dependent. For example:</p>
+<p>INDEX masterfile   keyfile   10/23Y/55   8/6/30   REPLACE   DUPKEYS</p>
+<p>Indicates that a date field begins in position 23 with a two digit year that is <code>BASEYEAR</code> dependent.</p>
+<p>If the position or length of a numerical (BH or PD) field is followed by Y, then it should also specify a B or P to indicate the storage format.  In this case it will be processed as a number with baseyear applied in accordance with the length as follows:</p>
+<pre><code>Field Type &amp; Length		Assumed Data Format
+</code></pre>
+<ul>
+<li>PD 1				Not Significant</li>
+<li>PD 2 or BH 1			YY</li>
+<li>PD 3 or BH 2			YYMM</li>
+<li>PD 4, BH 3 or BH 4		YYMMDD</li>
+</ul>
+<p>Note that the specification for PD is P and the specification for BH is B in the INDEX statement.</p>
+<p>e.g.   INDEX masterfile keyfile 10/31  2BY/10 REPLACE</p>
+<p>This creates 'keyfile' applying BASEYEAR to the first two digits of each key.  In this example, the first part of the key is assumed to be binary in YYMM format.</p>
+<p>With respect to <code>SORT</code>ing, if a Y is appended to the A/D (ascending/descending) indicator of a sort MASK statement or the I/O (include/exclude) field of a RECORD statement, the field is subject to BASEYEAR processing.</p>
+<p>If such a field is in display format, then the first two characters are assumed to be a BASEYEAR dependent value.  If the field is packed (BH or PD) then the storage format is assumed to be YYMMDD, YYMM or YY format depending on the length of the field, similar to INDEX (see above table).</p>
+<p>The Y2K sorting and indexing features interpret year zero as zero (instead of 2000) if the month and day are zero.  Furthermore, as of 3.83k, a blank year is given the BASEYEAR year value.</p>
+<h2 id="383u-changes---101199">3.83u Changes - 10/11/99</h2>
+<h3 id="errors-corrected">Errors Corrected</h3>
+<p>When the Windows autohide feature was off and the BR task was minimized, BR would generate an illegal operation when the window was maximized.</p>
+<p>When using the <code>FMT</code> data type in <code>INPUT FIELDS</code> the tab key and back arrow generated a GPF.</p>
+<p>BR was failing to Remove or Truncate the <code>WBSERVER.DAT</code> file when the file header was not recognizable.</p>
+<p>Read file KEYONLY without having read a master record to allocate a buffer caused the task to hang.  BR has always required a master record to be read before accessing a file KEYONLY.  Now this error condition produces BR error <code>0718</code>.</p>
+<p><code>System</code> calls -M -W -C -R now operate like their corresponding lower case flags.  This case sensitivity had been suppressed to allow passing the flags to DOS, but that made the rules too obscure.</p>
+<p>A CD \server\dir command followed by DIR caused an assertion error in DOS and Windows.</p>
+<p>A CD / command followed by DIR caused an assertion error in DOS and Windows.</p>
+<p>A FORM of N or G with a length greater than 127 caused unpredictable results.</p>
+<p>Storage of <code>IF THEN</code> with a comment was inserting a space ahead of the comment.</p>
+<p>Error <code>4312</code> (out of space on Unix) was redirected to error <code>4239</code>, which is the more general case.</p>
+<p>If a file was created in Year 2000, a Dir showed year 100.</p>
+<h2 id="383t-changes---083199">3.83t Changes - 08/31/99</h2>
+<h3 id="errors-corrected-1">Errors Corrected</h3>
+<p>Out of space on a diskette copy under Windows was returning the Unix <code>4312</code> error.  This has been changed to the DOS <code>4239</code> error.</p>
+<p>When a <code>WBSERVER.DAT</code> file is accessed by the first user, BR will try to remove and recreate it.  When it cannot remove it, it tries to truncate the file to zero bytes and rewrite it.  This helps under Unix but the truncation process seldom works under Windows.  The error that was corrected is that.. failure to remove or truncate the file was not being detected.</p>
+<p>BR was changed to allow BR expiration dates after 1999.</p>
+<h2 id="383s-changes---073199">3.83s Changes - 07/31/99</h2>
+<h3 id="errors-corrected-2">Errors Corrected</h3>
+<p>On Windows 98 only, Input Select caused a GP fault under certain circumstances.</p>
+<p>The DOS model occasionally duplicated print lines during a Ctrl-P operation.</p>
+<p>DIR for a file created in year 2000 showed a creation date of year 100.</p>
+<p>The DOS model, running under Windows failed to properly request the second disk during a COPY -C operation.</p>
+<p>The EXIT DO statement was causing a GPF under certain circumstances.</p>
+<p>If a CD command was issued to a drive that was defined to BR but not defined to Windows, and then a print file was closed invoking a spooling shell call, the process would fail to terminate properly.</p>
+<p>In the DOS model, WIN:/ was not always acting like PRN:/.  In particular, WIN:/\SERVER\QUEUE would drop out of BR instead of simply not finding the device as it should (PRN:/\SERVER\QUEUE is not supported under the DOS model).</p>
+<h2 id="383r-changes---072199">3.83r Changes - 07/21/99</h2>
+<p>For release 3.83q only, under the Windows model only, the <code>WSID</code> was always being reported as 00.  This has been corrected.</p>
+<h1 id="383q-changes---071099">================================
+3.83q Changes - 07/10/99</h1>
+<h3 id="errors-corrected-3">Errors Corrected</h3>
+<p>Secondary help files were not always being searched for properly.</p>
+<p>If BR is unable to remove the <code>WBSERVER.DAT</code> file when the first user logs in, it will now attempt to truncate the file to zero bytes before proceeding.</p>
+<p><code>INPUT SELECT</code> using numbers or letters to navigate.  Wasn't honoring keys other than arrows.</p>
+<p>The dimensions on optional parameters to functions were not being recognized.</p>
+<p>Display attributes were printing along with characters in DOS print screens.</p>
+<p>Multiple sessions were not being supported for WSID 0.</p>
+<p>Multiple sessions were not being supported when all licenses are in use.</p>
+<p>Copy with -c to change disks was not prompting for a new disk.</p>
+<h2 id="383p-changes---051199">3.83p Changes - 05/11/99</h2>
+<p>A custom DLL interface was added (3.8 only).</p>
+<h3 id="errors-corrected-4">Errors Corrected</h3>
+<p>The SCO version would hang if STATUS FILES filename was issued.</p>
+<h2 id="383o-changes---050699">3.83o Changes - 05/06/99</h2>
+<h3 id="enhancements">Enhancements</h3>
+<p>The following configuration (<code>BRConfig.sys</code>) options are permitted:</p>
+<p>Prior to release 3.83e, <code>Business Rules!</code> ignored the digits to the leftof the rightmost six digits of a date value unless century was specified in the mask.</p>
+<pre><code>Example:
+</code></pre>
+<pre><code>... DAYS(1001021,&quot;YMD&quot;) produced the same result as DAYS(001021,&quot;YMD&quot;)
+</code></pre>
+<p>Commencing with 3.83e, if BR is unsuccessful applying the &quot;YMD&quot; mask it tries &quot;CYMD&quot;.  This change has inconvenienced some dealers.  Therefore OPTION 18 is provided to ignore the presence of digits to the left of the rightmost six digits:</p>
+<p>OPTION 18      Sets BR to ignore any Century values where the century is omitted from the date format mask.</p>
+<p>Ome of our dealers has reported that Novell 4.11 with the Y2K patch and Novell 4.2 is not truncating files properly.  They are not having this problem with other versions of Novell, either prior to or later than these versions.  We have provided a workaround for this problem with option 23.</p>
+<p>OPTION 24      OPEN #...  ... Replace ... causes any existing target file to be removed and created instead of truncated.</p>
+<p>This option should be regarded as temporary because it opens the door to a filename protection failure where an error 4148 could concievably occur after a filename has been reserved, although this situation is regarded as unlikely.</p>
+<h3 id="errors-corrected-5">Errors Corrected</h3>
+<p><code>INPUT FIELDS</code>, in conjunction with mouse usage, was occasionally causing a GPF failure.</p>
+<h2 id="383n-changes---043099">3.83n Changes - 04/30/99</h2>
+<h3 id="enhancements-1">Enhancements</h3>
+<p>Added &quot;copies=&quot; feature  during native spooling (spooling without SPOOLCMD) on WINDOWS, NOVELL, and UNIX platforms.</p>
+<pre><code>Example:
+</code></pre>
+<pre><code>10 open #25: &quot;Name=PRN:/10, Copies=3&quot;, display, output
+20 print #25: &quot;..... document text....&quot; 
+30 close #25:
+</code></pre>
+<p>This will print 3 copies of document text.</p>
+<p><code>SPOOLCMD</code> now attempts to perform drive substitution before issuing the specified spool command.</p>
+<pre><code>Example:
+</code></pre>
+<pre><code>DRIVE C: \\SERVER2\BR_SHARED BRULES COMPANY2
+SPOOLCMD  COPY [SPOOLFILE] C:\REPORTS
+</code></pre>
+<p>Any reports printed to #255 will be copied to the</p>
+<p>\SERVER2\BR_SHARED\REPORTS</p>
+<p>directory.</p>
+<h2 id="383m-changes---040599">3.83m Changes - 04/05/99</h2>
+<h3 id="errors-corrected-6">Errors Corrected</h3>
+<p>Use CLOSE #255: statement without previous OPEN #255:  was occasionally causing general protection failures.</p>
+<p>Dos and Windows models now delete the target file during a copy operation before replacing it. This was done because NOVELL was failing to replace files.</p>
+<p>Error <code>9310</code> was added to prevent problems during replace.  If a line is corrupted it will cause a <code>9310</code> error during a <code>save</code> or <code>replace</code>.</p>
+<p>Workfiles will now be deleted after a program is ended.</p>
+<h2 id="383l-changes---032299">3.83l Changes - 03/22/99</h2>
+<h3 id="errors-corrected-7">Errors Corrected</h3>
+<p>The Y specification, in an <code>INDEX</code> statement without a numeric qualifier, was failing to apply <code>BASEYEAR</code> in version K only.</p>
+<h2 id="383k-changes---031799">3.83k Changes - 03/17/99</h2>
+<h3 id="enhancements-2">Enhancements</h3>
+<p>Opening a display file with Name= WIN:/nn does the same thing as PRN:/nn except the use of SPOOLCMD is suppressed only for that file.</p>
+<p>Y2K (BASEYEAR)-</p>
+<p><code>SORT</code>, with a Y specification after the ascending/descending indicator, is now sensitive to the length of the field, for numeric (BH or PD) fields.  It no longer assumes the the field contains data in YYMMDD format.  It now depends on the length of the field in accordance with the rules below.</p>
+<p><code>INDEX</code> now permits the specification of numerical (BH or PD) fields in key position and length descriptions.  If a posion or length is followed by Y, then baseyear is applied.  If it also contains a B or P it is processed as a number, with baseyear applied according to the length:</p>
+<p>Field Type &amp; Length      Assumed Data Format</p>
+<ul>
+<li>PD 1            Not Significant</li>
+<li>PD 2 or BH 1         YY</li>
+<li>PD 3 or BH 2         YYMM</li>
+<li>PD 4, BH 3 or BH 4      YYMMDD</li>
+</ul>
+<p>Note that the specification for PD is P and the specification for BH is B in the <code>INDEX</code> statement.</p>
+<p>e.g.   INDEX masterfile keyfile 10/31  2BY/10 REPLACE</p>
+<p>This creates keyfile applying BASEYEAR to the first two bytes of each key.
+That part of the key is assumed to be binary in YYMM format.</p>
+<h3 id="errors-corrected-8">Errors Corrected</h3>
+<p>Use of the <code>NXTFLD</code> system variable in conjunction with the mouse was occasionally causing general protection failures.</p>
+<h2 id="383j-changes---022399">3.83j Changes - 02/23/99</h2>
+<p>The PRINTER [type] RESET statement is now fully implemented accross all platforms.</p>
+<p>Under Windows the <code>Ctrl+Right Bracket|Ctrl+&amp;#x5D;</code> call to a <code>DOS shell</code> now continues asynchronously to the calling task.  This leaves WB active while the DOS window is still open.</p>
+<h3 id="errors-corrected-9">Errors Corrected</h3>
+<p>WB 3.8 was limiting the number of simultaneous file PROTECT commands to 100.  This limit has now been expanded to 1000.</p>
+<p>Under DOS and Windows CHDIR to a directory with a period in the name created a failure.</p>
+<p>Under DOS only DAYS(DATE) returned zero or caused a general protection failure.</p>
+<p>Ctrl-P was improperly utilizing file #255 for a couple of releases.</p>
+<p>For the DOS model, STATUSLINE OFF removed the first line of the display instead of the status line.</p>
+<p>The FREESPACE command now returns 2GB when available space exceeds 2GB as opposed to a negative number.</p>
+<h2 id="383i-changes---012899">3.83i Changes - 01/28/99</h2>
+<h3 id="errors-corrected-10">Errors Corrected</h3>
+<p>The Days function produced incorrect results only in 3.83h.</p>
+<h2 id="383h-changes---012599">3.83h Changes - 01/25/99</h2>
+<h3 id="enhancements-3">Enhancements</h3>
+<p><code>Login_Name$</code> may be substituted during WBCONFIG.SYS statement interpretation.  Specify [LOGIN_NAME$] (case insensitive) anywhere in a WBCONFIG.SYS statement to have the user's name appear in the statement.</p>
+<p>e.g.   DRIVE G: G:\HOME[LOGIN_NAME$] G:
+Defines drive G: as the user's home directory.</p>
+<p>The <code>DAYS</code>() function now permits four digit years even if C is not specified in the mask statement.</p>
+<p><code>SLEEP</code>() now accepts decimal fractions of a second.  Resolution accuracy is in milliseconds (up to 3 decimal places).  The sleep parameter is still specified in seconds.  Some DOS environments have a lower resolution than milliseconds.</p>
+<p>The FONT configuration statement now permits alteration of the window's aspect ratio (hieght versus width).  The width (in pixels) of each character will be 'n' times the height divided by 'd', using the following syntax.</p>
+<p>FONT [ ASPECT=n/d ]  [ fontname ]</p>
+<p>... [ ] indicate optional parameters</p>
+<h3 id="errors-corrected-11">Errors Corrected</h3>
+<p>WB now removes and recreates the <code>WBSERVER.DAT</code> file upon startup when the first user starts up.  This should avoid some false  <code>4175</code> errors.</p>
+<p>The <code>Date (Command)|DATE</code> command assumed century 19.  It now obtains this from the operation system.</p>
+<p>The Y2K sorting and indexing features now interpret year zero as zero (instead of 2000) if the month and day are zero.</p>
+<p><code>CHDIR</code> was failing for certain S/23 style directory names in DOS and WINDOWS environments.</p>
+<h2 id="383g-changes---011599">3.83g Changes - 01/15/99</h2>
+<h3 id="sco-errors-corrected">SCO Errors Corrected</h3>
+<p>An Openserver 5 compiler bug caused certain matematical results to display incorrectly. Also it corrupted certain PD field values.</p>
+<h2 id="383f-changes---122398">3.83f Changes - 12/23/98</h2>
+<h3 id="y2k-enhancements">Y2k Enhancements</h3>
+<p>The <code>SORT</code> facility now supports <code>BASEYEAR</code> processing of numerical fields.</p>
+<p>Please note that we previously erroneously reported that the Y specification should be appended to the field length of sort specifications.  This is not the case...</p>
+<p>If a Y is appended to the A/D (ascending/descending) indicator of sort MASK statements or the I/O (include/exclude) field of RECORD statements, the field is subject to BASEYEAR processing.</p>
+<p>If the field is character based then the first two characters are assumed to be a BASEYEAR dependent value.  If the field is numerical then the decimal point is shifted left four decimal positions temporarily while applying BASEYEAR.</p>
+<h3 id="other-enhancements">Other Enhancements</h3>
+<p>We have added support for the PRINTER RESET statement in WBCONFIG.SYS for the Windows model.  The format is:</p>
+<p>PRINTER [ type ]  RESET, initialization string</p>
+<p>The initialization string will be appended to each report formatted for the specified printer, or all printers if no type is specified.</p>
+<p>WBCONFIG.SYS now supports OPTION 23 which excludes data errors from IOERR conditions.  WB advances the record pointer when a successful read I/O operation occurs, even when a <code>CONV</code> (conversion) error takes place during the READ operation.  This option lets the IOERR exit condition occur only when the record pointer is not advanced.</p>
+<h3 id="errors-corrected-12">Errors Corrected</h3>
+<p>ONQ3.EXE which permits 3.8+ WB's to access OnQ 2.68b failed in certain time zones.  A new EXE file is now provided that is not time zone sensitive.</p>
+<p><code>LIBRARY</code> processing failed in several circumstances in release 3.83e only.</p>
+<p>OPEN RESERVE followed by CLOSE FREE generated error <code>4205</code> (3.8 bug).</p>
+<p>Accessing named pipes was failing (3.8 bug).</p>
+<p>If a file was corrupted in a certain way it was possible to skip deleted records during a READ operation, but COPY -D was not always recognizing the deleted records.</p>
+<p>If a string containing a numerical value in scientific notation was converted to a number and the integer portion of the base number exceeded one digit, then any result exceeding the capacity of the numerical processor was not being trapped.</p>
+<h2 id="383e-changes---112498">3.83e Changes - 11/24/98</h2>
+<p>Windows Printing Changes:</p>
+<p>Ctrl-P now utilizes CONFIG printer INIT strings.</p>
+<p>Formerly printing under Windows was accomplished in one of three ways:</p>
+<ul>
+<li>
+<p>Define the printers available to a workstation to the station's print manager, and reference a substring of the printer name after &quot;Name=PRN:/&quot;.</p>
+</li>
+<li>
+<p>Reference a local port or network printer directly as in:
+Name=LPT2: or Name=\MYSERVER\PRINTERNETWORKNAME.</p>
+</li>
+<li>
+<p>Reference a network printer as:
+Name=PRN:/\ MYSERVER\PRINTERNETWORKNAME.</p>
+</li>
+</ul>
+<p>The third method worked for Windows 95/98 workstations but not for Windows NT workstations.</p>
+<p>The second method produced undesirable symptoms when a referenced printer was turned off or had other problems.  Sometimes the workstation would hang. Network printers did not appear in the <code>PRINTER_LIST</code>() function call results.</p>
+<p>As of version 3.83e, all printing under Windows should migrate to aspecification beginning with &quot;PRN:/&quot;, which initiates Windows spooling.
+This will achieve the following objectives:</p>
+<ul>
+<li>
+<p>Both Windows NT and 95/98 will accommodate:</p>
+<pre><code>    Name=PRN:/\\MYSERVER\PRINTERNETWORKNAME, or its substring, or,  
+Name=PRN:/PRINTERNAME or substring. 
+</code></pre>
+<p>Subsrings must match PRINTER_LIST() results. Each network printer used must be declared as a locally defined workstation printer.</p>
+</li>
+<li>
+<p>This method will avoid hanging the workstation in the event of a device or connection failure. It will allow control of printers and jobs through locally installed drivers.</p>
+</li>
+<li>
+<p>PRINTER_LIST() has been changed to include printer network names in NT as well as in Windows 95/98.</p>
+</li>
+<li>
+<p>SPOOLCMD can be used at will, without changing applications or substitution sets.  In the future, use of SPOOLCMD will be made selectable at OPEN time.</p>
+</li>
+<li>
+<p>The CONFIG PRINTER TYPE statement can be used to match INIT strings to  printer classes . This feature supports all of the following printer naming conventions:</p>
+<pre><code>name=prn:/10, name=prn:/default, name=prn:/select
+
+name=prn:/\\MYSERVER\PRINTERNETWORKNAME
+
+name=prn:/PRINTERNAME
+
+name=prn:/{substring}
+</code></pre>
+</li>
+<li>
+<p>Name=LPTn: is still operational, and will continue to be supported on all Windows platforms including Windows 3.1 for those who prefer not to change.</p>
+</li>
+<li>
+<p>Name=PRN:/LPTn also works.  In this case WB spools the report and sends it to LPTn.</p>
+<p>To reference LPTn under Windows NT and Windows 95/98 it is necessary to establish a network connection on the workstation using the NET USE command from the command line or, via the PRINTERS window select a printer and click PROPERTIES &gt; DETAILS &gt; CAPTURE.<br>
+The first LPTn printer definition on each workstation will also appear in PRINTER_LIST() results.</p>
+</li>
+</ul>
+<p>Notes-</p>
+<p>If &quot;PRINTER=&quot; is specified in an OPEN string, it overrides any <code>PRINTER TYPE</code> configuration statements.</p>
+<p>On Windows 95/98 you cannot spool directly to a shared local port.  However, you can define a local printer to the workstation's print manager that points to a network queue and direct the queue to point back to the shared printer.</p>
+<h3 id="y2k-enhancements-1">Y2K Enhancements</h3>
+<p>Three new FORM data types are now supported for working with date fields:</p>
+<p>DT 3 or DT 4
+DL 3 or DL 4
+DH 3 or DH 4</p>
+<p>These utilize binary storage formats corresponding to B, BL and BH.  They also perform days() processing utilizing the current default date format (mdy/ymd/dmy etc.).  These formats are intended to reduce the number of changes required for Y2K compliance, and for enabling <code>ODBC</code> access to dates stored in 'day of century' format.</p>
+<p><code>INDEX</code> key position or key length values may now specify a trailing &quot;Y&quot; character to indicate that the first two characters of the field are <code>BASEYEAR</code> dependent. For example:</p>
+<p>INDEX masterfile keyfile 10/23Y/55 8/6/30 REPLACE DUPKEYS</p>
+<p>indicates that a date field begins in position 23 with a two digityear that is BASEYEAR dependent.  This feature does not work with compressed numeric formats (i.e. packed decimal or binary).</p>
+<p>Similarly, if a SORT MASK ascending/descending flag ends with &quot;Y&quot;, the first two characters are processed in accordance with BASEYEAR.</p>
+<h3 id="other-enhancements-1">Other Enhancements</h3>
+<p>OPEN #0: no longer requires SROW and SCOL specifications.  This letsthe users fully utilize the &quot;Save Screen Size and Position&quot; feature of the Windows model.  Also, the CONFIG OPENDEFAULT statement no longer requires these parameters.  Be sure, however, that your users are aware that each session number has it's own settings.</p>
+<p>Wbconfig.sys <code>OPTION</code> 23 restricts IOERR error traps to errors that pertain to input output buffer processing.  It specifically avoids trapping data conversion errors that may occur after a buffer has been successfully read.</p>
+<p>Normally <code>IOERR</code> traps any error that occurs during input or output processing, including data conversion errors.  It should be noted, however, that the file record pointer advances to the next record after the successful read of a buffer, irrespective of any subsequent conversion errors during the IO operation.  That means a <code>REREAD</code> (without KEY= etc.) may be performed to reprocess the data in a buffer after a READ statement that generated a conversion error.  (This file pointer processing has always existed in WB.)</p>
+<h3 id="errors-corrected-13">Errors Corrected</h3>
+<p>Printer init strings were not being applied to Ctrl-P images.
+(an old problem)</p>
+<p>FREE *. was FREEing all files.  It now just FREEs files with no suffix.</p>
+<p>CUT TO CLIPBOARD (Ctl-X) and COPY TO CLIPBOARD (Ctl-C) were losing the last character of marked text.</p>
+<p>The current state of Windows MENU check boxes were not detectable by a program.</p>
+<p>If WB is started as a background process in UNIX it wasn't terminating properly.</p>
+<p>Unix errors corrected that were introduced by the 3.83 file IO changes-</p>
+<p>Exists() to a /dev/tty... was hanging the process.</p>
+<p>Communications processing was dropping the first several characters of inbound data.</p>
+</main>
+<footer>Generated from <a href="../../../br_tree/90-reference/limits-constants/3.83.md">br_tree/90-reference/limits-constants/3.83.md</a>. Edit the source, not this page.</footer>
+</body>
+</html>

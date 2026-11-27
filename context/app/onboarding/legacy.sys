@@ -1,0 +1,53 @@
+rem legacy.sys - BR configuration settings that put back pre-upgrade behaviour
+rem
+rem Each active line below turns a behaviour change made in BR 4.33, 5.0, 5.01 or
+rem 5.02 back to what the earlier release did. Copy the lines you need into your
+rem brconfig.sys, or pull in the whole file with an INCLUDE line in brconfig.sys
+rem (an INCLUDE path is relative to the file that contains it).
+rem Remove any line whose new behaviour you want to keep.
+rem
+rem Source: the release notes in context/dev/tools/
+rem   Business_Rules_433_Release_notes.md, BR50 Release_Notes.md,
+rem   BR501 Release_Notes.md, BR502 Release_Notes.md
+rem
+rem ---- BR 4.33 ---------------------------------------------------------------
+option 77 on ! ENTER closes a newly opened print preview (4.33 default: ENTER starts a print)
+rem
+rem ---- BR 5.0 (release notes 1.22, "Legacy options") -------------------------
+option 6 on ! COPY replaces an existing file without asking; RENAME refuses one with error 4150 unless -F (5.0 default: both ask Overwrite? y/n/all)
+option 8 on ! DIR lists as before 5.0, as if every DIR had -O: 8.3 layout, two-digit years, old meanings of -A -L -N -O -U
+option 60 on ! SAVE writes the 4.2/4.3 object format (level 38), loadable by a 4.2/4.3 BR (5.0 default: level 39, refused there with error 2240). Also sets OPTION 74
+option 79 3 ! no font errors (6249, 6251, 6253) reported to the program, as before 5.0; still logged. A level: 1 stops 6253, 2 adds 6251, 3 adds 6249
+option 81 on ! 4.3.3 print sizing: proportional faces never scaled, fixed-pitch faces stretched to the cell
+option 84 0 ! a / in a file name is read only as System/23 (file/directory/drive) (5.0 default 1: tried both ways)
+console off ! no console window (5.0 changed the default from OFF to DATA_ONLY, release notes 1.11)
+rem
+rem ---- BR 5.01 ---------------------------------------------------------------
+option 51 on ! new records are added at the end; deleted records are not reused (5.01 default: reuse) - 5.01 notes 1.2
+option 22 on ! INDEX and OPEN KFNAME= create Btree indexes, not Btree2 - 5.01 notes 1.6
+rem   NOTE: OPTION 22 IS REVERSED BETWEEN RELEASES. Before 5.01, OPTION 22 ON gave
+rem   Btree2; from 5.01 it gives Btree. A configuration shared with an earlier
+rem   release means opposite things to each.
+rem
+rem ---- BR 5.02 ---------------------------------------------------------------
+option 85 on ! F1, HELP$ and HELP use the .wbh help file (wbcmd.wbh, CONFIG HELPDFLT, HELP$("topic",1)) instead of br_tree - 5.02 notes 1.3
+rem
+rem ---- Not activated - read before using ------------------------------------
+rem option 33 31
+rem   5.01 locks with 64-bit positions (OPTION 33 64) unless set; earlier releases
+rem   default to 31. EVERY engine that shares files must use the same OPTION 33,
+rem   or they do not see each other's locks. Set it to match the other engines,
+rem   not because it is old. (5.01 notes 1.9) This app's brconfig.sys already
+rem   says option 33 64, and a later line here would override it.
+rem
+rem DEBUG AUTH OFF
+rem   Restores the old unencrypted, unauthenticated debugger connection so an old
+rem   debugger can attach. It is a DEBUG command, a logged security event, and
+rem   meant to be temporary. The release notes do not say it may be given in a
+rem   configuration file. (5.0 notes 1.2 and the debugger-connection section)
+rem
+rem ---- Gone: no setting brings these back ------------------------------------
+rem OPTION 14 (5.01): two opens of a file in one session now always share a record lock; ignored
+rem OPTION 18 (5.01): DAYS always reads extra digits as the century; ignored
+rem OPTIONs 1, 4, 7, 11, 16, 19, 28 (5.01): ignored, BR behaves as with each off
+rem OPTION 55 (5.0): REFUSED in brconfig.sys - remove it before upgrading

@@ -8,8 +8,9 @@ kind: spec
 status: 2b           # reference base + br_tree enrichment
 recovered-fold: BTREE, Key_Spec, KFNAME, KLN, KREC (5 redirect-collision pages folded from re-fetched source — Btree2 no-mix rule, KLN/KPS split-key segment param, KREC=index-record vs REC=master + display/linked behavior; verbatim retained on the BR wiki)
 related: [statements, file-model, form-spec]
-keywords: [INDEX, KEY, SEARCH, KEYED, KEYONLY, REORG, VERIFY, BTREE_VERIFY, KLN, KREC]
+keywords: [INDEX, "KEY=", "KEY>=", "SEARCH=", "SEARCH>=", KEYED, KEYONLY, REORG, VERIFY, BTREE_VERIFY, KLN, KREC]
 corrections:
+  - "2026-11-23: KEY and SEARCH in the keywords replaced by BR's spellings KEY=, KEY>=, SEARCH= and SEARCH>=. KEY is no BR token, and SEARCH alone is the console command (70-commands/file-directory), so the bare words routed the clauses only because brls's router retried a keyword without its relational suffix. The owner's rule (2026-11-23): a spelling without the = does not stand for the one with it, and the router no longer retries."
   - "KEYONLY declared in the frontmatter keywords and given an anchor, so the statements spec can link to it: this page owns the index side of the construct and READ's own production now admits it. Also corrected on the same list: `DELETE #n, KEY=k$:` said \"only KEY= is allowed (not >=/SEARCH)\", which is right about the key parameters and wrong as a whole - DELETE also takes REC=, LINK= and the positional five, from its syn.txt tree and confirmed in the second corpus. Found in brls phases 13 and 15; see lsp/brls/LSP_PLAN.md findings 40 and 41."
   - "BTREE_VERIFY added to the frontmatter keywords. `BTREE_VERIFY <master>[ OFF]` is documented on this page and was not declared. Found in brls phase 13."
   - "KLN and KREC added to the frontmatter keywords. Both functions are documented in this page's
